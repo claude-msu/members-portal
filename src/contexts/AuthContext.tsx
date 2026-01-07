@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
@@ -42,40 +42,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [role, setRole] = useState<UserRole | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+  const mountedRef = useRef(true);
 
   const fetchProfile = async (userId: string) => {
     try {
-      // Fetch profile and role in one query using the helper function
-      const { data, error } = await supabase
-        .rpc('get_user_profile', { _user_id: userId });
+      // Fetch profile directly
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
-        return;
-      }
+      // Fetch role directly
+      const { data: roleData, error: roleError } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', userId)
+        .single();
 
-      if (data && data.length > 0) {
-        const userData = data[0];
-
-        // Set profile (excluding role)
-        setProfile({
-          id: userData.id,
-          email: userData.email,
-          full_name: userData.full_name,
-          class_year: userData.class_year,
-          linkedin_url: userData.linkedin_url,
-          resume_url: userData.resume_url,
-          profile_picture_url: userData.profile_picture_url,
-          points: userData.points ?? 0,
-          created_at: '', // These would need to be added to the function return type
-          updated_at: '',
-        } as Profile);
-
-        // Set role
-        setRole(userData.role ?? 'prospect');
+      // Set data even if there were errors
+      if (mountedRef.current) {
+        setProfile(profileData ?? null);
+        setRole(roleData?.role ?? 'prospect');
       }
     } catch (error) {
-      console.error('Error in fetchProfile:', error);
+      if (mountedRef.current) {
+        setProfile(null);
+        setRole('prospect');
+      }
+      // Optionally log the error, but don't throw.
     }
   };
 
@@ -86,25 +81,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+    mountedRef.current = true;
 
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-          setRole(null);
-        }
+    const initAuth = async () => {
+      // Get initial session
+      const { data: { session } } = await supabase.auth.getSession();
 
-        setLoading(false);
-      }
-    );
+      if (!mountedRef.current) return;
 
-    // Check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
 
@@ -113,9 +97,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
       setLoading(false);
-    });
+    };
 
-    return () => subscription.unsubscribe();
+    initAuth();
+
+    // Set up listener for future auth changes, but avoid async listener pitfalls
+    // by not making the callback itself async, and calling async code within.
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        // Use an IIFE for async logic to avoid returning a Promise to the event.
+        (async () => {
+          if (!mountedRef.current) return;
+
+          setSession(session);
+          setUser(session?.user ?? null);
+
+          if (session?.user) {
+            await fetchProfile(session.user.id);
+          } else {
+            setProfile(null);
+            setRole(null);
+          }
+        })();
+      }
+    );
+
+    return () => {
+      mountedRef.current = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   const signOut = async () => {

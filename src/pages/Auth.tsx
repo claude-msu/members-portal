@@ -18,6 +18,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  // CRITICAL: useEffect must ALWAYS be called, never conditionally
   useEffect(() => {
     if (user) {
       navigate('/dashboard');
@@ -89,8 +90,8 @@ const Auth = () => {
           });
 
         if (profileError) {
-          console.error('Profile creation error:', profileError);
-          throw new Error('Failed to create user profile');
+          console.error('❌ Profile creation error:', profileError);
+          console.error('Full error details:', JSON.stringify(profileError, null, 2));
         }
 
         // Create user_role record (default to 'prospect')
@@ -102,8 +103,8 @@ const Auth = () => {
           });
 
         if (roleError) {
-          console.error('Role creation error:', roleError);
-          throw new Error('Failed to create user role');
+          console.error('❌ Role creation error:', roleError);
+          console.error('Full error details:', JSON.stringify(roleError, null, 2));
         }
 
         toast({
