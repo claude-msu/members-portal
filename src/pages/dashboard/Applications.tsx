@@ -6,48 +6,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Plus } from 'lucide-react';
 import { ApplicationModal } from '@/components/ApplicationModal';
+import type { Database } from '@/integrations/supabase/database.types';
 
-interface Application {
-  id: string;
-  application_type: string;
-  status: string;
-  created_at: string;
-}
+type Application = Database['public']['Tables']['applications']['Row'];
 
 const Applications = () => {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [applications, setApplications] = useState<Application[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string>('prospect');
 
   useEffect(() => {
-    if (user) {
-      fetchUserRole();
-    }
-  }, [user]);
-
-  useEffect(() => {
-    if (user && userRole) {
+    if (user && role) {
       fetchApplications();
     }
-  }, [user, userRole]);
-
-  const fetchUserRole = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .order('role', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (data) {
-      setUserRole(data.role);
-    }
-  };
+  }, [user, role]);
 
   const fetchApplications = async () => {
     if (!user) return;
@@ -55,7 +28,7 @@ const Applications = () => {
     let query = supabase.from('applications').select('*');
 
     // Board and e-board can see all applications
-    const canSeeAll = userRole === 'board' || userRole === 'e-board';
+    const canSeeAll = role === 'board' || role === 'e-board';
     if (!canSeeAll) {
       query = query.eq('user_id', user.id);
     }
@@ -79,6 +52,13 @@ const Applications = () => {
     }
   };
 
+  const formatApplicationType = (type: string) => {
+    return type
+      .split('_')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
@@ -93,7 +73,11 @@ const Applications = () => {
       </div>
 
       {loading ? (
-        <p>Loading applications...</p>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Loading applications...</p>
+          </CardContent>
+        </Card>
       ) : applications.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
@@ -109,8 +93,8 @@ const Applications = () => {
               <CardHeader>
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="capitalize">
-                      {app.application_type.replace('_', ' ')}
+                    <CardTitle>
+                      {formatApplicationType(app.application_type)}
                     </CardTitle>
                     <CardDescription>
                       Submitted {new Date(app.created_at).toLocaleDateString()}

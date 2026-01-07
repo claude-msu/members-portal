@@ -3,58 +3,118 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, BookOpen, MapPin, Clock } from 'lucide-react';
+import { Plus, BookOpen, MapPin, Clock, Users } from 'lucide-react';
+import type { Database } from '@/integrations/supabase/database.types';
 
-interface Class {
-  id: string;
-  name: string;
-  description: string | null;
-  location: string | null;
-  schedule: string | null;
+type Class = Database['public']['Tables']['classes']['Row'];
+type ClassEnrollment = Database['public']['Tables']['class_enrollments']['Row'];
+
+interface ClassWithEnrollment extends Class {
+  enrollment?: ClassEnrollment;
+  enrollmentCount?: number;
 }
 
 const Classes = () => {
-  const { user } = useAuth();
-  const [classes, setClasses] = useState<Class[]>([]);
-  const [userRole, setUserRole] = useState<string>('prospect');
+  const { user, role } = useAuth();
+  const [classes, setClasses] = useState<ClassWithEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (user) {
-      fetchUserRole();
+    if (user && role) {
       fetchClasses();
     }
-  }, [user]);
-
-  const fetchUserRole = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .order('role', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (data) {
-      setUserRole(data.role);
-    }
-  };
+  }, [user, role]);
 
   const fetchClasses = async () => {
-    const { data, error } = await supabase
+    if (!user) return;
+
+    // Fetch all classes
+    const { data: classesData, error: classesError } = await supabase
       .from('classes')
       .select('*')
       .order('name', { ascending: true });
 
-    if (!error && data) {
-      setClasses(data);
+    if (classesError) {
+      console.error('Error fetching classes:', classesError);
+      setLoading(false);
+      return;
     }
+
+    if (!classesData) {
+      setLoading(false);
+      return;
+    }
+
+    // Fetch user's enrollments
+    const { data: enrollmentsData } = await supabase
+      .from('class_enrollments')
+      .select('*')
+      .eq('user_id', user.id);
+
+    // Create a map of class_id to enrollment
+    const enrollmentMap = new Map(
+      enrollmentsData?.map(e => [e.class_id, e]) || []
+    );
+
+    // Fetch enrollment counts for each class
+    const classesWithData = await Promise.all(
+      classesData.map(async (cls) => {
+        const { count } = await supabase
+          .from('class_enrollments')
+          .select('*', { count: 'exact', head: true })
+          .eq('class_id', cls.id);
+
+        return {
+          ...cls,
+          enrollment: enrollmentMap.get(cls.id),
+          enrollmentCount: count || 0,
+        };
+      })
+    );
+
+    setClasses(classesWithData);
     setLoading(false);
   };
 
-  const canManageClasses = userRole === 'board' || userRole === 'e-board';
+  const handleEnroll = async (classId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('class_enrollments')
+      .insert({
+        user_id: user.id,
+        class_id: classId,
+        role: 'student',
+      });
+
+    if (error) {
+      console.error('Error enrolling in class:', error);
+      return;
+    }
+
+    // Refresh classes
+    fetchClasses();
+  };
+
+  const handleUnenroll = async (classId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('class_enrollments')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('class_id', classId);
+
+    if (error) {
+      console.error('Error unenrolling from class:', error);
+      return;
+    }
+
+    // Refresh classes
+    fetchClasses();
+  };
+
+  const canManageClasses = role === 'board' || role === 'e-board';
 
   return (
     <div className="p-6 space-y-6">
@@ -72,7 +132,11 @@ const Classes = () => {
       </div>
 
       {loading ? (
-        <p>Loading classes...</p>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Loading classes...</p>
+          </CardContent>
+        </Card>
       ) : classes.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
@@ -109,11 +173,43 @@ const Classes = () => {
                     {cls.schedule}
                   </div>
                 )}
-                {canManageClasses && (
-                  <Button className="w-full mt-4" variant="outline">
-                    Manage Class
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  {cls.enrollmentCount} {cls.enrollmentCount === 1 ? 'student' : 'students'}
+                </div>
+
+                <div className="pt-2 space-y-2">
+                  {cls.enrollment ? (
+                    <>
+                      <div className="text-sm text-green-600 font-medium">
+                        Enrolled as {cls.enrollment.role}
+                      </div>
+                      {!canManageClasses && (
+                        <Button
+                          className="w-full"
+                          variant="outline"
+                          onClick={() => handleUnenroll(cls.id)}
+                        >
+                          Unenroll
+                        </Button>
+                      )}
+                    </>
+                  ) : (
+                    <Button
+                      className="w-full"
+                      variant="default"
+                      onClick={() => handleEnroll(cls.id)}
+                    >
+                      Enroll
+                    </Button>
+                  )}
+
+                  {canManageClasses && (
+                    <Button className="w-full" variant="outline">
+                      Manage Class
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           ))}

@@ -20,6 +20,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
+import type { Database } from '@/integrations/supabase/database.types';
+
+type ApplicationType = Database['public']['Enums']['application_type'];
 
 interface ApplicationModalProps {
   open: boolean;
@@ -28,12 +31,11 @@ interface ApplicationModalProps {
 }
 
 export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalProps) => {
-  const { user } = useAuth();
+  const { user, profile, role } = useAuth();
   const { toast } = useToast();
-  const [userRole, setUserRole] = useState<string>('prospect');
-  const [applicationType, setApplicationType] = useState<string>('');
+  const [applicationType, setApplicationType] = useState<ApplicationType | ''>('');
   const [loading, setLoading] = useState(false);
-  
+
   // Form fields
   const [fullName, setFullName] = useState('');
   const [classYear, setClassYear] = useState('');
@@ -48,42 +50,11 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
   const [previousExperience, setPreviousExperience] = useState('');
 
   useEffect(() => {
-    if (user && open) {
-      fetchUserRole();
-      fetchUserProfile();
+    if (profile && open) {
+      setFullName(profile.full_name);
+      setClassYear(profile.class_year || '');
     }
-  }, [user, open]);
-
-  const fetchUserRole = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .order('role', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (data) {
-      setUserRole(data.role);
-    }
-  };
-
-  const fetchUserProfile = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('profiles')
-      .select('full_name, class_year')
-      .eq('id', user.id)
-      .single();
-
-    if (data) {
-      setFullName(data.full_name || '');
-      setClassYear(data.class_year || '');
-    }
-  };
+  }, [profile, open]);
 
   const uploadFile = async (file: File, folder: string) => {
     const fileExt = file.name.split('.').pop();
@@ -105,6 +76,8 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user || !applicationType) return;
+
     setLoading(true);
 
     try {
@@ -119,23 +92,22 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
         transcriptUrl = await uploadFile(transcriptFile, 'transcripts');
       }
 
-      const insertData: any = {
-        user_id: user!.id,
+      const insertData: Database['public']['Tables']['applications']['Insert'] = {
+        user_id: user.id,
         application_type: applicationType,
         full_name: fullName,
         class_year: classYear,
+        status: 'pending',
         resume_url: resumeUrl,
         transcript_url: transcriptUrl,
+        why_join: whyJoin || null,
+        why_position: whyPosition || null,
+        relevant_experience: relevantExperience || null,
+        other_commitments: otherCommitments || null,
+        project_detail: projectDetail || null,
+        problem_solved: problemSolved || null,
+        previous_experience: previousExperience || null,
       };
-
-      // Add optional fields only if they have values
-      if (whyJoin) insertData.why_join = whyJoin;
-      if (whyPosition) insertData.why_position = whyPosition;
-      if (relevantExperience) insertData.relevant_experience = relevantExperience;
-      if (otherCommitments) insertData.other_commitments = otherCommitments;
-      if (projectDetail) insertData.project_detail = projectDetail;
-      if (problemSolved) insertData.problem_solved = problemSolved;
-      if (previousExperience) insertData.previous_experience = previousExperience;
 
       const { error } = await supabase.from('applications').insert(insertData);
 
@@ -179,13 +151,18 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
     const commonFields = (
       <>
         <div className="space-y-2">
-          <Label>Full Name</Label>
-          <Input value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <Label htmlFor="fullName">Full Name *</Label>
+          <Input
+            id="fullName"
+            value={fullName}
+            onChange={(e) => setFullName(e.target.value)}
+            required
+          />
         </div>
         <div className="space-y-2">
-          <Label>Class Year</Label>
+          <Label htmlFor="classYear">Class Year *</Label>
           <Select value={classYear} onValueChange={setClassYear} required>
-            <SelectTrigger>
+            <SelectTrigger id="classYear">
               <SelectValue placeholder="Select year" />
             </SelectTrigger>
             <SelectContent>
@@ -198,20 +175,32 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Resume</Label>
+          <Label htmlFor="resume">Resume</Label>
           <Input
+            id="resume"
             type="file"
             accept=".pdf,.doc,.docx"
             onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
           />
+          {resumeFile && (
+            <p className="text-xs text-muted-foreground">
+              Selected: {resumeFile.name}
+            </p>
+          )}
         </div>
         <div className="space-y-2">
-          <Label>Unofficial Transcript</Label>
+          <Label htmlFor="transcript">Unofficial Transcript (PDF)</Label>
           <Input
+            id="transcript"
             type="file"
             accept=".pdf"
             onChange={(e) => setTranscriptFile(e.target.files?.[0] || null)}
           />
+          {transcriptFile && (
+            <p className="text-xs text-muted-foreground">
+              Selected: {transcriptFile.name}
+            </p>
+          )}
         </div>
       </>
     );
@@ -222,12 +211,24 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
           <>
             {commonFields}
             <div className="space-y-2">
-              <Label>Why do you want to join?</Label>
+              <Label htmlFor="whyJoin">Why do you want to join? *</Label>
               <Textarea
+                id="whyJoin"
                 value={whyJoin}
                 onChange={(e) => setWhyJoin(e.target.value)}
                 required
                 rows={4}
+                placeholder="Tell us about your interest in Claude Builder Club..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="relevantExperience">Relevant Experience</Label>
+              <Textarea
+                id="relevantExperience"
+                value={relevantExperience}
+                onChange={(e) => setRelevantExperience(e.target.value)}
+                rows={3}
+                placeholder="Any technical or club experience..."
               />
             </div>
           </>
@@ -238,30 +239,46 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
           <>
             {commonFields}
             <div className="space-y-2">
-              <Label>Why this position?</Label>
+              <Label htmlFor="whyPosition">Why this position? *</Label>
               <Textarea
+                id="whyPosition"
                 value={whyPosition}
                 onChange={(e) => setWhyPosition(e.target.value)}
                 required
                 rows={3}
+                placeholder="What makes you a good fit for this board position?"
               />
             </div>
             <div className="space-y-2">
-              <Label>Relevant experience?</Label>
+              <Label htmlFor="relevantExperience">Relevant Experience *</Label>
               <Textarea
+                id="relevantExperience"
                 value={relevantExperience}
                 onChange={(e) => setRelevantExperience(e.target.value)}
                 required
                 rows={3}
+                placeholder="Leadership, organizational, or technical experience..."
               />
             </div>
             <div className="space-y-2">
-              <Label>Other commitments?</Label>
+              <Label htmlFor="previousExperience">Previous Board Experience</Label>
               <Textarea
+                id="previousExperience"
+                value={previousExperience}
+                onChange={(e) => setPreviousExperience(e.target.value)}
+                rows={3}
+                placeholder="Any previous board or leadership roles..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="otherCommitments">Other Commitments *</Label>
+              <Textarea
+                id="otherCommitments"
                 value={otherCommitments}
                 onChange={(e) => setOtherCommitments(e.target.value)}
                 required
                 rows={2}
+                placeholder="Classes, jobs, other clubs, etc."
               />
             </div>
           </>
@@ -272,39 +289,58 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
           <>
             {commonFields}
             <div className="space-y-2">
-              <Label>Why this project?</Label>
+              <Label htmlFor="whyPosition">Why this project? *</Label>
               <Textarea
+                id="whyPosition"
                 value={whyPosition}
                 onChange={(e) => setWhyPosition(e.target.value)}
                 required
                 rows={3}
+                placeholder="What interests you about this project?"
               />
             </div>
             <div className="space-y-2">
-              <Label>Other commitments?</Label>
+              <Label htmlFor="relevantExperience">Relevant Technical Skills *</Label>
               <Textarea
-                value={otherCommitments}
-                onChange={(e) => setOtherCommitments(e.target.value)}
+                id="relevantExperience"
+                value={relevantExperience}
+                onChange={(e) => setRelevantExperience(e.target.value)}
                 required
-                rows={2}
+                rows={3}
+                placeholder="Programming languages, frameworks, tools, etc."
               />
             </div>
             <div className="space-y-2">
-              <Label>Describe one project in detail</Label>
+              <Label htmlFor="projectDetail">Describe one project in detail *</Label>
               <Textarea
+                id="projectDetail"
                 value={projectDetail}
                 onChange={(e) => setProjectDetail(e.target.value)}
                 required
                 rows={4}
+                placeholder="What did you build? What technologies did you use? What was your role?"
               />
             </div>
             <div className="space-y-2">
-              <Label>Describe a time you overcame a problem</Label>
+              <Label htmlFor="problemSolved">Describe a technical challenge you overcame *</Label>
               <Textarea
+                id="problemSolved"
                 value={problemSolved}
                 onChange={(e) => setProblemSolved(e.target.value)}
                 required
                 rows={4}
+                placeholder="What was the problem? How did you solve it?"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="otherCommitments">Other Commitments *</Label>
+              <Textarea
+                id="otherCommitments"
+                value={otherCommitments}
+                onChange={(e) => setOtherCommitments(e.target.value)}
+                required
+                rows={2}
+                placeholder="Classes, jobs, other clubs, etc."
               />
             </div>
           </>
@@ -315,21 +351,35 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
           <>
             {commonFields}
             <div className="space-y-2">
-              <Label>Why this class?</Label>
+              <Label htmlFor="whyPosition">Why this class? *</Label>
               <Textarea
+                id="whyPosition"
                 value={whyPosition}
                 onChange={(e) => setWhyPosition(e.target.value)}
                 required
                 rows={3}
+                placeholder="What do you hope to learn from this class?"
               />
             </div>
             <div className="space-y-2">
-              <Label>Previous experience in the field?</Label>
+              <Label htmlFor="previousExperience">Previous experience in this topic *</Label>
               <Textarea
+                id="previousExperience"
                 value={previousExperience}
                 onChange={(e) => setPreviousExperience(e.target.value)}
                 required
                 rows={3}
+                placeholder="Any prior knowledge, courses, or projects related to this topic..."
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="relevantExperience">What will you bring to the class?</Label>
+              <Textarea
+                id="relevantExperience"
+                value={relevantExperience}
+                onChange={(e) => setRelevantExperience(e.target.value)}
+                rows={3}
+                placeholder="Skills, perspectives, or experiences you'll contribute..."
               />
             </div>
           </>
@@ -352,16 +402,19 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label>Application Type</Label>
-            <Select value={applicationType} onValueChange={setApplicationType} required>
-              <SelectTrigger>
+            <Label htmlFor="applicationType">Application Type *</Label>
+            <Select
+              value={applicationType}
+              onValueChange={(value) => setApplicationType(value as ApplicationType)}
+            >
+              <SelectTrigger id="applicationType">
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                {userRole === 'prospect' && (
+                {role === 'prospect' && (
                   <SelectItem value="club_admission">Club Admission</SelectItem>
                 )}
-                {userRole !== 'prospect' && (
+                {role !== 'prospect' && (
                   <>
                     <SelectItem value="board">Board Position</SelectItem>
                     <SelectItem value="project">Project</SelectItem>
@@ -376,10 +429,10 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
 
           {applicationType && (
             <div className="flex gap-2 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                 Cancel
               </Button>
-              <Button type="submit" disabled={loading}>
+              <Button type="submit" disabled={loading} className="flex-1">
                 {loading ? 'Submitting...' : 'Submit Application'}
               </Button>
             </div>

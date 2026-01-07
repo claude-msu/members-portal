@@ -6,7 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { Trophy, Mail, Award, Upload } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -14,40 +16,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import type { Database } from '@/integrations/supabase/database.types';
 
 const Profile = () => {
-  const { user } = useAuth();
+  const { user, profile, role, refreshProfile } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState('');
   const [classYear, setClassYear] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
   const [profilePictureUrl, setProfilePictureUrl] = useState('');
+  const [resumeUrl, setResumeUrl] = useState('');
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   useEffect(() => {
-    if (user) {
-      fetchProfile();
+    if (profile) {
+      setFullName(profile.full_name);
+      setClassYear(profile.class_year || '');
+      setLinkedinUrl(profile.linkedin_url || '');
+      setProfilePictureUrl(profile.profile_picture_url || '');
+      setResumeUrl(profile.resume_url || '');
     }
-  }, [user]);
-
-  const fetchProfile = async () => {
-    if (!user) return;
-
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', user.id)
-      .single();
-
-    if (!error && data) {
-      setFullName(data.full_name || '');
-      setClassYear(data.class_year || '');
-      setLinkedinUrl(data.linkedin_url || '');
-      setProfilePictureUrl(data.profile_picture_url || '');
-    }
-  };
+  }, [profile]);
 
   const uploadFile = async (file: File, bucket: string, folder: string) => {
     const fileExt = file.name.split('.').pop();
@@ -58,7 +49,7 @@ const Profile = () => {
     const { data: existingFiles } = await supabase.storage
       .from(bucket)
       .list(`${folder}/${user!.id}`);
-    
+
     if (existingFiles && existingFiles.length > 0) {
       const filesToDelete = existingFiles.map(file => `${folder}/${user!.id}/${file.name}`);
       await supabase.storage.from(bucket).remove(filesToDelete);
@@ -83,7 +74,7 @@ const Profile = () => {
 
     try {
       let newProfilePictureUrl = profilePictureUrl;
-      let newResumeUrl = null;
+      let newResumeUrl = resumeUrl;
 
       if (profilePictureFile) {
         newProfilePictureUrl = await uploadFile(profilePictureFile, 'profiles', 'avatars');
@@ -93,16 +84,14 @@ const Profile = () => {
         newResumeUrl = await uploadFile(resumeFile, 'profiles', 'resumes');
       }
 
-      const updateData: any = {
+      const updateData: Database['public']['Tables']['profiles']['Update'] = {
         full_name: fullName,
-        class_year: classYear,
-        linkedin_url: linkedinUrl,
-        profile_picture_url: newProfilePictureUrl,
+        class_year: classYear || null,
+        linkedin_url: linkedinUrl || null,
+        profile_picture_url: newProfilePictureUrl || null,
+        resume_url: newResumeUrl || null,
+        updated_at: new Date().toISOString(),
       };
-
-      if (newResumeUrl) {
-        updateData.resume_url = newResumeUrl;
-      }
 
       const { error } = await supabase
         .from('profiles')
@@ -116,7 +105,12 @@ const Profile = () => {
         description: 'Profile updated successfully!',
       });
 
-      fetchProfile();
+      // Refresh profile in AuthContext
+      await refreshProfile();
+
+      // Clear file inputs
+      setProfilePictureFile(null);
+      setResumeFile(null);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -128,36 +122,134 @@ const Profile = () => {
     }
   };
 
+  const getRoleBadgeVariant = (roleValue: string) => {
+    switch (roleValue) {
+      case 'e-board':
+        return 'default';
+      case 'board':
+        return 'secondary';
+      case 'member':
+        return 'outline';
+      default:
+        return 'outline';
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
+  if (!user || !profile) {
+    return (
+      <div className="p-6 max-w-2xl mx-auto">
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Loading profile...</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <div className="p-6 max-w-2xl mx-auto space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Profile Settings</CardTitle>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Profile Overview</CardTitle>
+              <CardDescription>Your club information</CardDescription>
+            </div>
+            {role && (
+              <Badge variant={getRoleBadgeVariant(role)} className="capitalize">
+                {role.replace('-', ' ')}
+              </Badge>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            <div className="flex items-center gap-3">
+              <Avatar className="h-16 w-16">
+                <AvatarImage src={profilePictureUrl} />
+                <AvatarFallback className="text-lg">
+                  {fullName ? getInitials(fullName) : user.email?.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="font-medium">{fullName || 'No name set'}</p>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                  <Mail className="h-3 w-3" />
+                  {user.email}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-6">
+              <div className="text-center">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Trophy className="h-4 w-4" />
+                  <span className="text-2xl font-bold">{profile.points}</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Points</p>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Award className="h-4 w-4" />
+                  <span className="text-2xl font-bold capitalize">
+                    {role?.replace('-', ' ') || 'N/A'}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">Role</p>
+              </div>
+            </div>
+          </div>
+
+          {resumeUrl && (
+            <div className="mt-4 pt-4 border-t">
+              <a
+                href={resumeUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-primary hover:underline flex items-center gap-2"
+              >
+                <Upload className="h-4 w-4" />
+                View Current Resume
+              </a>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Edit Profile</CardTitle>
           <CardDescription>Update your personal information</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src={profilePictureUrl} />
-                <AvatarFallback>
-                  {fullName?.charAt(0) || user?.email?.charAt(0).toUpperCase()}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <Label htmlFor="profilePicture">Profile Picture</Label>
-                <Input
-                  id="profilePicture"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => setProfilePictureFile(e.target.files?.[0] || null)}
-                  className="mt-1"
-                />
-              </div>
+            <div className="space-y-2">
+              <Label htmlFor="profilePicture">Profile Picture</Label>
+              <Input
+                id="profilePicture"
+                type="file"
+                accept="image/*"
+                onChange={(e) => setProfilePictureFile(e.target.files?.[0] || null)}
+              />
+              {profilePictureFile && (
+                <p className="text-xs text-muted-foreground">
+                  Selected: {profilePictureFile.name}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="fullName">Full Name</Label>
+              <Label htmlFor="fullName">Full Name *</Label>
               <Input
                 id="fullName"
                 value={fullName}
@@ -194,16 +286,24 @@ const Profile = () => {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="resume">Resume (overwrites previous)</Label>
+              <Label htmlFor="resume">Resume (PDF, DOC, or DOCX)</Label>
               <Input
                 id="resume"
                 type="file"
                 accept=".pdf,.doc,.docx"
                 onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
               />
+              {resumeFile && (
+                <p className="text-xs text-muted-foreground">
+                  Selected: {resumeFile.name}
+                </p>
+              )}
+              <p className="text-xs text-muted-foreground">
+                Uploading a new resume will replace the previous one
+              </p>
             </div>
 
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading} className="w-full">
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           </form>

@@ -3,63 +3,142 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, Github, Calendar, User } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Plus, Github, Calendar, User, Users, Briefcase } from 'lucide-react';
 import { format } from 'date-fns';
 import { ProjectModal } from '@/components/ProjectModal';
+import type { Database } from '@/integrations/supabase/database.types';
 
-interface Project {
-  id: string;
-  name: string;
-  client_name: string | null;
-  description: string | null;
-  github_url: string;
-  due_date: string | null;
-  lead_id: string | null;
+type Project = Database['public']['Tables']['projects']['Row'];
+type ProjectMember = Database['public']['Tables']['project_members']['Row'];
+type Profile = Database['public']['Tables']['profiles']['Row'];
+
+interface ProjectWithMembers extends Project {
+  members: Array<{
+    membership: ProjectMember;
+    profile: Profile;
+  }>;
+  memberCount: number;
+  userMembership?: ProjectMember;
 }
 
 const Projects = () => {
-  const { user } = useAuth();
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [userRole, setUserRole] = useState<string>('prospect');
+  const { user, role } = useAuth();
+  const [projects, setProjects] = useState<ProjectWithMembers[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
-    if (user) {
-      fetchUserRole();
+    if (user && role) {
       fetchProjects();
     }
-  }, [user]);
-
-  const fetchUserRole = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .order('role', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (data) {
-      setUserRole(data.role);
-    }
-  };
+  }, [user, role]);
 
   const fetchProjects = async () => {
-    const { data, error } = await supabase
+    if (!user) return;
+
+    // Fetch all projects
+    const { data: projectsData, error: projectsError } = await supabase
       .from('projects')
       .select('*')
-      .order('due_date', { ascending: true });
+      .order('created_at', { ascending: false });
 
-    if (!error && data) {
-      setProjects(data);
+    if (projectsError) {
+      console.error('Error fetching projects:', projectsError);
+      setLoading(false);
+      return;
     }
+
+    if (!projectsData) {
+      setLoading(false);
+      return;
+    }
+
+    // Fetch all project members
+    const { data: membersData } = await supabase
+      .from('project_members')
+      .select('*');
+
+    // Fetch all profiles for members
+    const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
+    const { data: profilesData } = await supabase
+      .from('profiles')
+      .select('*')
+      .in('id', memberUserIds);
+
+    const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+
+    // Combine data
+    const projectsWithMembers: ProjectWithMembers[] = projectsData.map(project => {
+      const projectMembers = membersData?.filter(m => m.project_id === project.id) || [];
+      const members = projectMembers
+        .map(membership => ({
+          membership,
+          profile: profilesMap.get(membership.user_id)!,
+        }))
+        .filter(m => m.profile);
+
+      const userMembership = projectMembers.find(m => m.user_id === user.id);
+
+      return {
+        ...project,
+        members,
+        memberCount: members.length,
+        userMembership,
+      };
+    });
+
+    setProjects(projectsWithMembers);
     setLoading(false);
   };
 
-  const canManageProjects = userRole === 'board' || userRole === 'e-board';
+  const handleJoinProject = async (projectId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('project_members')
+      .insert({
+        user_id: user.id,
+        project_id: projectId,
+        role: 'member',
+      });
+
+    if (error) {
+      console.error('Error joining project:', error);
+      return;
+    }
+
+    fetchProjects();
+  };
+
+  const handleLeaveProject = async (projectId: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('project_members')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('project_id', projectId);
+
+    if (error) {
+      console.error('Error leaving project:', error);
+      return;
+    }
+
+    fetchProjects();
+  };
+
+  const canManageProjects = role === 'board' || role === 'e-board';
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <div className="p-6 space-y-6">
@@ -77,7 +156,11 @@ const Projects = () => {
       </div>
 
       {loading ? (
-        <p>Loading projects...</p>
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">Loading projects...</p>
+          </CardContent>
+        </Card>
       ) : projects.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
@@ -88,38 +171,98 @@ const Projects = () => {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <Card key={project.id}>
-              <CardHeader>
-                <CardTitle>{project.name}</CardTitle>
-                {project.client_name && (
-                  <CardDescription className="flex items-center gap-2">
-                    <User className="h-4 w-4" />
-                    Client: {project.client_name}
-                  </CardDescription>
-                )}
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {project.description && (
-                  <p className="text-sm text-muted-foreground">{project.description}</p>
-                )}
-                {project.due_date && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Calendar className="h-4 w-4" />
-                    Due: {format(new Date(project.due_date), 'PPP')}
+          {projects.map((project) => {
+            const isMember = !!project.userMembership;
+            const isLead = project.userMembership?.role === 'lead';
+
+            return (
+              <Card key={project.id}>
+                <CardHeader>
+                  <div className="flex items-start justify-between">
+                    <CardTitle className="flex-1">{project.name}</CardTitle>
+                    {isMember && (
+                      <Badge variant={isLead ? 'default' : 'secondary'}>
+                        {isLead ? 'Lead' : 'Member'}
+                      </Badge>
+                    )}
                   </div>
-                )}
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => window.open(project.github_url, '_blank')}
-                >
-                  <Github className="h-4 w-4 mr-2" />
-                  View on GitHub
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                  {project.client_name && (
+                    <CardDescription className="flex items-center gap-2">
+                      <Briefcase className="h-4 w-4" />
+                      Client: {project.client_name}
+                    </CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {project.description && (
+                    <p className="text-sm text-muted-foreground line-clamp-2">
+                      {project.description}
+                    </p>
+                  )}
+
+                  {project.due_date && (
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      Due: {format(new Date(project.due_date), 'MMM d, yyyy')}
+                    </div>
+                  )}
+
+                  {/* Team Members */}
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Users className="h-4 w-4" />
+                      <span>{project.memberCount} {project.memberCount === 1 ? 'member' : 'members'}</span>
+                    </div>
+                    {project.members.length > 0 && (
+                      <div className="flex -space-x-2">
+                        {project.members.slice(0, 5).map(({ membership, profile }) => (
+                          <Avatar key={membership.id} className="h-8 w-8 border-2 border-background">
+                            <AvatarImage src={profile.profile_picture_url || undefined} />
+                            <AvatarFallback className="text-xs">
+                              {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
+                            </AvatarFallback>
+                          </Avatar>
+                        ))}
+                        {project.members.length > 5 && (
+                          <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
+                            +{project.members.length - 5}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => window.open(project.github_url, '_blank')}
+                    >
+                      <Github className="h-4 w-4 mr-2" />
+                      View on GitHub
+                    </Button>
+
+                    {isMember ? (
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        onClick={() => handleLeaveProject(project.id)}
+                      >
+                        Leave Project
+                      </Button>
+                    ) : (
+                      <Button
+                        className="w-full"
+                        onClick={() => handleJoinProject(project.id)}
+                      >
+                        Join Project
+                      </Button>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
 

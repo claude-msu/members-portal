@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import {
   Sidebar,
   SidebarContent,
@@ -15,26 +14,28 @@ import {
   SidebarTrigger,
 } from '@/components/ui/sidebar';
 import { NavLink } from '@/components/NavLink';
-import { 
-  LayoutDashboard, 
-  FileText, 
-  Calendar, 
-  BookOpen, 
-  FolderKanban, 
+import {
+  LayoutDashboard,
+  FileText,
+  Calendar,
+  BookOpen,
+  FolderKanban,
   Users,
   LogOut,
-  Settings
+  Settings,
+  Trophy
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const { user, signOut, loading } = useAuth();
+  const { user, profile, role, signOut, loading } = useAuth();
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState<string>('prospect');
 
   useEffect(() => {
     if (!loading && !user) {
@@ -42,35 +43,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     }
   }, [user, loading, navigate]);
 
-  useEffect(() => {
-    if (user) {
-      fetchUserRole();
-    }
-  }, [user]);
-
-  const fetchUserRole = async () => {
-    if (!user) return;
-
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', user.id)
-      .order('role', { ascending: false })
-      .limit(1)
-      .single();
-
-    if (data) {
-      setUserRole(data.role);
-    }
-  };
-
   const getMenuItems = () => {
     const baseItems = [
       { title: 'Applications', url: '/dashboard/applications', icon: FileText },
       { title: 'Events', url: '/dashboard/events', icon: Calendar },
     ];
 
-    if (userRole === 'prospect') {
+    if (role === 'prospect') {
       return baseItems;
     }
 
@@ -81,11 +60,33 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       ...baseItems,
     ];
 
-    if (userRole === 'e-board') {
+    if (role === 'e-board' || role === 'board') {
       memberItems.push({ title: 'Members', url: '/dashboard/members', icon: Users });
     }
 
     return memberItems;
+  };
+
+  const getRoleBadgeVariant = (roleValue: string) => {
+    switch (roleValue) {
+      case 'e-board':
+        return 'default';
+      case 'board':
+        return 'secondary';
+      case 'member':
+        return 'outline';
+      default:
+        return 'outline';
+    }
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
   };
 
   if (loading) {
@@ -101,9 +102,44 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="min-h-screen flex w-full">
         <Sidebar>
           <SidebarContent>
-            <div className="p-4 border-b border-sidebar-border">
+            <div className="p-4 border-b border-sidebar-border space-y-3">
               <h2 className="font-bold text-lg text-sidebar-foreground">Claude Builder Club</h2>
-              <p className="text-xs text-muted-foreground capitalize">{userRole}</p>
+
+              {profile && (
+                <div className="flex items-center gap-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={profile.profile_picture_url || undefined} />
+                    <AvatarFallback className="text-sm">
+                      {profile.full_name
+                        ? getInitials(profile.full_name)
+                        : user?.email?.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate text-sidebar-foreground">
+                      {profile.full_name || 'No name'}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      {role && (
+                        <Badge
+                          variant={getRoleBadgeVariant(role)}
+                          className="text-xs capitalize"
+                        >
+                          {role.replace('-', ' ')}
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {profile && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Trophy className="h-4 w-4" />
+                  <span className="font-medium">{profile.points}</span>
+                  <span>points</span>
+                </div>
+              )}
             </div>
 
             <SidebarGroup>

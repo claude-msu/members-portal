@@ -38,7 +38,7 @@ const Auth = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateEmail(email)) {
       return;
     }
@@ -60,7 +60,8 @@ const Auth = () => {
         });
         navigate('/dashboard');
       } else {
-        const { error } = await supabase.auth.signUp({
+        // Sign up the user
+        const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -71,11 +72,43 @@ const Auth = () => {
           },
         });
 
-        if (error) throw error;
+        if (signUpError) throw signUpError;
+
+        if (!authData.user) {
+          throw new Error('User creation failed');
+        }
+
+        // Create profile record
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: authData.user.id,
+            email: email,
+            full_name: fullName,
+            points: 0,
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          throw new Error('Failed to create user profile');
+        }
+
+        // Create user_role record (default to 'prospect')
+        const { error: roleError } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: authData.user.id,
+            role: 'prospect',
+          });
+
+        if (roleError) {
+          console.error('Role creation error:', roleError);
+          throw new Error('Failed to create user role');
+        }
 
         toast({
           title: 'Success',
-          description: 'Account created! You can now log in.',
+          description: 'Account created! Please check your email to verify your account.',
         });
         setIsLogin(true);
       }
