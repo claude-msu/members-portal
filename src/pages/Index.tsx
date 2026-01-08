@@ -44,9 +44,9 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen min-h-dvh bg-background">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-screen min-h-dvh flex items-center justify-center overflow-hidden">
         {/* Animated background */}
         <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50 dark:from-accent/20 dark:via-background dark:to-blue-950/20"></div>
         <div className="absolute inset-0 opacity-30">
@@ -55,7 +55,7 @@ const Index = () => {
           <div className="absolute -bottom-8 left-40 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
         </div>
 
-        <div className="relative z-10 container mx-auto px-4 py-20">
+        <div className={`relative z-10 container mx-auto px-4 ${isMobile ? "py-0" : "py-20"}`}>
           <motion.div
             initial="hidden"
             animate="visible"
