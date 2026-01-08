@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Trophy, Mail, Award, Linkedin, FileText, Camera, RotateCw, Crown, Users } from 'lucide-react';
+import { Trophy, Mail, Award, Linkedin, Github, FileText, Camera, RotateCw, Crown, Users } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import {
   Select,
@@ -29,7 +29,8 @@ const Profile = () => {
   const [loading, setLoading] = useState(false);
   const [fullName, setFullName] = useState('');
   const [classYear, setClassYear] = useState('');
-  const [linkedinUrl, setLinkedinUrl] = useState('');
+  const [linkedinUsername, setLinkedinUsername] = useState('');
+  const [githubUsername, setGithubUsername] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   // Image cropping states
@@ -45,7 +46,8 @@ const Profile = () => {
     if (profile) {
       setFullName(profile.full_name);
       setClassYear(profile.class_year || '');
-      setLinkedinUrl(profile.linkedin_url || '');
+      setLinkedinUsername(profile.linkedin_username || '');
+      setGithubUsername(profile.github_username || '');
     }
   }, [profile]);
 
@@ -112,9 +114,7 @@ const Profile = () => {
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
 
-      // Check if it's actually an image file
       if (!file.type.startsWith('image/')) {
-        console.error("Selected file is not an image");
         toast({
           title: 'Error',
           description: 'Please select a valid image file',
@@ -123,10 +123,8 @@ const Profile = () => {
         return;
       }
 
-      // Check file size (limit to 10MB)
-      const maxSize = 10 * 1024 * 1024; // 10MB
+      const maxSize = 10 * 1024 * 1024;
       if (file.size > maxSize) {
-        console.error("File too large:", file.size);
         toast({
           title: 'Error',
           description: 'Image file is too large. Please select a file smaller than 10MB.',
@@ -140,40 +138,17 @@ const Profile = () => {
         setImageSrc(reader.result as string);
         setShowCropModal(true);
       };
-      reader.onerror = (error) => {
-        console.error("FileReader error:", error);
-        console.error("Error details:", reader.error);
-
-        let errorMessage = 'Failed to read the image file';
-
-        if (reader.error) {
-          const errorName = reader.error.name;
-          if (errorName === 'NotReadableError') {
-            errorMessage = 'The image file could not be read. It may be corrupted or inaccessible. Please try a different image file.';
-          } else if (errorName === 'NotFoundError') {
-            errorMessage = 'The selected file could not be found.';
-          } else if (errorName === 'SecurityError') {
-            errorMessage = 'Security error: Cannot access the file due to browser restrictions.';
-          }
-        }
-
+      reader.onerror = () => {
         toast({
           title: 'Error',
-          description: errorMessage,
+          description: 'Failed to read the image file',
           variant: 'destructive',
         });
       };
-      reader.onabort = () => {
-        console.log("FileReader aborted");
-      };
-      console.log("Starting to read file as data URL");
       reader.readAsDataURL(file);
-      // Reset input value to allow selecting the same file again
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-    } else {
-      console.log("No files in target");
     }
   };
 
@@ -185,7 +160,6 @@ const Profile = () => {
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
       const croppedFile = new File([croppedBlob], 'profile.jpg', { type: 'image/jpeg' });
 
-      // Use format: fullname_userid.jpg (sanitize name for filename)
       const sanitizedName = fullName
         .toLowerCase()
         .replace(/\s+/g, '-')
@@ -206,7 +180,6 @@ const Profile = () => {
         .from('profiles')
         .getPublicUrl(filePath);
 
-      // Add timestamp to URL for cache busting
       const timestamp = Date.now();
       const { error: updateError } = await supabase
         .from('profiles')
@@ -229,7 +202,6 @@ const Profile = () => {
       setZoom(1);
       setRotation(0);
     } catch (error: any) {
-      console.error('Error uploading image:', error);
       toast({
         title: 'Error',
         description: error.message || 'Failed to upload image',
@@ -245,13 +217,11 @@ const Profile = () => {
 
     const fileExt = file.name.split('.').pop();
 
-    // Use format: fullname_userid for folder (sanitize name for filename)
     const sanitizedName = fullName
       .toLowerCase()
       .replace(/\s+/g, '-')
       .replace(/[^a-z0-9-]/g, '');
 
-    // Use proper resume naming: First_Last_resume.pdf
     const resumeName = fullName
       .split(' ')
       .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
@@ -261,7 +231,6 @@ const Profile = () => {
     const fileName = `${resumeName}_resume.${fileExt}`;
     const filePath = `${newFolderPath}/${fileName}`;
 
-    // Delete old folder if name has changed
     if (profile?.full_name && profile.full_name !== fullName) {
       const oldSanitizedName = profile.full_name
         .toLowerCase()
@@ -270,12 +239,10 @@ const Profile = () => {
 
       const oldFolderPath = `${oldSanitizedName}_${user.id}`;
 
-      // List all files in old folder
       const { data: oldFiles } = await supabase.storage
         .from('profiles')
         .list(oldFolderPath);
 
-      // Delete old files
       if (oldFiles && oldFiles.length > 0) {
         const filesToDelete = oldFiles.map(file => `${oldFolderPath}/${file.name}`);
         await supabase.storage
@@ -311,7 +278,8 @@ const Profile = () => {
       const updateData: Database['public']['Tables']['profiles']['Update'] = {
         full_name: fullName,
         class_year: classYear || null,
-        linkedin_url: linkedinUrl || null,
+        linkedin_username: linkedinUsername || null,
+        github_username: githubUsername || null,
         resume_url: newResumeUrl,
       };
 
@@ -497,14 +465,45 @@ const Profile = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="linkedinUrl">LinkedIn URL</Label>
-                    <Input
-                      id="linkedinUrl"
-                      type="url"
-                      value={linkedinUrl}
-                      onChange={(e) => setLinkedinUrl(e.target.value)}
-                      placeholder="https://linkedin.com/in/yourprofile"
-                    />
+                    <Label htmlFor="linkedinUsername">
+                      <div className="flex items-center gap-2">
+                        <Linkedin className="h-4 w-4" />
+                        LinkedIn Username
+                      </div>
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        linkedin.com/in/
+                      </span>
+                      <Input
+                        id="linkedinUsername"
+                        value={linkedinUsername}
+                        onChange={(e) => setLinkedinUsername(e.target.value)}
+                        placeholder="yourprofile"
+                        className="pl-[130px]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="githubUsername">
+                      <div className="flex items-center gap-2">
+                        <Github className="h-4 w-4" />
+                        GitHub Username
+                      </div>
+                    </Label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                        github.com/
+                      </span>
+                      <Input
+                        id="githubUsername"
+                        value={githubUsername}
+                        onChange={(e) => setGithubUsername(e.target.value)}
+                        placeholder="yourusername"
+                        className="pl-[105px]"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">

@@ -186,17 +186,6 @@ const Prospects = () => {
                       <span className="font-medium">{prospect.points}</span>
                     </div>
                   </div>
-
-                  {prospect.linkedin_url && (
-                    <a
-                      href={prospect.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-primary hover:underline block truncate"
-                    >
-                      LinkedIn Profile
-                    </a>
-                  )}
                 </div>
 
                 <div className="space-y-2 mt-4">

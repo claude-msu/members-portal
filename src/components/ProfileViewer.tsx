@@ -9,7 +9,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin } from 'lucide-react';
+import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -138,19 +138,33 @@ const ProfileViewer = ({ open, onClose, member }: ProfileViewerProps) => {
                 </div>
               </div>
 
-              {member.linkedin_url && (
+              {(member.linkedin_username || member.github_username) && (
                 <>
                   <Separator />
-                  <div className="space-y-2">
-                    <p className="text-sm font-medium text-muted-foreground">LinkedIn</p>
-                    <Button
-                      variant="outline"
-                      className="w-full justify-start"
-                      onClick={() => window.open(member.linkedin_url!, '_blank')}
-                    >
-                      <Linkedin className="h-4 w-4 mr-2 text-blue-600" />
-                      View LinkedIn Profile
-                    </Button>
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-muted-foreground">Social Links</p>
+                    <div className="flex flex-col gap-2">
+                      {member.linkedin_username && (
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => window.open(`https://linkedin.com/in/${member.linkedin_username}`, '_blank')}
+                        >
+                          <Linkedin className="h-4 w-4 mr-2 text-blue-600" />
+                          View LinkedIn Profile
+                        </Button>
+                      )}
+                      {member.github_username && (
+                        <Button
+                          variant="outline"
+                          className="w-full justify-start"
+                          onClick={() => window.open(`https://github.com/${member.github_username}`, '_blank')}
+                        >
+                          <Github className="h-4 w-4 mr-2" />
+                          View GitHub Profile
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </>
               )}

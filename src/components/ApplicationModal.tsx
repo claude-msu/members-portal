@@ -633,7 +633,7 @@ export const ApplicationModal = ({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="resume">Resume</Label>
+          <Label htmlFor="resume">Resume (PDF)</Label>
           <Input
             id="resume"
             type="file"

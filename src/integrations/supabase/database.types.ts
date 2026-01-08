@@ -376,8 +376,9 @@ export type Database = {
           created_at: string
           email: string
           full_name: string
+          github_username: string | null
           id: string
-          linkedin_url: string | null
+          linkedin_username: string | null
           points: number
           profile_picture_url: string | null
           resume_url: string | null
@@ -388,8 +389,9 @@ export type Database = {
           created_at?: string
           email: string
           full_name: string
+          github_username?: string | null
           id: string
-          linkedin_url?: string | null
+          linkedin_username?: string | null
           points?: number
           profile_picture_url?: string | null
           resume_url?: string | null
@@ -400,8 +402,9 @@ export type Database = {
           created_at?: string
           email?: string
           full_name?: string
+          github_username?: string | null
           id?: string
-          linkedin_url?: string | null
+          linkedin_username?: string | null
           points?: number
           profile_picture_url?: string | null
           resume_url?: string | null
@@ -538,7 +541,7 @@ export type Database = {
           email: string
           full_name: string
           id: string
-          linkedin_url: string
+          linkedin_username: string
           points: number
           profile_picture_url: string
           resume_url: string
@@ -569,8 +572,6 @@ export type Database = {
     }
   }
 }
-
-// ... rest of the file stays the same
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
