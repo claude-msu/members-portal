@@ -13,6 +13,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -20,7 +30,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, Clock } from 'lucide-react';
+import { CalendarIcon, Clock, Trash2, AlertTriangle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import type { Database } from '@/integrations/supabase/database.types';
@@ -59,6 +69,7 @@ export const EventModal = ({ open, onClose, onSuccess, existingEvent }: EventMod
   const [maxAttendance, setMaxAttendance] = useState(50);
   const [rsvpRequired, setRsvpRequired] = useState(false);
   const [inviteProspects, setInviteProspects] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   useEffect(() => {
     if (open && existingEvent) {
@@ -202,6 +213,38 @@ export const EventModal = ({ open, onClose, onSuccess, existingEvent }: EventMod
 
       onSuccess();
       onClose();
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!existingEvent) return;
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('events')
+        .delete()
+        .eq('id', existingEvent.id);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Success',
+        description: 'Event deleted successfully!',
+      });
+
+      onSuccess();
+      onClose();
+      setShowDeleteConfirm(false);
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -388,15 +431,56 @@ export const EventModal = ({ open, onClose, onSuccess, existingEvent }: EventMod
           </div>
 
           <div className="flex gap-2 pt-4">
-            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
+            {existingEvent && (
+              <Button
+                type="button"
+                variant="destructive"
+                onClick={() => setShowDeleteConfirm(true)}
+                disabled={loading}
+                className="flex-1"
+              >
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Event
+              </Button>
+            )}
+            <Button type="button" variant="outline" onClick={onClose} className={existingEvent ? "flex-1" : "flex-1"}>
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} className="flex-1">
+            <Button type="submit" disabled={loading} className={existingEvent ? "flex-1" : "flex-1"}>
               {loading ? 'Saving...' : existingEvent ? 'Update Event' : 'Create Event'}
             </Button>
           </div>
         </form>
       </DialogContent>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-20 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+                <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+              </div>
+              <div>
+                <AlertDialogTitle className="text-left">Delete Event</AlertDialogTitle>
+                <AlertDialogDescription className="text-left mt-2">
+                  Are you sure you want to delete "{existingEvent?.name}"? This action cannot be undone and will permanently remove the event and all associated data.
+                </AlertDialogDescription>
+              </div>
+            </div>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel disabled={loading}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={loading}
+              className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
+            >
+              {loading ? 'Deleting...' : 'Delete Event'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Dialog>
   );
 };

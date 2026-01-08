@@ -130,14 +130,14 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             {/* Navigation */}
             <SidebarGroup className="flex-1 flex flex-col justify-center">
               <SidebarGroupContent>
-                <SidebarMenu className="px-3 space-y-1">
+                <SidebarMenu className="px-3 space-y-1 gap-4">
                   {getMenuItems().map((item) => (
                     <SidebarMenuItem key={item.title}>
                       <SidebarMenuButton>
                         <NavLink
                           to={item.url}
                           end={item.url === '/dashboard'}
-                          className="flex items-center gap-4 px-4 py-3 rounded-lg transition-colors text-base"
+                          className="flex items-center gap-4 px-4 py-6 rounded-lg transition-colors text-base"
                           activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                         >
                           <item.icon className="h-4 w-6" />
