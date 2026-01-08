@@ -130,11 +130,11 @@ const Prospects = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
           {prospects.map((prospect) => (
-            <Card key={prospect.id}>
-              <CardHeader>
-                <div className="flex items-start gap-3">
+            <Card key={prospect.id} className="flex flex-col h-full w-full">
+              <CardHeader className="pb-3">
+                <div className="flex items-center gap-3">
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={prospect.profile_picture_url || undefined} />
                     <AvatarFallback className="text-lg">
@@ -157,38 +157,40 @@ const Prospects = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-center justify-between text-sm">
-                  {prospect.class_year ? (
+              <CardContent className="flex flex-col flex-1 min-h-0">
+                <div className="flex-1 space-y-3">
+                  <div className="flex items-center justify-between text-sm">
+                    {prospect.class_year ? (
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        <GraduationCap className="h-4 w-4" />
+                        <span className="capitalize">{prospect.class_year}</span>
+                      </div>
+                    ) : (
+                      <div className="text-muted-foreground">
+                        <GraduationCap className="h-4 w-4 inline mr-2" />
+                        No class year
+                      </div>
+                    )}
                     <div className="flex items-center gap-2 text-muted-foreground">
-                      <GraduationCap className="h-4 w-4" />
-                      <span className="capitalize">{prospect.class_year}</span>
+                      <Trophy className="h-4 w-4" />
+                      <span className="font-medium">{prospect.points}</span>
                     </div>
-                  ) : (
-                    <div className="text-muted-foreground">
-                      <GraduationCap className="h-4 w-4 inline mr-2" />
-                      No class year
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 text-muted-foreground">
-                    <Trophy className="h-4 w-4" />
-                    <span className="font-medium">{prospect.points}</span>
                   </div>
+
+                  {prospect.linkedin_url && (
+                    <a
+                      href={prospect.linkedin_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-sm text-primary hover:underline block truncate"
+                    >
+                      LinkedIn Profile
+                    </a>
+                  )}
                 </div>
 
-                {prospect.linkedin_url && (
-                  <a
-                    href={prospect.linkedin_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-sm text-primary hover:underline block truncate"
-                  >
-                    LinkedIn Profile
-                  </a>
-                )}
-
                 {canManageProspects && (
-                  <div className="pt-2 border-t">
+                  <div className="space-y-2">
                     <Button
                       className="w-full"
                       onClick={() => handlePromoteToMember(prospect.id)}

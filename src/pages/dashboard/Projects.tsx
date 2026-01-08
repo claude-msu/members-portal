@@ -33,7 +33,6 @@ interface ProjectWithMembers extends Project {
 
 const Projects = () => {
   const { user, role } = useAuth();
-  const isMobile = useIsMobile();
   const [projects, setProjects] = useState<ProjectWithMembers[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -167,100 +166,87 @@ const Projects = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
           {projects.map((project) => {
             const isMember = !!project.userMembership;
             const isLead = project.userMembership?.role === 'lead';
             const lead = project.members.find(m => m.membership.role === 'lead');
 
             return (
-              <Card key={project.id}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <CardTitle className="flex-1">{project.name}</CardTitle>
+              <Card key={project.id} className="flex flex-col h-full w-full">
+                <CardHeader className="pb-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="text-lg flex-1">{project.name}</CardTitle>
                     {isMember && (
-                      <Badge variant={isLead ? 'default' : 'secondary'}>
+                      <Badge variant={isLead ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
                         {isLead ? 'Lead' : 'Member'}
                       </Badge>
                     )}
                   </div>
                   {project.client_name && (
-                    <CardDescription className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground mt-5 pt-1">
                       <Briefcase className="h-4 w-4" />
                       Client: {project.client_name}
-                    </CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {project.description && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">
-                      {project.description}
-                    </p>
-                  )}
-
-                  {project.due_date && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      Due: {format(new Date(project.due_date), 'MMM d, yyyy')}
                     </div>
                   )}
 
-                  {/* Team Lead Info */}
-                  {lead && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Crown className="h-4 w-4 text-yellow-500" />
-                      <span className="text-muted-foreground">Lead:</span>
-                      <span className="font-medium">{lead.profile.full_name || lead.profile.email}</span>
-                    </div>
-                  )}
-
-                  {/* Team Members Preview */}
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        <span>{project.memberCount} {project.memberCount === 1 ? 'member' : 'members'}</span>
-                      </div>
-                      {isMember && project.memberCount > 0 && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleViewTeam(project)}
-                          className="h-7 text-xs"
-                        >
-                          View Team
-                        </Button>
-                      )}
-                    </div>
-                    {project.members.length > 0 && (
-                      <div className="flex -space-x-2">
-                        {project.members.slice(0, 5).map(({ membership, profile }) => (
-                          <Avatar key={membership.id} className="h-8 w-8 border-2 border-background">
-                            <AvatarImage src={profile.profile_picture_url || undefined} />
-                            <AvatarFallback className="text-xs">
-                              {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                        ))}
-                        {project.members.length > 5 && (
-                          <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
-                            +{project.members.length - 5}
-                          </div>
-                        )}
+                  <div className="space-y-3 text-sm text-muted-foreground pt-1">
+                    {/* Due Date Info */}
+                    {project.due_date && (
+                      <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Due: {format(new Date(project.due_date), 'MMM d, yyyy')}
                       </div>
                     )}
+
+                    {/* Team Lead Info */}
+                    {lead && (
+                      <div className="flex items-center gap-2">
+                        <Crown className="h-4 w-4 text-yellow-500" />
+                        <span className="text-muted-foreground">Lead:</span>
+                        <span className="font-medium">{lead.profile.full_name || lead.profile.email}</span>
+                      </div>
+                    )}
+
+                    {/* Team Members Preview */}
+                    <div className="space-y-3 text-sm text-muted-foreground">
+                      <div className="flex items-center gap-2 cursor-pointer group w-fit">
+                        <Users className="h-4 w-4 group-hover:text-orange-600 transition-colors duration-400" />
+                        <span
+                          className="underline decoration-transparent group-hover:decoration-orange-600 group-hover:text-orange-600 transition-all duration-400"
+                          onClick={() => handleViewTeam(project)}
+                        >
+                          {project.memberCount} {project.memberCount === 1 ? 'team member' : 'team members'}
+                        </span>
+                      </div>
+                      {project.members.length > 0 && (
+                        <div className="flex -space-x-2 mb-6">
+                          {project.members.slice(0, 5).map(({ membership, profile }) => (
+                            <Avatar key={membership.id} className="h-8 w-8 border-2 border-background">
+                              <AvatarImage src={profile.profile_picture_url || undefined} />
+                              <AvatarFallback className="text-xs">
+                                {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                          ))}
+                          {project.members.length > 5 && (
+                            <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
+                              +{project.members.length - 5}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </CardHeader>
+                <CardContent className="flex flex-col flex-1 min-h-0">
+                  {project.description && (
+                    <div className="text-sm text-muted-foreground flex-1 space-y-3 break-words pt-3 whitespace-pre-line">
+                      {project.description}
+                    </div>
+                  )}
 
-                  <div className="space-y-2 pt-2">
-                    <Button
-                      variant="outline"
-                      className="w-full"
-                      onClick={() => window.open(project.github_url, '_blank')}
-                    >
-                      <Github className="h-4 w-4 mr-2" />
-                      View on GitHub
-                    </Button>
-
+                  <div className="space-y-2 mt-4">
                     {canManageProjects ? (
                       <Button
                         variant="outline"
@@ -280,6 +266,15 @@ const Projects = () => {
                         View Details
                       </Button>
                     )}
+
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => window.open(project.github_url, '_blank')}
+                    >
+                      <Github className="h-4 w-4 mr-2" />
+                      View on GitHub
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

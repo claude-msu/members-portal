@@ -146,9 +146,9 @@ const Members = () => {
 
   const renderMemberCard = (member: MemberWithRole) => {
     return (
-      <Card key={member.id}>
-        <CardHeader>
-          <div className="flex items-start gap-3">
+      <Card key={member.id} className="flex flex-col h-full w-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-center gap-3">
             <Avatar className="h-12 w-12">
               <AvatarImage src={member.profile_picture_url || undefined} />
               <AvatarFallback className="text-lg">
@@ -166,40 +166,29 @@ const Members = () => {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            {member.class_year ? (
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              {member.class_year ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="capitalize">{member.class_year}</span>
+                </div>
+              ) : (
+                <div className="text-muted-foreground">
+                  <GraduationCap className="h-4 w-4 inline mr-2" />
+                  No class year
+                </div>
+              )}
               <div className="flex items-center gap-2 text-muted-foreground">
-                <GraduationCap className="h-4 w-4" />
-                <span className="capitalize">{member.class_year}</span>
+                <Trophy className="h-4 w-4" />
+                <span className="font-medium">{member.points}</span>
               </div>
-            ) : (
-              <div className="text-muted-foreground">
-                <GraduationCap className="h-4 w-4 inline mr-2" />
-                No class year
-              </div>
-            )}
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Trophy className="h-4 w-4" />
-              <span className="font-medium">{member.points}</span>
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1"
-              onClick={() => handleViewProfile(member)}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View Profile
-            </Button>
-          </div>
-
-          {canManageRoles && (
-            <div className="space-y-2 pt-2 border-t">
-              <label className="text-sm font-medium">Change Role</label>
+          <div className="space-y-2 mt-4">
+            {canManageRoles && (
               <Select
                 value={member.role}
                 onValueChange={(value) => handleRoleChange(member.id, value as AppRole)}
@@ -213,8 +202,18 @@ const Members = () => {
                   <SelectItem value="e-board">E-Board</SelectItem>
                 </SelectContent>
               </Select>
-            </div>
-          )}
+            )}
+
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full"
+              onClick={() => handleViewProfile(member)}
+            >
+              <Eye className="h-4 w-4 mr-2" />
+              View Profile
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -253,7 +252,7 @@ const Members = () => {
             <h2 className="text-2xl font-bold">Executive Board</h2>
             <Badge variant="default">{eBoardMembers.length}</Badge>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
             {eBoardMembers.map(renderMemberCard)}
           </div>
         </div>
@@ -267,7 +266,7 @@ const Members = () => {
             <h2 className="text-2xl font-bold">Board</h2>
             <Badge variant="secondary">{boardMembers.length}</Badge>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
             {boardMembers.map(renderMemberCard)}
           </div>
         </div>
@@ -281,7 +280,7 @@ const Members = () => {
             <h2 className="text-2xl font-bold">Members</h2>
             <Badge variant="outline">{regularMembers.length}</Badge>
           </div>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
             {regularMembers.map(renderMemberCard)}
           </div>
         </div>

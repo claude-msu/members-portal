@@ -321,7 +321,7 @@ const Events = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
           {events.map((event) => {
             const isFull = isEventFull(event);
             const userAttendance = attendanceMap.get(event.id);
@@ -330,15 +330,15 @@ const Events = () => {
             const attendanceCount = attendanceCounts.get(event.id) || 0;
 
             return (
-              <Card key={event.id} className="min-w-[300px]">
+              <Card key={event.id} className="flex flex-col h-full w-full">
                 <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between gap-3">
+                  <div className="flex items-center justify-between gap-3">
                     <CardTitle className="text-lg flex-1">{event.name}</CardTitle>
                     <Badge variant={event.rsvp_required ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
                       {getEventTypeLabel(event)}
                     </Badge>
                   </div>
-                  <div className="space-y-2 text-sm text-muted-foreground mt-3">
+                  <div className="space-y-3 text-sm text-muted-foreground mt-5 pt-1">
                     <Popover>
                       <PopoverTrigger asChild>
                         <div className="flex items-center gap-2 cursor-pointer group w-fit">
@@ -385,31 +385,33 @@ const Events = () => {
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
-                  {event.description && !isMobile && (
-                    <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
-                  )}
+                <CardContent className="flex flex-col flex-1 min-h-0">
+                  <div className="flex-1 space-y-3">
+                    {event.description && !isMobile && (
+                      <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
+                    )}
 
-                  {event.rsvp_required && (
-                    <div className="flex items-center justify-between text-sm">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Users className="h-4 w-4" />
-                        {attendanceCount} / {event.max_attendance} RSVPs
+                    {event.rsvp_required && (
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          {attendanceCount} / {event.max_attendance} RSVPs
+                        </div>
+                        {isFull && !hasRSVPed && (
+                          <Badge variant="destructive">Full</Badge>
+                        )}
                       </div>
-                      {isFull && !hasRSVPed && (
-                        <Badge variant="destructive">Full</Badge>
-                      )}
-                    </div>
-                  )}
+                    )}
 
-                  {hasRSVPed && (
-                    <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-                      <CheckCircle className="h-4 w-4" />
-                      {hasAttended ? 'Attended' : 'RSVP Confirmed'}
-                    </div>
-                  )}
+                    {hasRSVPed && (
+                      <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                        <CheckCircle className="h-4 w-4" />
+                        {hasAttended ? 'Attended' : 'RSVP Confirmed'}
+                      </div>
+                    )}
+                  </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 mt-4">
                     {!canManageEvents && (
                       <Button
                         className="w-full"
