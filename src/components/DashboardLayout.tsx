@@ -126,7 +126,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                 <SidebarMenu className="px-3 space-y-1">
                   {getMenuItems().map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild size="lg">
+                      <SidebarMenuButton>
                         <NavLink
                           to={item.url}
                           end={item.url === '/dashboard'}
