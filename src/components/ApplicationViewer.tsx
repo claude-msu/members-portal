@@ -45,12 +45,10 @@ export const ApplicationViewer = ({ application, open, onClose, onUpdate }: Appl
     const [className, setClassName] = useState<string | null>(null);
     const [projectName, setProjectName] = useState<string | null>(null);
 
-    if (!application) return null;
-
     // Fetch class name if class application
     useEffect(() => {
         const fetchClassName = async () => {
-            if (application.class_id) {
+            if (application?.class_id) {
                 const { data } = await supabase
                     .from('classes')
                     .select('name')
@@ -61,15 +59,15 @@ export const ApplicationViewer = ({ application, open, onClose, onUpdate }: Appl
             }
         };
 
-        if (open && application.class_id) {
+        if (open && application?.class_id) {
             fetchClassName();
         }
-    }, [open, application.class_id]);
+    }, [open, application?.class_id]);
 
     // Fetch project name if project application
     useEffect(() => {
         const fetchProjectName = async () => {
-            if (application.project_id) {
+            if (application?.project_id) {
                 const { data } = await supabase
                     .from('projects')
                     .select('name')
@@ -80,10 +78,12 @@ export const ApplicationViewer = ({ application, open, onClose, onUpdate }: Appl
             }
         };
 
-        if (open && application.project_id) {
+        if (open && application?.project_id) {
             fetchProjectName();
         }
-    }, [open, application.project_id]);
+    }, [open, application?.project_id]);
+
+    if (!application) return null;
 
     const handleAccept = async () => {
         if (!user) return;

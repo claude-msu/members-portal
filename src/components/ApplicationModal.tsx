@@ -134,14 +134,31 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
   const uploadFile = async (file: File, folder: string) => {
     const fileExt = file.name.split('.').pop();
 
-    // Use format: fullname_userid.ext (sanitize name for filename)
+    // Use format: fullname_userid for folder structure
     const sanitizedName = fullName
       .toLowerCase()
-      .replace(/\s+/g, '_')  // Replace spaces with underscores
-      .replace(/[^a-z0-9_]/g, '');  // Remove special characters
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
 
-    const fileName = `${sanitizedName}_${user!.id}.${fileExt}`;
-    const filePath = `${folder}/${fileName}`;
+    // For resume: Internship-focused naming like Ankur_Desai_Resume.pdf
+    // For transcript: Simple naming like Ankur_Desai_Transcript.pdf
+    let fileName: string;
+    if (folder === 'resumes') {
+      const resumeName = fullName
+        .split(' ')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('_');
+      fileName = `${resumeName}_Resume.${fileExt}`;
+    } else {
+      const transcriptName = fullName
+        .split(' ')
+        .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+        .join('_');
+      fileName = `${transcriptName}_Transcript.${fileExt}`;
+    }
+
+    const folderPath = `${sanitizedName}_${user!.id}`;
+    const filePath = `${folderPath}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('applications')
@@ -149,6 +166,7 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
 
     if (uploadError) throw uploadError;
 
+    // Return the full path for storage reference
     return filePath;
   };
 

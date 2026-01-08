@@ -189,8 +189,7 @@ const Profile = () => {
         .replace(/\s+/g, '-')  // Replace spaces with dashes
         .replace(/[^a-z0-9_]/g, '');  // Remove special characters
 
-      const fileName = `${sanitizedName}_${user.id}.jpg`;
-      const filePath = `avatars/${fileName}`;
+      const filePath = `${sanitizedName}_${user.id}/avatar.jpg`;
 
       const { error: uploadError } = await supabase.storage
         .from('profiles')
@@ -244,14 +243,44 @@ const Profile = () => {
 
     const fileExt = file.name.split('.').pop();
 
-    // Use format: fullname_userid.ext (sanitize name for filename)
+    // Use format: fullname_userid for folder (sanitize name for filename)
     const sanitizedName = fullName
       .toLowerCase()
-      .replace(/\s+/g, '_')  // Replace spaces with underscores
-      .replace(/[^a-z0-9_]/g, '');  // Remove special characters
+      .replace(/\s+/g, '-')  // Replace spaces with dashes
+      .replace(/[^a-z0-9-]/g, '');  // Remove special characters
 
-    const fileName = `${sanitizedName}_${user.id}.${fileExt}`;
-    const filePath = `resumes/${fileName}`;
+    // Use proper resume naming: First_Last_resume.pdf
+    const resumeName = fullName
+      .split(' ')
+      .map(part => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
+      .join('_');
+
+    const newFolderPath = `${sanitizedName}_${user.id}`;
+    const fileName = `${resumeName}_resume.${fileExt}`;
+    const filePath = `${newFolderPath}/${fileName}`;
+
+    // Delete old folder if name has changed
+    if (profile?.full_name && profile.full_name !== fullName) {
+      const oldSanitizedName = profile.full_name
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+
+      const oldFolderPath = `${oldSanitizedName}_${user.id}`;
+
+      // List all files in old folder
+      const { data: oldFiles } = await supabase.storage
+        .from('profiles')
+        .list(oldFolderPath);
+
+      // Delete old files
+      if (oldFiles && oldFiles.length > 0) {
+        const filesToDelete = oldFiles.map(file => `${oldFolderPath}/${file.name}`);
+        await supabase.storage
+          .from('profiles')
+          .remove(filesToDelete);
+      }
+    }
 
     const { error: uploadError } = await supabase.storage
       .from('profiles')
