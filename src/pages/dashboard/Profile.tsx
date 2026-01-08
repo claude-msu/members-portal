@@ -186,8 +186,8 @@ const Profile = () => {
       // Use format: fullname_userid.jpg (sanitize name for filename)
       const sanitizedName = fullName
         .toLowerCase()
-        .replace(/\s+/g, '-')  // Replace spaces with dashes
-        .replace(/[^a-z0-9_]/g, '');  // Remove special characters
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
 
       const filePath = `${sanitizedName}_${user.id}/avatar.jpg`;
 
@@ -246,8 +246,8 @@ const Profile = () => {
     // Use format: fullname_userid for folder (sanitize name for filename)
     const sanitizedName = fullName
       .toLowerCase()
-      .replace(/\s+/g, '-')  // Replace spaces with dashes
-      .replace(/[^a-z0-9-]/g, '');  // Remove special characters
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
 
     // Use proper resume naming: First_Last_resume.pdf
     const resumeName = fullName

@@ -258,9 +258,13 @@ const AdminDashboard = () => {
                         </CardHeader>
                         <CardContent className="flex-1 overflow-y-auto max-h-[600px]">
                             {loading ? (
-                                <p className="text-sm text-muted-foreground py-8 text-center">Loading...</p>
+                                <div className="flex flex-col justify-center items-center h-full">
+                                    <p className="text-sm text-muted-foreground text-center">Loading...</p>
+                                </div>
                             ) : upcomingEvents.length === 0 ? (
-                                <p className="text-sm text-muted-foreground py-8 text-center">No upcoming events</p>
+                                <div className="flex flex-col justify-center items-center h-full">
+                                    <p className="text-sm text-muted-foreground py-8 text-center">No upcoming events</p>
+                                </div>
                             ) : (
                                 <div className="space-y-3">
                                     {upcomingEvents.map((event) => (

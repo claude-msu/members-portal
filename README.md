@@ -1,73 +1,151 @@
-# Welcome to your Lovable project
+# Claude Builder Club MSU Members Portal
 
-## Project info
+A comprehensive web application for managing the Claude Builder Club at Michigan State University, built with modern React technologies and Supabase backend.
 
-**URL**: https://lovable.dev/projects/30d5e703-5cdf-4f31-b23e-32f5f2203fcd
+## 🚀 Features
 
-## How can I edit this code?
+- **Member Management**: Complete member lifecycle management including applications, approvals, and profile management
+- **Event Management**: Create and manage club events with member registration
+- **Class Management**: Organize and track educational sessions and workshops
+- **Project Management**: Coordinate collaborative projects and track progress
+- **Application System**: Streamlined application process for prospective members
+- **Dashboard Analytics**: Comprehensive dashboards for admins and members
+- **Responsive Design**: Fully responsive interface optimized for desktop and mobile
+- **Real-time Updates**: Live data synchronization across all users
 
-There are several ways of editing your application.
+## 🛠 Tech Stack
 
-**Use Lovable**
+- **Frontend**: React 18, TypeScript, Tailwind CSS
+- **UI Components**: shadcn/ui, Radix UI
+- **Backend**: Supabase (PostgreSQL, Authentication, Storage)
+- **State Management**: React Query (TanStack Query)
+- **Form Handling**: React Hook Form with Zod validation
+- **Routing**: React Router
+- **Build Tool**: Vite
+- **Deployment**: Vercel/Netlify compatible
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/30d5e703-5cdf-4f31-b23e-32f5f2203fcd) and start prompting.
+## 📋 Prerequisites
 
-Changes made via Lovable will be committed automatically to this repo.
+- Node.js 18+
+- npm or yarn
+- Supabase account and project
 
-**Use your preferred IDE**
+## 🚀 Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd cbc-msu-members-portal
+   ```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
 
-Follow these steps:
+3. **Environment Setup**
+   Create a `.env.local` file with your Supabase credentials:
+   ```env
+   VITE_SUPABASE_URL=your-supabase-url
+   VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+   ```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+4. **Database Setup**
+   Run the Supabase migrations in the `supabase/migrations` directory to set up the database schema.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+5. **Start development server**
+   ```bash
+   npm run dev
+   ```
 
-# Step 3: Install the necessary dependencies.
-npm i
+6. **Open your browser**
+   Navigate to `http://localhost:5173`
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+## 📁 Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # shadcn/ui components
+│   └── DashboardLayout.tsx
+├── contexts/           # React contexts (Auth, etc.)
+├── hooks/              # Custom React hooks
+├── integrations/       # External service integrations
+│   └── supabase/       # Supabase client and types
+├── lib/                # Utility functions
+├── pages/              # Route components
+│   ├── dashboard/      # Dashboard pages
+│   ├── Auth.tsx        # Authentication page
+│   ├── Index.tsx       # Landing page
+│   └── NotFound.tsx    # 404 page
+└── main.tsx           # Application entry point
+
+supabase/
+└── migrations/        # Database schema migrations
 ```
 
-**Edit a file directly in GitHub**
+## 🔧 Available Scripts
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run build:dev` - Build for development
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
 
-**Use GitHub Codespaces**
+## 🤝 Contributing
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+We welcome contributions to improve the Claude Builder Club Members Portal! Please follow these guidelines:
 
-## What technologies are used for this project?
+### Development Workflow
 
-This project is built with:
+1. **Fork the repository** and create your feature branch
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+2. **Follow coding standards**
+   - Use TypeScript for all new code
+   - Follow the existing code style and naming conventions
+   - Write meaningful commit messages
 
-## How can I deploy this project?
+3. **Testing**
+   - Test your changes thoroughly
+   - Ensure no existing functionality is broken
+   - Run `npm run lint` to check code quality
 
-Simply open [Lovable](https://lovable.dev/projects/30d5e703-5cdf-4f31-b23e-32f5f2203fcd) and click on Share -> Publish.
+4. **Pull Request Process**
+   - Create a clear, descriptive PR title
+   - Provide a detailed description of your changes
+   - Reference any related issues
+   - Ensure all CI checks pass
 
-## Can I connect a custom domain to my Lovable project?
+### Code Style Guidelines
 
-Yes, you can!
+- **TypeScript**: Strict type checking enabled
+- **Component Structure**: Functional components with hooks
+- **Styling**: Tailwind CSS with component-based approach
+- **File Naming**: PascalCase for components, camelCase for utilities
+- **Imports**: Group imports by external libraries, then internal modules
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Areas for Contribution
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+- UI/UX improvements
+- Performance optimizations
+- New features for member management
+- Mobile responsiveness enhancements
+- Accessibility improvements
+- Documentation updates
+
+## 📄 License
+
+This project is private and proprietary to the Claude Builder Club at Michigan State University.
+
+## 👨‍💻 Contributors
+
+**Ankur Desai**
+
+For questions or support, please contact the development team.
+
+---
+
+*Built with ❤️ for the Claude Builder Club community at Michigan State University*

@@ -6,7 +6,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarGroupLabel,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -112,16 +111,26 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Sidebar>
           <SidebarContent>
             {/* Header */}
-            <div className="p-6 border-b border-sidebar-border">
-              <h2 className="font-bold text-xl text-sidebar-foreground tracking-tight">
-                Claude Builder Club
-              </h2>
-              <p className="text-xs text-muted-foreground mt-1">MSU Chapter</p>
+            <div className="p-6 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[90px]">
+              <div className="flex items-center gap-3">
+                <div className="relative w-12 h-12 flex-shrink-0">
+                  <img
+                    src="/msu-logo.png"
+                    alt="MSU Logo"
+                    className="w-full h-full object-contain bg-transparent"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-bold text-m text-sidebar-foreground tracking-tight leading-tight">
+                    Claude Builder Club
+                  </h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">MSU Chapter</p>
+                </div>
+              </div>
             </div>
 
             {/* Navigation */}
-            <SidebarGroup className="flex-1">
-              <SidebarGroupLabel className="px-6 py-3 text-base">Menu</SidebarGroupLabel>
+            <SidebarGroup className="flex-1 flex flex-col justify-center">
               <SidebarGroupContent>
                 <SidebarMenu className="px-3 space-y-1">
                   {getMenuItems().map((item) => (
@@ -144,7 +153,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarGroup>
 
             {/* Profile Card at Bottom */}
-            <div className="p-3 border-t border-sidebar-border">
+            <div className="p-3 border-t border-sidebar-border min-h-[90px]">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-colors">
