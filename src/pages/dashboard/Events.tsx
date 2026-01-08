@@ -292,7 +292,7 @@ const Events = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Events</h1>
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Events</h1>
           <p className="text-muted-foreground">Upcoming club events</p>
         </div>
         {canManageEvents && (

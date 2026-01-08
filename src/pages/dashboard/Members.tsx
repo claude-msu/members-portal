@@ -17,6 +17,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Trophy, Mail, GraduationCap, Crown, Users, Award, Eye, Linkedin } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -32,6 +33,7 @@ const Members = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<MemberWithRole | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchMembers();
@@ -223,7 +225,7 @@ const Members = () => {
     return (
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Members</h1>
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>
           <p className="text-muted-foreground">Club members</p>
         </div>
         <Card>
@@ -238,7 +240,7 @@ const Members = () => {
   return (
     <div className="p-6 space-y-8">
       <div>
-        <h1 className="text-3xl font-bold">Members</h1>
+        <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>
         <p className="text-muted-foreground">
           {members.length} club {members.length === 1 ? 'member' : 'members'}
         </p>

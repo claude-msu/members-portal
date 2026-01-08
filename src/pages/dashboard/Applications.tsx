@@ -86,7 +86,7 @@ const Applications = () => {
     <div className={'space-y-6 p-6'}>
       <div className={`flex justify-between items-center`}>
         <div>
-          <h1 className={'text-3xl font-bold'}>Applications</h1>
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Applications</h1>
           <p className="text-muted-foreground">
             Manage Applications
           </p>
@@ -114,18 +114,17 @@ const Applications = () => {
       ) : (
         <div className="grid gap-4">
           {applications.map((app) => (
-            <Card key={app.id} className="hover:shadow-md transition-shadow">
-              <CardHeader>
-                <div className={`flex justify-between items-start ${isMobile ? 'flex-col gap-3' : ''}`}>
-                  <div className="flex-1">
-                    <CardTitle className={isMobile ? 'text-lg' : ''}>{app.full_name}</CardTitle>
-                    <CardDescription className={`flex items-center gap-2 mt-1 ${isMobile ? 'flex-col gap-1 items-start' : ''}`}>
-                      <span>{formatApplicationType(app.application_type)}</span>
-                      <span className={isMobile ? 'hidden' : ''}>•</span>
-                      <span>Submitted {new Date(app.created_at).toLocaleDateString()}</span>
-                    </CardDescription>
-                  </div>
-                  <div className={`flex items-center gap-2 ${isMobile ? 'w-full justify-between' : ''}`}>
+            <Card key={app.id} className="hover:shadow-md transition-shadow h-[150px] p-6">
+                <div className={`flex h-full justify-between items-center ${isMobile ? 'gap-3' : ''}`}>
+                    <div className={`flex flex-col justify-between ${isMobile ? 'h-full' : 'gap-2'}`}>
+                      <CardTitle className={isMobile ? 'text-lg' : ''}>{app.full_name}</CardTitle>
+                      <CardDescription className={`flex items-center gap-2 ${isMobile ? 'flex-col items-start' : 'mt-1'}`}>
+                        <span>{formatApplicationType(app.application_type)}</span>
+                        <span className={isMobile ? 'hidden' : ''}>•</span>
+                        <span>Submitted {new Date(app.created_at).toLocaleDateString()}</span>
+                      </CardDescription>
+                    </div>
+                  <div className={`flex ${isMobile ? 'flex-col h-full justify-between items-end' : 'items-center gap-7'}`}>
                     <Badge variant={getStatusColor(app.status)} className="capitalize">
                       {app.status}
                     </Badge>
@@ -134,7 +133,7 @@ const Applications = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleViewApplication(app)}
-                        className={isMobile ? 'flex-1' : ''}
+                        className={'rounded-md px-3 h-9'}
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         Review
@@ -142,7 +141,6 @@ const Applications = () => {
                     )}
                   </div>
                 </div>
-              </CardHeader>
             </Card>
           ))}
         </div>

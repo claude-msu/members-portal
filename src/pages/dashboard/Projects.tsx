@@ -40,6 +40,7 @@ const Projects = () => {
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     if (user && role) {
@@ -137,7 +138,7 @@ const Projects = () => {
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Projects</h1>
           <p className="text-muted-foreground">Active club projects</p>
         </div>
         {canManageProjects && (

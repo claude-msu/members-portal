@@ -386,7 +386,7 @@ const Profile = () => {
   }
 
   return (
-    <div className={`${isMobile ? 'p-4' : 'p-6'} min-h-full`}>
+    <div className={`${isMobile ? 'p-4' : 'p-6'} min-h-full flex items-center justify-center`}>
       <div className="w-full max-w-6xl mx-auto">
         <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'}`}>
           {/* Left Column - Profile Overview */}

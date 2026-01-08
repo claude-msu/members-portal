@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -35,6 +34,7 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -43,6 +43,7 @@ interface DashboardLayoutProps {
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, profile, role, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
 
   const getMenuItems = () => {
     // Define each menu item up front for consistent order
@@ -106,10 +107,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <Sidebar>
           <SidebarContent>
             {/* Header */}
-            <div className="p-6 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[90px]">
+            <div className="p-3 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[95px]">
               <button
                 onClick={() => navigate('/')}
-                className="flex items-center gap-3 w-full text-left hover:bg-sidebar-accent/50 rounded-md p-2 -m-2 transition-colors cursor-pointer"
+                className="flex items-center gap-3 w-full text-left hover:bg-sidebar-accent/50 rounded-md p-0 pl-7 -m-5 transition-colors cursor-pointer"
               >
                 <div className="relative w-12 h-12 flex-shrink-0">
                   <img
@@ -119,7 +120,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-m text-sidebar-foreground tracking-tight leading-tight">
+                  <h2 className="font-bold text-[0.95rem] text-sidebar-foreground tracking-tight leading-tight">
                     Claude Builder Club
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">MSU Chapter</p>
@@ -151,7 +152,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             </SidebarGroup>
 
             {/* Profile Card at Bottom */}
-            <div className="p-3 border-t border-sidebar-border min-h-[90px]">
+            <div className="p-3 border-t border-sidebar-border min-h-[95px]">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-colors">
@@ -164,10 +165,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                       </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0 text-left">
-                      <p className="text-sm font-medium truncate text-sidebar-foreground">
+                      <p className="text-m font-medium truncate text-sidebar-foreground">
                         {profile?.full_name || 'No name'}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5">
+                      <div className="flex items-center gap-4 mt-0.5">
                         {role && (
                           <Badge
                             variant={getRoleBadgeVariant(role)}
@@ -188,8 +189,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent
-                  align="end"
-                  className="w-56"
+                  align="center"
+                  className={isMobile ? "w-[250px]" : "w-56"}
                   side="top"
                   sideOffset={8}
                 >

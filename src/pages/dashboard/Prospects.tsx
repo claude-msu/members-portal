@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Trophy, Mail, GraduationCap, UserPlus, UserCheck } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -21,6 +22,7 @@ const Prospects = () => {
   const { role: userRole } = useAuth();
   const [prospects, setProspects] = useState<ProspectWithRole[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchProspects();
@@ -102,7 +104,7 @@ const Prospects = () => {
     return (
       <div className="p-6 space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Prospects</h1>
+          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Prospects</h1>
           <p className="text-muted-foreground">Manage prospective members</p>
         </div>
         <Card>
@@ -117,7 +119,7 @@ const Prospects = () => {
   return (
     <div className="p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Prospects</h1>
+        <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Prospects</h1>
         <p className="text-muted-foreground">
           {prospects.length} {prospects.length === 1 ? 'prospect' : 'prospects'}
         </p>
