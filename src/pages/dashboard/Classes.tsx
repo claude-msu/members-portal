@@ -3,25 +3,41 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, BookOpen, MapPin, Clock, Users, Edit } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Plus, MapPin, Clock, Users, Edit, GraduationCap } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ClassModal } from '@/components/ClassModal';
 import type { Database } from '@/integrations/supabase/database.types';
 
 type Class = Database['public']['Tables']['classes']['Row'];
 type ClassEnrollment = Database['public']['Tables']['class_enrollments']['Row'];
+type Profile = Database['public']['Tables']['profiles']['Row'];
 
-interface ClassWithEnrollment extends Class {
-  enrollment?: ClassEnrollment;
-  enrollmentCount?: number;
+interface ClassWithMembers extends Class {
+  members: Array<{
+    enrollment: ClassEnrollment;
+    profile: Profile;
+  }>;
+  memberCount: number;
+  userEnrollment?: ClassEnrollment;
 }
 
 const Classes = () => {
   const { user, role } = useAuth();
   const isMobile = useIsMobile();
-  const [classes, setClasses] = useState<ClassWithEnrollment[]>([]);
+  const [classes, setClasses] = useState<ClassWithMembers[]>([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClass, setSelectedClass] = useState<ClassWithMembers | null>(null);
+  const [isMembersModalOpen, setIsMembersModalOpen] = useState(false);
   const [editingClass, setEditingClass] = useState<Class | null>(null);
 
   useEffect(() => {
@@ -50,34 +66,41 @@ const Classes = () => {
       return;
     }
 
-    // Fetch user's enrollments
+    // Fetch all class enrollments
     const { data: enrollmentsData } = await supabase
       .from('class_enrollments')
+      .select('*');
+
+    // Fetch all profiles for enrolled users
+    const enrolledUserIds = [...new Set(enrollmentsData?.map(e => e.user_id) || [])];
+    const { data: profilesData } = await supabase
+      .from('profiles')
       .select('*')
-      .eq('user_id', user.id);
+      .in('id', enrolledUserIds);
 
-    // Create a map of class_id to enrollment
-    const enrollmentMap = new Map(
-      enrollmentsData?.map(e => [e.class_id, e]) || []
-    );
+    const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
 
-    // Fetch enrollment counts for each class
-    const classesWithData = await Promise.all(
-      classesData.map(async (cls) => {
-        const { count } = await supabase
-          .from('class_enrollments')
-          .select('*', { count: 'exact', head: true })
-          .eq('class_id', cls.id);
+    // Combine data
+    const classesWithMembers: ClassWithMembers[] = classesData.map(cls => {
+      const classEnrollments = enrollmentsData?.filter(e => e.class_id === cls.id) || [];
+      const members = classEnrollments
+        .map(enrollment => ({
+          enrollment,
+          profile: profilesMap.get(enrollment.user_id)!,
+        }))
+        .filter(m => m.profile);
 
-        return {
-          ...cls,
-          enrollment: enrollmentMap.get(cls.id),
-          enrollmentCount: count || 0,
-        };
-      })
-    );
+      const userEnrollment = classEnrollments.find(e => e.user_id === user.id);
 
-    setClasses(classesWithData);
+      return {
+        ...cls,
+        members,
+        memberCount: members.length,
+        userEnrollment,
+      };
+    });
+
+    setClasses(classesWithMembers);
     setLoading(false);
   };
 
@@ -122,6 +145,20 @@ const Classes = () => {
     setIsModalOpen(true);
   };
 
+  const handleViewMembers = (cls: ClassWithMembers) => {
+    setSelectedClass(cls);
+    setIsMembersModalOpen(true);
+  };
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
+
   const canManageClasses = role === 'board' || role === 'e-board';
 
   return (
@@ -158,20 +195,26 @@ const Classes = () => {
         </Card>
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {classes.map((cls) => (
-            <Card key={cls.id}>
-              <CardHeader>
-                <div className="flex items-start gap-3">
-                  <BookOpen className="h-5 w-5 text-primary mt-1" />
-                  <div className="flex-1">
-                    <CardTitle>{cls.name}</CardTitle>
-                    {cls.description && (
-                      <CardDescription className="mt-2">{cls.description}</CardDescription>
+          {classes.map((cls) => {
+            const isEnrolled = !!cls.userEnrollment;
+            const isTeacher = cls.userEnrollment?.role === 'teacher';
+
+            return (
+              <Card key={cls.id} className="flex flex-col h-full w-full">
+                <CardHeader className="pb-0">
+                  <div className="flex items-center justify-between gap-3">
+                    <CardTitle className="text-lg flex-1">{cls.name}</CardTitle>
+                    {isEnrolled && (
+                      <Badge variant={isTeacher ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
+                        {isTeacher ? 'Teacher' : 'Student'}
+                      </Badge>
                     )}
                   </div>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-2">
+                  {cls.description && (
+                    <CardDescription className="mt-2">{cls.description}</CardDescription>
+                  )}
+                </CardHeader>
+                <CardContent className="flex flex-col flex-1 min-h-0">
                 {cls.location && (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MapPin className="h-4 w-4" />
@@ -184,18 +227,39 @@ const Classes = () => {
                     {cls.schedule}
                   </div>
                 )}
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Users className="h-4 w-4" />
-                  {cls.enrollmentCount} {cls.enrollmentCount === 1 ? 'student' : 'students'}
+                {/* Class Members Preview */}
+                <div className="space-y-3 text-sm text-muted-foreground">
+                  <div className="flex items-center gap-2 cursor-pointer group w-fit">
+                    <Users className="h-4 w-4 group-hover:text-orange-600 transition-colors duration-400" />
+                    <span
+                      className="underline decoration-transparent group-hover:decoration-orange-600 group-hover:text-orange-600 transition-all duration-400"
+                      onClick={() => handleViewMembers(cls)}
+                    >
+                      {cls.memberCount} {cls.memberCount === 1 ? 'class member' : 'class members'}
+                    </span>
+                  </div>
+                  {cls.members.length > 0 && (
+                    <div className="flex -space-x-2 mb-6">
+                      {cls.members.slice(0, 5).map(({ enrollment, profile }) => (
+                        <Avatar key={enrollment.id} className="h-8 w-8 border-2 border-background">
+                          <AvatarImage src={profile.profile_picture_url || undefined} />
+                          <AvatarFallback className="text-xs">
+                            {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                      ))}
+                      {cls.members.length > 5 && (
+                        <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
+                          +{cls.members.length - 5}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
-                <div className="pt-2 space-y-2">
-                  {cls.enrollment ? (
-                    <>
-                      <div className="text-sm text-green-600 font-medium">
-                        Enrolled as {cls.enrollment.role}
-                      </div>
-                      {!canManageClasses && (
+                  <div className="space-y-2 mt-4">
+                    {!canManageClasses && (
+                      cls.userEnrollment ? (
                         <Button
                           className="w-full"
                           variant="outline"
@@ -203,34 +267,32 @@ const Classes = () => {
                         >
                           Unenroll
                         </Button>
-                      )}
-                    </>
-                  ) : (
-                    !canManageClasses && (
+                      ) : (
+                        <Button
+                          className="w-full"
+                          variant="default"
+                          onClick={() => handleEnroll(cls.id)}
+                        >
+                          Enroll
+                        </Button>
+                      )
+                    )}
+
+                    {canManageClasses && (
                       <Button
                         className="w-full"
-                        variant="default"
-                        onClick={() => handleEnroll(cls.id)}
+                        variant="outline"
+                        onClick={() => handleEditClass(cls)}
                       >
-                        Enroll
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Class
                       </Button>
-                    )
-                  )}
-
-                  {canManageClasses && (
-                    <Button
-                      className="w-full"
-                      variant="outline"
-                      onClick={() => handleEditClass(cls)}
-                    >
-                      <Edit className="h-4 w-4 mr-2" />
-                      Edit Class
-                    </Button>
-                  )}
-                </div>
+                    )}
+                  </div>
               </CardContent>
             </Card>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -243,6 +305,45 @@ const Classes = () => {
         onSuccess={fetchClasses}
         existingClass={editingClass}
       />
+
+      {/* Class Members Modal */}
+      <Dialog open={isMembersModalOpen} onOpenChange={setIsMembersModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedClass?.name} - Class Members</DialogTitle>
+            <DialogDescription>
+              {selectedClass?.memberCount} {selectedClass?.memberCount === 1 ? 'member' : 'members'} in this class
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+            {selectedClass?.members.map(({ enrollment, profile }) => (
+              <div
+                key={enrollment.id}
+                className="flex items-center gap-3 p-3 rounded-lg border bg-card"
+              >
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={profile.profile_picture_url || undefined} />
+                  <AvatarFallback>
+                    {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">
+                    {profile.full_name || 'No name'}
+                  </p>
+                  <p className="text-sm text-muted-foreground truncate">
+                    {profile.email}
+                  </p>
+                </div>
+                <Badge variant={enrollment.role === 'teacher' ? 'default' : 'secondary'} className="capitalize">
+                  {enrollment.role === 'teacher' && <GraduationCap className="h-3 w-3 mr-1" />}
+                  {enrollment.role}
+                </Badge>
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
