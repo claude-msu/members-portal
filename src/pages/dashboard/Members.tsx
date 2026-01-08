@@ -274,12 +274,12 @@ const Members = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-6">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>
           <p className="text-muted-foreground">Club members</p>
         </div>
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading members...</p>
           </CardContent>
@@ -289,7 +289,7 @@ const Members = () => {
   }
 
   return (
-    <div className="p-6 space-y-8">
+    <div className="p-6">
       <div>
         <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>
         <p className="text-muted-foreground">
@@ -298,7 +298,7 @@ const Members = () => {
       </div>
 
       {/* Members Grid - grouped by role, each role starts a new row */}
-      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
+      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
         {groupedMembers.map((group, groupIndex) => (
           <Fragment key={group.role}>
             {/* Add a break element before each role group (except the first) to force new row */}
@@ -309,7 +309,7 @@ const Members = () => {
       </div>
 
       {members.length === 0 && (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">No members found.</p>
           </CardContent>

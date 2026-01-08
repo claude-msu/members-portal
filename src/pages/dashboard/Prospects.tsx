@@ -102,12 +102,12 @@ const Prospects = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="p-6">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Prospects</h1>
           <p className="text-muted-foreground">Manage prospective members</p>
         </div>
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading prospects...</p>
           </CardContent>
@@ -117,7 +117,7 @@ const Prospects = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6">
       <div>
         <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Prospects</h1>
         <p className="text-muted-foreground">
@@ -126,13 +126,13 @@ const Prospects = () => {
       </div>
 
       {prospects.length === 0 ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">No prospects at this time.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
           {prospects.map((prospect) => (
             <Card key={prospect.id} className="flex flex-col h-full w-full">
               <CardHeader className="pb-3">

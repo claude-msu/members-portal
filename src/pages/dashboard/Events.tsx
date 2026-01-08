@@ -289,7 +289,7 @@ const Events = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Events</h1>
@@ -307,13 +307,13 @@ const Events = () => {
       </div>
 
       {loading ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading events...</p>
           </CardContent>
         </Card>
       ) : events.length === 0 ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
               No upcoming events at this time.
@@ -321,7 +321,7 @@ const Events = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
           {events.map((event) => {
             const isFull = isEventFull(event);
             const userAttendance = attendanceMap.get(event.id);

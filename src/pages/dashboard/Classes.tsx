@@ -162,7 +162,7 @@ const Classes = () => {
   const canManageClasses = role === 'board' || role === 'e-board';
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Classes</h1>
@@ -180,13 +180,13 @@ const Classes = () => {
       </div>
 
       {loading ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading classes...</p>
           </CardContent>
         </Card>
       ) : classes.length === 0 ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
               No classes available at this time.
@@ -194,7 +194,7 @@ const Classes = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
           {classes.map((cls) => {
             const isEnrolled = !!cls.userEnrollment;
             const isTeacher = cls.userEnrollment?.role === 'teacher';

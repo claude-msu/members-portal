@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Instagram, Linkedin, Code, GraduationCap, Sparkles, Trophy, Rocket, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion, useAnimation } from "framer-motion"; // Added useAnimation
+import { motion, useAnimation } from "framer-motion";
 import { useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -12,49 +12,9 @@ const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
-  // 1. We use animation controls instead of simple state
   const logoControls = useAnimation();
-  const glowControls = useAnimation();
 
-  // 2. Define the Easter Egg Sequence
-  const handleEasterEggClick = async () => {
-    // Stage 1: Anticipation (Squash & Wind up)
-    // We run the logo and the glow animations in parallel
-    const anticipation = Promise.all([
-      logoControls.start({
-        scale: 0.8,
-        rotate: -15,
-        transition: { duration: 0.15, ease: "easeOut" }
-      }),
-      glowControls.start({
-        scale: 0.5,
-        opacity: 0.8,
-        transition: { duration: 0.15 }
-      })
-    ]);
-
-    await anticipation;
-
-    // Stage 2: The Spring Release (Snap & Spin)
-    // This awaits until the spring physics are mostly settled
-    await logoControls.start({
-      scale: 1.2,
-      rotate: 360,
-      transition: {
-        type: "spring",
-        stiffness: 400, // High tension
-        damping: 12,    // Low friction = bouncy
-        mass: 0.8
-      }
-    });
-
-    // Stage 3: Navigate
-    navigate('/auth');
-  };
-
-  // Standard entry animations
   useEffect(() => {
-    // Initial entry animation for the logo
     logoControls.start({
       scale: 1,
       rotate: 0,
@@ -153,8 +113,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* What We Do Section */}
-      <section className="py-32 bg-muted/30">
+      {/* What We Do Section - Smooth blend from hero */}
+      <section className="py-32 bg-gradient-to-b from-blue-50/50 via-muted/30 to-orange-50/30 dark:from-blue-950/20 dark:via-muted/30 dark:to-orange-950/10">
         <div className="container mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -253,8 +213,8 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Vision Section */}
-      <section className="py-32 bg-gradient-to-br from-background via-orange-50/20 to-background dark:from-background dark:via-orange-950/10 dark:to-background">
+      {/* Vision Section - Smooth blend into orange */}
+      <section className="py-32 bg-gradient-to-br from-orange-50/30 via-background to-orange-50/20 dark:from-orange-950/10 dark:via-background dark:to-orange-950/5">
         <div className="container mx-auto px-4">
           <motion.div
             initial="hidden"
@@ -367,7 +327,7 @@ const Index = () => {
                 onClick={() => window.open('https://www.linkedin.com/company/claude-builder-club-michigan-state/', '_blank')}
                 className={`bg-white text-claude-peach hover:bg-cream font-bold shadow-2xl hover:scale-105 transition-transform ${isMobile ? 'text-base px-8 py-6 w-full max-w-xs' : 'text-lg px-10 py-7'}`}
               >
-                <Linkedin className="h-6 w-6 mr-3" />
+                <Linkedin className={`${isMobile ? 'h-5 w-5 mr-2' : 'h-6 w-6 mr-3'}`} />
                 LinkedIn
               </Button>
             </div>

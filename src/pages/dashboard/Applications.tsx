@@ -83,7 +83,7 @@ const Applications = () => {
   const canReviewApplications = role === 'board' || role === 'e-board';
 
   return (
-    <div className={'space-y-6 p-6'}>
+    <div className="p-6">
       <div className={`flex justify-between items-center`}>
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Applications</h1>
@@ -98,13 +98,13 @@ const Applications = () => {
       </div>
 
       {loading ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading applications...</p>
           </CardContent>
         </Card>
       ) : applications.length === 0 ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
               No applications yet. Click "New Application" to get started.
@@ -112,7 +112,7 @@ const Applications = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4">
+        <div className="grid gap-4 mt-6">
           {applications.map((app) => (
             <Card key={app.id} className="hover:shadow-md transition-shadow h-[150px] p-6">
                 <div className={`flex h-full justify-between items-center ${isMobile ? 'gap-3' : ''}`}>

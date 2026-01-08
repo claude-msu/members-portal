@@ -135,7 +135,7 @@ const Projects = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Projects</h1>
@@ -153,13 +153,13 @@ const Projects = () => {
       </div>
 
       {loading ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading projects...</p>
           </CardContent>
         </Card>
       ) : projects.length === 0 ? (
-        <Card>
+        <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
               No active projects at this time.
@@ -167,7 +167,7 @@ const Projects = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))]">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
           {projects.map((project) => {
             const isMember = !!project.userMembership;
             const isLead = project.userMembership?.role === 'lead';
