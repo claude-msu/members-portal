@@ -10,6 +10,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
+  useSidebar,
 } from '@/components/ui/sidebar';
 import {
   DropdownMenu,
@@ -71,7 +72,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     return memberItems;
   };
 
-  const getRoleBadgeVariant = (roleValue: string) => {
+  const getRoleBadgeVariant = (roleValue: string): "default" | "secondary" | "outline" | "destructive" => {
     switch (roleValue) {
       case 'e-board':
         return 'default';
@@ -104,110 +105,17 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full">
-        <Sidebar>
-          <SidebarContent>
-            {/* Header */}
-            <div className="p-3 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[95px]">
-              <button
-                onClick={() => navigate('/')}
-                className="flex items-center gap-3 w-full text-left hover:bg-sidebar-accent/50 rounded-md p-0 pl-7 -m-5 transition-colors cursor-pointer"
-              >
-                <div className="relative w-12 h-12 flex-shrink-0">
-                  <img
-                    src="/msu-logo.png"
-                    alt="MSU Logo"
-                    className="w-full h-full object-contain bg-transparent"
-                  />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-[0.95rem] text-sidebar-foreground tracking-tight leading-tight">
-                    Claude Builder Club
-                  </h2>
-                  <p className="text-xs text-muted-foreground mt-0.5">MSU Chapter</p>
-                </div>
-              </button>
-            </div>
-
-            {/* Navigation */}
-            <SidebarGroup className="flex-1 flex flex-col justify-center">
-              <SidebarGroupContent>
-                <SidebarMenu className="px-3 space-y-1 gap-4">
-                  {getMenuItems().map((item) => (
-                    <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton>
-                        <NavLink
-                          to={item.url}
-                          end={item.url === '/dashboard'}
-                          className="flex items-center gap-4 px-4 py-6 rounded-lg transition-colors text-base"
-                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                        >
-                          <item.icon className="h-4 w-6" />
-                          <span className="text-lg">{item.title}</span>
-                        </NavLink>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  ))}
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
-
-            {/* Profile Card at Bottom */}
-            <div className="p-3 border-t border-sidebar-border min-h-[95px]">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-colors">
-                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
-                      <AvatarImage src={profile?.profile_picture_url || undefined} />
-                      <AvatarFallback className="text-sm">
-                        {profile?.full_name
-                          ? getInitials(profile.full_name)
-                          : user?.email?.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0 text-left">
-                      <p className="text-m font-medium truncate text-sidebar-foreground">
-                        {profile?.full_name || 'No name'}
-                      </p>
-                      <div className="flex items-center gap-4 mt-0.5">
-                        {role && (
-                          <Badge
-                            variant={getRoleBadgeVariant(role)}
-                            className="text-xs capitalize px-2 py-0"
-                          >
-                            {role.replace('-', ' ')}
-                          </Badge>
-                        )}
-                        {profile && (
-                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                            <Trophy className="h-3 w-3" />
-                            <span className="font-medium">{profile.points}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent
-                  align="center"
-                  className={isMobile ? "w-[250px]" : "w-56"}
-                  side="top"
-                  sideOffset={8}
-                >
-                  <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Profile Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-destructive hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          </SidebarContent>
-        </Sidebar>
+        <SidebarContentComponent
+          user={user}
+          profile={profile}
+          role={role}
+          signOut={signOut}
+          navigate={navigate}
+          isMobile={isMobile}
+          getMenuItems={getMenuItems}
+          getRoleBadgeVariant={getRoleBadgeVariant}
+          getInitials={getInitials}
+        />
 
         <div className="flex-1 flex flex-col">
           <header className="h-14 border-b border-border flex items-center px-4 bg-background">
@@ -220,6 +128,149 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         </div>
       </div>
     </SidebarProvider>
+  );
+};
+
+interface SidebarContentComponentProps {
+  user: any;
+  profile: any;
+  role: string | null;
+  signOut: () => void;
+  navigate: (path: string) => void;
+  isMobile: boolean;
+  getMenuItems: () => any[];
+  getRoleBadgeVariant: (role: string) => string;
+  getInitials: (name: string) => string;
+}
+
+const SidebarContentComponent = ({
+  user,
+  profile,
+  role,
+  signOut,
+  navigate,
+  isMobile,
+  getMenuItems,
+  getRoleBadgeVariant,
+  getInitials,
+}: SidebarContentComponentProps) => {
+  const { setOpenMobile } = useSidebar();
+
+  const handleNavClick = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+  };
+
+  return (
+    <Sidebar>
+      <SidebarContent>
+        {/* Header */}
+        <div className="p-3 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[95px]">
+          <button
+            onClick={() => navigate('/')}
+            className="flex items-center gap-3 w-full text-left hover:bg-sidebar-accent/50 rounded-md p-0 pl-7 -m-5 transition-colors cursor-pointer"
+          >
+            <div className="relative w-12 h-12 flex-shrink-0">
+              <img
+                src="/msu-logo.png"
+                alt="MSU Logo"
+                className="w-full h-full object-contain bg-transparent"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="font-bold text-[0.95rem] text-sidebar-foreground tracking-tight leading-tight">
+                Claude Builder Club
+              </h2>
+              <p className="text-xs text-muted-foreground mt-0.5">MSU Chapter</p>
+            </div>
+          </button>
+        </div>
+
+        {/* Navigation */}
+        <SidebarGroup className="flex-1 flex flex-col justify-center">
+          <SidebarGroupContent>
+            <SidebarMenu className="px-3 space-y-1 gap-4">
+              {getMenuItems().map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton>
+                    <NavLink
+                      to={item.url}
+                      end={item.url === '/dashboard'}
+                      className="flex items-center gap-4 px-4 py-6 rounded-lg transition-colors text-base"
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                      onClick={handleNavClick}
+                    >
+                      <item.icon className="h-4 w-6" />
+                      <span className="text-lg">{item.title}</span>
+                    </NavLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* Profile Card at Bottom */}
+        <div className="p-3 border-t border-sidebar-border min-h-[95px]">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-colors">
+                <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                  <AvatarImage src={profile?.profile_picture_url || undefined} />
+                  <AvatarFallback className="text-sm">
+                    {profile?.full_name
+                      ? getInitials(profile.full_name)
+                      : user?.email?.charAt(0).toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0 text-left">
+                  <p className="text-m font-medium truncate text-sidebar-foreground">
+                    {profile?.full_name || 'No name'}
+                  </p>
+                  <div className="flex items-center gap-4 mt-0.5">
+                    {role && (
+                      <Badge
+                        variant={getRoleBadgeVariant(role || '') as "default" | "secondary" | "outline" | "destructive"}
+                        className="text-xs capitalize px-2 py-0"
+                      >
+                        {role.replace('-', ' ')}
+                      </Badge>
+                    )}
+                    {profile && (
+                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <Trophy className="h-3 w-3" />
+                        <span className="font-medium">{profile.points}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="center"
+              className={isMobile ? "w-[250px]" : "w-56"}
+              side="top"
+              sideOffset={8}
+            >
+              <DropdownMenuItem onClick={() => {
+                navigate('/dashboard/profile');
+                handleNavClick();
+              }}>
+                <Settings className="h-4 w-4 mr-2" />
+                Profile Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={signOut} className="text-destructive hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sign Out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </SidebarContent>
+    </Sidebar>
   );
 };
 
