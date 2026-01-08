@@ -112,7 +112,10 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           <SidebarContent>
             {/* Header */}
             <div className="p-6 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[90px]">
-              <div className="flex items-center gap-3">
+              <button
+                onClick={() => navigate('/')}
+                className="flex items-center gap-3 w-full text-left hover:bg-sidebar-accent/50 rounded-md p-2 -m-2 transition-colors cursor-pointer"
+              >
                 <div className="relative w-12 h-12 flex-shrink-0">
                   <img
                     src="/msu-logo.png"
@@ -126,7 +129,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                   </h2>
                   <p className="text-xs text-muted-foreground mt-0.5">MSU Chapter</p>
                 </div>
-              </div>
+              </button>
             </div>
 
             {/* Navigation */}
@@ -200,7 +203,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
                     Profile Settings
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                  <DropdownMenuItem onClick={signOut} className="text-destructive hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground">
                     <LogOut className="h-4 w-4 mr-2" />
                     Sign Out
                   </DropdownMenuItem>

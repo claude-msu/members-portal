@@ -181,7 +181,7 @@ const Auth = () => {
             <Button
               type="button"
               variant="ghost"
-              className={`w-full ${isMobile ? 'h-11 text-sm' : ''}`}
+              className={`w-full hover:bg-transparent hover:text-primary transition-all duration-200 ${isMobile ? 'h-11 text-sm' : ''}`}
               onClick={() => setIsLogin(!isLogin)}
             >
               {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}

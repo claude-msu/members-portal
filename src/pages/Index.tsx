@@ -2,21 +2,66 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Instagram, Linkedin, Code, GraduationCap, Sparkles, Trophy, Rocket, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
+import { motion, useAnimation } from "framer-motion"; // Added useAnimation
+import { useEffect } from "react";
 import { Analytics } from "@vercel/analytics/react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import InteractiveLogo from "@/components/InteractiveLogo";
 
 const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [scrollY, setScrollY] = useState(0);
 
+  // 1. We use animation controls instead of simple state
+  const logoControls = useAnimation();
+  const glowControls = useAnimation();
+
+  // 2. Define the Easter Egg Sequence
+  const handleEasterEggClick = async () => {
+    // Stage 1: Anticipation (Squash & Wind up)
+    // We run the logo and the glow animations in parallel
+    const anticipation = Promise.all([
+      logoControls.start({
+        scale: 0.8,
+        rotate: -15,
+        transition: { duration: 0.15, ease: "easeOut" }
+      }),
+      glowControls.start({
+        scale: 0.5,
+        opacity: 0.8,
+        transition: { duration: 0.15 }
+      })
+    ]);
+
+    await anticipation;
+
+    // Stage 2: The Spring Release (Snap & Spin)
+    // This awaits until the spring physics are mostly settled
+    await logoControls.start({
+      scale: 1.2,
+      rotate: 360,
+      transition: {
+        type: "spring",
+        stiffness: 400, // High tension
+        damping: 12,    // Low friction = bouncy
+        mass: 0.8
+      }
+    });
+
+    // Stage 3: Navigate
+    navigate('/auth');
+  };
+
+  // Standard entry animations
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    // Initial entry animation for the logo
+    logoControls.start({
+      scale: 1,
+      rotate: 0,
+      opacity: 1,
+      transition: { duration: 0.8, type: "spring" }
+    });
+  }, [logoControls]);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -57,22 +102,7 @@ const Index = () => {
             variants={fadeInUp}
             className="max-w-5xl mx-auto text-center space-y-8"
           >
-            {/* Logo */}
-            <motion.div
-              className="flex justify-center mb-8"
-              initial={{ scale: 0, rotate: -180 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ duration: 1, ease: "easeOut" }}
-            >
-              <div className="relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-claude-peach/60 to-claude-peach blur-2xl opacity-30 animate-pulse"></div>
-                <img
-                  src="/claude-logo.png"
-                  alt="Claude Logo"
-                  className="relative h-32 w-32 md:h-40 md:w-40 drop-shadow-2xl"
-                />
-              </div>
-            </motion.div>
+            <InteractiveLogo />
 
             {/* Main Heading */}
             <motion.div
@@ -123,7 +153,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* What We Do Section - 2x2 Grid */}
+      {/* What We Do Section */}
       <section className="py-32 bg-muted/30">
         <div className="container mx-auto px-4">
           <motion.div
