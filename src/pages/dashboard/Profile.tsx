@@ -442,7 +442,7 @@ const Profile = () => {
 
               <CardContent className="space-y-6 flex-1 flex flex-col justify-between">
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="p-4 bg-gradient-to-br from-yellow-500/10 to-orange-500/10 rounded-lg border text-center">
+                  <div className="p-4 bg-gradient-to-br from-yellow-500/10 to-claude-peach/10 rounded-lg border text-center">
                     <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mx-auto mb-2" />
                     <div className="text-2xl font-bold">{profile.points}</div>
                     <div className="text-xs text-muted-foreground mt-1">Points</div>

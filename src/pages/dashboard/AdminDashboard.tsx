@@ -102,12 +102,17 @@ const AdminDashboard = () => {
     return (
         <div className={`min-h-[calc(100vh-56px)] flex flex-col justify-center ${isMobile ? 'p-4 space-y-6' : 'p-6 space-y-8'}`}>
             {/* Welcome Header with Claude Keyboard Glyph */}
-            <div className={`relative rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20 border border-orange-200 dark:border-orange-800 overflow-hidden ${isMobile ? 'p-6' : 'p-8'}`}>
+            <div
+                className={`relative rounded-xl bg-gradient-to-br border border-accent/20 dark:border-accent/30 overflow-hidden ${isMobile ? 'p-6' : 'p-8'}`}
+                style={{
+                    backgroundImage: 'linear-gradient(to bottom right, #f4ccc2, #f4c7a8)',
+                }}
+            >
                 {/* Keyboard Glyph Background */}
                 <div className="absolute inset-0 flex items-center justify-center opacity-10 dark:opacity-5 pointer-events-none">
                     <svg
                         viewBox="0 0 200 200"
-                        className="w-96 h-96 text-orange-400"
+                        className="w-96 h-96 text-claude-peach/60"
                         fill="currentColor"
                     >
                         {/* Keyboard glyph - simplified Claude icon style */}
@@ -148,7 +153,7 @@ const AdminDashboard = () => {
                 {/* Content */}
                 <div className="relative z-10 text-center">
                     <h1
-                        className={`${isMobile ? 'text-4xl' : 'text-5xl'} mb-2 font-black text-orange-600 dark:text-orange-400 drop-shadow-lg tracking-tight`}
+                        className={`${isMobile ? 'text-4xl' : 'text-5xl'} mb-2 font-black text-claude-peach dark:text-claude-peach/80 drop-shadow-lg tracking-tight`}
                         style={{
                             fontFamily: `'Roboto Mono', monospace`,
                             letterSpacing: '0.05em',
@@ -184,11 +189,11 @@ const AdminDashboard = () => {
                 </Card>
 
                 <Card className="relative overflow-hidden hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/dashboard/prospects')}>
-                    <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full -mr-16 -mt-16" />
+                    <div className="absolute top-0 right-0 w-32 h-32 bg-claude-peach/10 rounded-full -mr-16 -mt-16" />
                     <CardHeader className="pb-3">
                         <div className="flex items-center justify-between">
-                            <div className="p-2 bg-orange-500/10 rounded-lg">
-                                <UserPlus className="h-5 w-5 text-orange-600 dark:text-orange-500" />
+                            <div className="p-2 bg-claude-peach/10 rounded-lg">
+                                <UserPlus className="h-5 w-5 text-claude-peach dark:text-claude-peach/80" />
                             </div>
                             <TrendingUp className="h-4 w-4 text-muted-foreground" />
                         </div>

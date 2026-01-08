@@ -96,7 +96,7 @@ const MemberDashboard = () => {
   const getRoleGradient = (roleValue: string) => {
     switch (roleValue) {
       case 'e-board':
-        return 'from-yellow-500/10 to-orange-500/10';
+        return 'from-yellow-500/10 to-claude-peach/10';
       case 'board':
         return 'from-blue-500/10 to-purple-500/10';
       case 'member':
@@ -109,12 +109,12 @@ const MemberDashboard = () => {
   return (
     <div className={`min-h-[calc(100vh-56px)] flex flex-col justify-center ${isMobile ? 'p-4 space-y-6' : 'p-6 space-y-8'}`}>
       {/* Welcome Header with Claude Keyboard Glyph */}
-      <div className={`relative rounded-xl bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950/20 dark:to-orange-900/20 border border-orange-200 dark:border-orange-800 overflow-hidden ${isMobile ? 'p-6' : 'p-8'}`}>
+      <div className={`relative rounded-xl bg-gradient-to-br from-cream to-cream/90 dark:from-accent/20 dark:to-accent/10 border border-accent/20 dark:border-accent/30 overflow-hidden ${isMobile ? 'p-6' : 'p-8'}`}>
         {/* Keyboard Glyph Background */}
         <div className="absolute inset-0 flex items-center justify-center opacity-10 dark:opacity-5 pointer-events-none">
           <svg
             viewBox="0 0 200 200"
-            className="w-96 h-96 text-orange-400"
+            className="w-96 h-96 text-claude-peach/60"
             fill="currentColor"
           >
             {/* Keyboard glyph - simplified Claude icon style */}
@@ -155,7 +155,7 @@ const MemberDashboard = () => {
         {/* Content */}
         <div className="relative z-10 text-center">
           <h1
-            className={`${isMobile ? 'text-4xl' : 'text-5xl'} mb-2 font-black text-orange-600 dark:text-orange-400 drop-shadow-lg tracking-tight`}
+            className={`${isMobile ? 'text-4xl' : 'text-5xl'} mb-2 font-black text-claude-peach dark:text-claude-peach/80 drop-shadow-lg tracking-tight`}
             style={{
               fontFamily: `'Roboto Mono', monospace`,
               letterSpacing: '0.05em',
