@@ -13,6 +13,13 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from '@/components/ui/sidebar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { NavLink } from '@/components/NavLink';
 import {
   LayoutDashboard,
@@ -24,9 +31,9 @@ import {
   LogOut,
   Settings,
   Trophy,
-  UserPlus
+  UserPlus,
+  ChevronUp
 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
@@ -63,7 +70,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
     if (role === 'e-board' || role === 'board') {
       memberItems.push({ title: 'Members', url: '/dashboard/members', icon: Users });
-      memberItems.push({ title: 'Prospects', url: '/dashboard/prospects', icon: UserPlus }); // Add this
+      memberItems.push({ title: 'Prospects', url: '/dashboard/prospects', icon: UserPlus });
     }
 
     return memberItems;
@@ -104,61 +111,30 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       <div className="min-h-screen flex w-full">
         <Sidebar>
           <SidebarContent>
-            <div className="p-4 border-b border-sidebar-border space-y-3">
-              <h2 className="font-bold text-lg text-sidebar-foreground">Claude Builder Club</h2>
-
-              {profile && (
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={profile.profile_picture_url || undefined} />
-                    <AvatarFallback className="text-sm">
-                      {profile.full_name
-                        ? getInitials(profile.full_name)
-                        : user?.email?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium truncate text-sidebar-foreground">
-                      {profile.full_name || 'No name'}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      {role && (
-                        <Badge
-                          variant={getRoleBadgeVariant(role)}
-                          className="text-xs capitalize"
-                        >
-                          {role.replace('-', ' ')}
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {profile && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Trophy className="h-4 w-4" />
-                  <span className="font-medium">{profile.points}</span>
-                  <span>points</span>
-                </div>
-              )}
+            {/* Header */}
+            <div className="p-6 border-b border-sidebar-border">
+              <h2 className="font-bold text-xl text-sidebar-foreground tracking-tight">
+                Claude Builder Club
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">MSU Chapter</p>
             </div>
 
-            <SidebarGroup>
-              <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+            {/* Navigation */}
+            <SidebarGroup className="flex-1">
+              <SidebarGroupLabel className="px-6 py-3 text-base">Menu</SidebarGroupLabel>
               <SidebarGroupContent>
-                <SidebarMenu>
+                <SidebarMenu className="px-3 space-y-1">
                   {getMenuItems().map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton asChild>
+                      <SidebarMenuButton asChild size="lg">
                         <NavLink
                           to={item.url}
                           end={item.url === '/dashboard'}
-                          className="flex items-center gap-2"
-                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                          className="flex items-center gap-4 px-4 py-3 rounded-lg transition-colors text-base"
+                          activeClassName="bg-sidebar-accent text-sidebar-accent-foreground font-medium"
                         >
-                          <item.icon className="h-4 w-4" />
-                          <span>{item.title}</span>
+                          <item.icon className="h-4 w-6" />
+                          <span className="text-lg">{item.title}</span>
                         </NavLink>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -167,36 +143,61 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               </SidebarGroupContent>
             </SidebarGroup>
 
-            <SidebarGroup className="mt-auto">
-              <SidebarGroupContent>
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <NavLink
-                        to="/dashboard/profile"
-                        className="flex items-center gap-2"
-                        activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
-                      >
-                        <Settings className="h-4 w-4" />
-                        <span>Profile Settings</span>
-                      </NavLink>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start gap-2"
-                        onClick={signOut}
-                      >
-                        <LogOut className="h-4 w-4" />
-                        <span>Sign Out</span>
-                      </Button>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              </SidebarGroupContent>
-            </SidebarGroup>
+            {/* Profile Card at Bottom */}
+            <div className="p-3 border-t border-sidebar-border">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-accent transition-colors">
+                    <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                      <AvatarImage src={profile?.profile_picture_url || undefined} />
+                      <AvatarFallback className="text-sm">
+                        {profile?.full_name
+                          ? getInitials(profile.full_name)
+                          : user?.email?.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0 text-left">
+                      <p className="text-sm font-medium truncate text-sidebar-foreground">
+                        {profile?.full_name || 'No name'}
+                      </p>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        {role && (
+                          <Badge
+                            variant={getRoleBadgeVariant(role)}
+                            className="text-xs capitalize px-2 py-0"
+                          >
+                            {role.replace('-', ' ')}
+                          </Badge>
+                        )}
+                        {profile && (
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Trophy className="h-3 w-3" />
+                            <span className="font-medium">{profile.points}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="end"
+                  className="w-56"
+                  side="top"
+                  sideOffset={8}
+                >
+                  <DropdownMenuItem onClick={() => navigate('/dashboard/profile')}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Profile Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut} className="text-destructive focus:text-destructive">
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </SidebarContent>
         </Sidebar>
 
@@ -205,7 +206,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
             <SidebarTrigger />
           </header>
 
-          <main className="flex-1 overflow-auto">
+          <main className="flex-1 overflow-auto bg-muted/10">
             {children}
           </main>
         </div>

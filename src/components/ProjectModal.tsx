@@ -1,53 +1,64 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { Database } from '@/integrations/supabase/database.types';
+
+type Project = Database['public']['Tables']['projects']['Row'];
 
 interface ProjectModalProps {
   open: boolean;
   onClose: () => void;
   onSuccess: () => void;
+  existingProject?: Project | null;
 }
 
-type Profile = Database['public']['Tables']['profiles']['Row'];
-
-export const ProjectModal = ({ open, onClose, onSuccess }: ProjectModalProps) => {
+export const ProjectModal = ({ open, onClose, onSuccess, existingProject }: ProjectModalProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [members, setMembers] = useState<Profile[]>([]);
-  const [formData, setFormData] = useState({
-    name: '',
-    client_name: '',
-    description: '',
-    github_url: '',
-    due_date: '',
-    lead_id: '',
-  });
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
+  const [githubUrl, setGithubUrl] = useState('');
+  const [clientName, setClientName] = useState('');
+  const [dueDate, setDueDate] = useState('');
 
+  // Load existing project data when modal opens for editing
   useEffect(() => {
-    if (open) {
-      fetchMembers();
-    }
-  }, [open]);
+    if (open && existingProject) {
+      setName(existingProject.name);
+      setDescription(existingProject.description || '');
+      setGithubUrl(existingProject.github_url);
+      setClientName(existingProject.client_name || '');
 
-  const fetchMembers = async () => {
-    const { data } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('full_name', { ascending: true });
-
-    if (data) {
-      setMembers(data);
+      // Convert timestamp to YYYY-MM-DD format for date input
+      if (existingProject.due_date) {
+        const date = new Date(existingProject.due_date);
+        const formattedDate = date.toISOString().split('T')[0];
+        setDueDate(formattedDate);
+      } else {
+        setDueDate('');
+      }
+    } else if (open && !existingProject) {
+      // Reset form for new project
+      setName('');
+      setDescription('');
+      setGithubUrl('');
+      setClientName('');
+      setDueDate('');
     }
-  };
+  }, [open, existingProject]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,50 +67,70 @@ export const ProjectModal = ({ open, onClose, onSuccess }: ProjectModalProps) =>
     setLoading(true);
 
     try {
-      // Create the project
-      const projectInsert: Database['public']['Tables']['projects']['Insert'] = {
-        name: formData.name,
-        client_name: formData.client_name || null,
-        description: formData.description || null,
-        github_url: formData.github_url,
-        due_date: formData.due_date ? new Date(formData.due_date).toISOString() : null,
-        lead_id: formData.lead_id || null,
-        created_by: user.id,
-      };
+      // Convert date to ISO string at noon UTC to avoid timezone issues
+      let dueDateTimestamp = null;
+      if (dueDate) {
+        const date = new Date(dueDate + 'T12:00:00.000Z'); // Add noon UTC time
+        dueDateTimestamp = date.toISOString();
+      }
 
-      const { data: project, error: projectError } = await supabase
-        .from('projects')
-        .insert(projectInsert)
-        .select()
-        .single();
+      if (existingProject) {
+        // Update existing project
+        const { error } = await supabase
+          .from('projects')
+          .update({
+            name,
+            description: description || null,
+            github_url: githubUrl,
+            client_name: clientName || null,
+            due_date: dueDateTimestamp,
+          })
+          .eq('id', existingProject.id);
 
-      if (projectError) throw projectError;
+        if (error) throw error;
 
-      if (!project) throw new Error('Project creation failed');
+        toast({
+          title: 'Success',
+          description: 'Project updated successfully!',
+        });
+      } else {
+        // Create new project
+        const insertData: Database['public']['Tables']['projects']['Insert'] = {
+          name,
+          description: description || null,
+          github_url: githubUrl,
+          client_name: clientName || null,
+          due_date: dueDateTimestamp,
+          created_by: user.id,
+        };
 
-      // Automatically add the project lead as a member with 'lead' role
-      if (formData.lead_id) {
+        const { data: projectData, error: projectError } = await supabase
+          .from('projects')
+          .insert(insertData)
+          .select()
+          .single();
+
+        if (projectError) throw projectError;
+
+        // Add creator as project lead
         const { error: memberError } = await supabase
           .from('project_members')
           .insert({
-            user_id: formData.lead_id,
-            project_id: project.id,
+            user_id: user.id,
+            project_id: projectData.id,
             role: 'lead',
           });
 
-        if (memberError) {
-          console.error('Error adding lead as member:', memberError);
-          // Don't throw - project was created successfully
-        }
+        if (memberError) throw memberError;
+
+        toast({
+          title: 'Success',
+          description: 'Project created successfully!',
+        });
       }
 
-      toast({
-        title: 'Success',
-        description: 'Project created successfully',
-      });
       onSuccess();
       onClose();
-      resetForm();
     } catch (error: any) {
       toast({
         title: 'Error',
@@ -111,45 +142,25 @@ export const ProjectModal = ({ open, onClose, onSuccess }: ProjectModalProps) =>
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      name: '',
-      client_name: '',
-      description: '',
-      github_url: '',
-      due_date: '',
-      lead_id: '',
-    });
-  };
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Create Project</DialogTitle>
+          <DialogTitle>{existingProject ? 'Edit Project' : 'Create New Project'}</DialogTitle>
           <DialogDescription>
-            Add a new project to Claude Builder Club
+            {existingProject ? 'Update project details' : 'Add a new project to the club'}
           </DialogDescription>
         </DialogHeader>
+
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">Project Name *</Label>
             <Input
               id="name"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              placeholder="My Awesome Project"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="client_name">Client Name</Label>
-            <Input
-              id="client_name"
-              value={formData.client_name}
-              onChange={(e) => setFormData({ ...formData, client_name: e.target.value })}
-              placeholder="Optional - leave blank for internal projects"
+              placeholder="AI Chatbot Project"
             />
           </div>
 
@@ -157,63 +168,51 @@ export const ProjectModal = ({ open, onClose, onSuccess }: ProjectModalProps) =>
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
               rows={4}
-              placeholder="What is this project about? What will you build?"
+              placeholder="Brief description of the project..."
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="github_url">GitHub Repository URL *</Label>
+            <Label htmlFor="githubUrl">GitHub Repository URL *</Label>
             <Input
-              id="github_url"
+              id="githubUrl"
               type="url"
-              value={formData.github_url}
-              onChange={(e) => setFormData({ ...formData, github_url: e.target.value })}
-              placeholder="https://github.com/organization/repo"
+              value={githubUrl}
+              onChange={(e) => setGithubUrl(e.target.value)}
               required
+              placeholder="https://github.com/username/repo"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="lead_id">Project Lead</Label>
-            <Select
-              value={formData.lead_id}
-              onValueChange={(value) => setFormData({ ...formData, lead_id: value })}
-            >
-              <SelectTrigger id="lead_id">
-                <SelectValue placeholder="Select a project lead (optional)" />
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((member) => (
-                  <SelectItem key={member.id} value={member.id}>
-                    {member.full_name || member.email}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              The project lead will automatically be added as a team member
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="due_date">Due Date</Label>
+            <Label htmlFor="clientName">Client Name (Optional)</Label>
             <Input
-              id="due_date"
-              type="date"
-              value={formData.due_date}
-              onChange={(e) => setFormData({ ...formData, due_date: e.target.value })}
+              id="clientName"
+              value={clientName}
+              onChange={(e) => setClientName(e.target.value)}
+              placeholder="Company or organization name"
             />
           </div>
 
-          <div className="flex gap-3 justify-end pt-4">
-            <Button type="button" variant="outline" onClick={onClose}>
+          <div className="space-y-2">
+            <Label htmlFor="dueDate">Due Date (Optional)</Label>
+            <Input
+              id="dueDate"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+            />
+          </div>
+
+          <div className="flex gap-2 pt-4">
+            <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
-              {loading ? 'Creating...' : 'Create Project'}
+            <Button type="submit" disabled={loading} className="flex-1">
+              {loading ? 'Saving...' : existingProject ? 'Update Project' : 'Create Project'}
             </Button>
           </div>
         </form>

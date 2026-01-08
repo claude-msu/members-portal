@@ -183,9 +183,13 @@ const Profile = () => {
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels, rotation);
       const croppedFile = new File([croppedBlob], 'profile.jpg', { type: 'image/jpeg' });
 
-      // Add timestamp to filename to force cache refresh
-      const timestamp = Date.now();
-      const fileName = `${user.id}-${timestamp}.jpg`;
+      // Use format: fullname_userid.jpg (sanitize name for filename)
+      const sanitizedName = fullName
+        .toLowerCase()
+        .replace(/\s+/g, '-')  // Replace spaces with dashes
+        .replace(/[^a-z0-9_]/g, '');  // Remove special characters
+
+      const fileName = `${sanitizedName}_${user.id}.jpg`;
       const filePath = `avatars/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
@@ -201,10 +205,12 @@ const Profile = () => {
         .from('profiles')
         .getPublicUrl(filePath);
 
+      // Add timestamp to URL for cache busting
+      const timestamp = Date.now();
       const { error: updateError } = await supabase
         .from('profiles')
         .update({
-          profile_picture_url: `${publicUrl}?t=${timestamp}` // Add timestamp to URL for cache busting
+          profile_picture_url: `${publicUrl}?t=${timestamp}`
         })
         .eq('id', user.id);
 
@@ -237,7 +243,14 @@ const Profile = () => {
     if (!user) return null;
 
     const fileExt = file.name.split('.').pop();
-    const fileName = `${user.id}.${fileExt}`;
+
+    // Use format: fullname_userid.ext (sanitize name for filename)
+    const sanitizedName = fullName
+      .toLowerCase()
+      .replace(/\s+/g, '_')  // Replace spaces with underscores
+      .replace(/[^a-z0-9_]/g, '');  // Remove special characters
+
+    const fileName = `${sanitizedName}_${user.id}.${fileExt}`;
     const filePath = `resumes/${fileName}`;
 
     const { error: uploadError } = await supabase.storage

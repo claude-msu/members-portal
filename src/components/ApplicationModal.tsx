@@ -133,12 +133,19 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
 
   const uploadFile = async (file: File, folder: string) => {
     const fileExt = file.name.split('.').pop();
-    const fileName = `${Date.now()}.${fileExt}`;
-    const filePath = `${user!.id}/${folder}/${fileName}`;
+
+    // Use format: fullname_userid.ext (sanitize name for filename)
+    const sanitizedName = fullName
+      .toLowerCase()
+      .replace(/\s+/g, '_')  // Replace spaces with underscores
+      .replace(/[^a-z0-9_]/g, '');  // Remove special characters
+
+    const fileName = `${sanitizedName}_${user!.id}.${fileExt}`;
+    const filePath = `${folder}/${fileName}`;
 
     const { error: uploadError } = await supabase.storage
       .from('applications')
-      .upload(filePath, file);
+      .upload(filePath, file, { upsert: true });
 
     if (uploadError) throw uploadError;
 

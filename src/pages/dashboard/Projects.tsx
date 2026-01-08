@@ -12,7 +12,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Github, Calendar, User, Users, Briefcase, Crown } from 'lucide-react';
+import { Plus, Github, Calendar, Users, Briefcase, Crown, Eye, Edit } from 'lucide-react';
 import { format } from 'date-fns';
 import { ProjectModal } from '@/components/ProjectModal';
 import type { Database } from '@/integrations/supabase/database.types';
@@ -37,6 +37,8 @@ const Projects = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProject, setSelectedProject] = useState<ProjectWithMembers | null>(null);
   const [isTeamModalOpen, setIsTeamModalOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [editingProject, setEditingProject] = useState<Project | null>(null);
 
   useEffect(() => {
     if (user && role) {
@@ -104,40 +106,14 @@ const Projects = () => {
     setLoading(false);
   };
 
-  const handleJoinProject = async (projectId: string) => {
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('project_members')
-      .insert({
-        user_id: user.id,
-        project_id: projectId,
-        role: 'member',
-      });
-
-    if (error) {
-      console.error('Error joining project:', error);
-      return;
-    }
-
-    fetchProjects();
+  const handleViewDetails = (project: ProjectWithMembers) => {
+    setSelectedProject(project);
+    setIsDetailsModalOpen(true);
   };
 
-  const handleLeaveProject = async (projectId: string) => {
-    if (!user) return;
-
-    const { error } = await supabase
-      .from('project_members')
-      .delete()
-      .eq('user_id', user.id)
-      .eq('project_id', projectId);
-
-    if (error) {
-      console.error('Error leaving project:', error);
-      return;
-    }
-
-    fetchProjects();
+  const handleEditProject = (project: Project) => {
+    setEditingProject(project);
+    setIsModalOpen(true);
   };
 
   const handleViewTeam = (project: ProjectWithMembers) => {
@@ -145,7 +121,7 @@ const Projects = () => {
     setIsTeamModalOpen(true);
   };
 
-  const canManageProjects = role === 'board' || role === 'e-board';
+  const canManageProjects = role === 'e-board';
 
   const getInitials = (name: string) => {
     return name
@@ -164,7 +140,10 @@ const Projects = () => {
           <p className="text-muted-foreground">Active club projects</p>
         </div>
         {canManageProjects && (
-          <Button onClick={() => setIsModalOpen(true)}>
+          <Button onClick={() => {
+            setEditingProject(null);
+            setIsModalOpen(true);
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Create Project
           </Button>
@@ -280,20 +259,23 @@ const Projects = () => {
                       View on GitHub
                     </Button>
 
-                    {isMember ? (
+                    {canManageProjects ? (
                       <Button
                         variant="outline"
                         className="w-full"
-                        onClick={() => handleLeaveProject(project.id)}
+                        onClick={() => handleEditProject(project)}
                       >
-                        Leave Project
+                        <Edit className="h-4 w-4 mr-2" />
+                        Edit Details
                       </Button>
                     ) : (
                       <Button
+                        variant="outline"
                         className="w-full"
-                        onClick={() => handleJoinProject(project.id)}
+                        onClick={() => handleViewDetails(project)}
                       >
-                        Join Project
+                        <Eye className="h-4 w-4 mr-2" />
+                        View Details
                       </Button>
                     )}
                   </div>
@@ -306,9 +288,71 @@ const Projects = () => {
 
       <ProjectModal
         open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingProject(null);
+        }}
         onSuccess={fetchProjects}
+        existingProject={editingProject}
       />
+
+      {/* Project Details Modal */}
+      <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{selectedProject?.name}</DialogTitle>
+            {selectedProject?.client_name && (
+              <DialogDescription>
+                Client: {selectedProject.client_name}
+              </DialogDescription>
+            )}
+          </DialogHeader>
+          {selectedProject && (
+            <div className="space-y-6">
+              {selectedProject.description && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm">Description</h3>
+                  <p className="text-sm text-muted-foreground">
+                    {selectedProject.description}
+                  </p>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-4">
+                {selectedProject.due_date && (
+                  <div className="space-y-2">
+                    <h3 className="font-semibold text-sm">Due Date</h3>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Calendar className="h-4 w-4" />
+                      {format(new Date(selectedProject.due_date), 'MMMM d, yyyy')}
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm">Team Size</h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="h-4 w-4" />
+                    {selectedProject.memberCount} {selectedProject.memberCount === 1 ? 'member' : 'members'}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm">GitHub Repository</h3>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => window.open(selectedProject.github_url, '_blank')}
+                >
+                  <Github className="h-4 w-4 mr-2" />
+                  {selectedProject.github_url}
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Team Members Modal */}
       <Dialog open={isTeamModalOpen} onOpenChange={setIsTeamModalOpen}>

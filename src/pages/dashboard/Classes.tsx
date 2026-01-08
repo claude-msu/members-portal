@@ -3,7 +3,8 @@ import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Plus, BookOpen, MapPin, Clock, Users } from 'lucide-react';
+import { Plus, BookOpen, MapPin, Clock, Users, Edit } from 'lucide-react';
+import { ClassModal } from '@/components/ClassModal';
 import type { Database } from '@/integrations/supabase/database.types';
 
 type Class = Database['public']['Tables']['classes']['Row'];
@@ -18,6 +19,8 @@ const Classes = () => {
   const { user, role } = useAuth();
   const [classes, setClasses] = useState<ClassWithEnrollment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingClass, setEditingClass] = useState<Class | null>(null);
 
   useEffect(() => {
     if (user && role) {
@@ -92,7 +95,6 @@ const Classes = () => {
       return;
     }
 
-    // Refresh classes
     fetchClasses();
   };
 
@@ -110,8 +112,12 @@ const Classes = () => {
       return;
     }
 
-    // Refresh classes
     fetchClasses();
+  };
+
+  const handleEditClass = (cls: Class) => {
+    setEditingClass(cls);
+    setIsModalOpen(true);
   };
 
   const canManageClasses = role === 'board' || role === 'e-board';
@@ -124,7 +130,10 @@ const Classes = () => {
           <p className="text-muted-foreground">Available club classes</p>
         </div>
         {canManageClasses && (
-          <Button>
+          <Button onClick={() => {
+            setEditingClass(null);
+            setIsModalOpen(true);
+          }}>
             <Plus className="h-4 w-4 mr-2" />
             Create Class
           </Button>
@@ -195,18 +204,25 @@ const Classes = () => {
                       )}
                     </>
                   ) : (
-                    <Button
-                      className="w-full"
-                      variant="default"
-                      onClick={() => handleEnroll(cls.id)}
-                    >
-                      Enroll
-                    </Button>
+                    !canManageClasses && (
+                      <Button
+                        className="w-full"
+                        variant="default"
+                        onClick={() => handleEnroll(cls.id)}
+                      >
+                        Enroll
+                      </Button>
+                    )
                   )}
 
                   {canManageClasses && (
-                    <Button className="w-full" variant="outline">
-                      Manage Class
+                    <Button
+                      className="w-full"
+                      variant="outline"
+                      onClick={() => handleEditClass(cls)}
+                    >
+                      <Edit className="h-4 w-4 mr-2" />
+                      Edit Class
                     </Button>
                   )}
                 </div>
@@ -215,6 +231,16 @@ const Classes = () => {
           ))}
         </div>
       )}
+
+      <ClassModal
+        open={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingClass(null);
+        }}
+        onSuccess={fetchClasses}
+        existingClass={editingClass}
+      />
     </div>
   );
 };
