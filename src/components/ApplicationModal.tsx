@@ -67,11 +67,7 @@ export const ApplicationModal = ({ open, onClose, onSuccess }: ApplicationModalP
 
     if (uploadError) throw uploadError;
 
-    const { data: { publicUrl } } = supabase.storage
-      .from('applications')
-      .getPublicUrl(filePath);
-
-    return publicUrl;
+    return filePath;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

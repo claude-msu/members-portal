@@ -4,8 +4,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Plus } from 'lucide-react';
+import { Plus, Eye } from 'lucide-react';
 import { ApplicationModal } from '@/components/ApplicationModal';
+import { ApplicationViewer } from '@/components/ApplicationViewer';
 import type { Database } from '@/integrations/supabase/database.types';
 
 type Application = Database['public']['Tables']['applications']['Row'];
@@ -15,6 +16,8 @@ const Applications = () => {
   const [applications, setApplications] = useState<Application[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const [isViewerOpen, setIsViewerOpen] = useState(false);
 
   useEffect(() => {
     if (user && role) {
@@ -27,9 +30,15 @@ const Applications = () => {
 
     let query = supabase.from('applications').select('*');
 
-    // Board and e-board can see all applications
-    const canSeeAll = role === 'board' || role === 'e-board';
-    if (!canSeeAll) {
+    // E-board can see all applications
+    if (role === 'e-board') {}
+
+    // Board can see all non-board applications + their own board applications
+    else if (role === 'board') {
+      query = query.or(`application_type.neq.board,user_id.eq.${user.id}`);
+    }
+    // Regular users can only see their own
+    else {
       query = query.eq('user_id', user.id);
     }
 
@@ -39,6 +48,16 @@ const Applications = () => {
       setApplications(data);
     }
     setLoading(false);
+  };
+
+  const handleViewApplication = (application: Application) => {
+    setSelectedApplication(application);
+    setIsViewerOpen(true);
+  };
+
+  const handleCloseViewer = () => {
+    setIsViewerOpen(false);
+    setSelectedApplication(null);
   };
 
   const getStatusColor = (status: string) => {
@@ -59,12 +78,16 @@ const Applications = () => {
       .join(' ');
   };
 
+  const canReviewApplications = role === 'board' || role === 'e-board';
+
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold">Applications</h1>
-          <p className="text-muted-foreground">Submit and track your applications</p>
+          <p className="text-muted-foreground">
+            {canReviewApplications ? 'Review and manage applications' : 'Submit and track your applications'}
+          </p>
         </div>
         <Button onClick={() => setIsModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
@@ -89,20 +112,32 @@ const Applications = () => {
       ) : (
         <div className="grid gap-4">
           {applications.map((app) => (
-            <Card key={app.id}>
+            <Card key={app.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle>
-                      {formatApplicationType(app.application_type)}
-                    </CardTitle>
-                    <CardDescription>
-                      Submitted {new Date(app.created_at).toLocaleDateString()}
+                  <div className="flex-1">
+                    <CardTitle>{app.full_name}</CardTitle>
+                    <CardDescription className="flex items-center gap-2 mt-1">
+                      <span>{formatApplicationType(app.application_type)}</span>
+                      <span>•</span>
+                      <span>Submitted {new Date(app.created_at).toLocaleDateString()}</span>
                     </CardDescription>
                   </div>
-                  <Badge variant={getStatusColor(app.status)} className="capitalize">
-                    {app.status}
-                  </Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={getStatusColor(app.status)} className="capitalize">
+                      {app.status}
+                    </Badge>
+                    {canReviewApplications && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleViewApplication(app)}
+                      >
+                        <Eye className="h-4 w-4 mr-2" />
+                        Review
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
             </Card>
@@ -114,6 +149,13 @@ const Applications = () => {
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={fetchApplications}
+      />
+
+      <ApplicationViewer
+        application={selectedApplication}
+        open={isViewerOpen}
+        onClose={handleCloseViewer}
+        onUpdate={fetchApplications}
       />
     </div>
   );
