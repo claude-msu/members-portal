@@ -279,8 +279,6 @@ const ApplicationViewerPage = () => {
         if (!application) return '';
 
         switch (application.application_type) {
-            case 'club_admission':
-                return 'This will automatically change their role from Prospect to Member.';
             case 'board':
                 return `This will automatically assign them the ${application.board_position || 'board'
                     } position and change their role to Board.`;
@@ -316,28 +314,6 @@ const ApplicationViewerPage = () => {
         if (!application) return null;
 
         switch (application.application_type) {
-            case 'club_admission':
-                return (
-                    <>
-                        {application.why_join && (
-                            <div className="space-y-2">
-                                <h3 className="font-semibold text-base">Why do you want to join?</h3>
-                                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                    {application.why_join}
-                                </p>
-                            </div>
-                        )}
-                        {application.relevant_experience && (
-                            <div className="space-y-2">
-                                <h3 className="font-semibold text-base">Relevant Experience</h3>
-                                <p className="text-muted-foreground whitespace-pre-wrap leading-relaxed">
-                                    {application.relevant_experience}
-                                </p>
-                            </div>
-                        )}
-                    </>
-                );
-
             case 'board':
                 return (
                     <>

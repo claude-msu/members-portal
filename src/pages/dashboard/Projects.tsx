@@ -260,7 +260,7 @@ const Projects = () => {
           <div className="space-y-2 mt-4">
             {canManageProjects ? (
               <Button
-              className="w-full"
+                className="w-full"
                 variant="outline"
                 onClick={() => handleEditProject(project)}
               >
@@ -397,7 +397,44 @@ const Projects = () => {
                     {selectedProject.memberCount} {selectedProject.memberCount === 1 ? 'member' : 'members'}
                   </div>
                 </div>
+
+                {/* Dates */}
+                <div className="space-y-2 col-span-2">
+                  <h3 className="font-semibold text-sm">Dates</h3>
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Calendar className="h-4 w-4" />
+                    {selectedProject.start_date
+                      ? `Start: ${new Date(selectedProject.start_date).toLocaleDateString()}`
+                      : null}
+                    {selectedProject.end_date
+                      ? ` | End: ${new Date(selectedProject.end_date).toLocaleDateString()}`
+                      : null}
+                  </div>
+                </div>
               </div>
+
+              {/* Teacher */}
+              {selectedProject.members?.some(({ membership }) => membership.role === "lead") && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm">Teacher</h3>
+                  {selectedProject.members
+                    ?.filter(({ membership }) => membership.role === "lead")
+                    .map(({ membership, profile }) => (
+                      <div key={membership.id} className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={profile.profile_picture_url || undefined} />
+                          <AvatarFallback>
+                            {profile.full_name
+                              ? getInitials(profile.full_name)
+                              : profile.email.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-semibold">{profile.full_name || "No name"}</span>
+                        <span className="text-xs text-muted-foreground">{profile.email}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
 
               <div className="space-y-2">
                 <h3 className="font-semibold text-sm">GitHub Repository</h3>

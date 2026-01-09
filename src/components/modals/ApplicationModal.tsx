@@ -453,8 +453,6 @@ export const ApplicationModal = ({
     if (!existingApplication) return '';
 
     switch (existingApplication.application_type) {
-      case 'club_admission':
-        return 'This will automatically change their role from Prospect to Member.';
       case 'board':
         return `This will automatically assign them the ${existingApplication.board_position || 'board'} position and change their role to Board.`;
       case 'class':
@@ -488,28 +486,6 @@ export const ApplicationModal = ({
     if (!existingApplication) return null;
 
     switch (existingApplication.application_type) {
-      case 'club_admission':
-        return (
-          <>
-            {existingApplication.why_join && (
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Why do you want to join?</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {existingApplication.why_join}
-                </p>
-              </div>
-            )}
-            {existingApplication.relevant_experience && (
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Relevant Experience</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                  {existingApplication.relevant_experience}
-                </p>
-              </div>
-            )}
-          </>
-        );
-
       case 'board':
         return (
           <>
@@ -687,34 +663,6 @@ export const ApplicationModal = ({
     );
 
     switch (applicationType) {
-      case 'club_admission':
-        return (
-          <>
-            {commonFields}
-            <div className="space-y-2">
-              <Label htmlFor="whyJoin">Why do you want to join? *</Label>
-              <Textarea
-                id="whyJoin"
-                value={whyJoin}
-                onChange={(e) => setWhyJoin(e.target.value)}
-                required
-                rows={4}
-                placeholder="Tell us about your interest in Claude Builder Club..."
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="relevantExperience">Relevant Experience</Label>
-              <Textarea
-                id="relevantExperience"
-                value={relevantExperience}
-                onChange={(e) => setRelevantExperience(e.target.value)}
-                rows={3}
-                placeholder="Any technical or club experience..."
-              />
-            </div>
-          </>
-        );
-
       case 'board':
         return (
           <>
@@ -918,7 +866,7 @@ export const ApplicationModal = ({
 
   // Check if current user can review this application
   const canReview = user && (role === 'board' || role === 'e-board') &&
-                     existingApplication && existingApplication.user_id !== user.id;
+    existingApplication && existingApplication.user_id !== user.id;
   const deletionInfo = getDeletionInfo();
 
   // Render view mode
@@ -1156,16 +1104,11 @@ export const ApplicationModal = ({
                 <SelectValue placeholder="Select type" />
               </SelectTrigger>
               <SelectContent>
-                {role === 'prospect' && (
-                  <SelectItem value="club_admission">Club Admission</SelectItem>
-                )}
                 {role !== 'prospect' && (
-                  <>
-                    <SelectItem value="board">Board Position</SelectItem>
-                    <SelectItem value="project">Project</SelectItem>
-                    <SelectItem value="class">Class</SelectItem>
-                  </>
+                  <SelectItem value="board">Board Position</SelectItem>
                 )}
+                <SelectItem value="project">Project</SelectItem>
+                <SelectItem value="class">Class</SelectItem>
               </SelectContent>
             </Select>
           </div>

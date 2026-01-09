@@ -405,26 +405,29 @@ const Classes = () => {
                   </div>
                 </div>
               </div>
+
               {/* Teacher */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Teacher</h3>
-                {selectedClass.members
-                  ?.filter(({ enrollment }) => enrollment.role === "teacher")
-                  .map(({ enrollment, profile }) => (
-                    <div key={enrollment.id} className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={profile.profile_picture_url || undefined} />
-                        <AvatarFallback>
-                          {profile.full_name
-                            ? getInitials(profile.full_name)
-                            : profile.email.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="font-semibold">{profile.full_name || "No name"}</span>
-                      <span className="text-xs text-muted-foreground">{profile.email}</span>
-                    </div>
-                  ))}
-              </div>
+              {selectedClass.members?.some(({ enrollment }) => enrollment.role === "teacher") && (
+                <div className="space-y-2">
+                  <h3 className="font-semibold text-sm">Teacher</h3>
+                  {selectedClass.members
+                    ?.filter(({ enrollment }) => enrollment.role === "teacher")
+                    .map(({ enrollment, profile }) => (
+                      <div key={enrollment.id} className="flex items-center gap-2">
+                        <Avatar className="h-8 w-8">
+                          <AvatarImage src={profile.profile_picture_url || undefined} />
+                          <AvatarFallback>
+                            {profile.full_name
+                              ? getInitials(profile.full_name)
+                              : profile.email.charAt(0).toUpperCase()}
+                          </AvatarFallback>
+                        </Avatar>
+                        <span className="font-semibold">{profile.full_name || "No name"}</span>
+                        <span className="text-xs text-muted-foreground">{profile.email}</span>
+                      </div>
+                    ))}
+                </div>
+              )}
             </div>
           )}
         </DialogContent>

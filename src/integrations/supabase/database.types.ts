@@ -624,7 +624,7 @@ export type Database = {
     Enums: {
       app_role: "prospect" | "member" | "board" | "e-board"
       application_status: "pending" | "accepted" | "rejected"
-      application_type: "club_admission" | "board" | "project" | "class"
+      application_type: "board" | "project" | "class"
       class_member_type: "teacher" | "student"
       project_member_type: "lead" | "member"
     }
@@ -759,7 +759,7 @@ export const Constants = {
     Enums: {
       app_role: ["prospect", "member", "board", "e-board"],
       application_status: ["pending", "accepted", "rejected"],
-      application_type: ["club_admission", "board", "project", "class"],
+      application_type: ["board", "project", "class"],
       class_member_type: ["teacher", "student"],
       project_member_type: ["lead", "member"],
     },
