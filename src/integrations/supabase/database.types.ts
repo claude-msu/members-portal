@@ -176,33 +176,47 @@ export type Database = {
           created_at: string
           created_by: string
           description: string | null
+          end_date: string
           id: string
           location: string | null
           name: string
-          schedule: string | null
+          semester_id: string | null
+          start_date: string
           updated_at: string
         }
         Insert: {
           created_at?: string
           created_by: string
           description?: string | null
+          end_date: string
           id?: string
           location?: string | null
           name: string
-          schedule?: string | null
+          semester_id?: string | null
+          start_date: string
           updated_at?: string
         }
         Update: {
           created_at?: string
           created_by?: string
           description?: string | null
+          end_date?: string
           id?: string
           location?: string | null
           name?: string
-          schedule?: string | null
+          semester_id?: string | null
+          start_date?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "classes_semester_id_fkey"
+            columns: ["semester_id"]
+            isOneToOne: false
+            referencedRelation: "semesters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       event_attendance: {
         Row: {
@@ -380,8 +394,10 @@ export type Database = {
           id: string
           linkedin_username: string | null
           points: number
+          position: string | null
           profile_picture_url: string | null
           resume_url: string | null
+          team: string | null
           updated_at: string
         }
         Insert: {
@@ -393,8 +409,10 @@ export type Database = {
           id: string
           linkedin_username?: string | null
           points?: number
+          position?: string | null
           profile_picture_url?: string | null
           resume_url?: string | null
+          team?: string | null
           updated_at?: string
         }
         Update: {
@@ -406,8 +424,10 @@ export type Database = {
           id?: string
           linkedin_username?: string | null
           points?: number
+          position?: string | null
           profile_picture_url?: string | null
           resume_url?: string | null
+          team?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -444,17 +464,52 @@ export type Database = {
           },
         ]
       }
+      semesters: {
+        Row: {
+          code: string
+          created_at: string
+          end_date: string
+          id: string
+          is_current: boolean
+          name: string
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          end_date: string
+          id?: string
+          is_current?: boolean
+          name: string
+          start_date: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          end_date?: string
+          id?: string
+          is_current?: boolean
+          name?: string
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       projects: {
         Row: {
           client_name: string | null
           created_at: string
           created_by: string | null
           description: string | null
-          due_date: string | null
+          end_date: string
           github_url: string
           id: string
           lead_id: string | null
           name: string
+          semester_id: string | null
+          start_date: string
           updated_at: string
         }
         Insert: {
@@ -462,11 +517,13 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          due_date?: string | null
+          end_date: string
           github_url: string
           id?: string
           lead_id?: string | null
           name: string
+          semester_id?: string | null
+          start_date: string
           updated_at?: string
         }
         Update: {
@@ -474,14 +531,24 @@ export type Database = {
           created_at?: string
           created_by?: string | null
           description?: string | null
-          due_date?: string | null
+          end_date?: string
           github_url?: string
           id?: string
           lead_id?: string | null
           name?: string
+          semester_id?: string | null
+          start_date?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projects_semester_id_fkey"
+            columns: ["semester_id"]
+            isOneToOne: false
+            referencedRelation: "semesters"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

@@ -33,7 +33,7 @@ import {
     BookOpen,
 } from 'lucide-react';
 import { format, addDays, differenceInDays } from 'date-fns';
-import ProfileViewer from '@/components/ProfileViewer';
+import ProfileViewer from '@/components/modals/ProfileModal';
 import type { Database } from '@/integrations/supabase/database.types';
 
 type Application = Database['public']['Tables']['applications']['Row'];
@@ -499,7 +499,7 @@ const ApplicationViewerPage = () => {
                     <Button
                         variant="ghost"
                         onClick={() => navigate('/dashboard/applications')}
-                        className="mb-6 hover:bg-accent"
+                        className="mb-6 hover:bg-primary"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Applications

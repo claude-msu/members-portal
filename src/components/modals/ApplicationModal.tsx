@@ -49,8 +49,12 @@ import type { Database } from '@/integrations/supabase/database.types';
 
 type ApplicationType = Database['public']['Enums']['application_type'];
 type Application = Database['public']['Tables']['applications']['Row'];
-type Class = Database['public']['Tables']['classes']['Row'];
-type Project = Database['public']['Tables']['projects']['Row'];
+type Class = Database['public']['Tables']['classes']['Row'] & {
+  semesters: { code: string; name: string } | null;
+};
+type Project = Database['public']['Tables']['projects']['Row'] & {
+  semesters: { code: string; name: string } | null;
+};
 
 interface ApplicationModalProps {
   open: boolean;
@@ -165,18 +169,36 @@ export const ApplicationModal = ({
   }, [open, isViewMode]);
 
   const fetchAvailableOptions = async () => {
+    const now = new Date().toISOString();
+
+    // Fetch only classes that haven't started yet
     const { data: classesData } = await supabase
       .from('classes')
-      .select('*')
+      .select(`
+        *,
+        semesters (
+          code,
+          name
+        )
+      `)
+      .gt('start_date', now)
       .order('name', { ascending: true });
 
     if (classesData) {
       setAvailableClasses(classesData);
     }
 
+    // Fetch only projects that haven't started yet
     const { data: projectsData } = await supabase
       .from('projects')
-      .select('*')
+      .select(`
+        *,
+        semesters (
+          code,
+          name
+        )
+      `)
+      .gt('start_date', now)
       .order('name', { ascending: true });
 
     if (projectsData) {
@@ -633,7 +655,7 @@ export const ApplicationModal = ({
           </Select>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="resume">Resume (PDF)</Label>
+          <Label htmlFor="resume">Resume</Label>
           <Input
             id="resume"
             type="file"
@@ -770,7 +792,7 @@ export const ApplicationModal = ({
                 <SelectContent>
                   {availableProjects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
-                      {project.name}
+                      {project.name} {project.semesters && `(${project.semesters.code})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -847,7 +869,7 @@ export const ApplicationModal = ({
                 <SelectContent>
                   {availableClasses.map((cls) => (
                     <SelectItem key={cls.id} value={cls.id}>
-                      {cls.name}
+                      {cls.name} {cls.semesters && `(${cls.semesters.code})`}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -895,7 +917,7 @@ export const ApplicationModal = ({
 
   // Check if current user can review this application
   const canReview = user && (role === 'board' || role === 'e-board') &&
-    existingApplication && existingApplication.user_id !== user.id;
+                     existingApplication && existingApplication.user_id !== user.id;
   const deletionInfo = getDeletionInfo();
 
   // Render view mode

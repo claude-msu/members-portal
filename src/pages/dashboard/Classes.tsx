@@ -12,12 +12,15 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, MapPin, Clock, Users, Edit, GraduationCap } from 'lucide-react';
+import { Plus, MapPin, Users, Edit, GraduationCap, Calendar } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { ClassModal } from '@/components/ClassModal';
+import { format } from 'date-fns';
+import { ClassModal } from '@/components/modals/ClassModal';
 import type { Database } from '@/integrations/supabase/database.types';
 
-type Class = Database['public']['Tables']['classes']['Row'];
+type Class = Database['public']['Tables']['classes']['Row'] & {
+  semesters: { code: string; name: string } | null;
+};
 type ClassEnrollment = Database['public']['Tables']['class_enrollments']['Row'];
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -49,11 +52,17 @@ const Classes = () => {
   const fetchClasses = async () => {
     if (!user) return;
 
-    // Fetch all classes
+    // Fetch all classes with semester info
     const { data: classesData, error: classesError } = await supabase
       .from('classes')
-      .select('*')
-      .order('name', { ascending: true });
+      .select(`
+        *,
+        semesters (
+          code,
+          name
+        )
+      `)
+      .order('start_date', { ascending: false });
 
     if (classesError) {
       console.error('Error fetching classes:', classesError);
@@ -81,7 +90,7 @@ const Classes = () => {
     const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
 
     // Combine data
-    const classesWithMembers: ClassWithMembers[] = classesData.map(cls => {
+    const classesWithMembers: ClassWithMembers[] = (classesData as Class[]).map(cls => {
       const classEnrollments = enrollmentsData?.filter(e => e.class_id === cls.id) || [];
       const members = classEnrollments
         .map(enrollment => ({
@@ -102,6 +111,16 @@ const Classes = () => {
 
     setClasses(classesWithMembers);
     setLoading(false);
+  };
+
+  const getClassStatus = (cls: ClassWithMembers) => {
+    const now = new Date();
+    const startDate = new Date(cls.start_date);
+    const endDate = new Date(cls.end_date);
+
+    if (startDate > now) return { label: 'Open for Enrollment', color: 'bg-green-500', state: 'available' };
+    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500', state: 'completed' };
+    return { label: 'In Progress', color: 'bg-blue-500', state: 'in_progress' };
   };
 
   const handleEnroll = async (classId: string) => {
@@ -160,13 +179,143 @@ const Classes = () => {
   };
 
   const canManageClasses = role === 'board' || role === 'e-board';
+  const canSeeAll = role === 'board' || role === 'e-board';
+
+  // Filter and group classes
+  const availableClasses = classes.filter(c => {
+    const status = getClassStatus(c);
+    return status.state === 'available';
+  });
+
+  const inProgressClasses = classes.filter(c => {
+    const status = getClassStatus(c);
+    if (status.state !== 'in_progress') return false;
+    return canSeeAll || c.userEnrollment;
+  });
+
+  const completedClasses = classes.filter(c => {
+    const status = getClassStatus(c);
+    if (status.state !== 'completed') return false;
+    return canSeeAll || c.userEnrollment;
+  });
+
+  const renderClassCard = (cls: ClassWithMembers) => {
+    const isEnrolled = !!cls.userEnrollment;
+    const isTeacher = cls.userEnrollment?.role === 'teacher';
+    const status = getClassStatus(cls);
+
+    return (
+      <Card key={cls.id} className="flex flex-col h-full w-full relative">
+        <Badge className={`absolute top-2 right-2 ${status.color} text-white text-xs z-10`}>
+          {status.label}
+        </Badge>
+        <CardHeader className="pb-0">
+          <div className="flex items-center justify-between gap-3 pr-32">
+            <CardTitle className="text-lg flex-1">{cls.name}</CardTitle>
+            {isEnrolled && (
+              <Badge variant={isTeacher ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
+                {isTeacher ? 'Teacher' : 'Student'}
+              </Badge>
+            )}
+          </div>
+          {cls.description && (
+            <CardDescription className="mt-2">{cls.description}</CardDescription>
+          )}
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <div className="space-y-3 text-sm text-muted-foreground">
+            {/* Semester Info */}
+            {cls.semesters && (
+              <div className="flex items-center gap-2">
+                <Calendar className="h-4 w-4" />
+                {cls.semesters.code} - {cls.semesters.name}
+              </div>
+            )}
+
+            {/* Date Range */}
+            <div className="flex items-center gap-2 text-xs">
+              {format(new Date(cls.start_date), 'MMM d')} - {format(new Date(cls.end_date), 'MMM d, yyyy')}
+            </div>
+
+            {cls.location && (
+              <div className="flex items-center gap-2">
+                <MapPin className="h-4 w-4" />
+                {cls.location}
+              </div>
+            )}
+
+            {/* Class Members Preview */}
+            <div className="flex items-center gap-2 cursor-pointer group w-fit">
+              <Users className="h-4 w-4 group-hover:text-orange-600 transition-colors duration-400" />
+              <span
+                className="underline decoration-transparent group-hover:decoration-orange-600 group-hover:text-orange-600 transition-all duration-400"
+                onClick={() => handleViewMembers(cls)}
+              >
+                {cls.memberCount} {cls.memberCount === 1 ? 'class member' : 'class members'}
+              </span>
+            </div>
+            {cls.members.length > 0 && (
+              <div className="flex -space-x-2 mb-6">
+                {cls.members.slice(0, 5).map(({ enrollment, profile }) => (
+                  <Avatar key={enrollment.id} className="h-8 w-8 border-2 border-background">
+                    <AvatarImage src={profile.profile_picture_url || undefined} />
+                    <AvatarFallback className="text-xs">
+                      {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                ))}
+                {cls.members.length > 5 && (
+                  <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
+                    +{cls.members.length - 5}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2 mt-4">
+            {!canManageClasses && status.state === 'available' && (
+              cls.userEnrollment ? (
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => handleUnenroll(cls.id)}
+                >
+                  Unenroll
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  variant="default"
+                  onClick={() => handleEnroll(cls.id)}
+                >
+                  Enroll
+                </Button>
+              )
+            )}
+
+            {canManageClasses && (
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => handleEditClass(cls)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                Edit Class
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
 
   return (
     <div className="p-6">
       <div className="flex justify-between items-center">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Classes</h1>
-          <p className="text-muted-foreground">Available classes</p>
+          <p className="text-muted-foreground">Club classes</p>
         </div>
         {canManageClasses && (
           <Button onClick={() => {
@@ -185,114 +334,52 @@ const Classes = () => {
             <p className="text-center text-muted-foreground">Loading classes...</p>
           </CardContent>
         </Card>
-      ) : classes.length === 0 ? (
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">
-              No classes available at this time.
-            </p>
-          </CardContent>
-        </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-6">
-          {classes.map((cls) => {
-            const isEnrolled = !!cls.userEnrollment;
-            const isTeacher = cls.userEnrollment?.role === 'teacher';
+        <div className="space-y-8 mt-6">
+          {/* Available Classes */}
+          {availableClasses.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold mb-4">Available to Join</h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {availableClasses.map(renderClassCard)}
+              </div>
+            </div>
+          )}
 
-            return (
-              <Card key={cls.id} className="flex flex-col h-full w-full">
-                <CardHeader className="pb-0">
-                  <div className="flex items-center justify-between gap-3">
-                    <CardTitle className="text-lg flex-1">{cls.name}</CardTitle>
-                    {isEnrolled && (
-                      <Badge variant={isTeacher ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
-                        {isTeacher ? 'Teacher' : 'Student'}
-                      </Badge>
-                    )}
-                  </div>
-                  {cls.description && (
-                    <CardDescription className="mt-2">{cls.description}</CardDescription>
-                  )}
-                </CardHeader>
-                <CardContent className="flex flex-col flex-1 min-h-0">
-                {cls.location && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <MapPin className="h-4 w-4" />
-                    {cls.location}
-                  </div>
-                )}
-                {cls.schedule && (
-                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <Clock className="h-4 w-4" />
-                    {cls.schedule}
-                  </div>
-                )}
-                {/* Class Members Preview */}
-                <div className="space-y-3 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2 cursor-pointer group w-fit">
-                    <Users className="h-4 w-4 group-hover:text-orange-600 transition-colors duration-400" />
-                    <span
-                      className="underline decoration-transparent group-hover:decoration-orange-600 group-hover:text-orange-600 transition-all duration-400"
-                      onClick={() => handleViewMembers(cls)}
-                    >
-                      {cls.memberCount} {cls.memberCount === 1 ? 'class member' : 'class members'}
-                    </span>
-                  </div>
-                  {cls.members.length > 0 && (
-                    <div className="flex -space-x-2 mb-6">
-                      {cls.members.slice(0, 5).map(({ enrollment, profile }) => (
-                        <Avatar key={enrollment.id} className="h-8 w-8 border-2 border-background">
-                          <AvatarImage src={profile.profile_picture_url || undefined} />
-                          <AvatarFallback className="text-xs">
-                            {profile.full_name ? getInitials(profile.full_name) : profile.email.charAt(0).toUpperCase()}
-                          </AvatarFallback>
-                        </Avatar>
-                      ))}
-                      {cls.members.length > 5 && (
-                        <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
-                          +{cls.members.length - 5}
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+          {/* In Progress Classes */}
+          {inProgressClasses.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold mb-4">
+                {canSeeAll ? 'In Progress' : 'My Current Classes'}
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {inProgressClasses.map(renderClassCard)}
+              </div>
+            </div>
+          )}
 
-                  <div className="space-y-2 mt-4">
-                    {!canManageClasses && (
-                      cls.userEnrollment ? (
-                        <Button
-                          className="w-full"
-                          variant="outline"
-                          onClick={() => handleUnenroll(cls.id)}
-                        >
-                          Unenroll
-                        </Button>
-                      ) : (
-                        <Button
-                          className="w-full"
-                          variant="default"
-                          onClick={() => handleEnroll(cls.id)}
-                        >
-                          Enroll
-                        </Button>
-                      )
-                    )}
+          {/* Completed Classes */}
+          {completedClasses.length > 0 && (
+            <div>
+              <h2 className="text-xl font-bold mb-4">
+                {canSeeAll ? 'Completed' : 'My Past Classes'}
+              </h2>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+                {completedClasses.map(renderClassCard)}
+              </div>
+            </div>
+          )}
 
-                    {canManageClasses && (
-                      <Button
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => handleEditClass(cls)}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        Edit Class
-                      </Button>
-                    )}
-                  </div>
+          {/* Empty State */}
+          {availableClasses.length === 0 && inProgressClasses.length === 0 && completedClasses.length === 0 && (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">
+                  No classes at this time.
+                </p>
               </CardContent>
             </Card>
-            );
-          })}
+          )}
         </div>
       )}
 
