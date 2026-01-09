@@ -306,6 +306,14 @@ const Classes = () => {
             <p className="text-center text-muted-foreground">Loading classes...</p>
           </CardContent>
         </Card>
+      ) : availableClasses.length === 0 && inProgressClasses.length === 0 && completedClasses.length === 0 ? (
+        < Card >
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              No classes at this time.
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="mt-6">
           {/* In Progress Classes */}
@@ -322,17 +330,6 @@ const Classes = () => {
           <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))]">
             {completedClasses.map(renderClassCard)}
           </div>
-
-          {/* Empty State */}
-          {availableClasses.length === 0 && inProgressClasses.length === 0 && completedClasses.length === 0 && (
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">
-                  No classes at this time.
-                </p>
-              </CardContent>
-            </Card>
-          )}
         </div>
       )}
 
@@ -471,7 +468,7 @@ const Classes = () => {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </div >
   );
 };
 

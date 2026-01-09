@@ -316,6 +316,15 @@ const Projects = () => {
             <p className="text-center text-muted-foreground">Loading projects...</p>
           </CardContent>
         </Card>
+      ) : availableProjects.length === 0 && inProgressProjects.length === 0 && completedProjects.length === 0 ? (
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              No projects at this time.
+            </p>
+          </CardContent>
+        </Card>
+
       ) : (
         <div className="mt-6">
           {/* In Progress Projects */}
@@ -334,16 +343,6 @@ const Projects = () => {
             {completedProjects.map(renderProjectCard)}
           </div>
 
-          {/* Empty State */}
-          {availableProjects.length === 0 && inProgressProjects.length === 0 && completedProjects.length === 0 && (
-            <Card>
-              <CardContent className="pt-6">
-                <p className="text-center text-muted-foreground">
-                  No projects at this time.
-                </p>
-              </CardContent>
-            </Card>
-          )}
         </div>
       )}
 

@@ -126,23 +126,21 @@ const Applications = () => {
                   <Badge variant={getStatusColor(app.status)} className="capitalize">
                     {app.status}
                   </Badge>
-                  {canReviewApplications && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={e => {
-                        if (e.ctrlKey || e.metaKey) {
-                          window.open(`/applications/${app.id}`, '_blank', 'noopener');
-                        } else {
-                          navigate(`/applications/${app.id}`);
-                        }
-                      }}
-                      className="rounded-md px-3 h-9"
-                    >
-                      <Eye className="h-4 w-4 mr-2" />
-                      Review
-                    </Button>
-                  )}
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={e => {
+                      if (e.ctrlKey || e.metaKey) {
+                        window.open(`/applications/${app.id}`, '_blank', 'noopener');
+                      } else {
+                        navigate(`/applications/${app.id}`);
+                      }
+                    }}
+                    className="rounded-md px-3 h-9"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Review
+                  </Button>
                 </div>
               </div>
             </Card>

@@ -594,38 +594,6 @@ const ApplicationViewerPage = () => {
                             <div className="space-y-6">{renderApplicationFields()}</div>
                         </div>
 
-                        {/* Documents Card */}
-                        {(application.resume_url || application.transcript_url) && (
-                            <div className="bg-card border rounded-lg p-6 shadow-sm">
-                                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                                    <FileText className="h-5 w-5" />
-                                    Documents
-                                </h2>
-                                <div className="flex flex-wrap gap-3">
-                                    {application.resume_url && (
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handleOpenDocument(application.resume_url!)}
-                                            className="flex-1 min-w-[200px]"
-                                        >
-                                            <ExternalLink className="h-4 w-4 mr-2" />
-                                            View Resume
-                                        </Button>
-                                    )}
-                                    {application.transcript_url && (
-                                        <Button
-                                            variant="outline"
-                                            onClick={() => handleOpenDocument(application.transcript_url!)}
-                                            className="flex-1 min-w-[200px]"
-                                        >
-                                            <ExternalLink className="h-4 w-4 mr-2" />
-                                            View Transcript
-                                        </Button>
-                                    )}
-                                </div>
-                            </div>
-                        )}
-
                         {/* Action Buttons */}
                         {application.status === 'pending' && canReview && (
                             <div className="bg-card border rounded-lg p-6 shadow-sm">
@@ -654,61 +622,98 @@ const ApplicationViewerPage = () => {
 
                     {/* Right Column - Applicant Profile */}
                     <div
-                        className={`space-y-6 transition-all duration-700 delay-200 ${animateIn ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
+                        className={`transition-all duration-700 delay-200 ${animateIn ? 'opacity-100 translate-x-0' : 'opacity-0 translate-x-8'
                             }`}
                     >
-                        <div className="bg-card border rounded-lg p-6 shadow-sm sticky top-8">
-                            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-                                <User className="h-5 w-5" />
-                                Applicant Profile
-                            </h2>
 
-                            {applicantProfile ? (
-                                <div className="space-y-4">
-                                    <div className="text-center pb-4 border-b">
-                                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 mx-auto mb-3 flex items-center justify-center text-white text-3xl font-bold">
-                                            {applicantProfile.full_name?.[0]?.toUpperCase() ||
-                                                applicantProfile.email[0].toUpperCase()}
-                                        </div>
-                                        <h3 className="font-semibold text-lg">
-                                            {applicantProfile.full_name || 'No name'}
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground">{applicantProfile.email}</p>
-                                    </div>
+                        <div className="space-y-6 lg:sticky lg:top-24">
 
-                                    <div className="space-y-3">
-                                        {applicantProfile.class_year && (
-                                            <div className="flex justify-between">
-                                                <span className="text-sm text-muted-foreground">Class Year</span>
-                                                <span className="font-medium capitalize">
-                                                    {applicantProfile.class_year}
-                                                </span>
+                            {/* Applicant Profile Card */}
+                            <div className="bg-card border rounded-lg p-6 shadow-sm">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                                    <User className="h-5 w-5" />
+                                    Applicant Profile
+                                </h2>
+
+                                {applicantProfile ? (
+                                    <div className="space-y-4">
+                                        <div className="text-center pb-4 border-b">
+                                            <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-purple-600 mx-auto mb-3 flex items-center justify-center text-white text-3xl font-bold">
+                                                {applicantProfile.full_name?.[0]?.toUpperCase() ||
+                                                    applicantProfile.email[0].toUpperCase()}
                                             </div>
-                                        )}
-                                        <div className="flex justify-between">
-                                            <span className="text-sm text-muted-foreground">Club Points</span>
-                                            <span className="font-medium">{applicantProfile.points}</span>
+                                            <h3 className="font-semibold text-lg">
+                                                {applicantProfile.full_name || 'No name'}
+                                            </h3>
+                                            <p className="text-sm text-muted-foreground">{applicantProfile.email}</p>
                                         </div>
-                                        <div className="flex justify-between">
-                                            <span className="text-sm text-muted-foreground">Current Role</span>
-                                            <Badge variant="outline" className="capitalize">
-                                                {applicantProfile.role.replace('-', ' ')}
-                                            </Badge>
-                                        </div>
-                                    </div>
 
-                                    <Button
-                                        variant="outline"
-                                        className="w-full"
-                                        onClick={() => setShowProfileViewer(true)}
-                                    >
-                                        View Full Profile
-                                    </Button>
+                                        <div className="space-y-3">
+                                            {applicantProfile.class_year && (
+                                                <div className="flex justify-between">
+                                                    <span className="text-sm text-muted-foreground">Class Year</span>
+                                                    <span className="font-medium capitalize">
+                                                        {applicantProfile.class_year}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="flex justify-between">
+                                                <span className="text-sm text-muted-foreground">Club Points</span>
+                                                <span className="font-medium">{applicantProfile.points}</span>
+                                            </div>
+                                            <div className="flex justify-between">
+                                                <span className="text-sm text-muted-foreground">Current Role</span>
+                                                <Badge variant="outline" className="capitalize">
+                                                    {applicantProfile.role.replace('-', ' ')}
+                                                </Badge>
+                                            </div>
+                                        </div>
+
+                                        <Button
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={() => setShowProfileViewer(true)}
+                                        >
+                                            View Full Profile
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-muted-foreground text-center py-4">
+                                        Profile information unavailable
+                                    </p>
+                                )}
+                            </div>
+
+                            {/* Documents Card - Inside the sticky wrapper */}
+                            {(application.resume_url || application.transcript_url) && (
+                                <div className="bg-card border rounded-lg p-6 shadow-sm">
+                                    <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                                        <FileText className="h-5 w-5" />
+                                        Documents
+                                    </h2>
+                                    <div className="flex flex-col gap-3">
+                                        {application.resume_url && (
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => handleOpenDocument(application.resume_url!)}
+                                                className="w-full justify-start"
+                                            >
+                                                <ExternalLink className="h-4 w-4 mr-2" />
+                                                View Resume
+                                            </Button>
+                                        )}
+                                        {application.transcript_url && (
+                                            <Button
+                                                variant="outline"
+                                                onClick={() => handleOpenDocument(application.transcript_url!)}
+                                                className="w-full justify-start"
+                                            >
+                                                <ExternalLink className="h-4 w-4 mr-2" />
+                                                View Transcript
+                                            </Button>
+                                        )}
+                                    </div>
                                 </div>
-                            ) : (
-                                <p className="text-sm text-muted-foreground text-center py-4">
-                                    Profile information unavailable
-                                </p>
                             )}
                         </div>
                     </div>

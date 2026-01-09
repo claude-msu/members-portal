@@ -93,6 +93,8 @@ const Events = () => {
     setLoading(false);
   };
 
+  // --- Action handlers and utilities ---
+
   const handleRSVP = async (eventId: string) => {
     if (!user) return;
 
@@ -267,6 +269,8 @@ const Events = () => {
     URL.revokeObjectURL(icsUrl);
   };
 
+  // --- Permissions/utilities ---
+
   const canManageEvents = role === 'board' || role === 'e-board';
 
   const isEventFull = (event: Event) => {
@@ -285,6 +289,165 @@ const Events = () => {
       return 'Internal Meeting';
     }
   };
+
+  // --- Event Card Renderer ---
+
+  const renderEventCard = (event: Event) => {
+    const isFull = isEventFull(event);
+    const userAttendance = attendanceMap.get(event.id);
+    const hasRSVPed = !!userAttendance;
+    const hasAttended = userAttendance?.attended || false;
+    const attendanceCount = attendanceCounts.get(event.id) || 0;
+
+    return (
+      <Card key={event.id} className="flex flex-col h-full w-full">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between gap-3">
+            <CardTitle className="text-lg flex-1">{event.name}</CardTitle>
+            <Badge
+              variant={event.rsvp_required ? 'default' : 'secondary'}
+              className="shrink-0 whitespace-nowrap"
+            >
+              {getEventTypeLabel(event)}
+            </Badge>
+          </div>
+          <div className="space-y-3 text-sm text-muted-foreground mt-5 pt-1">
+            <Popover>
+              <PopoverTrigger asChild>
+                <div className="flex items-center gap-2 cursor-pointer group w-fit">
+                  <Calendar className="h-4 w-4 group-hover:text-orange-600 transition-colors" />
+                  <span className="underline decoration-transparent group-hover:decoration-orange-600 group-hover:text-orange-600 transition-all">
+                    {format(new Date(event.event_date), isMobile ? 'MMM d, h:mm a' : 'PPP p')}
+                  </span>
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2" align="end">
+                <div className="space-y-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-orange-50 dark:hover:bg-orange-950 hover:text-orange-600 transition-colors"
+                    onClick={() => window.open(generateGoogleCalendarLink(event), '_blank')}
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" />
+                    </svg>
+                    <span className="text-sm">Add to Google</span>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start gap-2 hover:bg-orange-50 dark:hover:bg-orange-950 hover:text-orange-600 transition-colors"
+                    onClick={() => handleAddToAppleCalendar(event)}
+                  >
+                    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
+                    </svg>
+                    <span className="text-sm">Add to Apple</span>
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4" />
+              <span className={isMobile ? 'text-xs' : ''}>{event.location}</span>
+            </div>
+            {event.points > 0 && (
+              <div className="flex items-center gap-2 text-primary">
+                <Trophy className="h-4 w-4" />
+                <span>+{event.points} points</span>
+              </div>
+            )}
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 space-y-3">
+            {event.description && !isMobile && (
+              <p className="text-sm text-muted-foreground line-clamp-2">
+                {event.description}
+              </p>
+            )}
+
+            {event.rsvp_required && (
+              <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Users className="h-4 w-4" />
+                  {attendanceCount} / {event.max_attendance} RSVPs
+                </div>
+                {isFull && !hasRSVPed && (
+                  <Badge variant="destructive">Full</Badge>
+                )}
+              </div>
+            )}
+
+            {hasRSVPed && (
+              <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+                <CheckCircle className="h-4 w-4" />
+                {hasAttended ? 'Attended' : 'RSVP Confirmed'}
+              </div>
+            )}
+          </div>
+
+          <div className="space-y-2 mt-4">
+            {!canManageEvents && (
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => handleViewDetails(event)}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                {isMobile ? 'Details' : 'View Details'}
+              </Button>
+            )}
+
+            {!canManageEvents && event.rsvp_required && role !== 'prospect' && (
+              hasRSVPed ? (
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  onClick={() => handleCancelRSVP(event.id)}
+                  disabled={hasAttended}
+                >
+                  {hasAttended ? 'Attended' : isMobile ? 'Cancel' : 'Cancel RSVP'}
+                </Button>
+              ) : (
+                <Button
+                  className="w-full"
+                  onClick={() => handleRSVP(event.id)}
+                  disabled={isFull}
+                >
+                  {isFull ? 'Full' : 'RSVP'}
+                </Button>
+              )
+            )}
+
+            {canManageEvents && (
+              <Button
+                className="w-full"
+                variant="outline"
+                onClick={() => handleEditEvent(event)}
+              >
+                <Edit className="h-4 w-4 mr-2" />
+                {isMobile ? 'Edit' : 'Edit Details'}
+              </Button>
+            )}
+
+            {canManageEvents && (
+              <Button
+                className="w-full"
+                variant="default"
+                onClick={() => handleGenerateQR(event)}
+                disabled={generatingQR === event.id}
+              >
+                <QrCode className="h-4 w-4 mr-2" />
+                {generatingQR === event.id ? 'Generating...' : isMobile ? 'QR Code' : 'Generate QR Code'}
+              </Button>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  // --- Main Component ---
 
   return (
     <div className="p-6">
@@ -319,156 +482,8 @@ const Events = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
-          {events.map((event) => {
-            const isFull = isEventFull(event);
-            const userAttendance = attendanceMap.get(event.id);
-            const hasRSVPed = !!userAttendance;
-            const hasAttended = userAttendance?.attended || false;
-            const attendanceCount = attendanceCounts.get(event.id) || 0;
-
-            return (
-              <Card key={event.id} className="flex flex-col h-full w-full">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between gap-3">
-                    <CardTitle className="text-lg flex-1">{event.name}</CardTitle>
-                    <Badge variant={event.rsvp_required ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
-                      {getEventTypeLabel(event)}
-                    </Badge>
-                  </div>
-                  <div className="space-y-3 text-sm text-muted-foreground mt-5 pt-1">
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <div className="flex items-center gap-2 cursor-pointer group w-fit">
-                          <Calendar className="h-4 w-4 group-hover:text-orange-600 transition-colors" />
-                          <span className="underline decoration-transparent group-hover:decoration-orange-600 group-hover:text-orange-600 transition-all">
-                            {format(new Date(event.event_date), isMobile ? 'MMM d, h:mm a' : 'PPP p')}
-                          </span>
-                        </div>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-48 p-2" align="end">
-                        <div className="space-y-1">
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start gap-2 hover:bg-orange-50 dark:hover:bg-orange-950 hover:text-orange-600 transition-colors"
-                            onClick={() => window.open(generateGoogleCalendarLink(event), '_blank')}
-                          >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zM9 14H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2zm-8 4H7v-2h2v2zm4 0h-2v-2h2v2zm4 0h-2v-2h2v2z" />
-                            </svg>
-                            <span className="text-sm">Add to Google</span>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            className="w-full justify-start gap-2 hover:bg-orange-50 dark:hover:bg-orange-950 hover:text-orange-600 transition-colors"
-                            onClick={() => handleAddToAppleCalendar(event)}
-                          >
-                            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                              <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                            </svg>
-                            <span className="text-sm">Add to Apple</span>
-                          </Button>
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
-                      <span className={isMobile ? 'text-xs' : ''}>{event.location}</span>
-                    </div>
-                    {event.points > 0 && (
-                      <div className="flex items-center gap-2 text-primary">
-                        <Trophy className="h-4 w-4" />
-                        <span>+{event.points} points</span>
-                      </div>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="flex flex-col flex-1 min-h-0">
-                  <div className="flex-1 space-y-3">
-                    {event.description && !isMobile && (
-                      <p className="text-sm text-muted-foreground line-clamp-2">{event.description}</p>
-                    )}
-
-                    {event.rsvp_required && (
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          {attendanceCount} / {event.max_attendance} RSVPs
-                        </div>
-                        {isFull && !hasRSVPed && (
-                          <Badge variant="destructive">Full</Badge>
-                        )}
-                      </div>
-                    )}
-
-                    {hasRSVPed && (
-                      <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-                        <CheckCircle className="h-4 w-4" />
-                        {hasAttended ? 'Attended' : 'RSVP Confirmed'}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2 mt-4">
-                    {!canManageEvents && (
-                      <Button
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => handleViewDetails(event)}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        {isMobile ? 'Details' : 'View Details'}
-                      </Button>
-                    )}
-
-                    {!canManageEvents && event.rsvp_required && role !== 'prospect' && (
-                      hasRSVPed ? (
-                        <Button
-                          className="w-full"
-                          variant="outline"
-                          onClick={() => handleCancelRSVP(event.id)}
-                          disabled={hasAttended}
-                        >
-                          {hasAttended ? 'Attended' : isMobile ? 'Cancel' : 'Cancel RSVP'}
-                        </Button>
-                      ) : (
-                        <Button
-                          className="w-full"
-                          onClick={() => handleRSVP(event.id)}
-                          disabled={isFull}
-                        >
-                          {isFull ? 'Full' : 'RSVP'}
-                        </Button>
-                      )
-                    )}
-
-                    {canManageEvents && (
-                      <Button
-                        className="w-full"
-                        variant="outline"
-                        onClick={() => handleEditEvent(event)}
-                      >
-                        <Edit className="h-4 w-4 mr-2" />
-                        {isMobile ? 'Edit' : 'Edit Details'}
-                      </Button>
-                    )}
-
-                    {canManageEvents && (
-                      <Button
-                        className="w-full"
-                        variant="default"
-                        onClick={() => handleGenerateQR(event)}
-                        disabled={generatingQR === event.id}
-                      >
-                        <QrCode className="h-4 w-4 mr-2" />
-                        {generatingQR === event.id ? 'Generating...' : isMobile ? 'QR Code' : 'Generate QR Code'}
-                      </Button>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))] mt-6">
+          {events.map(renderEventCard)}
         </div>
       )}
 
