@@ -345,7 +345,8 @@ const Classes = () => {
 
       {/* Class Details Modal */}
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent
+        className={`max-w-lg ${isMobile ? 'mx-4 max-w-[90vw] overflow-y-auto rounded-xl m-0' : ''}`}>
           <DialogHeader>
             <DialogTitle>{selectedClass?.name}</DialogTitle>
             {selectedClass?.location && (
@@ -432,7 +433,8 @@ const Classes = () => {
 
       {/* Class Members Modal */}
       <Dialog open={isMembersModalOpen} onOpenChange={setIsMembersModalOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent
+        className={`max-w-lg ${isMobile ? 'mx-4 max-w-[90vw] overflow-y-auto rounded-xl m-0' : ''}`}>
           <DialogHeader>
             <DialogTitle>{selectedClass?.name} - Class Members</DialogTitle>
             <DialogDescription>
