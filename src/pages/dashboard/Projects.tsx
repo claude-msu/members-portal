@@ -257,8 +257,9 @@ const Projects = () => {
             </div>
           )}
 
+
           <div className="space-y-2 mt-4">
-            {canManageProjects ? (
+            {canManageProjects && (
               <Button
                 className="w-full"
                 variant="outline"
@@ -267,9 +268,20 @@ const Projects = () => {
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Details
               </Button>
-            ) : (
+            )}
+            
+            <Button
+              variant={canManageProjects ? 'default' : 'outline'}
+              className="w-full"
+              onClick={() => window.open(project.github_url, '_blank')}
+            >
+              <Github className="h-4 w-4 mr-2" />
+              View on GitHub
+            </Button>
+
+            {!canManageProjects && (
               <Button
-                variant="outline"
+                variant="default"
                 className="w-full"
                 onClick={() => handleViewDetails(project)}
               >
@@ -277,15 +289,6 @@ const Projects = () => {
                 View Details
               </Button>
             )}
-
-            <Button
-              variant="default"
-              className="w-full"
-              onClick={() => window.open(project.github_url, '_blank')}
-            >
-              <Github className="h-4 w-4 mr-2" />
-              View on GitHub
-            </Button>
           </div>
         </CardContent>
       </Card>

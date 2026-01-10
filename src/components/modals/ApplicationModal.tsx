@@ -954,7 +954,7 @@ export const ApplicationModal = ({
     return (
       <>
         <Dialog open={open} onOpenChange={onClose}>
-          <DialogContent className={`${isMobile ? 'max-w-[calc(100vw-2rem)]' : 'max-w-3xl'} max-h-[90vh] overflow-y-auto rounded-xl`}>
+          <DialogContent className={`${isMobile ? 'max-w-[calc(100vw-2rem)]' : 'max-w-3xl show-scrollbar'} max-h-[90vh] overflow-y-auto rounded-xl`}>
             <DialogHeader>
               <DialogTitle className="text-2xl">{existingApplication.full_name}</DialogTitle>
               <DialogDescription className="flex items-center gap-2 mt-2">

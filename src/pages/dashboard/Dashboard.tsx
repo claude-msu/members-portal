@@ -241,7 +241,7 @@ export default function Dashboard() {
 
   const StatItem = ({ icon: Icon, color, bg, value, label, link }: any) => (
     <Card
-      className={`relative overflow-hidden hover:shadow-lg transition-all cursor-pointer group`}
+      className={`relative overflow-hidden hover:shadow-lg transition-all group${link ? ' cursor-pointer' : ''}`}
       onClick={() => link && navigate(link)}
     >
       <div className={`absolute top-0 right-0 w-32 h-32 ${bg} rounded-full -mr-16 -mt-16 transition-transform group-hover:scale-110`} />
@@ -422,7 +422,7 @@ export default function Dashboard() {
                       <div className="flex items-center justify-start justify-between gap-2">
                         <div className="flex flex-col items-left gap-2 w-[60%]">
                           <CardTitle className="text-lg font-semibold">{item.name}</CardTitle>
-                          {item.description && <p className="text-xs text-muted-foreground line-clamp-1 max-w-[50%] overflow-hidden">{item.description}</p>}
+                          {item.description && <p className="text-[14px] text-muted-foreground line-clamp-1 max-w-[50%] overflow-hidden">{item.description}</p>}
                         </div>
                         <div className="flex flex-col items-center gap-2">
                           <Badge variant="outline" className={`${status.color.replace('bg-', 'text-')} border-current scale-90 origin-right`}>{status.label}</Badge>

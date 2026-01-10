@@ -22,6 +22,8 @@ import {
 import Cropper from 'react-easy-crop';
 import type { Database } from '@/integrations/supabase/database.types';
 
+
+
 const Profile = () => {
   const { user, profile, role, refreshProfile, loading: authLoading } = useAuth();
   const { toast } = useToast();
@@ -319,9 +321,9 @@ const Profile = () => {
       case 'e-board':
         return 'default';
       case 'board':
-        return 'secondary';
+        return 'default';
       case 'member':
-        return 'outline';
+        return 'secondary';
       default:
         return 'outline';
     }
@@ -403,13 +405,35 @@ const Profile = () => {
                   <div className="w-full border-t-2"></div>
                 </div>
                 <div className="relative flex justify-center">
-                  <div className="bg-card px-4">
+                  <div className="bg-card px-4 gap-2 flex flex-row">
                     {role && (
-                      <Badge variant={getRoleBadgeVariant(role)} className="capitalize px-4 py-1.5">
-                        <span className="mr-1.5">{getRoleIcon(role)}</span>
-                        {role.replace('-', ' ')}
-                      </Badge>
+                      role === 'e-board' ? (
+                        <Badge
+                          className="text-xs capitalize px-4 py-1.5 shrink-0 whitespace-nowrap sparkle gold-shimmer text-yellow-900 font-semibold border-2 border-yellow-400/50 relative"
+                        >
+                          <span className="sparkle-particle"></span>
+                          <span className="sparkle-particle"></span>
+                          <span className="sparkle-particle"></span>
+                          <span className="relative z-10">{role.replace('-', ' ')}</span>
+                        </Badge>
+                      ) : (
+                        <Badge
+                          variant={getRoleBadgeVariant(role)}
+                          className="text-xs capitalize px-4 py-1.5"
+                        >
+                          {role.replace('-', ' ')}
+                        </Badge>
+                      )
                     )}
+                    <Badge variant="secondary" className="px-4 py-1.5 shrink-0 whitespace-nowrap bg-green-700 text-white font-semibold border-1 border-black">
+                      {profile.term_joined
+                        ? profile.term_joined
+                        : (() => {
+                          const date = user.created_at ? new Date(user.created_at) : new Date();
+                          return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                        })()
+                      }
+                    </Badge>
                   </div>
                 </div>
               </div>
@@ -470,55 +494,57 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  <div className={`grid gap-6 ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2'}`}>
-                    <div className="space-y-2">
-                      <Label htmlFor="position">Position</Label>
-                      <Input
-                        id="position"
-                        placeholder="e.g., Marketing Director"
-                        value={position}
-                        onChange={(e) => setPosition(e.target.value)}
-                      />
-                      <p className="text-xs text-muted-foreground">
-                        Your role or title in the club
-                      </p>
-                    </div>
-
-                    {role !== 'e-board' && (
+                  {role !== 'prospect' && (
+                    <div className={`grid gap-6 ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2'}`}>
                       <div className="space-y-2">
-                        <Label htmlFor="team">Team</Label>
-                        <Select value={team} onValueChange={setTeam} disabled={!position}>
-                          <SelectTrigger>
-                            <SelectValue placeholder={position ? "Select team" : "Add position first"} />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Marketing">Marketing</SelectItem>
-                            <SelectItem value="Events">Events</SelectItem>
-                            <SelectItem value="Projects">Projects</SelectItem>
-                            <SelectItem value="Social">Social</SelectItem>
-                            <SelectItem value="Career">Career</SelectItem>
-                            <SelectItem value="Courses">Courses</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <p className="text-xs text-muted-foreground">
-                          Only available if you have a position
-                        </p>
-                      </div>
-                    )}
-                    {role === 'e-board' && (
-                      <div className="space-y-2">
-                        <Label>Team</Label>
+                        <Label htmlFor="position">Position</Label>
                         <Input
-                          value="E-board"
-                          disabled
-                          className="bg-muted"
+                          id="position"
+                          placeholder="e.g., Marketing Director"
+                          value={position}
+                          onChange={(e) => setPosition(e.target.value)}
                         />
                         <p className="text-xs text-muted-foreground">
-                          E-board members are automatically assigned to the E-board team
+                          Your role or title in the club
                         </p>
                       </div>
-                    )}
-                  </div>
+
+                      {role !== 'e-board' && (
+                        <div className="space-y-2">
+                          <Label htmlFor="team">Team</Label>
+                          <Select value={team} onValueChange={setTeam} disabled={!position}>
+                            <SelectTrigger>
+                              <SelectValue placeholder={position ? "Select team" : "Add position first"} />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Marketing">Marketing</SelectItem>
+                              <SelectItem value="Events">Events</SelectItem>
+                              <SelectItem value="Projects">Projects</SelectItem>
+                              <SelectItem value="Social">Social</SelectItem>
+                              <SelectItem value="Career">Career</SelectItem>
+                              <SelectItem value="Courses">Courses</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">
+                            Only available if you have a position
+                          </p>
+                        </div>
+                      )}
+                      {role === 'e-board' && (
+                        <div className="space-y-2">
+                          <Label>Team</Label>
+                          <Input
+                            value="E-board"
+                            disabled
+                            className="bg-muted"
+                          />
+                          <p className="text-xs text-muted-foreground">
+                            E-board members are automatically assigned to the E-board team
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   <div className="space-y-2">
                     <Label htmlFor="linkedinUsername">

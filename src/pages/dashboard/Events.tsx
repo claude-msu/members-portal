@@ -17,7 +17,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Calendar, MapPin, Users, Trophy, CheckCircle, Eye, Edit, QrCode } from 'lucide-react';
+import { Plus, Calendar, MapPin, Users, Trophy, CheckCircle, Eye, Edit, QrCode, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { EventModal } from '@/components/modals/EventModal';
 import QRCodeLib from 'qrcode';
@@ -111,7 +111,12 @@ const Events = () => {
       return;
     }
 
-    fetchEvents();
+    await fetchEvents();
+
+    toast({
+      title: 'Success',
+      description: 'Your RSVP is confirmed.',
+    });
   };
 
   const handleCancelRSVP = async (eventId: string) => {
@@ -128,7 +133,13 @@ const Events = () => {
       return;
     }
 
-    fetchEvents();
+
+    await fetchEvents();
+
+    toast({
+      title: 'Success',
+      description: 'Your RSVP has been cancelled.',
+    })
   };
 
   const handleEditEvent = (event: Event) => {
@@ -377,32 +388,14 @@ const Events = () => {
                 )}
               </div>
             )}
-
-            {hasRSVPed && (
-              <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-                <CheckCircle className="h-4 w-4" />
-                {hasAttended ? 'Attended' : 'RSVP Confirmed'}
-              </div>
-            )}
           </div>
 
           <div className="space-y-2 mt-4">
-            {!canManageEvents && (
-              <Button
-                className="w-full"
-                variant="outline"
-                onClick={() => handleViewDetails(event)}
-              >
-                <Eye className="h-4 w-4 mr-2" />
-                {isMobile ? 'Details' : 'View Details'}
-              </Button>
-            )}
-
             {!canManageEvents && event.rsvp_required && role !== 'prospect' && (
               hasRSVPed ? (
                 <Button
                   className="w-full"
-                  variant="outline"
+                  variant='destructive'
                   onClick={() => handleCancelRSVP(event.id)}
                   disabled={hasAttended}
                 >
@@ -413,6 +406,7 @@ const Events = () => {
                   className="w-full"
                   onClick={() => handleRSVP(event.id)}
                   disabled={isFull}
+                  variant='outline'
                 >
                   {isFull ? 'Full' : 'RSVP'}
                 </Button>
@@ -439,6 +433,17 @@ const Events = () => {
               >
                 <QrCode className="h-4 w-4 mr-2" />
                 {generatingQR === event.id ? 'Generating...' : isMobile ? 'QR Code' : 'Generate QR Code'}
+              </Button>
+            )}
+
+            {!canManageEvents && (
+              <Button
+                className="w-full"
+                variant='default'
+                onClick={() => handleViewDetails(event)}
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                {isMobile ? 'Details' : 'View Details'}
               </Button>
             )}
           </div>
@@ -497,24 +502,24 @@ const Events = () => {
         existingEvent={editingEvent}
       />
 
+      {/* Event Details Modal */}
       <Dialog open={isDetailsModalOpen} onOpenChange={setIsDetailsModalOpen}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
+        <DialogContent
+          className={`max-w-lg ${isMobile ? 'mx-4 max-w-[90vw] overflow-y-auto rounded-xl m-0 gap-5' : 'py-10'}`}>
+          <DialogHeader className={`${isMobile ? 'justify-center items-center' : 'flex-row justify-between items-center'}`}>
             <DialogTitle className="text-2xl">{selectedEvent?.name}</DialogTitle>
-            <div className="flex items-center gap-2 mt-2">
-              <Badge variant={selectedEvent?.rsvp_required ? 'default' : 'secondary'}>
-                {selectedEvent && getEventTypeLabel(selectedEvent)}
-              </Badge>
-            </div>
+            <Badge variant={selectedEvent?.rsvp_required ? 'default' : 'secondary'} className={`w-fit ${isMobile ? ' mt-2' : '!m-0'}`}>
+              {selectedEvent && getEventTypeLabel(selectedEvent)}
+            </Badge>
           </DialogHeader>
           {selectedEvent && (
             <div className="space-y-6">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <p className="text-sm font-medium">Date & Time</p>
+                  <p className="text-sm font-medium">Time</p>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
-                    {format(new Date(selectedEvent.event_date), 'PPP p')}
+                    {format(new Date(selectedEvent.event_date), 'p')}
                   </div>
                 </div>
                 <div className="space-y-2">
@@ -523,6 +528,13 @@ const Events = () => {
                     <MapPin className="h-4 w-4" />
                     {selectedEvent.location}
                   </div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Date</p>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="h-4 w-4" />
+                  {format(new Date(selectedEvent.event_date), 'PPP')}
                 </div>
               </div>
 
@@ -550,7 +562,7 @@ const Events = () => {
                 <p className="text-sm text-muted-foreground">
                   {selectedEvent.rsvp_required
                     ? `This is a closed meeting with limited capacity (${selectedEvent.max_attendance} attendees). RSVP is required.`
-                    : 'This is an open meeting. All members are welcome to attend without RSVP.'}
+                    : 'This is an open meeting. Members and prospects are welcome to attend.'}
                 </p>
               </div>
 

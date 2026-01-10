@@ -268,7 +268,7 @@ const Classes = () => {
               </Button>
             ) : (
               <Button
-                variant="outline"
+                variant="default"
                 className="w-full"
                 onClick={() => handleViewDetails(cls)}
               >

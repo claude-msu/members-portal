@@ -42,8 +42,7 @@ const Prospects = () => {
     // Fetch all profiles
     const { data: profilesData, error: profilesError } = await supabase
       .from('profiles')
-      .select('*')
-      .order('full_name', { ascending: true });
+      .select('*');
 
     if (profilesError) {
       console.error('Error fetching profiles:', profilesError);
@@ -67,14 +66,34 @@ const Prospects = () => {
     );
 
     // Combine profiles with roles, only include prospects
-    const prospectsWithRoles: ProspectWithRole[] = profilesData
+    let prospectsWithRoles: ProspectWithRole[] = profilesData
       .map(profile => ({
         ...profile,
         role: roleMap.get(profile.id) || 'prospect',
       }))
       .filter(member => member.role === 'prospect');
 
-    setProspects(prospectsWithRoles);
+    // First group by term_joined, then sort within groups by oldest creation_date (ascending)
+    // We'll flatten the grouped and sorted results into a single list
+    const groupsMap: Record<string, ProspectWithRole[]> = {};
+    for (const prospect of prospectsWithRoles) {
+      const term = prospect.term_joined ?? 'Unknown Term';
+      if (!groupsMap[term]) groupsMap[term] = [];
+      groupsMap[term].push(prospect);
+    }
+
+    const sortedTermGroups = Object.keys(groupsMap).sort(); // sort group keys
+    const sortedProspects: ProspectWithRole[] = [];
+
+    for (const term of sortedTermGroups) {
+      const group = groupsMap[term].slice().sort((a, b) => {
+        // Sort by created_at, least recent (oldest) first
+        return new Date(a.created_at ?? 0).getTime() - new Date(b.created_at ?? 0).getTime();
+      });
+      sortedProspects.push(...group);
+    }
+
+    setProspects(sortedProspects);
     setLoading(false);
   };
 
@@ -162,6 +181,112 @@ const Prospects = () => {
 
   const canManageProspects = userRole === 'board' || userRole === 'e-board';
 
+  const renderProspectCard = (prospect: ProspectWithRole) => {
+    return (
+      <Card key={prospect.id} className="flex flex-col h-full w-full relative">
+        <CardHeader className="pb-0">
+          <div className="flex items-center justify-between">
+            <CardTitle className="flex items-center gap-3 flex-1 min-w-0">
+              <Avatar className="h-12 w-12 shrink-0">
+                <AvatarImage src={prospect.profile_picture_url || undefined} />
+                <AvatarFallback className="text-lg">
+                  {prospect.full_name ? getInitials(prospect.full_name) : prospect.email.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex-1 min-w-0">
+                <CardTitle className="text-base truncate">
+                  {prospect.full_name || 'No name'}
+                </CardTitle>
+                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                  <Mail className="h-3 w-3 shrink-0" />
+                  <p className="truncate">{prospect.email}</p>
+                </div>
+              </div>
+            </CardTitle>
+            <Badge variant="secondary" className="capitalize shrink-0 whitespace-nowrap">
+              {prospect.term_joined
+                ? prospect.term_joined
+                : (() => {
+                  const date = prospect.created_at ? new Date(prospect.created_at) : new Date();
+                  return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
+                })()
+              }
+            </Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col flex-1 min-h-0">
+          <div className="flex-1 space-y-3 mt-3">
+            <div className="flex items-center justify-between text-sm">
+              {prospect.class_year ? (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <GraduationCap className="h-4 w-4" />
+                  <span className="capitalize">{prospect.class_year}</span>
+                </div>
+              ) : (
+                <div className="text-muted-foreground">
+                  <GraduationCap className="h-4 w-4 inline mr-2" />
+                  No class year
+                </div>
+              )}
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Trophy className="h-4 w-4" />
+                <span className="font-medium">{prospect.points}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-row gap-2 mt-4">
+            <Button
+              variant='default'
+              size="sm"
+              className="w-full"
+              onClick={() => handleViewProfile(prospect)}
+            >
+              <Eye className="h-4 w-4" />
+              View Profile
+            </Button>
+            {canManageProspects && !isMobile && (
+              <DropdownMenu>
+                <DropdownMenuTrigger size='sm' asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                  >
+                    <Settings className="h-4 w-4" />
+                    Manage
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  align="center"
+                  className="w-40"
+                >
+                  <DropdownMenuItem
+                    onClick={() => handleGraduate(prospect.id, prospect.full_name || prospect.email)}
+                    variant='enable'
+                    className='rounded-t-md rounded-b-none bg-green-600/20 border-0 border-green-600 text-green-600 hover:bg-green-600 hover:text-cream hover:rounded-md transition-all duration-200'
+                  >
+                    <ArrowBigUpDashIcon className="h-4 w-4" />
+                    Graduate
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => handleBanProspect(prospect.id, prospect.full_name || prospect.email)}
+                    variant='destructive'
+                    className='border-0 rounded-b-md bg-destructive/20 rounded-t-none hover:rounded-md transition-all duration-200'
+                  >
+                    <Ban className="h-4 w-4" />
+                    Ban Prospect
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    )
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -195,102 +320,7 @@ const Prospects = () => {
         </Card>
       ) : (
         <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
-          {prospects.map((prospect) => (
-            <Card key={prospect.id} className="flex flex-col h-full w-full relative">
-              <CardHeader className="pb-0">
-                <div className="flex items-center justify-between">
-                  <CardTitle className="flex items-center gap-3 flex-1 min-w-0">
-                    <Avatar className="h-12 w-12 shrink-0">
-                      <AvatarImage src={prospect.profile_picture_url || undefined} />
-                      <AvatarFallback className="text-lg">
-                        {prospect.full_name ? getInitials(prospect.full_name) : prospect.email.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1 min-w-0">
-                      <CardTitle className="text-base truncate">
-                        {prospect.full_name || 'No name'}
-                      </CardTitle>
-                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                        <Mail className="h-3 w-3 shrink-0" />
-                        <p className="truncate">{prospect.email}</p>
-                      </div>
-                    </div>
-                  </CardTitle>
-                  <Badge variant="outline" className="capitalize shrink-0 whitespace-nowrap">
-                    Prospect
-                  </Badge>
-                </div>
-              </CardHeader>
-              <CardContent className="flex flex-col flex-1 min-h-0">
-                <div className="flex-1 space-y-3 mt-3">
-                  <div className="flex items-center justify-between text-sm">
-                    {prospect.class_year ? (
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <GraduationCap className="h-4 w-4" />
-                        <span className="capitalize">{prospect.class_year}</span>
-                      </div>
-                    ) : (
-                      <div className="text-muted-foreground">
-                        <GraduationCap className="h-4 w-4 inline mr-2" />
-                        No class year
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2 text-muted-foreground">
-                      <Trophy className="h-4 w-4" />
-                      <span className="font-medium">{prospect.points}</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex flex-row gap-2 mt-4">
-                  <Button
-                    variant='default'
-                    size="sm"
-                    className="w-full"
-                    onClick={() => handleViewProfile(prospect)}
-                  >
-                    <Eye className="h-4 w-4" />
-                    View Profile
-                  </Button>
-                  {canManageProspects && !isMobile && (
-                    <DropdownMenu>
-                      <DropdownMenuTrigger size='sm' asChild>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-full"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Manage
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent
-                        align="center"
-                        className="w-40"
-                      >
-                        <DropdownMenuItem
-                          onClick={() => handleGraduate(prospect.id, prospect.full_name || prospect.email)}
-                        >
-                          <ArrowBigUpDashIcon className="h-4 w-4" />
-                          Graduate
-                        </DropdownMenuItem>
-
-                        <DropdownMenuSeparator />
-
-                        <DropdownMenuItem
-                          onClick={() => handleBanProspect(prospect.id, prospect.full_name || prospect.email)}
-                          variant='destructive'
-                        >
-                          <Ban className="h-4 w-4" />
-                          Ban Prospect
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+          {prospects.map(renderProspectCard)}
         </div>
       )}
 

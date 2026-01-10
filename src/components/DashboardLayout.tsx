@@ -56,11 +56,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
     const members = { title: 'Members', url: '/dashboard/members', icon: Users };
     const prospects = { title: 'Prospects', url: '/dashboard/prospects', icon: UserPlus };
 
-    // if (role === 'prospect') {
-    //   // Prospects get only Events and Applications
-    //   return [events, applications];
-    // }
-
     // Members get: Dashboard, Events, Classes, Projects, Applications
     const memberItems = [dashboard, events, classes, projects, applications, members];
 
@@ -77,9 +72,9 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
       case 'e-board':
         return 'default';
       case 'board':
-        return 'secondary';
+        return 'default';
       case 'member':
-        return 'outline';
+        return 'secondary';
       default:
         return 'outline';
     }
@@ -275,12 +270,12 @@ const SidebarContentComponent = ({
                 navigate('/dashboard/profile');
                 handleNavClick();
               }}>
-                <Settings className="h-4 w-4 mr-2" />
+                <Settings className="h-4 w-4 mr-1" />
                 Profile Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut} className="text-destructive hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground">
-                <LogOut className="h-4 w-4 mr-2" />
+                <LogOut className="h-4 w-4 mr-1" />
                 Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>

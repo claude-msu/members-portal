@@ -422,6 +422,7 @@ export type Database = {
           profile_picture_url: string | null
           resume_url: string | null
           team: string | null
+          term_joined: string | null
           updated_at: string
         }
         Insert: {
@@ -437,6 +438,7 @@ export type Database = {
           profile_picture_url?: string | null
           resume_url?: string | null
           team?: string | null
+          term_joined?: string | null
           updated_at?: string
         }
         Update: {
@@ -452,6 +454,7 @@ export type Database = {
           profile_picture_url?: string | null
           resume_url?: string | null
           team?: string | null
+          term_joined?: string | null
           updated_at?: string
         }
         Relationships: []

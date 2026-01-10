@@ -50,7 +50,7 @@ const InteractiveLogo = () => {
 
           {/* Click hint - appears on hover */}
           <motion.div
-            className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+            className="absolute -bottom-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
             initial={{ y: 10 }}
             whileHover={{ y: 0 }}
           >

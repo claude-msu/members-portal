@@ -265,12 +265,8 @@ const Members = () => {
                   {member.full_name || 'No name'}
                 </CardTitle>
                 {member.position && (
-                  <p className="text-sm text-muted-foreground truncate mt-1">{member.position}</p>
+                  <p className="text-sm text-muted-foreground truncate">{member.position}</p>
                 )}
-                <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                  <Mail className="h-3 w-3 shrink-0" />
-                  <p className="truncate">{member.email}</p>
-                </div>
               </div>
             </CardTitle>
             {member.role === 'e-board' ? (

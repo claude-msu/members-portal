@@ -78,20 +78,20 @@ const Index = () => {
               initial="hidden"
               animate="visible"
               variants={fadeInUp}
-              className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-8'}`}
+              className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-10'}`}
             >
               <InteractiveLogo />
 
               <motion.div
                 variants={fadeInUp}
-                className={isMobile ? "" : "space-y-4"}
+                className={isMobile ? "space-y-6" : "space-y-10"}
               >
                 <h1 className={`${isMobile ? 'text-4xl' : 'text-6xl md:text-8xl'} font-black bg-gradient-to-r from-primary via-primary/90 to-primary bg-clip-text text-transparent leading-tight`}>
                   Claude Builder Club
                 </h1>
                 <div className="flex items-center justify-center gap-3">
                   <img src="/msu-logo.png" alt="MSU" className={`${isMobile ? 'h-8 w-8' : 'h-10 w-10'}`} />
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-foreground/80`}>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-green-800`}>
                     Michigan State University
                   </p>
                 </div>
