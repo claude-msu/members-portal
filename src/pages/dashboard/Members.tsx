@@ -9,7 +9,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -104,48 +103,72 @@ const Members = () => {
   };
 
   const handleKickMember = async (memberId: string, memberName: string) => {
-    // Change role back to prospect (kicked members become prospects)
-    const { error } = await supabase
-      .from('user_roles')
-      .update({ role: 'prospect' })
-      .eq('user_id', memberId);
-
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
+    try {
+      const { data, error } = await supabase.rpc('delete_user_by_id', {
+        target_user_id: memberId
       });
-    } else {
+
+      if (error) throw error;
+
+      console.log(data);
+
       toast({
         title: 'Member Kicked',
         description: `${memberName} has been kicked from the club`,
       });
       fetchMembers();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to kick member',
+        variant: 'destructive',
+      });
     }
   };
 
   const handleBanMember = async (memberId: string, memberName: string) => {
-    // TODO: Implement ban logic - you may need to create a banned_users table
-    // For now, we'll set them as prospect and add a note
-    const { error } = await supabase
-      .from('user_roles')
-      .update({ role: 'prospect' })
-      .eq('user_id', memberId);
+    try {
+      // First, get the member's email for the ban record
+      const { data: member, error: fetchError } = await supabase
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', memberId)
+        .single();
 
-    if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    } else {
+      if (fetchError) throw fetchError;
+
+      // Add to banned_users table
+      const { error: banError } = await supabase
+        .from('banned_users')
+        .insert({
+          user_id: memberId,
+          email: member.email,
+          full_name: member.full_name,
+          banned_by: user?.id,
+          reason: 'Banned by e-board'
+        });
+
+      if (banError) throw banError;
+
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', memberId);
+
+      if (deleteError) throw deleteError;
+
       toast({
         title: 'Member Banned',
-        description: `${memberName} has been banned from the club`,
+        description: `${memberName} has been banned for one year`,
         variant: 'destructive',
       });
       fetchMembers();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to ban member',
+        variant: 'destructive',
+      });
     }
   };
 
@@ -226,7 +249,6 @@ const Members = () => {
   });
 
   const renderMemberCard = (member: MemberWithRole) => {
-    console.log(member);
     return (
       <Card key={member.id} className="flex flex-col h-full w-full relative">
         <CardHeader className="pb-0">

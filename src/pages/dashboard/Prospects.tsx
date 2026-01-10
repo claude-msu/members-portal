@@ -5,8 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
-import { Trophy, Mail, GraduationCap, UserCheck, Eye } from 'lucide-react';
+import { Trophy, Mail, GraduationCap, ArrowBigUpDashIcon, Eye, Settings, Ban } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useIsMobile } from '@/hooks/use-mobile';
 import ProfileViewer from '@/components/modals/ProfileModal';
@@ -20,7 +27,7 @@ interface ProspectWithRole extends Profile {
 
 const Prospects = () => {
   const { toast } = useToast();
-  const { role: userRole } = useAuth();
+  const { role: userRole, user } = useAuth();
   const [prospects, setProspects] = useState<ProspectWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProspect, setSelectedProspect] = useState<ProspectWithRole | null>(null);
@@ -71,7 +78,7 @@ const Prospects = () => {
     setLoading(false);
   };
 
-  const handlePromoteToMember = async (prospectId: string) => {
+  const handleGraduate = async (prospectId: string, prospectName: string) => {
     const { error } = await supabase
       .from('user_roles')
       .update({ role: 'member' })
@@ -86,11 +93,58 @@ const Prospects = () => {
     } else {
       toast({
         title: 'Success',
-        description: 'Prospect promoted to Member successfully',
+        description: `${prospectName} graduated to Member successfully`,
       });
       fetchProspects();
     }
   };
+
+  const handleBanProspect = async (prospectId: string, prospectName: string) => {
+    try {
+      // First, get the prospect's email for the ban record
+      const { data: prospect, error: fetchError } = await supabase
+        .from('profiles')
+        .select('email, full_name')
+        .eq('id', prospectId)
+        .single();
+
+      if (fetchError) throw fetchError;
+
+      // Add to banned_users table
+      const { error: banError } = await supabase
+        .from('banned_users')
+        .insert({
+          user_id: prospectId,
+          email: prospect.email,
+          full_name: prospect.full_name,
+          banned_by: user?.id,
+          reason: 'Banned by e-board'
+        });
+
+      if (banError) throw banError;
+
+      const { error: deleteError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', prospectId);
+
+      if (deleteError) throw deleteError;
+
+      toast({
+        title: 'Prospect Banned',
+        description: `${prospectName} has been banned for one year`,
+        variant: 'destructive',
+      });
+      fetchProspects();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to ban prospect',
+        variant: 'destructive',
+      });
+    }
+  };
+
 
   const handleViewProfile = (prospect: ProspectWithRole) => {
     setSelectedProspect(prospect);
@@ -142,33 +196,33 @@ const Prospects = () => {
       ) : (
         <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
           {prospects.map((prospect) => (
-            <Card key={prospect.id} className="flex flex-col h-full w-full">
-              <CardHeader className="pb-3">
-                <div className="flex items-center gap-3">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage src={prospect.profile_picture_url || undefined} />
-                    <AvatarFallback className="text-lg">
-                      {prospect.full_name ? getInitials(prospect.full_name) : prospect.email.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+            <Card key={prospect.id} className="flex flex-col h-full w-full relative">
+              <CardHeader className="pb-0">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-3 flex-1 min-w-0">
+                    <Avatar className="h-12 w-12 shrink-0">
+                      <AvatarImage src={prospect.profile_picture_url || undefined} />
+                      <AvatarFallback className="text-lg">
+                        {prospect.full_name ? getInitials(prospect.full_name) : prospect.email.charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
                       <CardTitle className="text-base truncate">
                         {prospect.full_name || 'No name'}
                       </CardTitle>
-                      <Badge variant="outline" className="capitalize shrink-0">
-                        Prospect
-                      </Badge>
+                      <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
+                        <Mail className="h-3 w-3 shrink-0" />
+                        <p className="truncate">{prospect.email}</p>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground mt-1">
-                      <Mail className="h-3 w-3" />
-                      <p className="truncate">{prospect.email}</p>
-                    </div>
-                  </div>
+                  </CardTitle>
+                  <Badge variant="outline" className="capitalize shrink-0 whitespace-nowrap">
+                    Prospect
+                  </Badge>
                 </div>
               </CardHeader>
               <CardContent className="flex flex-col flex-1 min-h-0">
-                <div className="flex-1 space-y-3">
+                <div className="flex-1 space-y-3 mt-3">
                   <div className="flex items-center justify-between text-sm">
                     {prospect.class_year ? (
                       <div className="flex items-center gap-2 text-muted-foreground">
@@ -188,25 +242,50 @@ const Prospects = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2 mt-4">
+                <div className="flex flex-row gap-2 mt-4">
                   <Button
-                    variant='outline'
+                    variant='default'
                     size="sm"
                     className="w-full"
                     onClick={() => handleViewProfile(prospect)}
                   >
-                    <Eye className="h-4 w-4 mr-2" />
+                    <Eye className="h-4 w-4" />
                     View Profile
                   </Button>
+                  {canManageProspects && !isMobile && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger size='sm' asChild>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-full"
+                        >
+                          <Settings className="h-4 w-4" />
+                          Manage
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="center"
+                        className="w-40"
+                      >
+                        <DropdownMenuItem
+                          onClick={() => handleGraduate(prospect.id, prospect.full_name || prospect.email)}
+                        >
+                          <ArrowBigUpDashIcon className="h-4 w-4" />
+                          Graduate
+                        </DropdownMenuItem>
 
-                  {canManageProspects && (
-                    <Button
-                      className="w-full"
-                      onClick={() => handlePromoteToMember(prospect.id)}
-                    >
-                      <UserCheck className="h-4 w-4 mr-2" />
-                      Promote to Member
-                    </Button>
+                        <DropdownMenuSeparator />
+
+                        <DropdownMenuItem
+                          onClick={() => handleBanProspect(prospect.id, prospect.full_name || prospect.email)}
+                          variant='destructive'
+                        >
+                          <Ban className="h-4 w-4" />
+                          Ban Prospect
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   )}
                 </div>
               </CardContent>
