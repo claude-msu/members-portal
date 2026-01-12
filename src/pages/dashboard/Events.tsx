@@ -274,7 +274,9 @@ const Events = () => {
       }
 
       const token = crypto.randomUUID();
-      const qrUrl = `${window.location.origin}/checkin/${token}`;
+      // Use environment variable for base URL, fallback to current origin for development
+      const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+      const qrUrl = `${baseUrl}/checkin/${token}`;
 
       const qrCodeDataUrl = await QRCodeLib.toDataURL(qrUrl, {
         width: 512,
