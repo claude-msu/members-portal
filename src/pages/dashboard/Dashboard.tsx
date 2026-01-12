@@ -117,7 +117,7 @@ async function fetchEBoardDashboard(): Promise<DashboardData> {
     projects: sortedProjects,
     classes: sortedClasses,
     adminStats: {
-      members: rolesRes.data?.filter(r => r.role === 'member').length || 0,
+      members: rolesRes.data?.filter(r => r.role !== 'prospect').length || 0,
       prospects: rolesRes.data?.filter(r => r.role === 'prospect').length || 0,
       board: rolesRes.data?.filter(r => r.role === 'board').length || 0,
       eBoard: rolesRes.data?.filter(r => r.role === 'e-board').length || 0,
@@ -388,7 +388,10 @@ export default function Dashboard() {
           {isLoading ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading...</div>
           ) : events.length === 0 ? (
-            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">No upcoming events</div>
+            <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
+              <Calendar className="h-8 w-8 text-primary opacity-30 mb-2" />
+              <p className="text-sm">No upcoming events</p>
+            </div>
           ) : (
             <div className="space-y-3">
               {events.map((event) => (
@@ -477,7 +480,7 @@ export default function Dashboard() {
               <p className="text-sm">No active {type.toLowerCase()}</p>
             </div>
           ) : (
-            <div className={`grid gap-3 ${isBoardOrAbove && !isMobile ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl-grid-cols-2' : type === 'Classes' && !isMobile && !isBoardOrAbove ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl: grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-3 ${isBoardOrAbove && !isMobile ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl-grid-cols-3' : type === 'Classes' && !isMobile && !isBoardOrAbove ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl: grid-cols-2' : 'grid-cols-1'}`}>
               {items.map((item: any) => {
                 const status = isProject ? getProjectStatus(item) : getClassStatus(item);
 
@@ -485,8 +488,8 @@ export default function Dashboard() {
                 // For ProfileContext data (members), we don't have the count, so default to 0
                 const count = isBoardOrAbove
                   ? (isProject
-                      ? (item.project_members?.[0]?.count || 0)
-                      : (item.class_enrollments?.[0]?.count || 0))
+                    ? (item.project_members?.[0]?.count || 0)
+                    : (item.class_enrollments?.[0]?.count || 0))
                   : 0;
 
                 return (

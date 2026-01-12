@@ -42,9 +42,9 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
       case 'e-board':
         return 'default';
       case 'board':
-        return 'secondary';
+        return 'default';
       case 'member':
-        return 'outline';
+        return 'secondary';
       default:
         return 'outline';
     }
