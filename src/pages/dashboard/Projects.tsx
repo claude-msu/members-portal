@@ -462,7 +462,7 @@ const Projects = () => {
               id="clientName"
               value={clientName}
               onChange={(e) => setClientName(e.target.value)}
-              placeholder="Acme Corp"
+              placeholder="Claude.ai"
             />
           </div>
 

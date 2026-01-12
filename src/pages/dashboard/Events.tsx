@@ -668,7 +668,10 @@ const Events = () => {
                     <Button
                       key={option.value}
                       variant={eventTime === option.value ? 'default' : 'ghost'}
-                      className="w-full justify-start font-normal hover:bg-background hover:text-primary border-0 mb-1"
+                      className={
+                        `w-full justify-start font-normal border-2-background mb-1` +
+                        (eventTime !== option.value && ' hover:bg-background hover:text-primary')
+                      }
                       onClick={() => {
                         setEventTime(option.value);
                         setTimePickerOpen(false);

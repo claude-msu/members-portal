@@ -589,10 +589,9 @@ const ApplicationViewerPage = () => {
                             {/* Deletion Warning */}
                             {deletionInfo && application.status !== 'pending' && (
                                 <Alert className="bg-muted/50 border-muted-foreground/20">
-                                    <Info className="h-4 w-4" />
-                                    <AlertDescription className="text-sm text-muted-foreground">
+                                    <AlertDescription className="text-sm flex gap-3 text-muted-foreground flex items-center min-h-7">
+                                        <Info className={isMobile ? "h-10 w-10" : "h-4 w-4"} />
                                         <div className="flex items-center gap-2">
-                                            <Trash2 className="h-4 w-4" />
                                             {deletionInfo}
                                         </div>
                                     </AlertDescription>
@@ -626,12 +625,16 @@ const ApplicationViewerPage = () => {
                                         <>
                                             <Separator className="my-4" />
                                             <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
-                                                <p className="text-sm font-medium mb-1 text-muted-foreground">
+                                                <p className="text-sm font-medium mb-3 text-muted-foreground">
                                                     {application.application_type === 'board' && 'Position Applied For'}
                                                     {application.application_type === 'class' && 'Class Applied For'}
                                                     {application.application_type === 'project' && 'Project Applied For'}
                                                 </p>
-                                                <div className="grid grid-cols-2 gap-6">
+                                                <div
+                                                    className={`grid ${
+                                                        isMobile ? 'grid-rows-2 justify-items-center gap-3' : 'grid-cols-2 gap-6'
+                                                    }`}
+                                                >
                                                     <div className="flex items-center gap-2">
                                                         {application.application_type === 'board' && <Briefcase className="h-5 w-5" />}
                                                         {application.application_type === 'class' && <BookOpen className="h-5 w-5" />}

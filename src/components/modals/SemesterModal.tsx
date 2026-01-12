@@ -175,7 +175,7 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
                         month: 'long',
                         day: 'numeric',
                       })
-                      : <span>Pick a start date</span>}
+                      : <span className="w-full flex justify-center">{isMobile ? "Start date" : "Pick a start date"}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align={isMobile ? "start" : "center"}>
@@ -210,7 +210,7 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
                         month: 'long',
                         day: 'numeric',
                       })
-                      : <span>Pick an end date</span>}
+                      : <span className="w-full flex justify-center">{isMobile ? "End date" : "Pick an end date"}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align={isMobile ? "end" : "center"}>
