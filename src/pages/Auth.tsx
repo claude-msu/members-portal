@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -15,6 +16,7 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [banError, setBanError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
@@ -116,9 +118,11 @@ const Auth = () => {
         });
         setIsLogin(true);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       // Handle specific ban error from AuthContext
-      if (error.message?.includes('banned')) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      if (errorMessage?.includes('banned')) {
+        setBanError('Your account has been banned. Please contact the e-board for more information.');
         toast({
           title: 'Account Banned',
           description: 'Your account has been banned. Please contact the e-board for more information.',
@@ -127,7 +131,7 @@ const Auth = () => {
       } else {
         toast({
           title: 'Error',
-          description: error.message,
+          description: errorMessage,
           variant: 'destructive',
         });
       }
@@ -147,6 +151,13 @@ const Auth = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className={isMobile ? 'pt-0' : ''}>
+          {banError && (
+            <Alert variant="destructive" className="mb-4">
+              <AlertDescription className="text-sm">
+                {banError}
+              </AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={handleSubmit} className={`space-y-4 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
             {!isLogin && (
               <div className="space-y-2">
@@ -167,7 +178,10 @@ const Auth = () => {
                 id="email"
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => {
+                  setEmail(e.target.value);
+                  setBanError(null); // Clear ban error when user types
+                }}
                 placeholder="your.name@msu.edu"
                 required
               />
@@ -179,7 +193,10 @@ const Auth = () => {
                 id="password"
                 type="password"
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => {
+                  setPassword(e.target.value);
+                  setBanError(null); // Clear ban error when user types
+                }}
                 required
                 minLength={6}
               />
@@ -193,7 +210,10 @@ const Auth = () => {
               type="button"
               variant="ghost"
               className={`w-full hover:bg-transparent hover:text-primary transition-all duration-200 ${isMobile ? 'h-11 text-sm' : ''}`}
-              onClick={() => setIsLogin(!isLogin)}
+              onClick={() => {
+                setIsLogin(!isLogin);
+                setBanError(null); // Clear ban error when switching modes
+              }}
             >
               {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}
             </Button>

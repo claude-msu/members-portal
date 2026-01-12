@@ -418,17 +418,20 @@ const Projects = () => {
 
         <div className="space-y-2">
           <Label htmlFor="repositoryName">GitHub Repository Name *</Label>
-          <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground whitespace-nowrap">
-              github.com/Claude-Builder-Club-MSU/
+          <div className="relative">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+              {isMobile ? (
+                "Claude-Builder-Club-MSU/"
+              ) : (
+                "github.com/Claude-Builder-Club-MSU/"
+              )}
             </span>
             <Input
               id="repositoryName"
               value={repositoryName}
               onChange={(e) => setRepositoryName(e.target.value)}
-              required
               placeholder="project-name"
-              className="flex-1"
+              className={isMobile ? "pl-[210px]" : "pl-[300px]"}
             />
           </div>
         </div>
@@ -513,8 +516,8 @@ const Projects = () => {
               title: 'Dates',
               icon: <CalendarIcon className="h-4 w-4" />,
               content: `${modalState.selectedItem.start_date
-                  ? `Start: ${new Date(modalState.selectedItem.start_date).toLocaleDateString()}`
-                  : ''
+                ? `Start: ${new Date(modalState.selectedItem.start_date).toLocaleDateString()}`
+                : ''
                 }${modalState.selectedItem.end_date
                   ? ` | End: ${new Date(modalState.selectedItem.end_date).toLocaleDateString()}`
                   : ''
