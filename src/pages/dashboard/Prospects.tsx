@@ -51,7 +51,7 @@ const Prospects = () => {
         ...profile,
         role: roleMap.get(profile.id) || 'prospect',
       }))
-      .filter(member => member.role === 'prospect');
+      .filter(member => member.role === 'prospect' && !member.is_banned);
 
     // Group by term_joined, then sort within groups by oldest creation_date
     const groupsMap: Record<string, ProspectWithRole[]> = {};
@@ -98,31 +98,22 @@ const Prospects = () => {
 
   const handleBanProspect = async (prospectId: string, prospectName: string) => {
     try {
-      const { data: prospect, error: fetchError } = await supabase
-        .from('profiles')
-        .select('email, full_name')
-        .eq('id', prospectId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const { error: banError } = await supabase.from('banned_users').insert({
-        user_id: prospectId,
-        email: prospect.email,
-        full_name: prospect.full_name,
-        banned_by: user?.id,
-        reason: 'Banned by e-board',
+      const { data, error } = await supabase.rpc('ban_user_by_id', {
+        target_user_id: prospectId,
       });
 
-      if (banError) throw banError;
+      if (error) throw error;
 
-      const { error: deleteError } = await supabase.from('profiles').delete().eq('id', prospectId);
+      const success = typeof data === 'object' && data !== null && 'success' in data ? (data as any).success : data;
+      const banError = typeof data === 'object' && data !== null && 'error' in data ? (data as any).error : undefined;
 
-      if (deleteError) throw deleteError;
+      if (!success) {
+        throw new Error(banError || 'Failed to ban prospect');
+      }
 
       toast({
         title: 'Prospect Banned',
-        description: `${prospectName} has been banned for one year`,
+        description: `${prospectName} has been permanently banned`,
         variant: 'destructive',
       });
       fetchProspects();

@@ -139,36 +139,6 @@ export type Database = {
           },
         ]
       }
-      banned_users: {
-        Row: {
-          banned_at: string
-          banned_by: string | null
-          email: string
-          full_name: string | null
-          id: string
-          reason: string | null
-          user_id: string
-        }
-        Insert: {
-          banned_at?: string
-          banned_by?: string | null
-          email: string
-          full_name?: string | null
-          id?: string
-          reason?: string | null
-          user_id: string
-        }
-        Update: {
-          banned_at?: string
-          banned_by?: string | null
-          email?: string
-          full_name?: string | null
-          id?: string
-          reason?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       class_enrollments: {
         Row: {
           class_id: string
@@ -416,6 +386,7 @@ export type Database = {
           full_name: string
           github_username: string | null
           id: string
+          is_banned: boolean
           linkedin_username: string | null
           points: number
           position: string | null
@@ -432,6 +403,7 @@ export type Database = {
           full_name: string
           github_username?: string | null
           id: string
+          is_banned?: boolean
           linkedin_username?: string | null
           points?: number
           position?: string | null
@@ -448,6 +420,7 @@ export type Database = {
           full_name?: string
           github_username?: string | null
           id?: string
+          is_banned?: boolean
           linkedin_username?: string | null
           points?: number
           position?: string | null
@@ -625,6 +598,12 @@ export type Database = {
         Returns: undefined
       }
       delete_user_by_id: {
+        Args: {
+          target_user_id: string
+        }
+        Returns: Json
+      }
+      ban_user_by_id: {
         Args: {
           target_user_id: string
         }

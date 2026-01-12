@@ -75,6 +75,23 @@ const Auth = () => {
           navigate('/dashboard', { replace: true });
         }
       } else {
+        // Check if email belongs to a banned user before signup
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('is_banned')
+          .eq('email', email)
+          .single();
+
+        if (existingProfile?.is_banned) {
+          toast({
+            title: 'Account Banned',
+            description: 'This email address is associated with a banned account. Please contact the e-board for more information.',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+
         // Sign up
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
@@ -100,11 +117,20 @@ const Auth = () => {
         setIsLogin(true);
       }
     } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
+      // Handle specific ban error from AuthContext
+      if (error.message?.includes('banned')) {
+        toast({
+          title: 'Account Banned',
+          description: 'Your account has been banned. Please contact the e-board for more information.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: error.message,
+          variant: 'destructive',
+        });
+      }
       console.error(error);
     } finally {
       setLoading(false);

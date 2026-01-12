@@ -93,6 +93,19 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (!mountedRef.current) return;
 
+      // Check if user is banned
+      if (profileData.is_banned) {
+        // Sign out banned user immediately
+        if (mountedRef.current) {
+          setProfile(null);
+          setUser(null);
+          setSession(null);
+          profileCacheRef.current = null;
+        }
+        await supabase.auth.signOut();
+        throw new Error('Your account has been banned. Please contact the e-board for more information.');
+      }
+
       // Update cache
       profileCacheRef.current = {
         userId,
@@ -111,6 +124,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email: user?.email || '',
           full_name: '',
           class_year: null,
+          is_banned: false,
           linkedin_username: null,
           profile_picture_url: null,
           resume_url: null,
@@ -213,6 +227,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Fetch profile
     if (data.user) {
       await fetchProfile(data.user.id);
+
+      // Check if user is banned
+      if (profile?.is_banned) {
+        // Sign out the banned user
+        await signOut();
+        throw new Error('Your account has been banned. Please contact the e-board for more information.');
+      }
     }
   };
 

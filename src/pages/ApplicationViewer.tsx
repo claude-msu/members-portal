@@ -113,6 +113,12 @@ const ApplicationViewerPage = () => {
                 .single();
 
             if (profileData) {
+                // Check if user is banned
+                if (profileData.is_banned) {
+                    setApplicantProfile(null);
+                    return;
+                }
+
                 // Fetch user role
                 const { data: roleData } = await supabase
                     .from('user_roles')

@@ -119,7 +119,9 @@ const Projects = () => {
       .select('*')
       .in('id', memberUserIds);
 
-    const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+    // Filter out banned users
+    const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+    const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
 
     const projectsWithMembers: ProjectWithMembers[] = (projectsData as Project[]).map(project => {
       const projectMembers = membersData?.filter(m => m.project_id === project.id) || [];

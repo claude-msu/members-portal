@@ -52,7 +52,7 @@ const Members = () => {
         ...profile,
         role: roleMap.get(profile.id) || 'prospect',
       }))
-      .filter(member => member.role !== 'prospect');
+      .filter(member => member.role !== 'prospect' && !member.is_banned);
 
     setMembers(membersWithRoles);
     setLoading(false);
@@ -103,31 +103,22 @@ const Members = () => {
 
   const handleBanMember = async (memberId: string, memberName: string) => {
     try {
-      const { data: member, error: fetchError } = await supabase
-        .from('profiles')
-        .select('email, full_name')
-        .eq('id', memberId)
-        .single();
-
-      if (fetchError) throw fetchError;
-
-      const { error: banError } = await supabase.from('banned_users').insert({
-        user_id: memberId,
-        email: member.email,
-        full_name: member.full_name,
-        banned_by: user?.id,
-        reason: 'Banned by e-board',
+      const { data, error } = await supabase.rpc('ban_user_by_id', {
+        target_user_id: memberId,
       });
 
-      if (banError) throw banError;
+      if (error) throw error;
 
-      const { error: deleteError } = await supabase.from('profiles').delete().eq('id', memberId);
+      const success = typeof data === 'object' && data !== null && 'success' in data ? (data as any).success : data;
+      const banError = typeof data === 'object' && data !== null && 'error' in data ? (data as any).error : undefined;
 
-      if (deleteError) throw deleteError;
+      if (!success) {
+        throw new Error(banError || 'Failed to ban member');
+      }
 
       toast({
         title: 'Member Banned',
-        description: `${memberName} has been banned for one year`,
+        description: `${memberName} has been permanently banned`,
         variant: 'destructive',
       });
       fetchMembers();

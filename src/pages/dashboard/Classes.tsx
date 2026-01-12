@@ -111,7 +111,9 @@ const Classes = () => {
       .select('*')
       .in('id', enrolledUserIds);
 
-    const profilesMap = new Map(profilesData?.map(p => [p.id, p]) || []);
+    // Filter out banned users
+    const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+    const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
 
     const classesWithMembers: ClassWithMembers[] = (classesData as Class[]).map(cls => {
       const classEnrollments = enrollmentsData?.filter(e => e.class_id === cls.id) || [];
