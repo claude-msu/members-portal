@@ -152,10 +152,10 @@ const AppSidebar = ({
     <Sidebar>
       <SidebarContent>
         {/* Header */}
-        <div className="p-3 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[95px]">
+        <div className="p-2 border-b border-sidebar-border flex flex-col gap-3 justify-center min-h-[95px]">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center gap-3 w-full text-left hover:bg-sidebar-primary/50 rounded-md p-0 pl-7 -m-5 transition-colors cursor-pointer"
+            className="flex items-center gap-3 w-full text-left hover:bg-sidebar-primary rounded-md pl-5 px-3 py-3 transition-colors cursor-pointer"
           >
             <div className="relative w-12 h-12 flex-shrink-0">
               <img
@@ -173,10 +173,11 @@ const AppSidebar = ({
           </button>
         </div>
 
+
         {/* Navigation */}
         <SidebarGroup className="flex-1 flex flex-col justify-center">
           <SidebarGroupContent>
-            <SidebarMenu className="px-3 space-y-1 gap-4">
+            <SidebarMenu className="px-0 space-y-1 gap-4">
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton>
