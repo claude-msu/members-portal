@@ -219,7 +219,6 @@ export const ApplicationCreateModal = ({
       } else if (applicationType === 'class') {
         applicationData.class_id = selectedClassId;
         applicationData.class_role = selectedClassRole;
-        applicationData.why_join = whyJoin;
         applicationData.relevant_experience = relevantExperience;
         applicationData.other_commitments = otherCommitments;
       } else if (applicationType === 'project') {

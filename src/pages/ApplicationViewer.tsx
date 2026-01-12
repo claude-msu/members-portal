@@ -446,7 +446,6 @@ const ApplicationViewerPage = () => {
                 { key: 'other_commitments', title: 'Other Commitments' },
             ],
             class: [
-                { key: 'why_join', title: 'Why this class?' },
                 { key: 'previous_experience', title: 'Previous Experience' },
                 { key: 'relevant_experience', title: 'What will you bring?' },
             ],

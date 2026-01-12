@@ -105,7 +105,6 @@ export interface Application {
   status: ApplicationStatus;
 
   // Common fields
-  why_join: string | null;
   relevant_experience: string | null;
   other_commitments: string | null;
   resume_url: string | null;
