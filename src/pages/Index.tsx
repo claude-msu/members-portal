@@ -396,11 +396,20 @@ const Index = () => {
         <footer className="relative bg-background border-t py-12">
           <div className="container mx-auto px-4 text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
-              <img src="/claude-logo.png" alt="Claude Logo" className="h-8 w-8" />
+              <img src="/claude-logo-transparent.png" alt="Claude Logo" className="h-8 w-8" />
               <span className="text-lg font-bold">Claude Builder Club @ MSU</span>
             </div>
             <p className="text-sm text-muted-foreground">
               © 2025 Claude Builder Club. Spreading the joy of CS, one project at a time.
+              <span className="mx-2">|</span>
+              <a
+                href="https://github.com/Claude-Builder-Club-MSU/members-portal/issues"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline text-primary hover:text-primary/70 transition-colors"
+              >
+                Report an Issue
+              </a>
             </p>
           </div>
         </footer>
