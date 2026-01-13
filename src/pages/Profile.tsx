@@ -27,7 +27,7 @@ import type { Database } from '@/integrations/supabase/database.types';
 const Profile = () => {
   // Get data from contexts
   const { user, profile, refreshProfile, loading: authLoading } = useAuth();
-  const { role, isEBoard, stats } = useProfile();
+  const { role, isBoardOrAbove, stats } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -39,7 +39,6 @@ const Profile = () => {
   const [linkedinUsername, setLinkedinUsername] = useState('');
   const [githubUsername, setGithubUsername] = useState('');
   const [position, setPosition] = useState('');
-  const [team, setTeam] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
 
   // Image cropping states
@@ -59,7 +58,6 @@ const Profile = () => {
       setLinkedinUsername(profile.linkedin_username || '');
       setGithubUsername(profile.github_username || '');
       setPosition(profile.position || '');
-      setTeam(profile.team || '');
     }
   }, [profile]);
 
@@ -362,7 +360,6 @@ const Profile = () => {
         linkedin_username: linkedinUsername || null,
         github_username: githubUsername || null,
         position: position || null,
-        team: isEBoard ? 'E-board' : (team || null), // ✅ Use isEBoard from ProfileContext
         resume_url: newResumeUrl,
       };
 
@@ -578,8 +575,8 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  {role !== 'prospect' && (
-                    <div className={`grid gap-6 ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2'}`}>
+                  {isBoardOrAbove && (
+                    <div className="space-y-2">
                       <div className="space-y-2">
                         <Label htmlFor="position">Position</Label>
                         <Input
@@ -592,41 +589,6 @@ const Profile = () => {
                           Your role or title in the club
                         </p>
                       </div>
-
-                      {!isEBoard && (
-                        <div className="space-y-2">
-                          <Label htmlFor="team">Team</Label>
-                          <Select value={team} onValueChange={setTeam} disabled={!position}>
-                            <SelectTrigger>
-                              <SelectValue placeholder={position ? "Select team" : "Add position first"} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Marketing">Marketing</SelectItem>
-                              <SelectItem value="Events">Events</SelectItem>
-                              <SelectItem value="Projects">Projects</SelectItem>
-                              <SelectItem value="Social">Social</SelectItem>
-                              <SelectItem value="Career">Career</SelectItem>
-                              <SelectItem value="Courses">Courses</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <p className="text-xs text-muted-foreground">
-                            Only available if you have a position
-                          </p>
-                        </div>
-                      )}
-                      {isEBoard && (
-                        <div className="space-y-2">
-                          <Label>Team</Label>
-                          <Input
-                            value="E-board"
-                            disabled
-                            className="bg-muted"
-                          />
-                          <p className="text-xs text-muted-foreground">
-                            E-board members are automatically assigned to the E-board team
-                          </p>
-                        </div>
-                      )}
                     </div>
                   )}
 
