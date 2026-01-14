@@ -47,7 +47,7 @@ const Index = () => {
       {/* BLOB CANVAS - Desktop only */}
       {!isMobile && (
         <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50 dark:from-primary/20 dark:via-background dark:to-blue-950/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50"></div>
           <div className="absolute inset-0 opacity-30">
             <div className="absolute top-20 left-20 w-72 h-72 bg-primary/30 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
             <div className="absolute top-40 right-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
@@ -59,13 +59,13 @@ const Index = () => {
       {/* Mobile background - simple gradient */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50 dark:from-primary/20 dark:via-background dark:to-blue-950/20"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50"></div>
         </div>
       )}
 
       {/* SCROLL-BASED FADE OVERLAY */}
       <motion.div
-        className="fixed top-0 left-0 right-0 h-[200vh] bg-cream dark:bg-background pointer-events-none"
+        className="fixed top-0 left-0 right-0 h-[200vh] bg-cream pointer-events-none"
         style={{ opacity: fadeOpacity, zIndex: 1 }}
       />
 
@@ -113,7 +113,7 @@ const Index = () => {
                 className={`${isMobile ? 'pt-6' : 'pt-12'}`}
               >
                 <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
-                  <span className="text-sm font-medium">Scroll to explore</span>
+                  <span className="text-sm font-medium text-gray-600">Scroll to explore</span>
                   <motion.div
                     animate={{ y: [0, 10, 0] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
@@ -129,7 +129,7 @@ const Index = () => {
         </section>
 
         {/* What We Do Section */}
-        <section className="relative py-32 bg-cream dark:bg-background">
+        <section className="relative py-32 bg-cream">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -139,18 +139,18 @@ const Index = () => {
               className="max-w-7xl mx-auto"
             >
               <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-12' : 'mb-20'}`}>
-                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black mb-6 bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent`}>
+                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
                   What We Do
                 </h2>
-                <p className={`${isMobile ? 'text-lg' : 'text-xl'} text-muted-foreground max-w-2xl mx-auto`}>
+                <p className={`${isMobile ? 'text-lg' : 'text-xl'} text-gray-600 max-w-2xl mx-auto`}>
                   Four pillars that define our commitment to excellence
                 </p>
               </motion.div>
 
               <div className="grid md:grid-cols-2 gap-8">
                 <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-border hover:border-primary transition-all duration-300 hover:shadow-2xl group overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
+                  <Card className="relative h-full border-2 border-gray-200 hover:border-orange-600 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
                       {isMobile ? (
                         <div className="flex items-center gap-4">
@@ -167,7 +167,7 @@ const Index = () => {
                           <h3 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Innovative Projects</h3>
                         </>
                       )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-muted-foreground leading-relaxed`}>
+                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
                         Partner with companies far and wide to give students real-world experience. Build and deploy
                         production-grade applications, work with actual clients, and create solutions that matter.
                         From startups to established firms, our members gain invaluable hands-on experience building
@@ -178,7 +178,7 @@ const Index = () => {
                 </motion.div>
 
                 <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-border hover:border-blue-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden">
+                  <Card className="relative h-full border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
                       {isMobile ? (
@@ -196,7 +196,7 @@ const Index = () => {
                           <h3 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Education Pipeline</h3>
                         </>
                       )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-muted-foreground leading-relaxed`}>
+                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
                         Learn from industry experts and seasoned professionals. Master system design, conquer LeetCode,
                         and prepare for top-tier internships at FAANG and beyond. Our comprehensive curriculum covers
                         everything from technical interviews to real-world engineering practices, setting you up for
@@ -207,7 +207,7 @@ const Index = () => {
                 </motion.div>
 
                 <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-border hover:border-purple-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden">
+                  <Card className="relative h-full border-2 border-gray-200 hover:border-purple-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
                     <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
                       {isMobile ? (
@@ -227,7 +227,7 @@ const Index = () => {
                           <h3 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>AI Development Support</h3>
                         </>
                       )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-muted-foreground leading-relaxed`}>
+                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
                         Kickstart your AI journey with $50 in Claude API credits for every member. Experiment with
                         cutting-edge language models, build intelligent applications, and bring your AI ideas to life
                         without financial barriers. We believe in removing obstacles so you can focus on innovation
@@ -238,7 +238,7 @@ const Index = () => {
                 </motion.div>
 
                 <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-border hover:border-green-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden">
+                  <Card className="relative h-full border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
                     <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                     <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
                       {isMobile ? (
@@ -256,7 +256,7 @@ const Index = () => {
                           <h3 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>The Devvys</h3>
                         </>
                       )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-muted-foreground leading-relaxed`}>
+                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
                         Our annual project showcase where innovation takes center stage. Present your personal projects,
                         hackathon wins, or client work in front of recruiters, professors, and the MSU community.
                         Compete for recognition, network with industry leaders, and celebrate the incredible work
@@ -271,7 +271,7 @@ const Index = () => {
         </section>
 
         {/* Vision Section */}
-        <section className="relative py-32 bg-gradient-to-br from-orange-50/20 via-cream to-orange-50/20 dark:from-orange-950/10 dark:via-background dark:to-orange-950/10">
+        <section className="relative py-32 bg-gradient-to-br from-orange-50/20 via-cream to-orange-50/20">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -286,14 +286,14 @@ const Index = () => {
                 </div>
                 <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black mb-8`}>Our Vision</h2>
                 <div className="space-y-8 text-left">
-                  <div className={`bg-card border-2 rounded-2xl shadow-lg ${isMobile ? 'p-6' : 'p-8'}`}>
+                  <div className={`bg-white border-2 border-gray-200 rounded-2xl shadow-lg ${isMobile ? 'p-6' : 'p-8'}`}>
                     <div className={`flex items-start gap-6 ${isMobile ? 'gap-4' : 'gap-6'}`}>
                       <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0`}>
                         <Rocket className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} text-primary`} />
                       </div>
                       <div>
                         <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-3`}>Send Students to the World</h3>
-                        <p className={`${isMobile ? 'text-base' : 'text-lg'} text-muted-foreground leading-relaxed`}>
+                        <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
                           We're building a fund to send hand-picked students to premier hackathons and tech conferences
                           across the country. Experience MLH events, attend cutting-edge AI conferences, and represent
                           MSU on the national stage. Your talent deserves a global platform.
@@ -302,14 +302,14 @@ const Index = () => {
                     </div>
                   </div>
 
-                  <div className={`bg-card border-2 rounded-2xl shadow-lg ${isMobile ? 'p-6' : 'p-8'}`}>
+                  <div className={`bg-white border-2 border-gray-200 rounded-2xl shadow-lg ${isMobile ? 'p-6' : 'p-8'}`}>
                     <div className={`flex items-start gap-6 ${isMobile ? 'gap-4' : 'gap-6'}`}>
                       <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0`}>
                         <Users className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} text-blue-600`} />
                       </div>
                       <div>
                         <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-3`}>Host Internal Hackathons</h3>
-                        <p className={`${isMobile ? 'text-base' : 'text-lg'} text-muted-foreground leading-relaxed`}>
+                        <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
                           Create a culture of rapid prototyping and innovation right here at MSU. Our internal hackathons
                           bring together the brightest minds to solve real problems, experiment with new technologies,
                           and build the future—all in an intense, collaborative, and fun environment.

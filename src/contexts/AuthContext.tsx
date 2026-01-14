@@ -132,9 +132,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           github_username: null,
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
-          team: null,
           position: null,
           term_joined: null,
+          theme: 'light',
         };
 
         setProfile(fallbackProfile);

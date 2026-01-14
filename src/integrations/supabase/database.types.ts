@@ -354,6 +354,7 @@ export type Database = {
           profile_picture_url: string | null
           resume_url: string | null
           term_joined: string | null
+          theme: Database["public"]["Enums"]["theme"]
           updated_at: string
         }
         Insert: {
@@ -370,6 +371,7 @@ export type Database = {
           profile_picture_url?: string | null
           resume_url?: string | null
           term_joined?: string | null
+          theme?: Database["public"]["Enums"]["theme"]
           updated_at?: string
         }
         Update: {
@@ -386,6 +388,7 @@ export type Database = {
           profile_picture_url?: string | null
           resume_url?: string | null
           term_joined?: string | null
+          theme?: Database["public"]["Enums"]["theme"]
           updated_at?: string
         }
         Relationships: []
@@ -535,6 +538,7 @@ export type Database = {
       application_type: "board" | "project" | "class"
       class_member_type: "teacher" | "student"
       project_member_type: "lead" | "member"
+      theme: "dark" | "light"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -670,6 +674,7 @@ export const Constants = {
       application_type: ["board", "project", "class"],
       class_member_type: ["teacher", "student"],
       project_member_type: ["lead", "member"],
+      theme: ["dark", "light"],
     },
   },
 } as const
