@@ -25,7 +25,7 @@ export function ThemeProvider({
   children,
   ...props
 }: ThemeProviderProps) {
-  const { user, profile } = useAuth();
+  const { user, profile, refreshProfile } = useAuth();
 
   const [theme, setTheme] = useState<Theme>(() => {
     if (user && profile?.theme) {
@@ -34,6 +34,14 @@ export function ThemeProvider({
 
     return 'light'
   });
+
+  useEffect(() => {
+    if (profile && profile.theme && profile.theme !== theme) {
+      setTheme(profile.theme);
+    }
+    // Handle the case when profile is null: do nothing
+  }, [profile?.theme, profile]);
+
 
   useEffect(() => {
     const root = window.document.documentElement;
@@ -56,6 +64,8 @@ export function ThemeProvider({
         if (error) {
           console.error('Error updating theme in database:', error);
         }
+
+        refreshProfile();
       } catch (error) {
         console.error('Error updating theme:', error);
       }
