@@ -494,7 +494,7 @@ export default function Dashboard() {
       <div
         className={`grid flex-1 min-h-0 ${isMobile
           ? 'grid-cols-1 auto-rows-fr gap-4'
-          : 'md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-x-3 md:gap-y-4 xl:gap-x-1 xl:gap-y-4'
+          : 'md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-x-2 md:gap-y-4 xl:gap-x-4 xl:gap-y-4'
           }`}
       >
         <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-0'} md:col-span-1 md:row-span-2 xl:col-span-1 xl:row-span-2`}>
