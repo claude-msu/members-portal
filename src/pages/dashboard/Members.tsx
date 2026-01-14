@@ -177,7 +177,7 @@ const Members = () => {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="p-6 w-full h-full overflow-y-auto">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>
           <p className="text-muted-foreground">Club members</p>
@@ -192,7 +192,7 @@ const Members = () => {
   }
 
   return (
-    <div className="p-6">
+    <div className="p-6 w-full h-full overflow-y-auto">
       <div className="flex justify-between items-start gap-4">
         <div className="flex-1">
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>

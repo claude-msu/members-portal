@@ -139,12 +139,12 @@ const Applications = () => {
   );
 
   return (
-    <div className="p-6">
+    <div className="p-6 w-full h-full overflow-y-auto">
       <div className="flex justify-between items-center">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Applications</h1>
           <p className="text-muted-foreground">
-            {isBoardOrAbove ? 'Manage member applications' : 'Your applications'}
+            {isBoardOrAbove ? 'Manage applications' : 'Your applications'}
           </p>
         </div>
         <Button onClick={() => setIsCreateModalOpen(true)}>

@@ -311,7 +311,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className={`flex-1 flex flex-col overflow-y-auto max-h-[600px] ${isMobile ? 'p-4' : 'p-2'}`}>
+        <CardContent className={`flex overflow-y-auto p-4 flex flex-col justify-flex-start ${isMobile ? 'p-4' : 'p-2'}`}>
           {isLoading ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading...</div>
           ) : allEvents.length === 0 ? (
@@ -378,7 +378,7 @@ export default function Dashboard() {
 
     return (
       <Card className="hover:shadow-lg transition-shadow h-full flex flex-col min-w-[300px]">
-        <CardHeader className="p-6 pb-0">
+        <CardHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`p-2 ${bgClass} rounded-lg`}>
@@ -399,7 +399,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 overflow-y-auto p-4 flex flex-col justify-center">
+        <CardContent className="flex overflow-y-auto p-4 flex flex-col justify-flex-start">
           {isLoading ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading...</div>
           ) : items.length === 0 ? (
@@ -425,13 +425,13 @@ export default function Dashboard() {
                     if ((e.target as HTMLElement).closest('button')) return;
                     navigate(link);
                   }}>
-                    <CardHeader className="p-5 pb-1">
+                    <CardHeader className={`${isMobile ? "p-5" : "xl:p-5 lg:p-3 md:p-4"} !pb-0`}>
                       <div className="flex items-center justify-start justify-between gap-2">
-                        <div className="flex flex-col items-left gap-2 w-[60%]">
+                        <div className="flex flex-col items-left gap-1 w-[60%]">
                           <CardTitle className="text-lg font-semibold">{item.name}</CardTitle>
                           {item.description && <p className="text-[14px] text-muted-foreground line-clamp-1 max-w-[50%] overflow-hidden">{item.description}</p>}
                         </div>
-                        <div className="flex flex-col items-center gap-2">
+                        <div className="flex flex-col items-end gap-2">
                           <Badge variant="outline" className={`${status.color.replace('bg-', 'text-')} border-current scale-90 origin-right`}>{status.label}</Badge>
                           {item.semesters && (
                             <span className="text-[14px] text-muted-foreground flex items-center gap-1 justify-end">
@@ -442,7 +442,7 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="p-5 pt-0 space-y-1">
+                    <CardContent className={`${isMobile ? "p-5" : "xl:p-5 lg:p-3 md:p-4"} !pt-0 space-y-1`}>
                       <div className="flex items-center justify-between text-[14px] text-muted-foreground mt-1">
                         {type === 'Projects' && item.client_name && (
                           <span className="flex items-center gap-1">
@@ -480,7 +480,7 @@ export default function Dashboard() {
 
   return (
     <div
-      className={`flex flex-col p-4 gap-4 overflow-y-auto justify-center ${isMobile ? 'min-h-[calc(100vh-5vh)]' : ''}`}>
+      className="flex flex-col h-full w-full p-4 gap-4 overflow-y-auto justify-center">
       {/* 1. Header */}
       <div className="shrink-0">
         <WelcomeCard />
@@ -493,27 +493,27 @@ export default function Dashboard() {
 
       {/* 3. Main Content Grid */}
       <div
-        className={`grid flex min-h-0 ${isMobile
-          ? 'grid-cols-1 auto-rows-fr gap-4'
-          : 'md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-x-2 md:gap-y-4 xl:gap-x-4 xl:gap-y-4'
+        className={`grid flex-1 min-h-0 ${isMobile
+          ? 'grid-cols-1 gap-4'
+          : 'md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-y-4 xl:gap-y-4'
           }`}
       >
         <div
-          className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-0'
+          className={`${isMobile ? 'h-[250px]' : 'min-h-0'
             } ${isMobile ? '' : 'md:col-span-1 md:row-span-2 xl:col-span-1 xl:row-span-2'}`}
         >
           <EventsCard />
         </div>
 
         <div
-          className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'
+          className={`h-full ${isMobile ? 'h-[250px]' : 'min-h-[250px]'
             } md:col-span-1 xl:col-span-2`}
         >
           <ResourceCard type="Projects" />
         </div>
 
         <div
-          className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'
+          className={`h-full ${isMobile ? 'h-[250px]' : 'min-h-[250px]'
             } md:col-span-1 xl:col-span-2`}
         >
           <ResourceCard type="Classes" />

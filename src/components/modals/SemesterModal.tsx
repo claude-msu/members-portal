@@ -162,7 +162,7 @@ const SemesterModal = ({ open, onClose, onSuccess, required = true }: SemesterMo
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className={`${isMobile ? 'max-w-[calc(90vw-2rem)]' : 'max-w-xl'} rounded-xl`}>
+      <DialogContent className={`${isMobile ? 'max-w-[90vw]' : 'max-w-xl'} rounded-xl`}>
         <DialogHeader>
           <DialogTitle>Create New Term</DialogTitle>
           <DialogDescription>
@@ -213,14 +213,14 @@ const SemesterModal = ({ open, onClose, onSuccess, required = true }: SemesterMo
                   <Button
                     variant="secondary"
                     className={cn(
-                      'w-full justify-start text-left font-normal',
+                      'w-full justify-center text-left font-normal',
                       !formData.start_date && 'text-muted-foreground'
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.start_date
                       ? format(new Date(formData.start_date), 'PPP')
-                      : <span>Pick a start date</span>}
+                      : <span>{isMobile ? 'Start date' : 'Pick a start date'}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="center">
@@ -246,14 +246,14 @@ const SemesterModal = ({ open, onClose, onSuccess, required = true }: SemesterMo
                   <Button
                     variant="secondary"
                     className={cn(
-                      'w-full justify-start text-left font-normal',
+                      'w-full justify-center text-left font-normal',
                       !formData.end_date && 'text-muted-foreground'
                     )}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.end_date
                       ? format(new Date(formData.end_date), 'PPP')
-                      : <span>Pick an end date</span>}
+                      : <span>{isMobile ? 'End date' : 'Pick an end date'}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="center">

@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
@@ -78,7 +77,7 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <ProfileProvider>
-          <ThemeProvider defaultTheme='light' storageKey="claude-builder-theme">
+          <ThemeProvider>
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />

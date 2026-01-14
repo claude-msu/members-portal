@@ -620,7 +620,7 @@ const Events = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6 w-full">
       <div className="flex justify-between items-center">
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Events</h1>
@@ -703,7 +703,7 @@ const Events = () => {
                 <Button
                   variant="secondary"
                   className={cn(
-                    'w-full justify-start text-left font-normal',
+                    'w-full justify-center text-left font-normal',
                     !date && 'text-muted-foreground'
                   )}
                 >
@@ -719,6 +719,7 @@ const Events = () => {
                     setDate(selectedDate);
                     setCalendarOpen(false);
                   }}
+                  className='dark:text-white'
                   initialFocus
                 />
               </PopoverContent>
@@ -732,7 +733,7 @@ const Events = () => {
                 <Button
                   variant="secondary"
                   className={cn(
-                    'w-full justify-start text-left font-normal',
+                    'w-full justify-center text-left font-normal',
                     !eventTime && 'text-muted-foreground'
                   )}
                 >

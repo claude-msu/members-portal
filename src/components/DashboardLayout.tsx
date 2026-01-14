@@ -60,7 +60,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 
   return (
     <SidebarProvider>
-      <div className="min-h-screen flex w-full">
+      <div className={`flex w-full ${isMobile ? 'min-h-screen' : ''}`}>
         <AppSidebar
           user={user}
           profile={profile}
@@ -71,13 +71,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           isMobile={isMobile}
         />
 
-        <div className="flex-1 flex flex-col">
+        <div className="flex w-screen flex-col">
           <header className="h-[5vh] border-b border-border flex items-center justify-between px-4 bg-background">
             <SidebarTrigger />
             <ThemeToggle />
           </header>
 
-          <main className="flex-1 overflow-auto bg-muted/10">
+          <main className={`flex w-full overflow-y-scroll overflow-auto bg-muted/10 ${isMobile ? 'h-full' : 'h-[95vh]'}`}>
             {children}
           </main>
         </div>

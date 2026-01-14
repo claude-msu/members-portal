@@ -69,7 +69,7 @@ export const EditModal = ({
         <>
             <Dialog open={open} onOpenChange={onClose}>
                 <DialogContent
-                    className={`${isMobile ? 'max-w-[calc(100vw-2rem)] max-h-[90vh]' : 'max-w-2xl max-h-[90vh]'
+                    className={`${isMobile ? 'max-w-[95vw] max-h-[90vh]' : 'max-w-2xl max-h-[90vh]'
                         } overflow-y-auto rounded-xl flex flex-col`}
                 >
                     <DialogHeader className="flex-shrink-0">
