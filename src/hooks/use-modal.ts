@@ -40,7 +40,7 @@ export const useItemStatus = (item: any) => {
         // If no dates available, consider it available (for items without semesters)
         return {
             label: 'Available',
-            variant: 'default' as const,
+            variant: 'outline' as const,
             state: 'available' as const,
         };
     }
@@ -48,7 +48,7 @@ export const useItemStatus = (item: any) => {
     if (start > now) {
         return {
             label: 'Available',
-            variant: 'default' as const,
+            variant: 'outline' as const,
             state: 'available' as const,
         };
     }

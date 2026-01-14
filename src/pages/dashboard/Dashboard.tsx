@@ -45,24 +45,46 @@ type AdminStats = {
 
 
 // --- Helper Functions ---
-const getProjectStatus = (project: Project) => {
+const getProjectStatus = (
+  project: Project,
+  isBoardOrAbove?: boolean
+) => {
   if (!project.semesters) return { label: 'Unknown', color: 'bg-gray-300' };
   const now = new Date();
   const startDate = new Date(project.semesters.start_date);
   const endDate = new Date(project.semesters.end_date);
-  if (startDate > now) return { label: 'Open', color: 'bg-green-500' };
-  if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
-  return { label: 'Active', color: 'bg-blue-500' };
+
+  if (isBoardOrAbove) {
+    if (startDate > now) return { label: 'Open', color: 'bg-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
+    return { label: 'Active', color: 'bg-blue-500' };
+  } else {
+    // For regular members: use "Available" if not started, "Enrolled" if started and not completed, "Completed" if over
+    if (startDate > now) return { label: 'Available', color: 'bg-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
+    return { label: 'Enrolled', color: 'bg-blue-500' };
+  }
 };
 
-const getClassStatus = (cls: Class) => {
+const getClassStatus = (
+  cls: Class,
+  isBoardOrAbove?: boolean
+) => {
   if (!cls.semesters) return { label: 'Unknown', color: 'bg-gray-300' };
   const now = new Date();
   const startDate = new Date(cls.semesters.start_date);
   const endDate = new Date(cls.semesters.end_date);
-  if (startDate > now) return { label: 'Open', color: 'bg-green-500' };
-  if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
-  return { label: 'Active', color: 'bg-blue-500' };
+
+  if (isBoardOrAbove) {
+    if (startDate > now) return { label: 'Open', color: 'bg-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
+    return { label: 'Active', color: 'bg-blue-500' };
+  } else {
+    // For regular members: use "Available" if not started, "Enrolled" if started and not completed, "Completed" if over
+    if (startDate > now) return { label: 'Available', color: 'bg-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
+    return { label: 'Enrolled', color: 'bg-blue-500' };
+  }
 };
 
 // Dashboard data is now sourced from ProfileContext and separate admin queries
@@ -97,10 +119,23 @@ export default function Dashboard() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select(`*, semesters (code, name, start_date, end_date), project_members(count)`)
-        .order('name');
+        .select(`*, semesters (code, name, start_date, end_date), project_members(count)`);
+
       if (error) throw error;
-      return data;
+
+      // Remove projects with an end_date previous to now
+      return (data || [])
+        .filter(
+          (p) =>
+            !p.semesters ||
+            !p.semesters.end_date ||
+            new Date(p.semesters.end_date) >= new Date()
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.semesters?.start_date ?? 0).getTime() -
+            new Date(b.semesters?.start_date ?? 0).getTime()
+        );
     },
     enabled: isBoardOrAbove,
     staleTime: 1000 * 60 * 5,
@@ -113,9 +148,22 @@ export default function Dashboard() {
       const { data, error } = await supabase
         .from('classes')
         .select(`*, semesters (code, name, start_date, end_date), class_enrollments(count)`)
-        .order('name');
+
       if (error) throw error;
-      return data;
+
+      // Remove classes with an end_date previous to now
+      return (data || [])
+        .filter(
+          (p) =>
+            !p.semesters ||
+            !p.semesters.end_date ||
+            new Date(p.semesters.end_date) >= new Date()
+        )
+        .sort(
+          (a, b) =>
+            new Date(a.semesters?.start_date ?? 0).getTime() -
+            new Date(b.semesters?.start_date ?? 0).getTime()
+        );
     },
     enabled: isBoardOrAbove,
     staleTime: 1000 * 60 * 5,
@@ -254,16 +302,32 @@ export default function Dashboard() {
           icon={FolderKanban}
           color="text-blue-600 dark:text-blue-500"
           bg="bg-blue-500/10"
-          value={userProjects.projects.length || 0}
-          label={userProjects.projects.length === 1 ? "Active Project" : "Active Projects"}
+          value={
+            userProjects.inProgress.length > 0
+              ? userProjects.inProgress.length
+              : userProjects.assigned.length || 0
+          }
+          label={
+            userProjects.inProgress.length > 0
+              ? (userProjects.inProgress.length === 1 ? "Active Project" : "Active Projects")
+              : (userProjects.assigned.length === 1 ? "Assigned Project" : "Assigned Projects")
+          }
           link="/dashboard/projects"
         />
         <StatItem
           icon={BookOpen}
           color="text-purple-600 dark:text-purple-500"
           bg="bg-purple-500/10"
-          value={userClasses.classes.length || 0}
-          label={userClasses.classes.length === 1 ? "Enrolled Class" : "Enrolled Classes"}
+          value={
+            userClasses.inProgress.length > 0
+              ? userClasses.inProgress.length
+              : userClasses.enrolled.length || 0
+          }
+          label={
+            userClasses.inProgress.length > 0
+              ? (userClasses.inProgress.length === 1 ? "Active Class" : "Active Classes")
+              : (userClasses.enrolled.length === 1 ? "Enrolled Class" : "Enrolled Classes")
+          }
           link="/dashboard/classes"
         />
         <StatItem
@@ -368,8 +432,8 @@ export default function Dashboard() {
       title = `All ${type}`;
     } else {
       items = isProject
-        ? (userProjects?.projects || [])
-        : (userClasses?.classes || []);
+        ? ([...(userProjects?.inProgress || []), ...(userProjects?.assigned || [])])
+        : ([...(userClasses?.inProgress || []), ...(userClasses?.enrolled || [])]);
       title = `Your ${type}`;
     }
 
@@ -410,7 +474,7 @@ export default function Dashboard() {
           ) : (
             <div className={`grid gap-3 ${isBoardOrAbove && !isMobile ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : type === 'Classes' && !isMobile && !isBoardOrAbove ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
               {items.map((item: any) => {
-                const status = isProject ? getProjectStatus(item) : getClassStatus(item);
+                const status = isProject ? getProjectStatus(item, isBoardOrAbove) : getClassStatus(item, isBoardOrAbove);
 
                 // For dashboard data (board/e-board), count comes from aggregated query
                 // For ProfileContext data (members), we don't have the count, so default to 0

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,12 +45,10 @@ type ProjectWithMembers = ItemWithMembers<Project>;
 
 const Projects = () => {
   const { user } = useAuth();
-  const { role, isEBoard, isBoardOrAbove } = useProfile();
+  const { role, isBoardOrAbove, userProjects, projectsLoading, refreshProjects } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
-  const [projects, setProjects] = useState<ProjectWithMembers[]>([]);
-  const [loading, setLoading] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
 
@@ -65,9 +64,169 @@ const Projects = () => {
 
   const modalState = useModalState<ProjectWithMembers>();
 
+  // Query for admin users to fetch all projects with member data
+  const { data: allProjectsWithMembers, isLoading: allProjectsLoading } = useQuery({
+    queryKey: ['all-projects-with-members'],
+    queryFn: async () => {
+      // Fetch all projects with semester data
+      const { data: projectsData, error: projectsError } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          semesters (
+            code,
+            name,
+            start_date,
+            end_date
+          )
+        `);
+
+      if (projectsError || !projectsData) {
+        throw projectsError || new Error('Failed to fetch projects');
+      }
+
+      // Fetch all project members
+      const { data: membersData } = await supabase
+        .from('project_members')
+        .select('*');
+
+      // Get unique user IDs from members
+      const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', memberUserIds);
+
+      // Filter out banned users
+      const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+      const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
+
+      // Transform into ProjectWithMembers
+      const projectsWithMembers: ProjectWithMembers[] = (projectsData as Project[]).map(project => {
+        const projectMembers = membersData?.filter(m => m.project_id === project.id) || [];
+        const members: MembershipInfo[] = projectMembers
+          .map(membership => ({
+            id: membership.id,
+            user_id: membership.user_id,
+            role: membership.role,
+            profile: profilesMap.get(membership.user_id)!,
+          }))
+          .filter(m => m.profile);
+
+        const userMembership = members.find(m => m.user_id === user!.id);
+
+        return {
+          ...project,
+          members,
+          memberCount: members.length,
+          userMembership,
+        };
+      })
+      .sort((a, b) => {
+        // Sort by semester start date (most recent first)
+        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
+        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
+        return bStart.getTime() - aStart.getTime();
+      });
+
+      return projectsWithMembers;
+    },
+    enabled: !!user && !!role && isBoardOrAbove,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5,
+  });
+
+  // Query to fetch member data for user's projects
+  const { data: userProjectsWithMembers, isLoading: userProjectsMembersLoading } = useQuery({
+    queryKey: ['user-projects-members', user?.id],
+    queryFn: async () => {
+      if (!userProjects) return null;
+
+      // Get all project IDs from userProjects
+      const allProjectIds = [
+        ...(userProjects.inProgress || []).map(p => p.id),
+        ...(userProjects.assigned || []).map(p => p.id),
+        ...(userProjects.completed || []).map(p => p.id),
+        ...(userProjects.available || []).map(p => p.id),
+      ];
+
+      if (allProjectIds.length === 0) return null;
+
+      // Fetch full project data with semester info for these projects
+      const { data: fullProjectsData } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          semesters (
+            code,
+            name,
+            start_date,
+            end_date
+          )
+        `)
+        .in('id', allProjectIds);
+
+      // Fetch member data for these projects
+      const { data: membersData } = await supabase
+        .from('project_members')
+        .select('*')
+        .in('project_id', allProjectIds);
+
+      // Get unique user IDs from members
+      const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', memberUserIds);
+
+      // Filter out banned users
+      const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+      const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
+
+      // Create a map of full project data
+      const fullProjectsMap = new Map(fullProjectsData?.map(p => [p.id, p]) || []);
+
+      // Transform userProjects into ProjectWithMembers
+      const transformProjects = (projects: typeof userProjects.inProgress) => {
+        return projects.map(project => {
+          const fullProject = fullProjectsMap.get(project.id);
+          if (!fullProject) return null;
+
+          const projectMembers = membersData?.filter(m => m.project_id === project.id) || [];
+          const members: MembershipInfo[] = projectMembers
+            .map(membership => ({
+              id: membership.id,
+              user_id: membership.user_id,
+              role: membership.role,
+              profile: profilesMap.get(membership.user_id)!,
+            }))
+            .filter(m => m.profile);
+
+          const userMembership = members.find(m => m.user_id === user!.id);
+
+          return {
+            ...fullProject,
+            members,
+            memberCount: members.length,
+            userMembership,
+          };
+        }).filter(Boolean) as ProjectWithMembers[];
+      };
+
+      return {
+        inProgress: transformProjects(userProjects.inProgress || []),
+        assigned: transformProjects(userProjects.assigned || []),
+        completed: transformProjects(userProjects.completed || []),
+        available: transformProjects(userProjects.available || []),
+      };
+    },
+    enabled: !!user && !!role && !isBoardOrAbove && !!userProjects,
+    staleTime: 1000 * 60 * 2,
+    gcTime: 1000 * 60 * 5,
+  });
+
   useEffect(() => {
     if (user && role) {
-      fetchProjects();
       fetchAvailableLeads();
     }
   }, [user, role]);
@@ -96,72 +255,6 @@ const Projects = () => {
     }
   }, [modalState.modalType, modalState.selectedItem, isCreateModalOpen]);
 
-  const fetchProjects = async () => {
-    if (!user) return;
-
-    setLoading(true);
-
-    const { data: projectsData, error: projectsError } = await supabase
-      .from('projects')
-      .select(`
-        *,
-        semesters (
-          code,
-          name,
-          start_date,
-          end_date
-        )
-      `);
-
-    if (projectsError || !projectsData) {
-      setLoading(false);
-      return;
-    }
-
-    const { data: membersData } = await supabase
-      .from('project_members')
-      .select('*');
-
-    const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*')
-      .in('id', memberUserIds);
-
-    // Filter out banned users
-    const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
-    const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
-
-    const projectsWithMembers: ProjectWithMembers[] = (projectsData as Project[]).map(project => {
-      const projectMembers = membersData?.filter(m => m.project_id === project.id) || [];
-      const members: MembershipInfo[] = projectMembers
-        .map(membership => ({
-          id: membership.id,
-          user_id: membership.user_id,
-          role: membership.role,
-          profile: profilesMap.get(membership.user_id)!,
-        }))
-        .filter(m => m.profile);
-
-      const userMembership = members.find(m => m.user_id === user.id);
-
-      return {
-        ...project,
-        members,
-        memberCount: members.length,
-        userMembership,
-      };
-    })
-    .sort((a, b) => {
-      // Sort by semester start date (most recent first)
-      const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
-      const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
-      return bStart.getTime() - aStart.getTime();
-    });
-
-    setProjects(projectsWithMembers);
-    setLoading(false);
-  };
 
   const fetchAvailableLeads = async () => {
     const { data: leadsData, error } = await supabase
@@ -175,8 +268,22 @@ const Projects = () => {
     }
   };
 
+  // Determine which projects data to use
+  const projectsData = isBoardOrAbove
+    ? allProjectsWithMembers || []
+    : userProjectsWithMembers
+    ? [
+        ...userProjectsWithMembers.inProgress,
+        ...userProjectsWithMembers.assigned,
+        ...userProjectsWithMembers.completed,
+        ...userProjectsWithMembers.available,
+      ]
+    : [];
+
+  const loading = isBoardOrAbove ? allProjectsLoading : (projectsLoading || userProjectsMembersLoading);
+
   const { available, inProgress, completed } = useFilteredItems(
-    projects,
+    projectsData,
     (project, status) => {
       if (status.state === 'available') return true;
       return isBoardOrAbove || !!project.userMembership;
@@ -267,7 +374,12 @@ const Projects = () => {
         }
       }
 
-      await fetchProjects();
+      await refreshProjects();
+
+      // Invalidate admin projects query if user is admin
+      if (isBoardOrAbove) {
+        queryClient.invalidateQueries({ queryKey: ['all-projects-with-members'] });
+      }
 
       // Invalidate dashboard queries to refresh status
       queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
@@ -295,7 +407,13 @@ const Projects = () => {
     }
 
     toast({ title: 'Success', description: 'Project deleted!' });
-    await fetchProjects();
+    await refreshProjects();
+
+    // Invalidate admin projects query if user is admin
+    if (isBoardOrAbove) {
+      queryClient.invalidateQueries({ queryKey: ['all-projects-with-members'] });
+    }
+
     modalState.close();
   };
 
@@ -353,7 +471,7 @@ const Projects = () => {
 
     const actions = [];
 
-    if (isEBoard) {
+    if (isBoardOrAbove) {
       actions.push({
         label: 'Edit Details',
         onClick: () => modalState.openEdit(project),
@@ -366,10 +484,10 @@ const Projects = () => {
       label: 'View on GitHub',
       onClick: () => window.open(`https://github.com/Claude-Builder-Club-MSU/${project.repository_name}`, '_blank'),
       icon: <Github className="h-4 w-4 mr-2" />,
-      variant: isEBoard ? 'default' : 'outline',
+      variant: isBoardOrAbove ? 'default' : 'outline',
     });
 
-    if (!isEBoard) {
+    if (!isBoardOrAbove) {
       actions.push({
         label: 'View Details',
         onClick: () => modalState.openDetails(project),
@@ -402,7 +520,7 @@ const Projects = () => {
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Projects</h1>
           <p className="text-muted-foreground">Club projects</p>
         </div>
-        {isEBoard && (
+        {isBoardOrAbove && (
           <Button onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="h-4 w-4 mr-2" />
             Create Project

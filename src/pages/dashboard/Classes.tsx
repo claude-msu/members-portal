@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,11 +44,10 @@ type ClassWithMembers = ItemWithMembers<Class>;
 
 const Classes = () => {
   const { user } = useAuth();
-  const { role, isBoardOrAbove, refreshClasses } = useProfile();
+  const { role, isBoardOrAbove, userClasses, classesLoading, refreshClasses } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [classes, setClasses] = useState<ClassWithMembers[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [saveLoading, setSaveLoading] = useState(false);
 
@@ -62,9 +62,169 @@ const Classes = () => {
 
   const modalState = useModalState<ClassWithMembers>();
 
+  // Query for admin users to fetch all classes with enrollment data
+  const { data: allClassesWithMembers, isLoading: allClassesLoading } = useQuery({
+    queryKey: ['all-classes-with-members'],
+    queryFn: async () => {
+      // Fetch all classes with semester data
+      const { data: classesData, error: classesError } = await supabase
+        .from('classes')
+        .select(`
+          *,
+          semesters (
+            code,
+            name,
+            start_date,
+            end_date
+          )
+        `);
+
+      if (classesError || !classesData) {
+        throw classesError || new Error('Failed to fetch classes');
+      }
+
+      // Fetch all class enrollments
+      const { data: enrollmentsData } = await supabase
+        .from('class_enrollments')
+        .select('*');
+
+      // Get unique user IDs from enrollments
+      const enrolledUserIds = [...new Set(enrollmentsData?.map(e => e.user_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', enrolledUserIds);
+
+      // Filter out banned users
+      const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+      const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
+
+      // Transform into ClassWithMembers
+      const classesWithMembers: ClassWithMembers[] = (classesData as Class[]).map(cls => {
+        const classEnrollments = enrollmentsData?.filter(e => e.class_id === cls.id) || [];
+        const members: MembershipInfo[] = classEnrollments
+          .map(enrollment => ({
+            id: enrollment.id,
+            user_id: enrollment.user_id,
+            role: enrollment.role,
+            profile: profilesMap.get(enrollment.user_id)!,
+          }))
+          .filter(m => m.profile);
+
+        const userEnrollment = members.find(m => m.user_id === user!.id);
+
+        return {
+          ...cls,
+          members,
+          memberCount: members.length,
+          userMembership: userEnrollment,
+        };
+      })
+      .sort((a, b) => {
+        // Sort by semester start date (most recent first)
+        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
+        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
+        return bStart.getTime() - aStart.getTime();
+      });
+
+      return classesWithMembers;
+    },
+    enabled: !!user && !!role && isBoardOrAbove,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5,
+  });
+
+  // Query to fetch enrollment data for user's classes
+  const { data: userClassesWithMembers, isLoading: userClassesMembersLoading } = useQuery({
+    queryKey: ['user-classes-members', user?.id],
+    queryFn: async () => {
+      if (!userClasses) return null;
+
+      // Get all class IDs from userClasses
+      const allClassIds = [
+        ...(userClasses.inProgress || []).map(c => c.id),
+        ...(userClasses.enrolled || []).map(c => c.id),
+        ...(userClasses.completed || []).map(c => c.id),
+        ...(userClasses.available || []).map(c => c.id),
+      ];
+
+      if (allClassIds.length === 0) return null;
+
+      // Fetch full class data with semester info for these classes
+      const { data: fullClassesData } = await supabase
+        .from('classes')
+        .select(`
+          *,
+          semesters (
+            code,
+            name,
+            start_date,
+            end_date
+          )
+        `)
+        .in('id', allClassIds);
+
+      // Fetch enrollment data for these classes
+      const { data: enrollmentsData } = await supabase
+        .from('class_enrollments')
+        .select('*')
+        .in('class_id', allClassIds);
+
+      // Get unique user IDs from enrollments
+      const enrolledUserIds = [...new Set(enrollmentsData?.map(e => e.user_id) || [])];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('*')
+        .in('id', enrolledUserIds);
+
+      // Filter out banned users
+      const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+      const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
+
+      // Create a map of full class data
+      const fullClassesMap = new Map(fullClassesData?.map(c => [c.id, c]) || []);
+
+      // Transform userClasses into ClassWithMembers
+      const transformClasses = (classes: typeof userClasses.inProgress) => {
+        return classes.map(cls => {
+          const fullClass = fullClassesMap.get(cls.id);
+          if (!fullClass) return null;
+
+          const classEnrollments = enrollmentsData?.filter(e => e.class_id === cls.id) || [];
+          const members: MembershipInfo[] = classEnrollments
+            .map(enrollment => ({
+              id: enrollment.id,
+              user_id: enrollment.user_id,
+              role: enrollment.role,
+              profile: profilesMap.get(enrollment.user_id)!,
+            }))
+            .filter(m => m.profile);
+
+          const userEnrollment = members.find(m => m.user_id === user!.id);
+
+          return {
+            ...fullClass,
+            members,
+            memberCount: members.length,
+            userMembership: userEnrollment,
+          };
+        }).filter(Boolean) as ClassWithMembers[];
+      };
+
+      return {
+        inProgress: transformClasses(userClasses.inProgress || []),
+        enrolled: transformClasses(userClasses.enrolled || []),
+        completed: transformClasses(userClasses.completed || []),
+        available: transformClasses(userClasses.available || []),
+      };
+    },
+    enabled: !!user && !!role && !isBoardOrAbove && !!userClasses,
+    staleTime: 1000 * 60 * 2,
+    gcTime: 1000 * 60 * 5,
+  });
+
   useEffect(() => {
     if (user && role) {
-      fetchClasses();
       fetchAvailableTeachers();
     }
   }, [user, role]);
@@ -89,70 +249,6 @@ const Classes = () => {
     }
   }, [modalState.modalType, modalState.selectedItem, isCreateModalOpen]);
 
-  const fetchClasses = async () => {
-    if (!user) return;
-
-    const { data: classesData, error: classesError } = await supabase
-      .from('classes')
-      .select(`
-        *,
-        semesters (
-          code,
-          name,
-          start_date,
-          end_date
-        )
-      `);
-
-    if (classesError || !classesData) {
-      setLoading(false);
-      return;
-    }
-
-    const { data: enrollmentsData } = await supabase
-      .from('class_enrollments')
-      .select('*');
-
-    const enrolledUserIds = [...new Set(enrollmentsData?.map(e => e.user_id) || [])];
-    const { data: profilesData } = await supabase
-      .from('profiles')
-      .select('*')
-      .in('id', enrolledUserIds);
-
-    // Filter out banned users
-    const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
-    const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
-
-    const classesWithMembers: ClassWithMembers[] = (classesData as Class[]).map(cls => {
-      const classEnrollments = enrollmentsData?.filter(e => e.class_id === cls.id) || [];
-      const members: MembershipInfo[] = classEnrollments
-        .map(enrollment => ({
-          id: enrollment.id,
-          user_id: enrollment.user_id,
-          role: enrollment.role,
-          profile: profilesMap.get(enrollment.user_id)!,
-        }))
-        .filter(m => m.profile);
-
-      const userEnrollment = members.find(m => m.user_id === user.id);
-
-      return {
-        ...cls,
-        members,
-        memberCount: members.length,
-        userMembership: userEnrollment,
-      };
-    })
-      .sort((a, b) => {
-        // Sort by semester start date (most recent first)
-        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
-        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
-        return bStart.getTime() - aStart.getTime();
-      });
-
-    setClasses(classesWithMembers);
-    setLoading(false);
-  };
 
   const fetchAvailableTeachers = async () => {
     const { data: teachersData, error } = await supabase
@@ -166,8 +262,22 @@ const Classes = () => {
     }
   };
 
+  // Determine which classes data to use
+  const classesData = isBoardOrAbove
+    ? allClassesWithMembers || []
+    : userClassesWithMembers
+    ? [
+        ...userClassesWithMembers.inProgress,
+        ...userClassesWithMembers.enrolled,
+        ...userClassesWithMembers.completed,
+        ...userClassesWithMembers.available,
+      ]
+    : [];
+
+  const loading = isBoardOrAbove ? allClassesLoading : (classesLoading || userClassesMembersLoading);
+
   const { available, inProgress, completed } = useFilteredItems(
-    classes,
+    classesData,
     (cls, status) => {
       if (status.state === 'available') return true;
       return isBoardOrAbove || !!cls.userMembership;
@@ -248,8 +358,12 @@ const Classes = () => {
         }
       }
 
-      await fetchClasses();
       await refreshClasses();
+
+      // Invalidate admin classes query if user is admin
+      if (isBoardOrAbove) {
+        queryClient.invalidateQueries({ queryKey: ['all-classes-with-members'] });
+      }
 
       modalState.close();
       setIsCreateModalOpen(false);
@@ -274,8 +388,13 @@ const Classes = () => {
     }
 
     toast({ title: 'Success', description: 'Class deleted!' });
-    await fetchClasses();
     await refreshClasses();
+
+    // Invalidate admin classes query if user is admin
+    if (isBoardOrAbove) {
+      queryClient.invalidateQueries({ queryKey: ['all-classes-with-members'] });
+    }
+
     modalState.close();
   };
 

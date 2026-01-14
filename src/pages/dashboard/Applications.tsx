@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
-import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight } from 'lucide-react';
+import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight, Folder, FolderOpen, User, Shield } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ApplicationCreateModal } from '@/components/modals/ApplicationCreateModal';
 import type { Database } from '@/integrations/supabase/database.types';
@@ -16,48 +16,17 @@ type Application = Database['public']['Tables']['applications']['Row'];
 
 const Applications = () => {
   const { user } = useAuth();
-  const { role, isBoardOrAbove } = useProfile();
+  const { role, isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [applications, setApplications] = useState<Application[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isReviewedCollapsed, setIsReviewedCollapsed] = useState(true);
-
-  useEffect(() => {
-    if (user && role) {
-      fetchApplications();
-    }
-  }, [user, role]);
-
-  const fetchApplications = async () => {
-    if (!user) return;
-
-    let query = supabase.from('applications').select('*');
-
-    // E-board can see all applications
-    if (role === 'e-board') {
-      // No filter needed
-    }
-    // Board can see all non-board applications + their own board applications
-    else if (role === 'board') {
-      query = query.or(`application_type.neq.board,user_id.eq.${user.id}`);
-    }
-    // Regular users can only see their own
-    else {
-      query = query.eq('user_id', user.id);
-    }
-
-    const { data, error } = await query.order('created_at', { ascending: false });
-
-    if (!error && data) {
-      setApplications(data);
-    }
-    setLoading(false);
-  };
-
-  const pendingApplications = applications.filter(app => app.status === 'pending');
-  const reviewedApplications = applications.filter(app => app.status === 'accepted' || app.status === 'rejected');
+  const [myApplicationsCollapsed, setMyApplicationsCollapsed] = useState(false);
+  const [myPendingCollapsed, setMyPendingCollapsed] = useState(false);
+  const [myReviewedCollapsed, setMyReviewedCollapsed] = useState(true);
+  const [reviewApplicationsCollapsed, setReviewApplicationsCollapsed] = useState(false);
+  const [reviewPendingCollapsed, setReviewPendingCollapsed] = useState(false);
+  const [reviewReviewedCollapsed, setReviewReviewedCollapsed] = useState(true);
 
   const getStatusVariant = (status: string): 'default' | 'destructive' | 'secondary' => {
     switch (status) {
@@ -138,6 +107,50 @@ const Applications = () => {
     </Card>
   );
 
+  const renderApplicationSection = (title: string, applications: Application[], collapsed: boolean, onToggle: () => void, icon: React.ReactNode) => {
+    if (applications.length === 0) return null;
+
+    return (
+      <Collapsible open={!collapsed} onOpenChange={onToggle}>
+        <div className="space-y-4">
+          <CollapsibleTrigger asChild>
+            <Button variant="outline" className="w-full justify-start p-0 h-auto hover:text-black hover:bg-background border-0">
+              <div className="flex items-center gap-2 w-full">
+                {collapsed ? (
+                  <ChevronRight className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+                <div className="flex items-center gap-2">
+                  {icon}
+                  <span className="text-lg font-medium">{title}</span>
+                </div>
+                <Badge variant="secondary">{applications.length}</Badge>
+              </div>
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className="grid gap-4 ml-6">
+              {applications.map(renderApplicationCard)}
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    );
+  };
+
+  const myApplicationsTotal = userApplications ? (
+    userApplications.self.pending.length +
+    userApplications.self.accepted.length +
+    userApplications.self.rejected.length
+  ) : 0;
+
+  const reviewApplicationsTotal = userApplications ? (
+    userApplications.review.pending.length +
+    userApplications.review.accepted.length +
+    userApplications.review.rejected.length
+  ) : 0;
+
   return (
     <div className="p-6 w-full h-full overflow-y-auto">
       <div className="flex justify-between items-center">
@@ -153,13 +166,13 @@ const Applications = () => {
         </Button>
       </div>
 
-      {loading ? (
+      {applicationsLoading ? (
         <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">Loading applications...</p>
           </CardContent>
         </Card>
-      ) : applications.length === 0 ? (
+      ) : !userApplications || (myApplicationsTotal === 0 && reviewApplicationsTotal === 0) ? (
         <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
@@ -169,34 +182,87 @@ const Applications = () => {
         </Card>
       ) : (
         <div className="space-y-6 mt-6">
-          {/* Pending Applications */}
-          {pendingApplications.length > 0 && (
-            <div className="grid gap-4">
-              {pendingApplications.map(renderApplicationCard)}
-            </div>
-          )}
-
-          {/* Reviewed Applications - Collapsible */}
-          {reviewedApplications.length > 0 && (
-            <Collapsible open={!isReviewedCollapsed} onOpenChange={(open) => setIsReviewedCollapsed(!open)}>
+          {/* My Applications Folder */}
+          {myApplicationsTotal > 0 && (
+            <Collapsible open={!myApplicationsCollapsed} onOpenChange={setMyApplicationsCollapsed}>
               <div className="space-y-4">
                 <CollapsibleTrigger asChild>
                   <Button variant="outline" className="w-full justify-start p-0 h-auto hover:text-black hover:bg-background border-0">
                     <div className="flex items-center gap-2 w-full">
-                      {isReviewedCollapsed ? (
-                        <ChevronRight className="h-4 w-4" />
+                      {myApplicationsCollapsed ? (
+                        <Folder className="h-5 w-5" />
                       ) : (
-                        <ChevronDown className="h-4 w-4" />
+                        <FolderOpen className="h-5 w-5" />
                       )}
-                      <h2 className="text-xl font-semibold">Reviewed Applications</h2>
-                      <Badge variant="secondary">{reviewedApplications.length}</Badge>
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        <h2 className="text-xl font-semibold">My Applications</h2>
+                      </div>
+                      <Badge variant="secondary">{myApplicationsTotal}</Badge>
                     </div>
                   </Button>
                 </CollapsibleTrigger>
-                <CollapsibleContent>
-                  <div className="grid gap-4">
-                    {reviewedApplications.map(renderApplicationCard)}
-                  </div>
+                <CollapsibleContent className="space-y-4">
+                  {/* My Pending Applications */}
+                  {renderApplicationSection(
+                    "Pending",
+                    userApplications.self.pending,
+                    myPendingCollapsed,
+                    () => setMyPendingCollapsed(!myPendingCollapsed),
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                  )}
+
+                  {/* My Reviewed Applications */}
+                  {renderApplicationSection(
+                    "Reviewed",
+                    [...userApplications.self.accepted, ...userApplications.self.rejected],
+                    myReviewedCollapsed,
+                    () => setMyReviewedCollapsed(!myReviewedCollapsed),
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  )}
+                </CollapsibleContent>
+              </div>
+            </Collapsible>
+          )}
+
+          {/* Review Applications Folder */}
+          {reviewApplicationsTotal > 0 && (
+            <Collapsible open={!reviewApplicationsCollapsed} onOpenChange={setReviewApplicationsCollapsed}>
+              <div className="space-y-4">
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" className="w-full justify-start p-0 h-auto hover:text-black hover:bg-background border-0">
+                    <div className="flex items-center gap-2 w-full">
+                      {reviewApplicationsCollapsed ? (
+                        <Folder className="h-5 w-5" />
+                      ) : (
+                        <FolderOpen className="h-5 w-5" />
+                      )}
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4" />
+                        <h2 className="text-xl font-semibold">Review Applications</h2>
+                      </div>
+                      <Badge variant="secondary">{reviewApplicationsTotal}</Badge>
+                    </div>
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-4">
+                  {/* Review Pending Applications */}
+                  {renderApplicationSection(
+                    "Pending Review",
+                    userApplications.review.pending,
+                    reviewPendingCollapsed,
+                    () => setReviewPendingCollapsed(!reviewPendingCollapsed),
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  )}
+
+                  {/* Review Reviewed Applications */}
+                  {renderApplicationSection(
+                    "Reviewed",
+                    [...userApplications.review.accepted, ...userApplications.review.rejected],
+                    reviewReviewedCollapsed,
+                    () => setReviewReviewedCollapsed(!reviewReviewedCollapsed),
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  )}
                 </CollapsibleContent>
               </div>
             </Collapsible>
@@ -209,7 +275,9 @@ const Applications = () => {
         onClose={() => setIsCreateModalOpen(false)}
         onSuccess={() => {
           setIsCreateModalOpen(false);
-          fetchApplications();
+          refreshApplications();
+          // Invalidate the applications query to refresh the UI
+          queryClient.invalidateQueries({ queryKey: ['user-applications'] });
         }}
       />
     </div>

@@ -8,47 +8,43 @@ import type { Database } from '@/integrations/supabase/database.types';
 type Project = Database['public']['Tables']['projects']['Row'] & {
     semesters: { start_date: string } | null;
 };
-type ProjectMember = Database['public']['Tables']['project_members']['Row'];
 type Class = Database['public']['Tables']['classes']['Row'] & {
     semesters: { start_date: string } | null;
 };
-type ClassEnrollment = Database['public']['Tables']['class_enrollments']['Row'];
 type Application = Database['public']['Tables']['applications']['Row'];
 type Event = Database['public']['Tables']['events']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
 
 interface UserProjects {
-    projects: Project[];
-    memberships: ProjectMember[];
-    leadProjects: Project[];
-    memberProjects: Project[];
+    inProgress: Project[];
+    assigned: Project[];
+    completed: Project[];
+    available: Project[];
 }
 
 interface UserClasses {
-    classes: Class[];
-    enrollments: ClassEnrollment[];
-    teachingClasses: Class[];
-    studentClasses: Class[];
+    inProgress: Class[];
+    enrolled: Class[];
+    completed: Class[];
+    available: Class[];
 }
 
 interface UserApplications {
-    applications: Application[];
-    pending: Application[];
-    accepted: Application[];
-    rejected: Application[];
+    self: {
+        accepted: Application[];
+        rejected: Application[];
+        pending: Application[];
+    };
+    review: {
+        accepted: Application[];
+        rejected: Application[];
+        pending: Application[];
+    };
 }
 
 interface UserEvents {
     attending: Event[];
     notAttending: Event[];
-}
-
-interface UserStats {
-    totalProjects: number;
-    totalClasses: number;
-    totalEventsAttended: number;
-    totalRSVPs: number;
-    pendingApplications: number;
 }
 
 interface ProfileContextType {
@@ -118,7 +114,7 @@ async function fetchUserRole(userId: string): Promise<AppRole> {
 }
 
 async function fetchUserProjects(userId: string): Promise<UserProjects> {
-    // Fetch project memberships
+    // Fetch all project memberships for this user
     const { data: memberships, error: membershipsError } = await supabase
         .from('project_members')
         .select('*')
@@ -126,62 +122,91 @@ async function fetchUserProjects(userId: string): Promise<UserProjects> {
 
     if (membershipsError) throw membershipsError;
 
-    if (!memberships || memberships.length === 0) {
-        return {
-            projects: [],
-            memberships: [],
-            leadProjects: [],
-            memberProjects: []
-        };
-    }
-
-    // Fetch full project details
-    const projectIds = memberships.map(m => m.project_id);
-    const { data: projects, error: projectsError } = await supabase
+    // Fetch all projects with semester data (for available calculation)
+    const { data: allProjects, error: allProjectsError } = await supabase
         .from('projects')
         .select(`
             *,
             semesters (
-                start_date
+                start_date,
+                end_date
             )
-        `)
-        .in('id', projectIds);
+        `);
 
-    if (projectsError) throw projectsError;
+    if (allProjectsError) throw allProjectsError;
 
-    // Sort projects by semester start date (most recent first)
-    const sortedProjects = projects?.sort((a, b) => {
-        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
-        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
-        return bStart.getTime() - aStart.getTime();
-    }) || [];
+    const now = new Date();
 
-    const projectsMap = new Map(sortedProjects.map(p => [p.id, p]));
+    // Map membership by project id for quick lookup
+    const userProjectsMap = new Map<string, any>();
+    if (memberships && memberships.length) {
+        for (const membership of memberships) {
+            userProjectsMap.set(membership.project_id, membership);
+        }
+    }
 
-    const leadProjects: Project[] = [];
-    const memberProjects: Project[] = [];
+    // Prepare buckets and set for "involved" project ids
+    const inProgress: Project[] = [];
+    const assigned: Project[] = [];
+    const completed: Project[] = [];
+    const involvedProjectIds = new Set<string>();
 
-    memberships.forEach(membership => {
-        const project = projectsMap.get(membership.project_id);
-        if (project) {
-            if (membership.role === 'lead') {
-                leadProjects.push(project);
+    for (const project of allProjects ?? []) {
+        const membership = userProjectsMap.get(project.id);
+
+        // Only process further if user is a member of the project
+        if (!membership) continue;
+
+        involvedProjectIds.add(project.id);
+
+        // Defensive: skip if no semesters data
+        if (!project.semesters) continue;
+
+        const semesters = project.semesters;
+        const startDate = semesters.start_date ? new Date(semesters.start_date) : null;
+        const endDate = semesters.end_date ? new Date(semesters.end_date) : null;
+
+        // inProgress: now >= start_date && now <= end_date
+        if (startDate && endDate && now >= startDate && now <= endDate) {
+            inProgress.push(project);
+        }
+        // assigned: project not started yet (now < start_date)
+        else if (startDate && now < startDate) {
+            assigned.push(project);
+        }
+        // completed: project end_date has passed
+        else if (endDate && now > endDate) {
+            completed.push(project);
+        }
+        // Defensive: If dates missing, fallback
+        else if (startDate && !endDate) {
+            if (now < startDate) {
+                assigned.push(project);
             } else {
-                memberProjects.push(project);
+                inProgress.push(project);
+            }
+        } else if (!startDate && endDate) {
+            if (now > endDate) {
+                completed.push(project);
+            } else {
+                inProgress.push(project);
             }
         }
-    });
+    }
+
+    // Available: all projects NOT in involvedProjectIds
+    const available: Project[] = (allProjects ?? []).filter(project => !involvedProjectIds.has(project.id));
 
     return {
-        projects: projects || [],
-        memberships: memberships || [],
-        leadProjects,
-        memberProjects
+        inProgress,
+        assigned,
+        completed,
+        available,
     };
 }
 
 async function fetchUserClasses(userId: string): Promise<UserClasses> {
-    // Fetch class enrollments
+    // Fetch class enrollments for this user
     const { data: enrollments, error: enrollmentsError } = await supabase
         .from('class_enrollments')
         .select('*')
@@ -189,78 +214,143 @@ async function fetchUserClasses(userId: string): Promise<UserClasses> {
 
     if (enrollmentsError) throw enrollmentsError;
 
-    if (!enrollments || enrollments.length === 0) {
-        return {
-            classes: [],
-            enrollments: [],
-            teachingClasses: [],
-            studentClasses: [],
-        };
-    }
-
-    // Fetch full class details
-    const classIds = enrollments.map(e => e.class_id);
-    const { data: classes, error: classesError } = await supabase
+    // Fetch all classes with semesters (for available calculation)
+    const { data: allClasses, error: allClassesError } = await supabase
         .from('classes')
         .select(`
             *,
             semesters (
-                start_date
+                start_date,
+                end_date
             )
-        `)
-        .in('id', classIds);
+        `);
 
-    if (classesError) throw classesError;
+    if (allClassesError) throw allClassesError;
 
-    // Sort classes by semester start date (most recent first)
-    const sortedClasses = classes?.sort((a, b) => {
-        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
-        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
-        return bStart.getTime() - aStart.getTime();
-    }) || [];
+    const now = new Date();
 
-    const classesMap = new Map(sortedClasses.map(c => [c.id, c]));
+    // Map enrollment by class id for quick lookup
+    const userClassesMap = new Map<string, any>();
+    if (enrollments && enrollments.length) {
+        for (const enrollment of enrollments) {
+            userClassesMap.set(enrollment.class_id, enrollment);
+        }
+    }
 
-    const teachingClasses: Class[] = [];
-    const studentClasses: Class[] = [];
+    // Prepare buckets and set for "involved" class ids
+    const inProgress: Class[] = [];
+    const enrolled: Class[] = [];
+    const completed: Class[] = [];
+    const involvedClassIds = new Set<string>();
 
-    enrollments.forEach(enrollment => {
-        const classItem = classesMap.get(enrollment.class_id);
-        if (classItem) {
-            if (enrollment.role === 'teacher') {
-                teachingClasses.push(classItem);
+    for (const classItem of allClasses ?? []) {
+        const enrollment = userClassesMap.get(classItem.id);
+
+        // Only process further if user is enrolled (teacher OR student role)
+        if (!enrollment) continue;
+
+        involvedClassIds.add(classItem.id);
+
+        // Defensive: skip if no semesters data
+        if (!classItem.semesters) continue;
+
+        const semesters = classItem.semesters;
+        const startDate = semesters.start_date ? new Date(semesters.start_date) : null;
+        const endDate = semesters.end_date ? new Date(semesters.end_date) : null;
+
+        // inProgress: now >= start_date && now <= end_date
+        if (startDate && endDate && now >= startDate && now <= endDate) {
+            inProgress.push(classItem);
+        }
+        // enrolled: class not started yet (now < start_date)
+        else if (startDate && now < startDate) {
+            enrolled.push(classItem);
+        }
+        // completed: class end_date has passed
+        else if (endDate && now > endDate) {
+            completed.push(classItem);
+        }
+        // Defensive: If dates missing, fallback
+        else if (startDate && !endDate) {
+            if (now < startDate) {
+                enrolled.push(classItem);
             } else {
-                studentClasses.push(classItem);
+                inProgress.push(classItem);
+            }
+        } else if (!startDate && endDate) {
+            if (now > endDate) {
+                completed.push(classItem);
+            } else {
+                inProgress.push(classItem);
             }
         }
-    });
+    }
+
+    // Available: all classes NOT in involvedClassIds
+    const available: Class[] = (allClasses ?? []).filter(classItem => !involvedClassIds.has(classItem.id));
 
     return {
-        classes: classes || [],
-        enrollments: enrollments || [],
-        teachingClasses,
-        studentClasses,
+        inProgress,
+        enrolled,
+        completed,
+        available,
     };
 }
 
-async function fetchUserApplications(userId: string): Promise<UserApplications> {
-    const { data: applications, error } = await supabase
+async function fetchUserApplications(userId: string, role: AppRole): Promise<UserApplications> {
+    // Fetch user's own applications
+    const { data: ownApplications, error: ownError } = await supabase
         .from('applications')
         .select('*')
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (ownError) throw ownError;
 
-    const pending = applications?.filter(a => a.status === 'pending') || [];
-    const accepted = applications?.filter(a => a.status === 'accepted') || [];
-    const rejected = applications?.filter(a => a.status === 'rejected') || [];
+    // Categorize user's own applications
+    const self = {
+        pending: ownApplications?.filter(a => a.status === 'pending') || [],
+        accepted: ownApplications?.filter(a => a.status === 'accepted') || [],
+        rejected: ownApplications?.filter(a => a.status === 'rejected') || [],
+    };
+
+    // Initialize review categories
+    const review = {
+        accepted: [] as Application[],
+        rejected: [] as Application[],
+        pending: [] as Application[],
+    };
+
+    // Fetch applications the user can review based on their role
+    if (role === 'e-board' || role === 'board') {
+        // Build query for applications user can review
+        let reviewQuery = supabase
+            .from('applications')
+            .select('*')
+            .neq('user_id', userId) // Exclude own applications
+            .order('created_at', { ascending: false });
+
+        // Board members can only review project and class applications
+        if (role === 'board') {
+            reviewQuery = reviewQuery.in('application_type', ['project', 'class']);
+        }
+        // e-board can review all applications
+
+        const { data: reviewableApplications, error: reviewError } = await reviewQuery;
+
+        if (reviewError) throw reviewError;
+
+        if (reviewableApplications) {
+            // Categorize reviewable applications
+            review.pending = reviewableApplications.filter(a => a.status === 'pending');
+            review.accepted = reviewableApplications.filter(a => a.status === 'accepted' && a.reviewed_by === userId);
+            review.rejected = reviewableApplications.filter(a => a.status === 'rejected' && a.reviewed_by === userId);
+        }
+    }
 
     return {
-        applications: applications || [],
-        pending,
-        accepted,
-        rejected
+        self,
+        review
     };
 }
 
@@ -377,9 +467,9 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         isLoading: applicationsLoading,
         refetch: refetchApplications,
     } = useQuery({
-        queryKey: ['user-applications', user?.id],
-        queryFn: () => fetchUserApplications(user!.id),
-        enabled: !!user,
+        queryKey: ['user-applications', user?.id, role],
+        queryFn: () => fetchUserApplications(user!.id, role!),
+        enabled: !!user && !!role,
         staleTime: 1000 * 60 * 1, // 1 minute (applications change more frequently)
         gcTime: 1000 * 60 * 5,
     });
