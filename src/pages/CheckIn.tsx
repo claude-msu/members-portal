@@ -44,10 +44,20 @@ const Checkin = () => {
                 event_name?: string;
             };
 
-            setResult(resultData);
+            // For RSVP violations (negative points), show as failure in UI
+            if (resultData.success && resultData.points_awarded && resultData.points_awarded < 0) {
+                setResult({
+                    success: false,
+                    message: resultData.message,
+                    points_awarded: resultData.points_awarded,
+                    event_name: resultData.event_name
+                });
+            } else {
+                setResult(resultData);
+            }
 
-            // Clear redirect URL and refresh profile (to update points) after successful check-in
-            if (resultData?.success) {
+            // Clear redirect URL and refresh profile (to update points) after check-in (success or penalty)
+            if (resultData?.points_awarded !== undefined) {
                 sessionStorage.removeItem('redirectAfterLogin');
                 // Refresh profile to get updated points
                 await refreshProfile();
@@ -95,7 +105,7 @@ const Checkin = () => {
                     <CardDescription>{result?.message}</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                    {result?.success && result.points_awarded !== undefined && (
+                    {result?.points_awarded !== undefined && (
                         <div className={`rounded-lg p-4 text-center ${
                             result.points_awarded >= 0
                                 ? 'bg-orange-50 dark:bg-orange-950'

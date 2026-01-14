@@ -57,9 +57,9 @@ BEGIN
     -- RSVP violation: deduct points equal to the event's point value
     v_penalty_points := -v_qr_code.points;
 
-    -- Log the violation
-    RAISE LOG 'RSVP VIOLATION: User % checked in to RSVP-required event "%" without RSVP - deducting % points (token: %)',
-      v_user_id, v_event.name, v_penalty_points, p_token;
+    -- Log the violation with more details
+    RAISE LOG 'RSVP VIOLATION: User % checked in to RSVP-required event "%" (id: %) without RSVP - deducting % points (current points will be updated). Token: %',
+      v_user_id, v_event.name, v_event.id, v_penalty_points, p_token;
   ELSE
     -- Normal checkin: award full points
     v_penalty_points := v_qr_code.points;
@@ -85,6 +85,19 @@ BEGIN
   UPDATE profiles
   SET points = GREATEST(0, points + v_penalty_points)  -- Ensure points don't go below 0
   WHERE id = v_user_id;
+
+  -- Check if the update affected any rows (user exists)
+  IF NOT FOUND THEN
+    RAISE LOG 'POINTS UPDATE FAILED: User % not found in profiles table, cannot update points', v_user_id;
+    RETURN jsonb_build_object(
+      'success', false,
+      'message', 'Profile not found. Please contact support.',
+      'points_awarded', 0
+    );
+  END IF;
+
+  -- Log the points update
+  RAISE LOG 'POINTS UPDATE: User % points updated by % (penalty_points: %), event: "%"', v_user_id, v_penalty_points, v_penalty_points, v_event.name;
 
   -- Return appropriate message based on whether it was a violation
   IF v_event.rsvp_required AND NOT v_has_rsvped THEN
