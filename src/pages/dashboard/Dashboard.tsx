@@ -348,8 +348,13 @@ export default function Dashboard() {
         ? ((userEvents.attending ?? []).concat(userEvents.notAttending ?? []))
           .slice()
           .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+          .filter(event => new Date(event.event_date) >= new Date()) // Only future events
           .slice(0, 5)
-        : (userEvents.attending ?? []).slice(0, 5))
+        : (userEvents.attending ?? [])
+          .slice()
+          .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+          .filter(event => new Date(event.event_date) >= new Date()) // Only future events
+          .slice(0, 5))
       : [];
 
     return (
@@ -520,16 +525,14 @@ export default function Dashboard() {
                             <span className="capitalize">{item.location}</span>
                           </span>
                         )}
-                        {isBoardOrAbove && (
-                          <span className="flex items-center gap-1">
-                            <Users className="h-3 w-3" />
-                            <span>
-                              {count} {isProject
-                                ? (count === 1 ? 'member' : 'members')
-                                : (count === 1 ? 'student' : 'students')}
-                            </span>
+                        <span className="flex items-center gap-1">
+                          <Users className="h-3 w-3" />
+                          <span>
+                            {count} {isProject
+                              ? (count === 1 ? 'member' : 'members')
+                              : (count === 1 ? 'student' : 'students')}
                           </span>
-                        )}
+                        </span>
                       </div>
                     </CardContent>
                   </Card>

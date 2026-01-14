@@ -352,20 +352,27 @@ const ApplicationViewerPage = () => {
                 </div>
             );
         } else if (type === 'project' && item.repository_name) {
-            gridItems.push(
-                <div key="repo" className="space-y-2">
-                    <h4 className="font-semibold text-sm">Repository</h4>
-                    <a
-                        href={`https://github.com/Claude-Builder-Club-MSU/${item.repository_name}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 text-sm text-primary hover:underline"
-                    >
-                        <Github className="h-4 w-4" />
-                        View on GitHub
-                    </a>
-                </div>
-            );
+            // Check if project has started
+            const projectHasStarted = item.semesters?.start_date
+                ? new Date(item.semesters.start_date) <= new Date()
+                : false;
+
+            if (projectHasStarted) {
+                gridItems.push(
+                    <div key="repo" className="space-y-2">
+                        <h4 className="font-semibold text-sm">Repository</h4>
+                        <a
+                            href={`https://github.com/Claude-Builder-Club-MSU/${item.repository_name}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-sm text-primary hover:underline"
+                        >
+                            <Github className="h-4 w-4" />
+                            View on GitHub
+                        </a>
+                    </div>
+                );
+            }
         }
 
         sections.push({

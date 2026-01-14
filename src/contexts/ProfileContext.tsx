@@ -6,10 +6,10 @@ import type { Database } from '@/integrations/supabase/database.types';
 
 // Types
 type Project = Database['public']['Tables']['projects']['Row'] & {
-    semesters: { start_date: string } | null;
+    semesters: { start_date: string, end_date: string, code: string } | null;
 };
 type Class = Database['public']['Tables']['classes']['Row'] & {
-    semesters: { start_date: string } | null;
+    semesters: { start_date: string, end_date: string, code: string } | null;
 };
 type Application = Database['public']['Tables']['applications']['Row'];
 type Event = Database['public']['Tables']['events']['Row'];
@@ -129,7 +129,8 @@ async function fetchUserProjects(userId: string): Promise<UserProjects> {
             *,
             semesters (
                 start_date,
-                end_date
+                end_date,
+                code
             )
         `);
 
@@ -221,7 +222,8 @@ async function fetchUserClasses(userId: string): Promise<UserClasses> {
             *,
             semesters (
                 start_date,
-                end_date
+                end_date,
+                code
             )
         `);
 

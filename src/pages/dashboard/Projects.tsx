@@ -376,13 +376,11 @@ const Projects = () => {
 
       await refreshProjects();
 
-      // Invalidate admin projects query if user is admin
+      // Invalidate admin projects queries if user is admin
       if (isBoardOrAbove) {
         queryClient.invalidateQueries({ queryKey: ['all-projects-with-members'] });
+        queryClient.invalidateQueries({ queryKey: ['all-projects'] });
       }
-
-      // Invalidate dashboard queries to refresh status
-      queryClient.invalidateQueries({ queryKey: ['dashboard-data'] });
 
       modalState.close();
       setIsCreateModalOpen(false);
@@ -409,9 +407,10 @@ const Projects = () => {
     toast({ title: 'Success', description: 'Project deleted!' });
     await refreshProjects();
 
-    // Invalidate admin projects query if user is admin
+    // Invalidate admin projects queries if user is admin
     if (isBoardOrAbove) {
       queryClient.invalidateQueries({ queryKey: ['all-projects-with-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-projects'] });
     }
 
     modalState.close();
@@ -424,6 +423,11 @@ const Projects = () => {
     const status = useItemStatus(project);
 
     if (!status) return null;
+
+    // Check if project has started (semester start date is in the past)
+    const projectHasStarted = project.semesters?.start_date
+      ? new Date(project.semesters.start_date) <= new Date()
+      : false;
 
     const badges = [];
     if (isMember) {
@@ -480,12 +484,15 @@ const Projects = () => {
       });
     }
 
-    actions.push({
-      label: 'View on GitHub',
-      onClick: () => window.open(`https://github.com/Claude-Builder-Club-MSU/${project.repository_name}`, '_blank'),
-      icon: <Github className="h-4 w-4 mr-2" />,
-      variant: isBoardOrAbove ? 'default' : 'outline',
-    });
+    // Only show GitHub button if project has started
+    if (projectHasStarted) {
+      actions.push({
+        label: 'View on GitHub',
+        onClick: () => window.open(`https://github.com/Claude-Builder-Club-MSU/${project.repository_name}`, '_blank'),
+        icon: <Github className="h-4 w-4 mr-2" />,
+        variant: isBoardOrAbove ? 'default' : 'outline',
+      });
+    }
 
     if (!isBoardOrAbove) {
       actions.push({
@@ -754,24 +761,31 @@ const Projects = () => {
                 },
               ]
               : []),
-            {
-              title: 'GitHub Repository',
-              content: (
-                <Button
-                  variant="outline"
-                  className="w-full justify-start"
-                  onClick={() =>
-                    window.open(
-                      `https://github.com/Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`,
-                      '_blank'
-                    )
-                  }
-                >
-                  <Github className="h-4 w-4 mr-2" />
-                  {`Claude-Builder-Club-MSU/${modalState.selectedItem.repository_name}`}
-                </Button>
-              ),
-            },
+            ...(() => {
+              // Check if project has started for GitHub access
+              const projectHasStarted = modalState.selectedItem!.semesters?.start_date
+                ? new Date(modalState.selectedItem!.semesters.start_date) <= new Date()
+                : false;
+
+              return projectHasStarted ? [{
+                title: 'GitHub Repository',
+                content: (
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() =>
+                      window.open(
+                        `https://github.com/Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`,
+                        '_blank'
+                      )
+                    }
+                  >
+                    <Github className="h-4 w-4 mr-2" />
+                    {`Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`}
+                  </Button>
+                ),
+              }] : [];
+            })(),
           ]}
         />
       )}

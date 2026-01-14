@@ -671,17 +671,18 @@ export const ApplicationCreateModal = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className={`${isMobile ? 'max-w-[calc(100vw-2rem)] max-h-[90vh]' : 'max-w-2xl max-h-[90vh]'
-          } overflow-y-auto rounded-xl`}
+        className={`${isMobile ? 'max-w-[92vw] max-h-[90vh]' : 'max-w-2xl max-h-[90vh] p-6'
+          } overflow-y-auto overflow-x-hidden rounded-xl`}
       >
-        <DialogHeader>
+        <DialogHeader className="pb-4">
           <DialogTitle>New Application</DialogTitle>
           <DialogDescription>
             You can only apply to each class or project once. Submit your application to Claude Builder Club below.
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className={`space-y-4 ${isMobile ? 'w-[80vw]' : ''}`}>
+        <div className="">
+          <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3">
           <div className="space-y-2">
             <Label htmlFor="applicationType" required>Application Type</Label>
             <Select
@@ -720,6 +721,7 @@ export const ApplicationCreateModal = ({
             </div>
           )}
         </form>
+        </div>
       </DialogContent>
     </Dialog>
   );

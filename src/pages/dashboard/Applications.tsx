@@ -130,7 +130,7 @@ const Applications = () => {
             </Button>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <div className="grid gap-4 ml-6">
+            <div className={`grid gap-4 ${isMobile ? "ml-0" : "ml-6"}`}>
               {applications.map(renderApplicationCard)}
             </div>
           </CollapsibleContent>

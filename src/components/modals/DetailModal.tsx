@@ -104,7 +104,7 @@ export const DetailModal = ({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className={`max-w-lg ${isMobile ? 'mx-4 max-w-[90vw] overflow-y-auto rounded-xl m-0' : 'py-10'}`}
+        className={`max-w-lg rounded-xl ${isMobile ? 'mx-4 max-w-[95vw] overflow-y-auto overflow-x-hidden m-0' : 'py-10'}`}
       >
         <DialogHeader className={isMobile ? 'justify-center items-center' : 'flex-row justify-between items-center'}>
           <DialogTitle className="text-2xl">{title}</DialogTitle>

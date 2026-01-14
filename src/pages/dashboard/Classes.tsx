@@ -360,9 +360,10 @@ const Classes = () => {
 
       await refreshClasses();
 
-      // Invalidate admin classes query if user is admin
+      // Invalidate admin classes queries if user is admin
       if (isBoardOrAbove) {
         queryClient.invalidateQueries({ queryKey: ['all-classes-with-members'] });
+        queryClient.invalidateQueries({ queryKey: ['all-classes'] });
       }
 
       modalState.close();
@@ -390,9 +391,10 @@ const Classes = () => {
     toast({ title: 'Success', description: 'Class deleted!' });
     await refreshClasses();
 
-    // Invalidate admin classes query if user is admin
+    // Invalidate admin classes queries if user is admin
     if (isBoardOrAbove) {
       queryClient.invalidateQueries({ queryKey: ['all-classes-with-members'] });
+      queryClient.invalidateQueries({ queryKey: ['all-classes'] });
     }
 
     modalState.close();

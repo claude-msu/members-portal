@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +22,7 @@ import {
 import { DetailModal } from '@/components/modals/DetailModal';
 import { EditModal } from '@/components/modals/EditModal';
 import { ItemCard } from '@/components/ItemCard';
-import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, Repeat } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import QRCodeLib from 'qrcode';
@@ -46,9 +47,14 @@ const Events = () => {
   const { role, isBoardOrAbove, userEvents, eventsLoading, refreshEvents } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
+  const queryClient = useQueryClient();
+  // Combine and sort all events with grace period
+  // Include events from the past 12 hours (grace period) plus future events
+  const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
   const events = ((userEvents?.attending ?? []).concat(userEvents?.notAttending ?? []))
     .slice()
-    .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime());
+    .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
+    .filter(event => new Date(event.event_date) >= twelveHoursAgo); // Events from past 12 hours + future
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [generatingQR, setGeneratingQR] = useState<string | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -76,6 +82,74 @@ const Events = () => {
   const [recurrenceEndCalendarOpen, setRecurrenceEndCalendarOpen] = useState(false);
 
   const modalState = useModalState<Event>();
+
+  // Query for attendance data for current user
+  const { data: userAttendanceData } = useQuery({
+    queryKey: ['user-event-attendance', user?.id],
+    queryFn: async () => {
+      if (!user || !userEvents) return {};
+
+      const allEventIds = [
+        ...(userEvents.attending?.map(e => e.id) || []),
+        ...(userEvents.notAttending?.map(e => e.id) || [])
+      ];
+
+      if (allEventIds.length === 0) return {};
+
+      const { data, error } = await supabase
+        .from('event_attendance')
+        .select('event_id, rsvped_at')
+        .eq('user_id', user.id)
+        .in('event_id', allEventIds);
+
+      if (error) throw error;
+
+      // Create a map of event_id -> has RSVP
+      const attendanceMap: Record<string, boolean> = {};
+      data?.forEach(attendance => {
+        attendanceMap[attendance.event_id] = attendance.rsvped_at !== null;
+      });
+
+      return attendanceMap;
+    },
+    enabled: !!userEvents && !!user,
+    staleTime: 1000 * 60 * 1, // 1 minute - more frequent updates for user actions
+    gcTime: 1000 * 60 * 5,
+  });
+
+  // Query for attendance counts for all visible events
+  const { data: attendanceCounts } = useQuery({
+    queryKey: ['event-attendance-counts', user?.id, role],
+    queryFn: async () => {
+      if (!userEvents || (!userEvents.attending?.length && !userEvents.notAttending?.length)) return {};
+
+      const allEventIds = [
+        ...(userEvents.attending?.map(e => e.id) || []),
+        ...(userEvents.notAttending?.map(e => e.id) || [])
+      ];
+
+      if (allEventIds.length === 0) return {};
+
+      const { data, error } = await supabase
+        .from('event_attendance')
+        .select('event_id')
+        .in('event_id', allEventIds)
+        .not('rsvped_at', 'is', null);
+
+      if (error) throw error;
+
+      // Count RSVPs per event
+      const counts: Record<string, number> = {};
+      data?.forEach(attendance => {
+        counts[attendance.event_id] = (counts[attendance.event_id] || 0) + 1;
+      });
+
+      return counts;
+    },
+    enabled: !!userEvents && !!user,
+    staleTime: 1000 * 60 * 2, // 2 minutes
+    gcTime: 1000 * 60 * 5,
+  });
 
   // Events are now loaded via ProfileContext
 
@@ -323,11 +397,15 @@ const Events = () => {
       .insert({
         user_id: user.id,
         event_id: eventId,
+        rsvped_at: new Date().toISOString(),
       });
 
     if (error) return;
 
     await refreshEvents();
+    // Invalidate attendance counts and user attendance data to refresh the UI
+    queryClient.invalidateQueries({ queryKey: ['event-attendance-counts', user?.id, role] });
+    queryClient.invalidateQueries({ queryKey: ['user-event-attendance', user?.id] });
     toast({ title: 'Success', description: 'Your RSVP is confirmed.' });
   };
 
@@ -343,6 +421,9 @@ const Events = () => {
     if (error) return;
 
     await refreshEvents();
+    // Invalidate attendance counts and user attendance data to refresh the UI
+    queryClient.invalidateQueries({ queryKey: ['event-attendance-counts', user?.id, role] });
+    queryClient.invalidateQueries({ queryKey: ['user-event-attendance', user?.id] });
     toast({ title: 'Success', description: 'Your RSVP has been cancelled.' });
   };
 
@@ -469,22 +550,27 @@ const Events = () => {
   };
 
   const isEventFull = (event: Event) => {
-    const count = 0; // TODO: Implement attendance count tracking
+    const count = attendanceCounts?.[event.id] || 0;
     return event.rsvp_required && count >= event.max_attendance;
   };
 
   const getEventTypeLabel = (event: Event) => {
+    const now = new Date();
+    const eventDate = new Date(event.event_date);
+    if (eventDate <= now) return 'In Progress';
+
     const isOpenToProspects = event.allowed_roles.includes('prospect');
     if (isOpenToProspects) return 'Open Meeting';
     if (event.rsvp_required) return 'Closed Meeting';
     return 'Internal Meeting';
   };
 
-  const renderEventCard = (event: Event, isPrivate: boolean = false) => {
+  const renderEventCard = (event: Event) => {
     const isFull = isEventFull(event);
-    const hasRSVPed = isPrivate;
+    const hasRSVPed = userAttendanceData?.[event.id] || false;
     const hasAttended = false; // We'll implement attendance tracking later
-    const attendanceCount = 0; // We'll implement attendance counts later
+    const attendanceCount = attendanceCounts?.[event.id] || 0;
+    const eventHasStarted = new Date(event.event_date) <= new Date();
     const calendarLinks = generateCalendarLinks(event);
 
     const badges = [
@@ -562,10 +648,11 @@ const Events = () => {
 
     const actions = [];
 
-    if (!isBoardOrAbove && event.rsvp_required && role !== 'prospect') {
+    if (!isBoardOrAbove && event.rsvp_required && role !== 'prospect' && !eventHasStarted) {
       if (hasRSVPed) {
         actions.push({
           label: hasAttended ? 'Attended' : (isMobile ? 'Cancel' : 'Cancel RSVP'),
+          icon: <X className="h-4 w-4 mr-2" />,
           onClick: () => handleCancelRSVP(event.id),
           variant: 'destructive' as const,
           disabled: hasAttended,
@@ -573,6 +660,7 @@ const Events = () => {
       } else {
         actions.push({
           label: isFull ? 'Full' : 'RSVP',
+          icon: <MailCheck className="h-4 w-4 mr-2" />,
           onClick: () => handleRSVP(event.id),
           variant: 'outline' as const,
           disabled: isFull,
@@ -652,7 +740,7 @@ const Events = () => {
           {events.length > 0 && (
             <div>
               <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))]">
-                {events.map((event) => renderEventCard(event, true))}
+                {events.map((event) => renderEventCard(event))}
               </div>
             </div>
           )}
@@ -1048,7 +1136,7 @@ const Events = () => {
                 {
                   title: 'Attendance',
                   icon: <Users className="h-4 w-4" />,
-                  content: `0 / ${modalState.selectedItem.max_attendance} RSVPs (counting coming soon)`,
+                  content: `${attendanceCounts?.[modalState.selectedItem.id] || 0} / ${modalState.selectedItem.max_attendance} RSVPs`,
                 },
               ]
               : []),
