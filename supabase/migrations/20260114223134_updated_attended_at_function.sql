@@ -33,7 +33,9 @@ BEGIN
   -- Check if already checked in
   SELECT EXISTS(
     SELECT 1 FROM event_attendance
-    WHERE event_id = v_qr_code.event_id AND user_id = v_user_id
+    WHERE event_id = v_qr_code.event_id
+      AND user_id = v_user_id
+      AND attended_at IS NOT NULL
   ) INTO v_already_checked_in;
 
   IF v_already_checked_in THEN
