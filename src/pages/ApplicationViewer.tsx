@@ -572,7 +572,7 @@ const ApplicationViewerPage = () => {
                         </Button>
 
                         <div>
-                            <div className="flex items-center gap-6 flex-wrap">
+                            <div className={`flex items-center gap-6 flex-wrap${isMobile ? ' justify-between' : ''}`}>
                                 <h1 className="text-4xl font-bold">{application.full_name}</h1>
                                 {getStatusBadge(application.status)}
                             </div>
@@ -633,9 +633,8 @@ const ApplicationViewerPage = () => {
                                                     {application.application_type === 'project' && 'Project Applied For'}
                                                 </p>
                                                 <div
-                                                    className={`grid ${
-                                                        isMobile ? 'grid-rows-2 justify-items-center gap-3' : 'grid-cols-2 gap-6'
-                                                    }`}
+                                                    className={`grid ${isMobile ? 'grid-rows-2 justify-items-start gap-3' : 'grid-cols-2 gap-6'
+                                                        }`}
                                                 >
                                                     <div className="flex items-center gap-2">
                                                         {application.application_type === 'board' && <Briefcase className="h-5 w-5" />}
@@ -685,7 +684,7 @@ const ApplicationViewerPage = () => {
                                             <FileText className="h-5 w-5" />
                                             Documents
                                         </h2>
-                                        <div className="grid grid-cols-2 gap-6">
+                                        <div className={`grid gap-6 ${application.resume_url && application.transcript_url ? 'grid-cols-2' : 'grid-cols-1'}`}>
                                             {application.resume_url && (
                                                 <Button
                                                     variant="outline"

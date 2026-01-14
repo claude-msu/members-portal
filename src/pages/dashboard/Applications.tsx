@@ -171,7 +171,7 @@ const Applications = () => {
         <div className="space-y-6 mt-6">
           {/* Pending Applications */}
           {pendingApplications.length > 0 && (
-            <div className="space-y-4 grid gap-4">
+            <div className="grid gap-4">
               {pendingApplications.map(renderApplicationCard)}
             </div>
           )}

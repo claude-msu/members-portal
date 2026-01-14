@@ -127,39 +127,49 @@ export default function Dashboard() {
   // --- Sub-Components ---
 
   const WelcomeCard = () => (
-    <div className={`relative rounded-xl bg-gradient-to-br border border-primary/20 dark:border-primary/30 overflow-hidden ${isMobile ? 'p-6' : 'p-8'} opacity-80`}
-      style={{ backgroundImage: 'linear-gradient(to bottom right, #f4ccc2, #f4c7a8)' }}>
-      <div className="absolute inset-0 flex items-center justify-center opacity-10 dark:opacity-5 pointer-events-none">
-        <svg viewBox="0 0 200 200" className="w-96 h-96 text-primary/60" fill="currentColor">
-          <rect x="20" y="60" width="160" height="80" rx="8" fill="none" stroke="currentColor" strokeWidth="4" />
-          <rect x="30" y="70" width="12" height="12" rx="2" />
-          <rect x="46" y="70" width="12" height="12" rx="2" />
-          <rect x="62" y="70" width="12" height="12" rx="2" />
-          <rect x="78" y="70" width="12" height="12" rx="2" />
-          <rect x="94" y="70" width="12" height="12" rx="2" />
-          <rect x="110" y="70" width="12" height="12" rx="2" />
-          <rect x="126" y="70" width="12" height="12" rx="2" />
-          <rect x="142" y="70" width="12" height="12" rx="2" />
-          <rect x="158" y="70" width="12" height="12" rx="2" />
-          <rect x="30" y="88" width="12" height="12" rx="2" />
-          <rect x="46" y="88" width="12" height="12" rx="2" />
-          <rect x="62" y="88" width="12" height="12" rx="2" />
-          <rect x="78" y="88" width="12" height="12" rx="2" />
-          <rect x="94" y="88" width="12" height="12" rx="2" />
-          <rect x="110" y="88" width="12" height="12" rx="2" />
-          <rect x="126" y="88" width="12" height="12" rx="2" />
-          <rect x="142" y="88" width="12" height="12" rx="2" />
-          <rect x="158" y="88" width="12" height="12" rx="2" />
-          <rect x="30" y="106" width="12" height="12" rx="2" />
-          <rect x="46" y="106" width="12" height="12" rx="2" />
-          <rect x="62" y="106" width="12" height="12" rx="2" />
-          <rect x="78" y="106" width="60" height="12" rx="2" />
-          <rect x="142" y="106" width="12" height="12" rx="2" />
-          <rect x="158" y="106" width="12" height="12" rx="2" />
+    <div className={`relative rounded-xl border border-primary/20 dark:border-primary/30 overflow-hidden ${isMobile ? 'p-6' : 'p-8'} opacity-80 hover:opacity-90 dark:opacity-90 dark:hover:opacity-95 transition-all duration-500 bg-gradient-to-br from-orange-100 to-orange-200 dark:from-slate-800 dark:to-slate-900`}>
+      <div className="absolute inset-0 flex items-center justify-center opacity-25 dark:opacity-30 pointer-events-none animate-pulse">
+        <svg viewBox="0 0 200 200" className="w-96 h-96 text-primary/80 dark:text-primary/60 drop-shadow-lg dark:drop-shadow-2xl animate-pulse" fill="currentColor" style={{
+          filter: 'drop-shadow(0 0 10px rgba(0,0,0,0.1))'
+        }}>
+          <defs>
+            <filter id="keyboardGlow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+              <feMerge>
+                <feMergeNode in="coloredBlur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <rect x="20" y="60" width="160" height="80" rx="8" fill="none" stroke="currentColor" strokeWidth="2" className="animate-pulse" filter="url(#keyboardGlow)" />
+          <rect x="30" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.1s' }} />
+          <rect x="46" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.2s' }} />
+          <rect x="62" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.3s' }} />
+          <rect x="78" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.4s' }} />
+          <rect x="94" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.5s' }} />
+          <rect x="110" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.6s' }} />
+          <rect x="126" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.7s' }} />
+          <rect x="142" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.8s' }} />
+          <rect x="158" y="70" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '0.9s' }} />
+          <rect x="30" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.0s' }} />
+          <rect x="46" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.1s' }} />
+          <rect x="62" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.2s' }} />
+          <rect x="78" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.3s' }} />
+          <rect x="94" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.4s' }} />
+          <rect x="110" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.5s' }} />
+          <rect x="126" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.6s' }} />
+          <rect x="142" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.7s' }} />
+          <rect x="158" y="88" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.8s' }} />
+          <rect x="30" y="106" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '1.9s' }} />
+          <rect x="46" y="106" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '2.0s' }} />
+          <rect x="62" y="106" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '2.1s' }} />
+          <rect x="78" y="106" width="60" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '2.2s' }} />
+          <rect x="142" y="106" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '2.3s' }} />
+          <rect x="158" y="106" width="12" height="12" rx="2" className="animate-pulse" style={{ animationDelay: '2.4s' }} />
         </svg>
       </div>
       <div className="relative z-10 text-center">
-        <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl'} font-black text-primary dark:text-primary/80 drop-shadow-lg tracking-tight`}
+        <h1 className={`${isMobile ? 'text-3xl' : 'text-4xl'} font-black text-primary dark:text-primary drop-shadow-lg dark:drop-shadow-2xl tracking-tight hover:scale-105 transition-transform duration-300`}
           style={{ fontFamily: `'Roboto Mono', monospace`, letterSpacing: '0.05em', fontWeight: 800 }}>
           <span className="inline-block">Welcome back,&nbsp;<span className="font-extrabold">{profile?.full_name?.split(' ')[0] || 'User'}</span></span>
         </h1>
@@ -193,7 +203,7 @@ export default function Dashboard() {
     if (isEBoard && adminStats) {
 
       return (
-        <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
+        <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-4 lg:grid-cols-4'}`}>
           <StatItem
             icon={Users}
             color="text-green-600 dark:text-green-500"
@@ -363,11 +373,12 @@ export default function Dashboard() {
       title = `Your ${type}`;
     }
 
-    const desc = `${items.length} ${items.length === 1 ? type.slice(0, -1).toLowerCase() : type.toLowerCase()}`;
+    const singularMap: Record<string, string> = { Projects: 'project', Classes: 'class' };
+    const desc = `${items.length} ${items.length === 1 ? singularMap[type] : type.toLowerCase()}`;
 
     return (
       <Card className="hover:shadow-lg transition-shadow h-full flex flex-col min-w-[300px]">
-        <CardHeader className="p-6 pb-2">
+        <CardHeader className="p-6 pb-0">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className={`p-2 ${bgClass} rounded-lg`}>
@@ -448,7 +459,11 @@ export default function Dashboard() {
                         {isBoardOrAbove && (
                           <span className="flex items-center gap-1">
                             <Users className="h-3 w-3" />
-                            <span>{count} {isProject ? 'members' : 'students'}</span>
+                            <span>
+                              {count} {isProject
+                                ? (count === 1 ? 'member' : 'members')
+                                : (count === 1 ? 'student' : 'students')}
+                            </span>
                           </span>
                         )}
                       </div>
@@ -464,7 +479,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={`flex flex-col p-4 gap-4 ${isMobile ? 'min-h-[calc(100vh-5vh)]' : 'xl:h-[95vh] h-auto'} overflow-hidden`}>
+    <div className={`flex flex-col p-4 gap-4 ${isMobile ? 'min-h-[calc(100vh-5vh)]' : 'h-auto'} overflow-y-auto`}>
       {/* 1. Header */}
       <div className="shrink-0">
         <WelcomeCard />
@@ -476,16 +491,21 @@ export default function Dashboard() {
       </div>
 
       {/* 3. Main Content Grid */}
-      <div className={`grid gap-4 flex-1 min-h-0 ${isMobile ? 'grid-cols-1 auto-rows-fr' : 'md:grid-cols-2 xl:grid-cols-3'}`}>
-        <div className={`h-full ${isMobile ? 'min-h-[100px]' : 'min-h-0'} md:col-span-1 md:row-span-2 xl:col-span-1 xl:row-span-2`}>
+      <div
+        className={`grid flex-1 min-h-0 ${isMobile
+          ? 'grid-cols-1 auto-rows-fr gap-4'
+          : 'md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-x-3 md:gap-y-4 xl:gap-x-1 xl:gap-y-4'
+          }`}
+      >
+        <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-0'} md:col-span-1 md:row-span-2 xl:col-span-1 xl:row-span-2`}>
           <EventsCard />
         </div>
 
-        <div className={`h-full ${isMobile ? 'min-h-[100px]' : 'min-h-[250px]'} md:col-span-1 xl:col-span-2`}>
+        <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'} md:col-span-1 xl:col-span-2`}>
           <ResourceCard type="Projects" />
         </div>
 
-        <div className={`h-full ${isMobile ? 'min-h-[100px]' : 'min-h-[250px]'} md:col-span-1 xl:col-span-2`}>
+        <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'} md:col-span-1 xl:col-span-2`}>
           <ResourceCard type="Classes" />
         </div>
       </div>
