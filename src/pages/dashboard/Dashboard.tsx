@@ -290,7 +290,7 @@ export default function Dashboard() {
 
     return (
       <Card className="hover:shadow-lg transition-shadow h-full flex flex-col min-w-[300px]">
-        <CardHeader className="p-4 pb-2">
+        <CardHeader className="p-6 pb-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
@@ -311,7 +311,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className={`flex-1 flex flex-col overflow-y-auto max-h-[600px] ${isMobile ? 'p-4 justify-center' : 'p-2'}`}>
+        <CardContent className={`flex-1 flex flex-col overflow-y-auto max-h-[600px] ${isMobile ? 'p-4' : 'p-2'}`}>
           {isLoading ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading...</div>
           ) : allEvents.length === 0 ? (
@@ -408,7 +408,7 @@ export default function Dashboard() {
               <p className="text-sm">No active {type.toLowerCase()}</p>
             </div>
           ) : (
-            <div className={`grid gap-3 ${isBoardOrAbove && !isMobile ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl-grid-cols-3' : type === 'Classes' && !isMobile && !isBoardOrAbove ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl: grid-cols-2' : 'grid-cols-1'}`}>
+            <div className={`grid gap-3 ${isBoardOrAbove && !isMobile ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : type === 'Classes' && !isMobile && !isBoardOrAbove ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
               {items.map((item: any) => {
                 const status = isProject ? getProjectStatus(item) : getClassStatus(item);
 
@@ -479,7 +479,8 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={`flex flex-col p-4 gap-4 ${isMobile ? 'min-h-[calc(100vh-5vh)]' : 'h-auto'} overflow-y-auto`}>
+    <div
+      className={`flex flex-col p-4 gap-4 overflow-y-auto justify-center ${isMobile ? 'min-h-[calc(100vh-5vh)]' : ''}`}>
       {/* 1. Header */}
       <div className="shrink-0">
         <WelcomeCard />
@@ -492,20 +493,29 @@ export default function Dashboard() {
 
       {/* 3. Main Content Grid */}
       <div
-        className={`grid flex-1 min-h-0 ${isMobile
+        className={`grid flex min-h-0 ${isMobile
           ? 'grid-cols-1 auto-rows-fr gap-4'
           : 'md:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-x-2 md:gap-y-4 xl:gap-x-4 xl:gap-y-4'
           }`}
       >
-        <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-0'} md:col-span-1 md:row-span-2 xl:col-span-1 xl:row-span-2`}>
+        <div
+          className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-0'
+            } ${isMobile ? '' : 'md:col-span-1 md:row-span-2 xl:col-span-1 xl:row-span-2'}`}
+        >
           <EventsCard />
         </div>
 
-        <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'} md:col-span-1 xl:col-span-2`}>
+        <div
+          className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'
+            } md:col-span-1 xl:col-span-2`}
+        >
           <ResourceCard type="Projects" />
         </div>
 
-        <div className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'} md:col-span-1 xl:col-span-2`}>
+        <div
+          className={`h-full ${isMobile ? 'min-h-[80px]' : 'min-h-[250px]'
+            } md:col-span-1 xl:col-span-2`}
+        >
           <ResourceCard type="Classes" />
         </div>
       </div>

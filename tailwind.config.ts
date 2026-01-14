@@ -13,9 +13,9 @@ export default {
   theme: {
     screens: {
       'sm': '640px',
-      'md': '768px', // You can skip ones you don't use
-      'lg': '1100px', // <--- CHANGED: "Dual Column" starts here
-      'xl': '1400px', // <--- CHANGED: "Triple Column" starts here
+      'md': '700px', // You can skip ones you don't use
+      'lg': '900px', // <--- CHANGED: "Dual Column" starts here
+      'xl': '1200px', // <--- CHANGED: "Triple Column" starts here
       '2xl': '1600px',
     },
     container: {
