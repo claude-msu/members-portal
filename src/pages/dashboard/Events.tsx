@@ -22,14 +22,14 @@ import {
 import { DetailModal } from '@/components/modals/DetailModal';
 import { EditModal } from '@/components/modals/EditModal';
 import { ItemCard } from '@/components/ItemCard';
-import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X, CheckCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import QRCodeLib from 'qrcode';
 import type { Database } from '@/integrations/supabase/database.types';
 
-type Event = Database['public']['Tables']['events']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
+type Event = Database['public']['Tables']['events']['Row'];
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const hour = Math.floor(i / 2);
@@ -98,16 +98,19 @@ const Events = () => {
 
       const { data, error } = await supabase
         .from('event_attendance')
-        .select('event_id, rsvped_at')
+        .select('event_id, rsvped_at, attended_at')
         .eq('user_id', user.id)
         .in('event_id', allEventIds);
 
       if (error) throw error;
 
-      // Create a map of event_id -> has RSVP
-      const attendanceMap: Record<string, boolean> = {};
+      // Create a map of event_id -> attendance data
+      const attendanceMap: Record<string, { rsvped_at: string | null; attended_at: string | null }> = {};
       data?.forEach(attendance => {
-        attendanceMap[attendance.event_id] = attendance.rsvped_at !== null;
+        attendanceMap[attendance.event_id] = {
+          rsvped_at: attendance.rsvped_at,
+          attended_at: attendance.attended_at
+        };
       });
 
       return attendanceMap;
@@ -567,8 +570,9 @@ const Events = () => {
 
   const renderEventCard = (event: Event) => {
     const isFull = isEventFull(event);
-    const hasRSVPed = userAttendanceData?.[event.id] || false;
-    const hasAttended = false; // We'll implement attendance tracking later
+    const userAttendance = userAttendanceData?.[event.id];
+    const hasRSVPed = userAttendance?.rsvped_at !== null;
+    const hasAttended = userAttendance?.attended_at !== null;
     const attendanceCount = attendanceCounts?.[event.id] || 0;
     const eventHasStarted = new Date(event.event_date) <= new Date();
     const calendarLinks = generateCalendarLinks(event);
@@ -649,15 +653,26 @@ const Events = () => {
     const actions = [];
 
     if (!isBoardOrAbove && event.rsvp_required && role !== 'prospect' && !eventHasStarted) {
-      if (hasRSVPed) {
+      if (hasAttended) {
+        // User has already attended - show attended status
         actions.push({
-          label: hasAttended ? 'Attended' : (isMobile ? 'Cancel' : 'Cancel RSVP'),
+          label: 'Attended',
+          icon: <CheckCircle className="h-4 w-4 mr-2" />,
+          onClick: () => {}, // No action needed
+          variant: 'secondary' as const,
+          disabled: true,
+        });
+      } else if (hasRSVPed) {
+        // User has RSVPed but not attended - allow cancellation
+        actions.push({
+          label: isMobile ? 'Cancel' : 'Cancel RSVP',
           icon: <X className="h-4 w-4 mr-2" />,
           onClick: () => handleCancelRSVP(event.id),
           variant: 'destructive' as const,
-          disabled: hasAttended,
+          disabled: false,
         });
       } else {
+        // User hasn't RSVPed - allow RSVPing
         actions.push({
           label: isFull ? 'Full' : 'RSVP',
           icon: <MailCheck className="h-4 w-4 mr-2" />,
@@ -875,8 +890,8 @@ const Events = () => {
         </div>
 
         <div className={`grid grid-cols-1 ${rsvpRequired ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
-        <div className="space-y-2">
-          <Label htmlFor="location" required>Location</Label>
+          <div className="space-y-2">
+            <Label htmlFor="location" required>Location</Label>
             <Input
               id="location"
               value={location}
@@ -885,8 +900,8 @@ const Events = () => {
             />
           </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="points" required>Points</Label>
+          <div className="space-y-2">
+            <Label htmlFor="points" required>Points</Label>
             <Input
               id="points"
               type="number"

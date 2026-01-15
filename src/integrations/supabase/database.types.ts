@@ -213,28 +213,25 @@ export type Database = {
       }
       event_attendance: {
         Row: {
-          checked_in_at: string | null
+          attended_at: string | null
           event_id: string
           id: string
-          points_awarded: number | null
           rsvped_at: string | null
           user_id: string
           created_at: string
         }
         Insert: {
-          checked_in_at?: string | null
+          attended_at?: string | null
           event_id: string
           id?: string
-          points_awarded?: number | null
           rsvped_at?: string | null
           user_id: string
           created_at?: string
         }
         Update: {
-          checked_in_at?: string | null
+          attended_at?: string | null
           event_id?: string
           id?: string
-          points_awarded?: number | null
           rsvped_at?: string | null
           user_id?: string
           created_at?: string

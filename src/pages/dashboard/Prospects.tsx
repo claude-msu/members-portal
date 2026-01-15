@@ -9,6 +9,7 @@ import { PersonCard } from '@/components/PersonCard';
 import ProfileViewer from '@/components/modals/ProfileViewer';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/ProfileContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -22,6 +23,7 @@ const Prospects = () => {
   const { toast } = useToast();
   const { role: userRole } = useProfile();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [prospects, setProspects] = useState<ProspectWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProspect, setSelectedProspect] = useState<ProspectWithRole | null>(null);
@@ -114,6 +116,13 @@ const Prospects = () => {
         description: `${prospectName} graduated to Member successfully`,
       });
       fetchProspects();
+
+      // Invalidate ProfileContext queries since role changes affect what data users can see
+      queryClient.invalidateQueries({ queryKey: ['user-role'] });
+      queryClient.invalidateQueries({ queryKey: ['user-events'] });
+      queryClient.invalidateQueries({ queryKey: ['user-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['user-classes'] });
+      queryClient.invalidateQueries({ queryKey: ['user-applications'] });
     }
   };
 
@@ -138,6 +147,13 @@ const Prospects = () => {
         variant: 'destructive',
       });
       fetchProspects();
+
+      // Invalidate ProfileContext queries since banning affects what data users can see
+      queryClient.invalidateQueries({ queryKey: ['user-role'] });
+      queryClient.invalidateQueries({ queryKey: ['user-events'] });
+      queryClient.invalidateQueries({ queryKey: ['user-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['user-classes'] });
+      queryClient.invalidateQueries({ queryKey: ['user-applications'] });
     } catch (error) {
       toast({
         title: 'Error',

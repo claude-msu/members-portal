@@ -9,6 +9,7 @@ import { PersonCard } from '@/components/PersonCard';
 import ProfileViewer from '@/components/modals/ProfileViewer';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/ProfileContext';
+import { useQueryClient } from '@tanstack/react-query';
 import { Search } from 'lucide-react';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
@@ -22,6 +23,7 @@ const Members = () => {
   const { toast } = useToast();
   const { role: userRole } = useProfile();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [members, setMembers] = useState<MemberWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<MemberWithRole | null>(null);
@@ -79,6 +81,13 @@ const Members = () => {
         description: 'Member role updated successfully',
       });
       fetchMembers();
+
+      // Invalidate ProfileContext queries since role changes affect what data users can see
+      queryClient.invalidateQueries({ queryKey: ['user-role'] });
+      queryClient.invalidateQueries({ queryKey: ['user-events'] });
+      queryClient.invalidateQueries({ queryKey: ['user-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['user-classes'] });
+      queryClient.invalidateQueries({ queryKey: ['user-applications'] });
     }
   };
 
