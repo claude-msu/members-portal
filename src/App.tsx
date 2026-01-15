@@ -24,12 +24,10 @@ const queryClient = new QueryClient();
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, profile } = useAuth();
   const { loading: profileLoading } = useProfile();
 
-  const loading = authLoading || profileLoading;
-
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -47,7 +45,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Check if new user needs to complete profile
-  if (!user.last_sign_in_at && window.location.pathname !== "/profile") {
+  if (!profile.updated_at && window.location.pathname !== "/profile") {
     // Preserve the original redirect URL if it exists, so we can redirect back after profile completion
     const existingRedirect = sessionStorage.getItem('redirectAfterLogin');
     if (!existingRedirect) {
