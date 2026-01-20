@@ -12,9 +12,9 @@ export default {
   prefix: "",
   theme: {
     screens: {
-      'md': '1000px',
-      'lg': '1200px', // <--- CHANGED: "Dual Column" starts here
-      'xl': '1600px', // <--- CHANGED: "Triple Column" starts here
+      'md': '900px',  // <--- Mobile view ends here
+      'lg': '1200px', // <--- "Dual Column" starts here
+      'xl': '1600px', // <--- "Triple Column" starts here
     },
     container: {
       center: true,

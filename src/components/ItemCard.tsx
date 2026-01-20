@@ -114,7 +114,7 @@ export const ItemCard = ({
 
                 {/* Description */}
                 {description && (
-                    <div className="text-sm text-muted-foreground flex-1 space-y-3 break-words pt-3 whitespace-pre-line">
+                    <div className="text-sm line-clamp-3 text-muted-foreground flex-1 space-y-3 break-words pt-3 whitespace-pre-line">
                         {description}
                     </div>
                 )}

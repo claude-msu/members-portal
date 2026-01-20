@@ -122,12 +122,12 @@ const Projects = () => {
           userMembership,
         };
       })
-      .sort((a, b) => {
-        // Sort by semester start date (most recent first)
-        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
-        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
-        return bStart.getTime() - aStart.getTime();
-      });
+        .sort((a, b) => {
+          // Sort by semester start date (most recent first)
+          const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
+          const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
+          return bStart.getTime() - aStart.getTime();
+        });
 
       return projectsWithMembers;
     },
@@ -272,13 +272,13 @@ const Projects = () => {
   const projectsData = isBoardOrAbove
     ? allProjectsWithMembers || []
     : userProjectsWithMembers
-    ? [
+      ? [
         ...userProjectsWithMembers.inProgress,
         ...userProjectsWithMembers.assigned,
         ...userProjectsWithMembers.completed,
         ...userProjectsWithMembers.available,
       ]
-    : [];
+      : [];
 
   const loading = isBoardOrAbove ? allProjectsLoading : (projectsLoading || userProjectsMembersLoading);
 
@@ -655,42 +655,63 @@ const Projects = () => {
               >
                 {selectedLead
                   ? availableLeads.find((lead) => lead.id === selectedLead)?.full_name ||
-                    availableLeads.find((lead) => lead.id === selectedLead)?.email ||
-                    'Select lead...'
+                  availableLeads.find((lead) => lead.id === selectedLead)?.email ||
+                  'Select lead...'
                   : 'Select lead...'}
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-96 p-0">
-              <Command>
-                <CommandInput placeholder="Search leads..." />
-                <CommandList>
-                  <CommandEmpty>No leads found.</CommandEmpty>
-                  <CommandGroup>
-                    {availableLeads.map((lead) => (
-                      <CommandItem
-                        key={lead.id}
-                        value={`${lead.full_name || ''} ${lead.email}`}
-                        onSelect={() => {
-                          setSelectedLead(selectedLead === lead.id ? '' : lead.id);
-                          setLeadSearchOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            selectedLead === lead.id ? 'opacity-100' : 'opacity-0'
-                          )}
-                        />
-                        <div className="flex flex-col">
-                          <span>{lead.full_name || 'No name'}</span>
-                          <span className="text-xs">{lead.email}</span>
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
+            <PopoverContent
+              className="w-96 p-0"
+              align="center"
+              onOpenAutoFocus={e => e.preventDefault()}
+            >
+              <div
+                className="p-1"
+                style={{
+                  height: '300px',
+                  overflowY: 'scroll',
+                  overflowX: 'hidden',
+                  position: 'relative',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+                onWheel={e => {
+                  e.stopPropagation();
+                }}
+                onTouchMove={e => {
+                  e.stopPropagation();
+                }}
+              >
+                <Command>
+                  <CommandInput placeholder="Search leads..." />
+                  <CommandList>
+                    <CommandEmpty>No leads found.</CommandEmpty>
+                    <CommandGroup>
+                      {availableLeads.map((lead) => (
+                        <CommandItem
+                          key={lead.id}
+                          value={`${lead.full_name || ''} ${lead.email}`}
+                          onSelect={() => {
+                            setSelectedLead(selectedLead === lead.id ? '' : lead.id);
+                            setLeadSearchOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              selectedLead === lead.id ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span>{lead.full_name || 'No name'}</span>
+                            <span className="text-xs">{lead.email}</span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </div>
             </PopoverContent>
           </Popover>
         </div>
@@ -733,8 +754,8 @@ const Projects = () => {
                   title: 'Dates',
                   icon: <CalendarIcon className="h-4 w-4" />,
                   content: `${modalState.selectedItem.semesters.start_date
-                      ? `Start: ${new Date(modalState.selectedItem.semesters.start_date).toLocaleDateString()}`
-                      : ''
+                    ? `Start: ${new Date(modalState.selectedItem.semesters.start_date).toLocaleDateString()}`
+                    : ''
                     }${modalState.selectedItem.semesters.end_date
                       ? ` | End: ${new Date(modalState.selectedItem.semesters.end_date).toLocaleDateString()}`
                       : ''

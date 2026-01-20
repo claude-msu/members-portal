@@ -120,12 +120,12 @@ const Classes = () => {
           userMembership: userEnrollment,
         };
       })
-      .sort((a, b) => {
-        // Sort by semester start date (most recent first)
-        const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
-        const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
-        return bStart.getTime() - aStart.getTime();
-      });
+        .sort((a, b) => {
+          // Sort by semester start date (most recent first)
+          const aStart = a.semesters?.start_date ? new Date(a.semesters.start_date) : new Date(0);
+          const bStart = b.semesters?.start_date ? new Date(b.semesters.start_date) : new Date(0);
+          return bStart.getTime() - aStart.getTime();
+        });
 
       return classesWithMembers;
     },
@@ -266,13 +266,13 @@ const Classes = () => {
   const classesData = isBoardOrAbove
     ? allClassesWithMembers || []
     : userClassesWithMembers
-    ? [
+      ? [
         ...userClassesWithMembers.inProgress,
         ...userClassesWithMembers.enrolled,
         ...userClassesWithMembers.completed,
         ...userClassesWithMembers.available,
       ]
-    : [];
+      : [];
 
   const loading = isBoardOrAbove ? allClassesLoading : (classesLoading || userClassesMembersLoading);
 
@@ -609,36 +609,57 @@ const Classes = () => {
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-96 p-0">
-              <Command>
-                <CommandInput placeholder="Search teachers..." />
-                <CommandList>
-                  <CommandEmpty>No teachers found.</CommandEmpty>
-                  <CommandGroup>
-                    {availableTeachers.map((teacher) => (
-                      <CommandItem
-                        key={teacher.id}
-                        value={`${teacher.full_name || ''} ${teacher.email}`}
-                        onSelect={() => {
-                          setSelectedTeacher(selectedTeacher === teacher.id ? '' : teacher.id);
-                          setTeacherSearchOpen(false);
-                        }}
-                      >
-                        <Check
-                          className={cn(
-                            'mr-2 h-4 w-4',
-                            selectedTeacher === teacher.id ? 'opacity-100' : 'opacity-0'
-                          )}
-                        />
-                        <div className="flex flex-col">
-                          <span>{teacher.full_name || 'No name'}</span>
-                          <span className="text-xs">{teacher.email}</span>
-                        </div>
-                      </CommandItem>
-                    ))}
-                  </CommandGroup>
-                </CommandList>
-              </Command>
+            <PopoverContent
+              className="w-96 p-0"
+              align="center"
+              onOpenAutoFocus={e => e.preventDefault()}
+            >
+              <div
+                className="p-1"
+                style={{
+                  height: '300px',
+                  overflowY: 'scroll',
+                  overflowX: 'hidden',
+                  position: 'relative',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+                onWheel={e => {
+                  e.stopPropagation();
+                }}
+                onTouchMove={e => {
+                  e.stopPropagation();
+                }}
+              >
+                <Command>
+                  <CommandInput placeholder="Search teachers..." />
+                  <CommandList>
+                    <CommandEmpty>No teachers found.</CommandEmpty>
+                    <CommandGroup>
+                      {availableTeachers.map((teacher) => (
+                        <CommandItem
+                          key={teacher.id}
+                          value={`${teacher.full_name || ''} ${teacher.email}`}
+                          onSelect={() => {
+                            setSelectedTeacher(selectedTeacher === teacher.id ? '' : teacher.id);
+                            setTeacherSearchOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              selectedTeacher === teacher.id ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span>{teacher.full_name || 'No name'}</span>
+                            <span className="text-xs">{teacher.email}</span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </div>
             </PopoverContent>
           </Popover>
         </div>

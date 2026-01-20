@@ -130,7 +130,10 @@ export const DetailModal = ({
                     {section.title}
                   </h3>
                 )}
-                <div className="text-sm text-muted-foreground">
+                <div
+                  className="text-sm text-muted-foreground max-w-full overflow-y-auto overflow-x-auto break-words whitespace-pre-line"
+                  style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+                >
                   {section.content}
                 </div>
               </div>
