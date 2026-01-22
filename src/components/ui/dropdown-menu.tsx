@@ -15,7 +15,7 @@ const DropdownMenuTrigger = React.forwardRef<
     variant?: InterfaceVariant;
     size?: InterfaceSize;
   }
->(({ className, variant = "ghost", size = "default", ...props }, ref) => (
+>(({ className, ...props }, ref) => (
   <DropdownMenuPrimitive.Trigger
     ref={ref}
     className={cn(

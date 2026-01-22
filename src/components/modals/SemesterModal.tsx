@@ -33,7 +33,7 @@ interface SemesterModalProps {
   required?: boolean;
 }
 
-const SemesterModal = ({ open, onClose, onSuccess, required = true }: SemesterModalProps) => {
+const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);

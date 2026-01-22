@@ -226,6 +226,7 @@ const ApplicationViewerPage = () => {
                 description: 'Failed to open document.',
                 variant: 'destructive',
             });
+            console.error(error);
         }
     };
 
