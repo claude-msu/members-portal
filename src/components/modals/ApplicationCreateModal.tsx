@@ -683,44 +683,44 @@ export const ApplicationCreateModal = ({
 
         <div className="">
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="applicationType" required>Application Type</Label>
-            <Select
-              value={applicationType}
-              onValueChange={(value) => handleApplicationTypeChange(value as ApplicationType)}
-            >
-              <SelectTrigger id="applicationType">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>}
-                <SelectItem value="project">Project</SelectItem>
-                <SelectItem value="class">Class</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {renderFormFields()}
-
-          {applicationType && (
-            <div className="flex gap-2 pt-4 flex-col w-full sm:flex-row">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={loading}
-                className="w-full sm:flex-1"
+            <div className="space-y-2">
+              <Label htmlFor="applicationType" required>Application Type</Label>
+              <Select
+                value={applicationType}
+                onValueChange={(value) => handleApplicationTypeChange(value as ApplicationType)}
               >
-                <X className="h-4 w-4 mr-0" />
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading} className="w-full sm:flex-1">
-                <Save className="h-4 w-4 mr-0" />
-                {loading ? 'Submitting...' : 'Submit Application'}
-              </Button>
+                <SelectTrigger id="applicationType">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>}
+                  <SelectItem value="project">Project</SelectItem>
+                  <SelectItem value="class">Class</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-        </form>
+
+            {renderFormFields()}
+
+            {applicationType && (
+              <div className="flex gap-2 pt-4 flex-col w-full sm:flex-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={loading}
+                  className="w-full sm:flex-1"
+                >
+                  <X className="h-4 w-4 mr-0" />
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading} className="w-full sm:flex-1">
+                  <Save className="h-4 w-4 mr-0" />
+                  {loading ? 'Submitting...' : 'Submit Application'}
+                </Button>
+              </div>
+            )}
+          </form>
         </div>
       </DialogContent>
     </Dialog>
