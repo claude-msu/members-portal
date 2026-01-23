@@ -4,36 +4,16 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  optimizeDeps: {
-    include: ['@exodus/bytes'],
-    esbuildOptions: {
-      target: 'node18',
-    },
-  },
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/__tests__/setup.ts'],
-    server: {
-      deps: {
-        inline: [
-          '@exodus/bytes',
-          'html-encoding-sniffer',
-          'whatwg-encoding',
-        ],
-      },
-    },
-    environmentOptions: {
-      jsdom: {
-        resources: 'usable',
-      },
-    },
+    environment: 'happy-dom',
+    setupFiles: ['./src/tests/setup.ts'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
       exclude: [
         'node_modules/',
-        'src/__tests__/',
+        'src/tests/',
         '**/*.d.ts',
         '**/*.config.*',
         '**/mockData',
