@@ -222,7 +222,7 @@ export default function Dashboard() {
           style={{ fontFamily: `'Roboto Mono', monospace`, letterSpacing: '0.05em', fontWeight: 800 }}>
 
           <TextType
-            text={[`Welcome back, ${profile.full_name}!`]}
+            text={[`Welcome back, ${profile.full_name?.split(' ')[0] || ''}!`]}
             // cursorCharacter="|"
             cursorCharacter="█"
             loop={false}
