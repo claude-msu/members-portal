@@ -147,19 +147,35 @@ const ApplicationViewerPage = () => {
         if (!user || !application) return;
 
         try {
-            // Call edge function to handle acceptance
-            const { data, error } = await supabase.functions.invoke('handle-application-decision', {
+            // 1) Mark application as accepted in the DB
+            const { error: updateError } = await supabase
+                .from('applications')
+                .update({
+                    status: 'accepted',
+                    reviewed_by: user.id,
+                    reviewed_at: new Date().toISOString(),
+                })
+                .eq('id', application.id);
+
+            if (updateError) throw updateError;
+
+            // 2) Call edge function to process side‑effects of acceptance
+            const { data, error } = await supabase.functions.invoke('process-application-acceptance', {
                 body: {
                     application_id: application.id,
-                    status: 'accepted',
-                    reviewed_by: user.id
-                }
+                    user_id: application.user_id,
+                    application_type: application.application_type,
+                    board_position: application.board_position,
+                    project_id: application.project_id,
+                    class_id: application.class_id,
+                    user_email: applicantProfile?.email,
+                    user_name: applicantProfile?.full_name ?? application.full_name,
+                },
             });
 
             if (error) throw error;
-
             if (!data?.success) {
-                throw new Error(data?.message || 'Failed to accept application');
+                throw new Error(data?.message || 'Failed to process application acceptance');
             }
 
             // Show success screen
@@ -184,20 +200,17 @@ const ApplicationViewerPage = () => {
         if (!user || !application) return;
 
         try {
-            // Call edge function to handle rejection
-            const { data, error } = await supabase.functions.invoke('handle-application-decision', {
-                body: {
-                    application_id: application.id,
+            // Just mark the application as rejected; no edge function needed
+            const { error: updateError } = await supabase
+                .from('applications')
+                .update({
                     status: 'rejected',
-                    reviewed_by: user.id
-                }
-            });
+                    reviewed_by: user.id,
+                    reviewed_at: new Date().toISOString(),
+                })
+                .eq('id', application.id);
 
-            if (error) throw error;
-
-            if (!data?.success) {
-                throw new Error(data?.message || 'Failed to reject application');
-            }
+            if (updateError) throw updateError;
 
             // Show rejection screen
             setTimeout(() => {
