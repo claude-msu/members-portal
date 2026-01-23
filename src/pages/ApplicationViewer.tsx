@@ -147,16 +147,20 @@ const ApplicationViewerPage = () => {
         if (!user || !application) return;
 
         try {
-            const { error } = await supabase
-                .from('applications')
-                .update({
+            // Call edge function to handle acceptance
+            const { data, error } = await supabase.functions.invoke('handle-application-decision', {
+                body: {
+                    application_id: application.id,
                     status: 'accepted',
-                    reviewed_by: user.id,
-                    reviewed_at: new Date().toISOString(),
-                })
-                .eq('id', application.id);
+                    reviewed_by: user.id
+                }
+            });
 
             if (error) throw error;
+
+            if (!data?.success) {
+                throw new Error(data?.message || 'Failed to accept application');
+            }
 
             // Show success screen
             setTimeout(() => {
@@ -180,16 +184,20 @@ const ApplicationViewerPage = () => {
         if (!user || !application) return;
 
         try {
-            const { error } = await supabase
-                .from('applications')
-                .update({
+            // Call edge function to handle rejection
+            const { data, error } = await supabase.functions.invoke('handle-application-decision', {
+                body: {
+                    application_id: application.id,
                     status: 'rejected',
-                    reviewed_by: user.id,
-                    reviewed_at: new Date().toISOString(),
-                })
-                .eq('id', application.id);
+                    reviewed_by: user.id
+                }
+            });
 
             if (error) throw error;
+
+            if (!data?.success) {
+                throw new Error(data?.message || 'Failed to reject application');
+            }
 
             // Show rejection screen
             setTimeout(() => {
