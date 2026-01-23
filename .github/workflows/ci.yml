@@ -35,10 +35,6 @@ jobs:
   tests:
     if: github.event.pull_request.draft == false || github.event_name == 'push'
     runs-on: ubuntu-latest
-    needs: quality-check
-    env:
-      # Force Node.js to use ES module mode
-      NODE_OPTIONS: "--experimental-vm-modules"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,9 +45,8 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      # Clear any potential module cache issues
-      - name: Clear Vitest cache
-        run: npx vitest --clearCache || true
+      - name: Install dependencies
+        run: npm ci
 
       - name: Run tests
         run: npm test
