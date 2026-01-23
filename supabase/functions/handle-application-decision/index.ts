@@ -140,7 +140,6 @@ serve(async (req) => {
                 await inviteToSlack(
                     application.profiles.email,
                     application.profiles.full_name,
-                    supabaseClient
                 )
             }
 
@@ -182,7 +181,6 @@ serve(async (req) => {
         await sendDecisionEmail(
             application,
             status,
-            supabaseClient
         )
 
         return new Response(
@@ -206,7 +204,7 @@ serve(async (req) => {
     }
 })
 
-async function inviteToSlack(email: string, fullName: string, supabaseClient: any) {
+async function inviteToSlack(email: string, fullName: string) {
     const slackBotToken = Deno.env.get('SLACK_BOT_TOKEN')
 
     if (!slackBotToken) {
@@ -240,7 +238,7 @@ async function inviteToSlack(email: string, fullName: string, supabaseClient: an
     }
 }
 
-async function assignToProjectChannel(userId: string, projectId: string, supabaseClient: any) {
+async function assignToProjectChannel(userId: string, projectId: string, supabaseClient) {
     try {
         // Get project Slack channel ID
         const { data: project } = await supabaseClient
@@ -290,7 +288,7 @@ async function assignToProjectChannel(userId: string, projectId: string, supabas
     }
 }
 
-async function assignToClassChannel(userId: string, classId: string, supabaseClient: any) {
+async function assignToClassChannel(userId: string, classId: string, supabaseClient) {
     try {
         // Get class Slack channel ID
         const { data: classData } = await supabaseClient
@@ -407,7 +405,7 @@ async function addUserToChannel(userId: string, channelId: string) {
     })
 }
 
-async function sendDecisionEmail(application: any, status: string, supabaseClient: any) {
+async function sendDecisionEmail(application, status: string) {
     const isAccepted = status === 'accepted'
     const applicantEmail = application.profiles.email
     const applicantName = application.profiles.full_name
@@ -416,7 +414,7 @@ async function sendDecisionEmail(application: any, status: string, supabaseClien
     let body = ''
 
     if (application.application_type === 'board') {
-        subject = `Board Application ${isAccepted ? 'Accepted' : 'Declined'} - Claude Builder Club`
+        subject = `Board Application Update - Claude Builder Club`
         body = isAccepted
             ? `Congratulations ${applicantName}!\n\nYour application for ${application.board_position} has been accepted. Welcome to the board!\n\nBest regards,\nClaude Builder Club @ MSU`
             : `Dear ${applicantName},\n\nThank you for your interest in ${application.board_position}. After careful consideration, we have decided not to move forward with your application at this time.\n\nWe encourage you to stay involved with the club and consider applying again in the future.\n\nBest regards,\nClaude Builder Club @ MSU`
