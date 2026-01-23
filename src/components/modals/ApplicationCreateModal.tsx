@@ -29,6 +29,7 @@ import {
 import { Save, X } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 
+type Application = Database['public']['Tables']['applications']['Row'];
 type ApplicationType = Database['public']['Enums']['application_type'];
 type Class = Database['public']['Tables']['classes']['Row'] & {
   semesters: { code: string; name: string } | null;
@@ -407,7 +408,7 @@ export const ApplicationCreateModal = ({
         transcriptUrl = await uploadFile(transcriptFile, 'transcript');
       }
 
-      const applicationData: any = {
+      const baseData: Partial<Application> = {
         user_id: user.id,
         application_type: applicationType,
         full_name: fullName,
@@ -417,25 +418,35 @@ export const ApplicationCreateModal = ({
         status: 'pending',
       };
 
+      let extraData: Partial<Application> = {};
+
       if (applicationType === 'board') {
-        applicationData.board_position = selectedBoardPosition;
-        applicationData.why_position = whyPosition;
-        applicationData.relevant_experience = relevantExperience;
-        applicationData.previous_experience = previousExperience;
-        applicationData.other_commitments = otherCommitments;
+        extraData = {
+          board_position: selectedBoardPosition,
+          why_position: whyPosition,
+          relevant_experience: relevantExperience,
+          previous_experience: previousExperience,
+          other_commitments: otherCommitments,
+        };
       } else if (applicationType === 'class') {
-        applicationData.class_id = selectedClassId;
-        applicationData.class_role = selectedClassRole;
-        applicationData.relevant_experience = relevantExperience;
-        applicationData.other_commitments = otherCommitments;
+        extraData = {
+          class_id: selectedClassId,
+          class_role: selectedClassRole,
+          relevant_experience: relevantExperience,
+          other_commitments: otherCommitments,
+        };
       } else if (applicationType === 'project') {
-        applicationData.project_id = selectedProjectId;
-        applicationData.project_role = selectedProjectRole;
-        applicationData.project_detail = projectDetail;
-        applicationData.problem_solved = problemSolved;
-        applicationData.relevant_experience = relevantExperience;
-        applicationData.other_commitments = otherCommitments;
+        extraData = {
+          project_id: selectedProjectId,
+          project_role: selectedProjectRole,
+          project_detail: projectDetail,
+          problem_solved: problemSolved,
+          relevant_experience: relevantExperience,
+          other_commitments: otherCommitments,
+        };
       }
+
+      const applicationData: Application = { ...baseData, ...extraData } as Application;
 
       const { error } = await supabase.from('applications').insert(applicationData);
 
@@ -448,7 +459,7 @@ export const ApplicationCreateModal = ({
       const updatedApplications = await fetchExistingApplications();
       await fetchAvailableOptions(updatedApplications);
       onSuccess();
-    } catch (error: any) {
+    } catch (error) {
       toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } finally {
       setLoading(false);
@@ -683,44 +694,44 @@ export const ApplicationCreateModal = ({
 
         <div className="">
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3">
-          <div className="space-y-2">
-            <Label htmlFor="applicationType" required>Application Type</Label>
-            <Select
-              value={applicationType}
-              onValueChange={(value) => handleApplicationTypeChange(value as ApplicationType)}
-            >
-              <SelectTrigger id="applicationType">
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>}
-                <SelectItem value="project">Project</SelectItem>
-                <SelectItem value="class">Class</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {renderFormFields()}
-
-          {applicationType && (
-            <div className="flex gap-2 pt-4 flex-col w-full sm:flex-row">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onClose}
-                disabled={loading}
-                className="w-full sm:flex-1"
+            <div className="space-y-2">
+              <Label htmlFor="applicationType" required>Application Type</Label>
+              <Select
+                value={applicationType}
+                onValueChange={(value) => handleApplicationTypeChange(value as ApplicationType)}
               >
-                <X className="h-4 w-4 mr-0" />
-                Cancel
-              </Button>
-              <Button type="submit" disabled={loading} className="w-full sm:flex-1">
-                <Save className="h-4 w-4 mr-0" />
-                {loading ? 'Submitting...' : 'Submit Application'}
-              </Button>
+                <SelectTrigger id="applicationType">
+                  <SelectValue placeholder="Select type" />
+                </SelectTrigger>
+                <SelectContent>
+                  {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>}
+                  <SelectItem value="project">Project</SelectItem>
+                  <SelectItem value="class">Class</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
-        </form>
+
+            {renderFormFields()}
+
+            {applicationType && (
+              <div className="flex gap-2 pt-4 flex-col w-full sm:flex-row">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onClose}
+                  disabled={loading}
+                  className="w-full sm:flex-1"
+                >
+                  <X className="h-4 w-4 mr-0" />
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={loading} className="w-full sm:flex-1">
+                  <Save className="h-4 w-4 mr-0" />
+                  {loading ? 'Submitting...' : 'Submit Application'}
+                </Button>
+              </div>
+            )}
+          </form>
         </div>
       </DialogContent>
     </Dialog>

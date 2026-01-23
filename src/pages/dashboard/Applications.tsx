@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -15,8 +14,7 @@ import type { Database } from '@/integrations/supabase/database.types';
 type Application = Database['public']['Tables']['applications']['Row'];
 
 const Applications = () => {
-  const { user } = useAuth();
-  const { role, isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
+  const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

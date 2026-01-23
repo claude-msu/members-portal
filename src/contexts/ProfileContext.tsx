@@ -4,13 +4,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { Database } from '@/integrations/supabase/database.types';
 
-// Types
-type Project = Database['public']['Tables']['projects']['Row'] & {
-    semesters: { start_date: string, end_date: string, code: string } | null;
+export type Project = Database['public']['Tables']['projects']['Row'] & {
+    semesters: { code: string; name: string; start_date: string; end_date: string } | null;
+    project_members: { count: number }[];
 };
-type Class = Database['public']['Tables']['classes']['Row'] & {
-    semesters: { start_date: string, end_date: string, code: string } | null;
+
+export type Class = Database['public']['Tables']['classes']['Row'] & {
+    semesters: { code: string; name: string; start_date: string; end_date: string } | null;
+    class_enrollments: { count: number }[];
 };
+
 type Application = Database['public']['Tables']['applications']['Row'];
 type Event = Database['public']['Tables']['events']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -125,21 +128,14 @@ async function fetchUserProjects(userId: string): Promise<UserProjects> {
     // Fetch all projects with semester data (for available calculation)
     const { data: allProjects, error: allProjectsError } = await supabase
         .from('projects')
-        .select(`
-            *,
-            semesters (
-                start_date,
-                end_date,
-                code
-            )
-        `);
+        .select(`*, semesters (code, name, start_date, end_date), project_members(count)`);
 
     if (allProjectsError) throw allProjectsError;
 
     const now = new Date();
 
     // Map membership by project id for quick lookup
-    const userProjectsMap = new Map<string, any>();
+    const userProjectsMap = new Map();
     if (memberships && memberships.length) {
         for (const membership of memberships) {
             userProjectsMap.set(membership.project_id, membership);
@@ -218,21 +214,14 @@ async function fetchUserClasses(userId: string): Promise<UserClasses> {
     // Fetch all classes with semesters (for available calculation)
     const { data: allClasses, error: allClassesError } = await supabase
         .from('classes')
-        .select(`
-            *,
-            semesters (
-                start_date,
-                end_date,
-                code
-            )
-        `);
+        .select(`*, semesters (code, name, start_date, end_date), class_enrollments(count)`)
 
     if (allClassesError) throw allClassesError;
 
     const now = new Date();
 
     // Map enrollment by class id for quick lookup
-    const userClassesMap = new Map<string, any>();
+    const userClassesMap = new Map();
     if (enrollments && enrollments.length) {
         for (const enrollment of enrollments) {
             userClassesMap.set(enrollment.class_id, enrollment);
@@ -386,7 +375,7 @@ async function fetchUserEvents(userId: string, role: AppRole): Promise<UserEvent
                 .in('event_id', eventIds);
             if (rsvpCountsError) throw rsvpCountsError;
             // rsvpCountsData will be an array of rows, so we need to count the number of rows per event_id
-            rsvpCounts = (rsvpCountsData || []).reduce((acc: Record<string, number>, row: any) => {
+            rsvpCounts = (rsvpCountsData || []).reduce((acc: Record<string, number>, row) => {
                 acc[row.event_id] = (acc[row.event_id] || 0) + 1;
                 return acc;
             }, {});

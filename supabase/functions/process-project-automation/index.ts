@@ -192,14 +192,9 @@ serve(async (req) => {
           }
         )
 
-        let repoAlreadyExists = false
         if (!createRepoResponse.ok) {
           const error = await createRepoResponse.json()
-          if (error.message && error.message.includes('already exists')) {
-            repoAlreadyExists = true
-          } else {
-            throw new Error(`Failed to create repo: ${error.message}`)
-          }
+          throw new Error(`Failed to create repo: ${error.message}`)
         }
 
         // 4. Give team access to repository

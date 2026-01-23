@@ -18,13 +18,13 @@ import type { Database } from '@/integrations/supabase/database.types';
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
 
-interface PersonWithRole extends Profile {
+interface MemberWithRole extends Profile {
     role: AppRole;
 }
 
 interface PersonCardProps {
-    person: PersonWithRole;
-    onViewProfile: (person: PersonWithRole) => void;
+    person: MemberWithRole;
+    onViewProfile: (person: MemberWithRole) => void;
     onRoleChange?: (personId: string, newRole: AppRole) => void;
     onKick?: (personId: string, personName: string) => void;
     onBan?: (personId: string, personName: string) => void;
@@ -49,11 +49,11 @@ const getInitials = (name: string) => {
 const getRoleBadgeVariant = (role: AppRole) => {
     switch (role) {
         case 'e-board':
-            return 'outline';
+            return 'default';
         case 'board':
             return 'default';
         case 'member':
-            return 'ghost';
+            return 'secondary';
         default:
             return 'outline';
     }
@@ -74,13 +74,13 @@ export const PersonCard = ({
     type,
 }: PersonCardProps) => {
     // Board cannot manage themselves, board members, or e-board members
-    const canManageThisPerson = 
-        canManage && 
+    const canManageThisPerson =
+        canManage &&
         currentUserId !== person.id &&
         !(currentUserRole === 'board' && (person.role === 'board' || person.role === 'e-board'));
-    
+
     const showManageButton = canManageThisPerson && !isMobile;
-    
+
     // Board cannot promote to e-board
     const canPromoteToEBoard = currentUserRole !== 'board';
 
@@ -121,7 +121,7 @@ export const PersonCard = ({
                                 <span className="relative z-10">{person.role.replace('-', ' ')}</span>
                             </Badge>
                         ) : (
-                            <Badge variant={getRoleBadgeVariant(person.role) as any} className="capitalize shrink-0 whitespace-nowrap">
+                            <Badge variant={getRoleBadgeVariant(person.role)} className="capitalize shrink-0 whitespace-nowrap">
                                 {person.role.replace('-', ' ')}
                             </Badge>
                         )
