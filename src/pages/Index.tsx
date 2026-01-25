@@ -379,7 +379,7 @@ const Index = () => {
 
                 <Button
                   size="lg"
-                  onClick={() => window.open('https://www.linkedin.com/company/claude-builder-club-michigan-state/', '_blank')}
+                  onClick={() => window.open('https://www.linkedin.com/company/claude-msu/', '_blank')}
                   className={`bg-white text-primary hover:bg-cream font-bold shadow-2xl hover:scale-105 transition-transform ${isMobile ? 'text-base px-8 py-6 w-full max-w-xs' : 'text-lg px-10 py-7'}`}
                 >
                   <Linkedin className={`${isMobile ? 'h-5 w-5 mr-2' : 'h-6 w-6 mr-3'}`} />

@@ -177,14 +177,14 @@ If you'd like to implement the fix or feature yourself:
 
 ```
 src/
-├── components/          # Reusable UI components
+├── components/         # Reusable UI components
 │   ├── ui/             # shadcn/ui base components
 │   ├── modals/         # Modal dialogs
 │   └── ...
 ├── contexts/           # React contexts (Auth, Profile, Theme)
 ├── hooks/              # Custom React hooks
 ├── integrations/
-│   └── supabase/       # Supabase client and types
+│   └── supabase/       # Supabase client and database types
 ├── pages/
 │   ├── dashboard/      # Dashboard pages
 │   └── ...
@@ -217,9 +217,9 @@ This project is private and proprietary to the Claude Builder Club at Michigan S
 
 For questions or support:
 - Instagram: [@claudemsu](https://www.instagram.com/claudemsu)
-- LinkedIn: [Claude Builder Club @ MSU](https://www.linkedin.com/company/claude-builder-club-michigan-state/)
+- LinkedIn: [Claude Builder Club @ MSU](https://www.linkedin.com/company/claude-msu/)
 - GitHub Issues: [Report a problem](https://github.com/claude-msu/members-portal/issues)
 
 ---
 
-*Built with ❤️ for the Claude Builder Club community at Michigan State University*
+*Built with ❤️ for the Computer Science community at Michigan State University*
