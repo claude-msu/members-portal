@@ -163,7 +163,10 @@ const Members = () => {
         member.full_name?.toLowerCase().includes(query) ||
         member.email?.toLowerCase().includes(query) ||
         member.position?.toLowerCase().includes(query) ||
-        member.role?.toLowerCase().includes(query)
+        member.role?.toLowerCase().includes(query) ||
+        member.class_year?.toLowerCase().includes(query) ||
+        member.github_username?.toLowerCase().includes(query) ||
+        member.linkedin_username?.toLowerCase().includes(query)
       );
     }
 

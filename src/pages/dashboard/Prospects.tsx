@@ -66,7 +66,30 @@ const Prospects = () => {
       groupsMap[term].push(prospect);
     }
 
-    const sortedTermGroups = Object.keys(groupsMap).sort();
+    const termOrder = (term: string): [number, number] => {
+      // Parse format like "F26" or "S27"
+      const match = term.match(/^([FS])(\d{2})$/i);
+
+      // treat unknown as always last
+      if (!match) return [-Infinity, -Infinity];
+
+      const [, season, year] = match;
+      const yearNum = Number.parseInt(year, 10);
+      const seasonNum = season.toUpperCase() === 'F' ? 2 : 1;
+      return [yearNum, seasonNum];
+    };
+
+    const sortedTermGroups = Object.keys(groupsMap).sort((a, b) => {
+      const aOrder = termOrder(a);
+      const bOrder = termOrder(b);
+      if (aOrder[0] !== bOrder[0]) {
+        // Descending order by year
+        return bOrder[0] - aOrder[0];
+      }
+      // Descending order: Fall after Spring in the same year (2 after 1)
+      return bOrder[1] - aOrder[1];
+    });
+
     const sortedProspects: ProspectWithRole[] = [];
 
     for (const term of sortedTermGroups) {
@@ -91,7 +114,9 @@ const Prospects = () => {
         prospect.full_name?.toLowerCase().includes(query) ||
         prospect.email?.toLowerCase().includes(query) ||
         prospect.term_joined?.toLowerCase().includes(query) ||
-        prospect.class_year?.toLowerCase().includes(query)
+        prospect.class_year?.toLowerCase().includes(query) ||
+        prospect.github_username?.toLowerCase().includes(query) ||
+        prospect.linkedin_username?.toLowerCase().includes(query)
       );
     }
 
