@@ -42,7 +42,7 @@ export const ItemCard = ({
     return (
         <Card className={`flex flex-col h-full w-full ${className}`}>
             <CardHeader className="pb-0">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                     <CardTitle className="text-lg flex-1">{title}</CardTitle>
                     {badges && badges.length > 0 && (
                         <div className="flex flex-row gap-3 items-center">

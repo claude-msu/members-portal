@@ -26,6 +26,8 @@ const Applications = () => {
   const [reviewPendingCollapsed, setReviewPendingCollapsed] = useState(false);
   const [reviewReviewedCollapsed, setReviewReviewedCollapsed] = useState(true);
 
+  const appsDisabled: boolean = true;
+
   const getStatusVariant = (status: string): 'enable' | 'destructive' | 'secondary' => {
     switch (status) {
       case 'accepted':
@@ -158,7 +160,7 @@ const Applications = () => {
             {isBoardOrAbove ? 'Manage applications' : 'Your applications'}
           </p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)} disabled={true} >
+        <Button onClick={() => setIsCreateModalOpen(true)} disabled={appsDisabled} >
           <Plus className="h-4 w-4 mr-2" />
           New Application
         </Button>
@@ -174,7 +176,10 @@ const Applications = () => {
         <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
-              No applications yet. Click "New Application" to get started.
+              {appsDisabled
+                ? 'Applications are currently closed. Please wait for Rush Week to submit an application.'
+                : 'No applications yet. Click "New Application" to get started.'
+              }
             </p>
           </CardContent>
         </Card>

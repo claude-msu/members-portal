@@ -45,13 +45,20 @@ interface ApplicationCreateModalProps {
 }
 
 const BOARD_POSITIONS = [
+  // E-Board
   'President',
   'Vice President',
-  'Treasurer',
-  'Secretary',
-  'Technical Lead',
-  'Marketing Lead',
+  'Treasury Chair',
+  'Technical Chair',
+  // Board
+  'Project Director',
+  'Education Director',
+  'Marketing Director',
   'Events Coordinator',
+  'Outreach Director',
+  'Social Director',
+  'Career Director',
+  'Secretary'
 ];
 
 export const ApplicationCreateModal = ({

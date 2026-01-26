@@ -223,22 +223,23 @@ const Members = () => {
         </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
+      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] mt-6">
         {processedMembers.map(member => (
-          <PersonCard
-            key={member.id}
-            person={member}
-            onViewProfile={handleViewProfile}
-            onRoleChange={canManageRoles ? handleRoleChange : undefined}
-            onKick={canManageActions ? handleKickMember : undefined}
-            onBan={canManageActions ? handleBanMember : undefined}
-            canManage={canManageActions}
-            canChangeRoles={canManageRoles}
-            isMobile={isMobile}
-            currentUserId={user?.id}
-            currentUserRole={userRole}
-            type="member"
-          />
+          <div key={member.id} className="min-w-0 max-w-[500px] w-full">
+            <PersonCard
+              person={member}
+              onViewProfile={handleViewProfile}
+              onRoleChange={canManageRoles ? handleRoleChange : undefined}
+              onKick={canManageActions ? handleKickMember : undefined}
+              onBan={canManageActions ? handleBanMember : undefined}
+              canManage={canManageActions}
+              canChangeRoles={canManageRoles}
+              isMobile={isMobile}
+              currentUserId={user?.id}
+              currentUserRole={userRole}
+              type="member"
+            />
+          </div>
         ))}
       </div>
 

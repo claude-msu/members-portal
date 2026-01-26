@@ -711,15 +711,13 @@ const Events = () => {
     }
 
     return (
-      <div key={event.id}>
-        <ItemCard
-          title={event.name}
-          badges={badges}
-          metadata={metadata}
-          description={!isMobile ? event.description || undefined : undefined}
-          actions={actions}
-        />
-      </div>
+      <ItemCard
+        title={event.name}
+        badges={badges}
+        metadata={metadata}
+        description={!isMobile ? event.description || undefined : undefined}
+        actions={actions}
+      />
     );
   };
 
@@ -755,8 +753,12 @@ const Events = () => {
           {/* Event Cards */}
           {events.length > 0 && (
             <div>
-              <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))]">
-                {events.map((event) => renderEventCard(event))}
+              <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
+                {events.map((event) => (
+                  <div key={event.id} className="min-w-0 w-full">
+                    {renderEventCard(event)}
+                  </div>
+                ))}
               </div>
             </div>
           )}

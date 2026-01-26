@@ -470,7 +470,6 @@ const Classes = () => {
 
     return (
       <ItemCard
-        key={cls.id}
         title={cls.name}
         badges={badges}
         metadata={metadata}
@@ -515,20 +514,32 @@ const Classes = () => {
       ) : (
         <div className="mt-6 space-y-6">
           {inProgress.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))]">
-              {inProgress.map(renderClassCard)}
+            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+              {inProgress.map(cls => (
+                <div key={cls.id} className="min-w-0 max-w-[600px] w-full">
+                  {renderClassCard(cls)}
+                </div>
+              ))}
             </div>
           )}
 
           {available.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))]">
-              {available.map(renderClassCard)}
+            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+              {available.map(cls => (
+                <div key={cls.id} className="min-w-0 max-w-[600px] w-full">
+                  {renderClassCard(cls)}
+                </div>
+              ))}
             </div>
           )}
 
           {completed.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(350px,500px))]">
-              {completed.map(renderClassCard)}
+            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+              {completed.map(cls => (
+                <div key={cls.id} className="min-w-0 max-w-[600px] w-full">
+                  {renderClassCard(cls)}
+                </div>
+              ))}
             </div>
           )}
         </div>

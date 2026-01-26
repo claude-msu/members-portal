@@ -319,7 +319,7 @@ async function fetchUserApplications(userId: string, role: AppRole): Promise<Use
             .from('applications')
             .select('*')
             .neq('user_id', userId) // Exclude own applications
-            .order('created_at', { ascending: false });
+            .order('user_id', { ascending: false }); // Group by users
 
         // Board members can only review project and class applications
         if (role === 'board') {

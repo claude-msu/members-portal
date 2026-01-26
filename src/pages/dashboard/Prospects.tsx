@@ -224,20 +224,21 @@ const Prospects = () => {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,400px))] mt-6">
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] mt-6">
           {processedProspects.map(prospect => (
-            <PersonCard
-              key={prospect.id}
-              person={prospect}
-              onViewProfile={handleViewProfile}
-              onGraduate={handleGraduate}
-              onBan={handleBanProspect}
-              canManage={canManageProspects}
-              isMobile={isMobile}
-              currentUserId={user?.id}
-              currentUserRole={userRole}
-              type="prospect"
-            />
+            <div key={prospect.id} className="min-w-0 max-w-[500px] w-full">
+              <PersonCard
+                person={prospect}
+                onViewProfile={handleViewProfile}
+                onGraduate={handleGraduate}
+                onBan={handleBanProspect}
+                canManage={canManageProspects}
+                isMobile={isMobile}
+                currentUserId={user?.id}
+                currentUserRole={userRole}
+                type="prospect"
+              />
+            </div>
           ))}
         </div>
       )}

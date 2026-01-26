@@ -87,7 +87,7 @@ export const PersonCard = ({
     return (
         <Card className="flex flex-col h-full w-full relative">
             <CardHeader className="pb-0">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-4">
                     <CardTitle className="flex items-center gap-3 flex-1 min-w-0">
                         <Avatar className="h-12 w-12 shrink-0">
                             <AvatarImage src={person.profile_picture_url || undefined} />
