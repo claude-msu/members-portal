@@ -546,9 +546,9 @@ const Projects = () => {
       ) : (
         <div className="mt-6 space-y-6">
           {inProgress.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
               {inProgress.map(project => (
-                <div key={project.id} className="min-w-0 max-w-[600px] w-full">
+                <div key={project.id} className="min-w-0 w-full">
                   {renderProjectCard(project)}
                 </div>
               ))}
@@ -556,9 +556,9 @@ const Projects = () => {
           )}
 
           {available.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
               {available.map(project => (
-                <div key={project.id} className="min-w-0 max-w-[600px] w-full">
+                <div key={project.id} className="min-w-0 w-full">
                   {renderProjectCard(project)}
                 </div>
               ))}
@@ -566,9 +566,9 @@ const Projects = () => {
           )}
 
           {completed.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
               {completed.map(project => (
-                <div key={project.id} className="min-w-0 max-w-[600px] w-full">
+                <div key={project.id} className="min-w-0 w-full">
                   {renderProjectCard(project)}
                 </div>
               ))}
