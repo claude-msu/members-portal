@@ -508,15 +508,9 @@ export default function Dashboard() {
                   }}>
                     <CardHeader className={`${isMobile ? "p-5" : "xl:p-5 lg:p-3 md:p-4"} !pb-0`}>
                       <div className="flex items-center justify-between w-full">
-                        <CardTitle className="text-xl font-semibold truncate max-w-[70%] min-w-0">{item.name}</CardTitle>
+                        <CardTitle className="text-lg font-semibold truncate max-w-[70%] min-w-0">{item.name}</CardTitle>
                         <div className="flex flex-col items-end gap-2">
                           <Badge variant="outline" className={`${status.color.replace('bg-', 'text-')} border-current scale-90 origin-right`}>{status.label}</Badge>
-                          {item.semesters && (
-                            <span className="text-[14px] text-muted-foreground flex items-center gap-1 justify-end">
-                              <BookMarkedIcon className="inline h-3 w-3 mr-0.5" />
-                              {item.semesters.code}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </CardHeader>
