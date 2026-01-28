@@ -785,7 +785,7 @@ export const ApplicationCreateModal = ({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>}
+                  {/* {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>} */}
                   <SelectItem value="project">Project</SelectItem>
                   <SelectItem value="class">Class</SelectItem>
                 </SelectContent>
