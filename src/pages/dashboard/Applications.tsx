@@ -26,7 +26,7 @@ const Applications = () => {
   const [reviewPendingCollapsed, setReviewPendingCollapsed] = useState(false);
   const [reviewReviewedCollapsed, setReviewReviewedCollapsed] = useState(true);
 
-  const appsDisabled: boolean = true;
+  const appsDisabled: boolean = false;
 
   const getStatusVariant = (status: string): 'enable' | 'destructive' | 'secondary' => {
     switch (status) {

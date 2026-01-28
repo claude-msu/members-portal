@@ -485,7 +485,7 @@ const Projects = () => {
     if (projectHasStarted) {
       actions.push({
         label: 'View on GitHub',
-        onClick: () => window.open(`https://github.com/Claude-Builder-Club-MSU/${project.repository_name}`, '_blank'),
+        onClick: () => window.open(`https://github.com/claude-msu/${project.repository_name}`, '_blank'),
         icon: <Github className="h-4 w-4 mr-2" />,
         variant: isBoardOrAbove ? 'default' : 'outline',
       });
@@ -546,9 +546,9 @@ const Projects = () => {
       ) : (
         <div className="mt-6 space-y-6">
           {inProgress.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
               {inProgress.map(project => (
-                <div key={project.id} className="min-w-0 max-w-[600px] w-full">
+                <div key={project.id} className="min-w-0 w-full">
                   {renderProjectCard(project)}
                 </div>
               ))}
@@ -556,9 +556,9 @@ const Projects = () => {
           )}
 
           {available.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
               {available.map(project => (
-                <div key={project.id} className="min-w-0 max-w-[600px] w-full">
+                <div key={project.id} className="min-w-0 w-full">
                   {renderProjectCard(project)}
                 </div>
               ))}
@@ -566,9 +566,9 @@ const Projects = () => {
           )}
 
           {completed.length > 0 && (
-            <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(400px,1fr))]">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-[repeat(auto-fit,minmax(375px,1fr))]">
               {completed.map(project => (
-                <div key={project.id} className="min-w-0 max-w-[600px] w-full">
+                <div key={project.id} className="min-w-0 w-full">
                   {renderProjectCard(project)}
                 </div>
               ))}
@@ -636,9 +636,9 @@ const Projects = () => {
           <div className="relative">
             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               {isMobile ? (
-                "Claude-Builder-Club-MSU/"
+                "claude-msu/"
               ) : (
-                "github.com/Claude-Builder-Club-MSU/"
+                "github.com/claude-msu/"
               )}
             </span>
             <Input
@@ -646,7 +646,7 @@ const Projects = () => {
               value={repositoryName}
               onChange={(e) => setRepositoryName(e.target.value)}
               placeholder="project-name"
-              className={isMobile ? "pl-[210px]" : "pl-[300px]"}
+              className={isMobile ? "pl-[105px]" : "pl-[190px]"}
             />
           </div>
         </div>
@@ -670,7 +670,7 @@ const Projects = () => {
               </Button>
             </PopoverTrigger>
             <PopoverContent
-              className="w-96 p-0"
+              className={`${isMobile ? 'w-72' : 'w-96'} p-0`}
               align="center"
               onOpenAutoFocus={e => e.preventDefault()}
             >
@@ -804,13 +804,13 @@ const Projects = () => {
                     className="w-full justify-start"
                     onClick={() =>
                       window.open(
-                        `https://github.com/Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`,
+                        `https://github.com/claude-msu/${modalState.selectedItem!.repository_name}`,
                         '_blank'
                       )
                     }
                   >
                     <Github className="h-4 w-4 mr-2" />
-                    {`Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`}
+                    {`claude-msu/${modalState.selectedItem!.repository_name}`}
                   </Button>
                 ),
               }] : [];

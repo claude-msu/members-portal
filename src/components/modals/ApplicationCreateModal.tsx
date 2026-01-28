@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -67,7 +66,6 @@ export const ApplicationCreateModal = ({
   onSuccess,
 }: ApplicationCreateModalProps) => {
   const { user, profile } = useAuth();
-  const { role } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
@@ -87,9 +85,10 @@ export const ApplicationCreateModal = ({
   const [whyPosition, setWhyPosition] = useState('');
   const [relevantExperience, setRelevantExperience] = useState('');
   const [otherCommitments, setOtherCommitments] = useState('');
+  const [whyClass, setWhyClass] = useState('');
+  const [relevantKnowledge, setRelevantKnowledge] = useState('');
   const [projectDetail, setProjectDetail] = useState('');
   const [problemSolved, setProblemSolved] = useState('');
-  const [previousExperience, setPreviousExperience] = useState('');
   const [selectedClassId, setSelectedClassId] = useState('');
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [selectedBoardPosition, setSelectedBoardPosition] = useState('');
@@ -236,6 +235,9 @@ export const ApplicationCreateModal = ({
       filePath = `${safeUserName}_${selectedClassId}/${fileName}`;
     } else if (applicationType === 'project' && selectedProjectId) {
       filePath = `${safeUserName}_${selectedProjectId}/${fileName}`;
+    } else if (applicationType === 'board' && selectedBoardPosition) {
+      const safePosition = selectedBoardPosition.replace(/\s+/g, '-');
+      filePath = `${safeUserName}_board_${safePosition}/${fileName}`;
     } else {
       throw new Error('Could not resolve file path for upload');
     }
@@ -259,9 +261,10 @@ export const ApplicationCreateModal = ({
     setWhyPosition('');
     setRelevantExperience('');
     setOtherCommitments('');
+    setWhyClass('');
+    setRelevantKnowledge('');
     setProjectDetail('');
     setProblemSolved('');
-    setPreviousExperience('');
     setSelectedClassId('');
     setSelectedProjectId('');
     setSelectedBoardPosition('');
@@ -318,6 +321,24 @@ export const ApplicationCreateModal = ({
       return;
     }
 
+    if (applicationType === 'board' && !relevantExperience.trim()) {
+      toast({
+        title: 'Required Field Missing',
+        description: 'Please describe your relevant experience for this position',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (applicationType === 'board' && !otherCommitments.trim()) {
+      toast({
+        title: 'Required Field Missing',
+        description: 'Please list any other major commitments (so we can understand your availability)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     if (applicationType === 'class' && !selectedClassId) {
       toast({
         title: 'Required Field Missing',
@@ -331,6 +352,24 @@ export const ApplicationCreateModal = ({
       toast({
         title: 'Required Field Missing',
         description: 'Please select your class role',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (applicationType === 'class' && !whyClass.trim()) {
+      toast({
+        title: 'Required Field Missing',
+        description: 'Please tell us why you want this class',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (applicationType === 'class' && !relevantKnowledge.trim()) {
+      toast({
+        title: 'Required Field Missing',
+        description: 'Please describe what you already know / how you\'re prepared for this class',
         variant: 'destructive',
       });
       return;
@@ -354,10 +393,10 @@ export const ApplicationCreateModal = ({
       return;
     }
 
-    if (applicationType === 'project' && !projectDetail.trim()) {
+    if (applicationType === 'project' && !relevantExperience.trim()) {
       toast({
         title: 'Required Field Missing',
-        description: 'Please explain why you want to join this project',
+        description: 'Please describe your relevant experience for this project',
         variant: 'destructive',
       });
       return;
@@ -366,7 +405,16 @@ export const ApplicationCreateModal = ({
     if (applicationType === 'project' && !problemSolved.trim()) {
       toast({
         title: 'Required Field Missing',
-        description: 'Please describe what problem you want to solve',
+        description: 'Please describe a problem you\'ve solved (or a challenge you\'ve overcome)',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (applicationType === 'project' && !projectDetail.trim()) {
+      toast({
+        title: 'Required Field Missing',
+        description: 'Please provide project detail (what you want to work on / contribute)',
         variant: 'destructive',
       });
       return;
@@ -432,15 +480,14 @@ export const ApplicationCreateModal = ({
           board_position: selectedBoardPosition,
           why_position: whyPosition,
           relevant_experience: relevantExperience,
-          previous_experience: previousExperience,
           other_commitments: otherCommitments,
         };
       } else if (applicationType === 'class') {
         extraData = {
           class_id: selectedClassId,
           class_role: selectedClassRole,
-          relevant_experience: relevantExperience,
-          other_commitments: otherCommitments,
+          why_class: whyClass,
+          relevant_knowledge: relevantKnowledge,
         };
       } else if (applicationType === 'project') {
         extraData = {
@@ -449,7 +496,6 @@ export const ApplicationCreateModal = ({
           project_detail: projectDetail,
           problem_solved: problemSolved,
           relevant_experience: relevantExperience,
-          other_commitments: otherCommitments,
         };
       }
 
@@ -529,16 +575,29 @@ export const ApplicationCreateModal = ({
                 value={whyPosition}
                 onChange={(e) => setWhyPosition(e.target.value)}
                 rows={4}
+                placeholder="What impact do you want to make in this role, and why are you applying now?"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="previousExperience">Previous Board Experience</Label>
+              <Label htmlFor="relevantExperience" required>Relevant Experience</Label>
               <Textarea
-                id="previousExperience"
-                value={previousExperience}
-                onChange={(e) => setPreviousExperience(e.target.value)}
+                id="relevantExperience"
+                value={relevantExperience}
+                onChange={(e) => setRelevantExperience(e.target.value)}
                 rows={3}
+                placeholder="Share leadership experience, projects, skills, or specific examples that make you a strong fit."
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="otherCommitments" required>Other Commitments</Label>
+              <Textarea
+                id="otherCommitments"
+                value={otherCommitments}
+                onChange={(e) => setOtherCommitments(e.target.value)}
+                rows={3}
+                placeholder="Jobs, other orgs, courses, or anything else that affects your weekly availability."
               />
             </div>
           </>
@@ -577,6 +636,27 @@ export const ApplicationCreateModal = ({
               </RadioGroup>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="whyClass" required>Why this class?</Label>
+              <Textarea
+                id="whyClass"
+                value={whyClass}
+                onChange={(e) => setWhyClass(e.target.value)}
+                rows={4}
+                placeholder="What do you hope to learn/teach, and how does this class fit your goals?"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="relevantKnowledge" required>Relevant knowledge</Label>
+              <Textarea
+                id="relevantKnowledge"
+                value={relevantKnowledge}
+                onChange={(e) => setRelevantKnowledge(e.target.value)}
+                rows={3}
+                placeholder="What do you already know that will help you succeed? (Concepts, tools, prior coursework, etc.)"
+              />
+            </div>
           </>
         )}
 
@@ -614,47 +694,39 @@ export const ApplicationCreateModal = ({
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="projectDetail" required>Why this project?</Label>
+              <Label htmlFor="relevantExperience" required>Relevant experience</Label>
               <Textarea
-                id="projectDetail"
-                value={projectDetail}
-                onChange={(e) => setProjectDetail(e.target.value)}
-                rows={4}
+                id="relevantExperience"
+                value={relevantExperience}
+                onChange={(e) => setRelevantExperience(e.target.value)}
+                rows={3}
+                placeholder="What skills/projects make you a good fit?"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="problemSolved" required>What problem do you want to solve?</Label>
+              <Label htmlFor="problemSolved" required>Problem solved</Label>
               <Textarea
                 id="problemSolved"
                 value={problemSolved}
                 onChange={(e) => setProblemSolved(e.target.value)}
                 rows={3}
+                placeholder="Describe a problem you've solved (or a tough challenge you overcame). What was your approach and result?"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="projectDetail" required>Project detail</Label>
+              <Textarea
+                id="projectDetail"
+                value={projectDetail}
+                onChange={(e) => setProjectDetail(e.target.value)}
+                rows={4}
+                placeholder="What do you want to work on in this project? Are you interested in the backend or the frontend?"
               />
             </div>
           </>
         )}
-
-        {/* Common optional fields */}
-        <div className="space-y-2">
-          <Label htmlFor="relevantExperience">Relevant Experience</Label>
-          <Textarea
-            id="relevantExperience"
-            value={relevantExperience}
-            onChange={(e) => setRelevantExperience(e.target.value)}
-            rows={3}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="otherCommitments">Other Commitments</Label>
-          <Textarea
-            id="otherCommitments"
-            value={otherCommitments}
-            onChange={(e) => setOtherCommitments(e.target.value)}
-            rows={3}
-          />
-        </div>
 
         <div className="space-y-2">
           <Label htmlFor="resume">Resume</Label>
@@ -711,7 +783,7 @@ export const ApplicationCreateModal = ({
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
-                  {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>}
+                  {/* {role !== 'prospect' && <SelectItem value="board">Board Position</SelectItem>} */}
                   <SelectItem value="project">Project</SelectItem>
                   <SelectItem value="class">Class</SelectItem>
                 </SelectContent>

@@ -341,7 +341,7 @@ const ApplicationViewerPage = () => {
                 <div key="repo" className="space-y-2">
                     <h4 className="font-semibold text-sm">Repository</h4>
                     <a
-                        href={`https://github.com/Claude-Builder-Club-MSU/${item.repository_name}`}
+                        href={`https://github.com/claude-msu/${item.repository_name}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-sm text-primary hover:underline"
@@ -365,30 +365,40 @@ const ApplicationViewerPage = () => {
     const renderApplicationFields = () => {
         if (!application) return null;
 
+        const getTextValue = (key: keyof Application, fallbacks: Array<keyof Application> = []) => {
+            const primary = application[key];
+            if (typeof primary === 'string' && primary.trim()) return primary;
+            for (const fbKey of fallbacks) {
+                const fb = application[fbKey];
+                if (typeof fb === 'string' && fb.trim()) return fb;
+            }
+            return '';
+        };
+
         const fields = {
             board: [
                 { key: 'why_position', title: 'Why this position?' },
-                { key: 'relevant_experience', title: 'Relevant Experience' },
-                { key: 'previous_experience', title: 'Previous Board Experience' },
-                { key: 'other_commitments', title: 'Other Commitments' },
+                { key: 'relevant_experience', title: 'Relevant experience' },
+                { key: 'other_commitments', title: 'Other commitments' },
             ],
             project: [
-                { key: 'project_detail', title: 'Why this project?' },
-                { key: 'relevant_experience', title: 'Relevant Technical Skills' },
-                { key: 'problem_solved', title: 'Technical Challenge Overcome' },
-                { key: 'other_commitments', title: 'Other Commitments' },
+                { key: 'relevant_experience', title: 'Relevant experience' },
+                { key: 'problem_solved', title: 'Problem solved' },
+                { key: 'project_detail', title: 'Project detail' },
             ],
             class: [
-                { key: 'relevant_experience', title: 'Relevant Experience' },
-                { key: 'other_commitments', title: 'Other Commitments' },
+                { key: 'why_class', title: 'Why this class?' },
+                { key: 'relevant_knowledge', title: 'Relevant knowledge', fallbacks: ['relevant_experience'] },
             ],
         };
 
         const typeFields = fields[application.application_type as keyof typeof fields] || [];
 
         return typeFields.map(
-            ({ key, title }) => {
-                const value = application[key as keyof Application] as string;
+            (field) => {
+                const { key, title } = field;
+                const fallbacks = ('fallbacks' in field ? (field as { fallbacks?: Array<keyof Application> }).fallbacks : []) || [];
+                const value = getTextValue(key as keyof Application, fallbacks as Array<keyof Application>);
                 return (
                     <motion.div
                         key={key}

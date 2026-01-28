@@ -18,7 +18,6 @@ import {
   Award,
   MapPin,
   TrendingUp,
-  BookMarkedIcon
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
@@ -507,42 +506,31 @@ export default function Dashboard() {
                     navigate(link);
                   }}>
                     <CardHeader className={`${isMobile ? "p-5" : "xl:p-5 lg:p-3 md:p-4"} !pb-0`}>
-                      <div className="flex items-center justify-start justify-between gap-2">
-                        <div className="flex flex-col items-left gap-1 w-[60%]">
-                          <CardTitle className="text-lg font-semibold">{item.name}</CardTitle>
-                          {item.description && <p className="text-[14px] text-muted-foreground line-clamp-1 max-w-[50%] overflow-hidden">{item.description}</p>}
-                        </div>
+                      <div className="flex items-center justify-between w-full">
+                        <CardTitle className="text-lg font-semibold truncate max-w-[70%] min-w-0">{item.name}</CardTitle>
                         <div className="flex flex-col items-end gap-2">
                           <Badge variant="outline" className={`${status.color.replace('bg-', 'text-')} border-current scale-90 origin-right`}>{status.label}</Badge>
-                          {item.semesters && (
-                            <span className="text-[14px] text-muted-foreground flex items-center gap-1 justify-end">
-                              <BookMarkedIcon className="inline h-3 w-3 mr-0.5" />
-                              {item.semesters.code}
-                            </span>
-                          )}
                         </div>
                       </div>
                     </CardHeader>
                     <CardContent className={`${isMobile ? "p-5" : "xl:p-5 lg:p-3 md:p-4"} !pt-0 space-y-1`}>
                       <div className="flex items-center justify-between text-[14px] text-muted-foreground mt-1">
                         {'client_name' in item && item.client_name && (
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 max-w-[80%] min-w-0">
                             <FolderKanban className="h-3 w-3" />
-                            <span className="capitalize">{item.client_name}</span>
+                            <span className="capitalize truncate">{item.client_name}</span>
                           </span>
                         )}
                         {'location' in item && item.location && (
-                          <span className="flex items-center gap-1">
+                          <span className="flex items-center gap-1 max-w-[80%] min-w-0">
                             <MapPin className="h-3 w-3" />
-                            <span className="capitalize">{item.location}</span>
+                            <span className="capitalize truncate">{item.location}</span>
                           </span>
                         )}
                         <span className="flex items-center gap-1">
                           <Users className="h-3 w-3" />
                           <span>
-                            {count} {isProject
-                              ? (count === 1 ? 'member' : 'members')
-                              : (count === 1 ? 'student' : 'students')}
+                            {count}
                           </span>
                         </span>
                       </div>

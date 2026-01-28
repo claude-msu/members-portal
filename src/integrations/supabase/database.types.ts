@@ -50,7 +50,6 @@ export type Database = {
           full_name: string
           id: string
           other_commitments: string | null
-          previous_experience: string | null
           problem_solved: string | null
           project_detail: string | null
           project_id: string | null
@@ -58,6 +57,7 @@ export type Database = {
           | Database["public"]["Enums"]["project_member_type"]
           | null
           relevant_experience: string | null
+          relevant_knowledge: string | null
           resume_url: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -65,6 +65,7 @@ export type Database = {
           transcript_url: string | null
           updated_at: string
           user_id: string
+          why_class: string | null
           why_position: string | null
         }
         Insert: {
@@ -77,7 +78,6 @@ export type Database = {
           full_name: string
           id?: string
           other_commitments?: string | null
-          previous_experience?: string | null
           problem_solved?: string | null
           project_detail?: string | null
           project_id?: string | null
@@ -85,6 +85,7 @@ export type Database = {
           | Database["public"]["Enums"]["project_member_type"]
           | null
           relevant_experience?: string | null
+          relevant_knowledge?: string | null
           resume_url?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -92,6 +93,7 @@ export type Database = {
           transcript_url?: string | null
           updated_at?: string
           user_id: string
+          why_class?: string | null
           why_position?: string | null
         }
         Update: {
@@ -104,7 +106,6 @@ export type Database = {
           full_name?: string
           id?: string
           other_commitments?: string | null
-          previous_experience?: string | null
           problem_solved?: string | null
           project_detail?: string | null
           project_id?: string | null
@@ -112,6 +113,7 @@ export type Database = {
           | Database["public"]["Enums"]["project_member_type"]
           | null
           relevant_experience?: string | null
+          relevant_knowledge?: string | null
           resume_url?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -119,6 +121,7 @@ export type Database = {
           transcript_url?: string | null
           updated_at?: string
           user_id?: string
+          why_class?: string | null
           why_position?: string | null
         }
         Relationships: [
