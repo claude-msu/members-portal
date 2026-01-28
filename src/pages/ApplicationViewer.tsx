@@ -341,7 +341,7 @@ const ApplicationViewerPage = () => {
                 <div key="repo" className="space-y-2">
                     <h4 className="font-semibold text-sm">Repository</h4>
                     <a
-                        href={`https://github.com/Claude-Builder-Club-MSU/${item.repository_name}`}
+                        href={`https://github.com/claude-msu/${item.repository_name}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-sm text-primary hover:underline"
@@ -395,8 +395,10 @@ const ApplicationViewerPage = () => {
         const typeFields = fields[application.application_type as keyof typeof fields] || [];
 
         return typeFields.map(
-            ({ key, title, fallbacks }) => {
-                const value = getTextValue(key as keyof Application, (fallbacks || []) as Array<keyof Application>);
+            (field) => {
+                const { key, title } = field;
+                const fallbacks = ('fallbacks' in field ? (field as { fallbacks?: Array<keyof Application> }).fallbacks : []) || [];
+                const value = getTextValue(key as keyof Application, fallbacks as Array<keyof Application>);
                 return (
                     <motion.div
                         key={key}

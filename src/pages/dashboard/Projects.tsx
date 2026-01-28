@@ -485,7 +485,7 @@ const Projects = () => {
     if (projectHasStarted) {
       actions.push({
         label: 'View on GitHub',
-        onClick: () => window.open(`https://github.com/Claude-Builder-Club-MSU/${project.repository_name}`, '_blank'),
+        onClick: () => window.open(`https://github.com/claude-msu/${project.repository_name}`, '_blank'),
         icon: <Github className="h-4 w-4 mr-2" />,
         variant: isBoardOrAbove ? 'default' : 'outline',
       });
@@ -804,13 +804,13 @@ const Projects = () => {
                     className="w-full justify-start"
                     onClick={() =>
                       window.open(
-                        `https://github.com/Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`,
+                        `https://github.com/claude-msu/${modalState.selectedItem!.repository_name}`,
                         '_blank'
                       )
                     }
                   >
                     <Github className="h-4 w-4 mr-2" />
-                    {`Claude-Builder-Club-MSU/${modalState.selectedItem!.repository_name}`}
+                    {`claude-msu/${modalState.selectedItem!.repository_name}`}
                   </Button>
                 ),
               }] : [];

@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -67,7 +66,6 @@ export const ApplicationCreateModal = ({
   onSuccess,
 }: ApplicationCreateModalProps) => {
   const { user, profile } = useAuth();
-  const { role } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const [loading, setLoading] = useState(false);
