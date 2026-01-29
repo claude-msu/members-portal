@@ -56,7 +56,7 @@ interface MenuItem {
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const { user, profile, signOut } = useAuth();
-  const { role, isBoardOrAbove } = useProfile();
+  const { isBoardOrAbove } = useProfile();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
@@ -100,7 +100,6 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
         <AppSidebar
           user={user}
           profile={profile}
-          role={role}
           isBoardOrAbove={isBoardOrAbove}
           signOut={signOut}
           navigate={navigate}
@@ -142,19 +141,6 @@ const getMenuItems = (isBoardOrAbove: boolean): MenuItem[] => {
   return baseItems;
 };
 
-const getRoleBadgeVariant = (role: AppRole) => {
-  switch (role) {
-    case 'e-board':
-      return 'default';
-    case 'board':
-      return 'default';
-    case 'member':
-      return 'secondary';
-    default:
-      return 'outline';
-  }
-};
-
 const getInitials = (name: string) => {
   return name
     .split(' ')
@@ -168,7 +154,6 @@ const getInitials = (name: string) => {
 interface AppSidebarProps {
   user: User;
   profile: Profile;
-  role: AppRole;
   isBoardOrAbove: boolean;
   signOut: () => void;
   navigate: (path: string) => void;
@@ -178,7 +163,6 @@ interface AppSidebarProps {
 const AppSidebar = ({
   user,
   profile,
-  role,
   isBoardOrAbove,
   signOut,
   navigate,

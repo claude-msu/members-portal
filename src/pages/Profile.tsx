@@ -27,7 +27,7 @@ import type { Database } from '@/integrations/supabase/database.types';
 const Profile = () => {
   // Get data from contexts
   const { user, profile, refreshProfile, loading: authLoading } = useAuth();
-  const { role, isBoardOrAbove } = useProfile();
+  const { isBoardOrAbove } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
