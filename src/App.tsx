@@ -1,7 +1,7 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -19,8 +19,27 @@ import Checkin from "./pages/CheckIn";
 import ApplicationViewerPage from "@/pages/ApplicationViewer";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useEffect } from "react";
 
 const queryClient = new QueryClient();
+
+/** Handles ?redirect= after email confirmation so members can land on e.g. check-in to claim points */
+const PostAuthRedirectHandler = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user, loading } = useAuth();
+  const redirect = searchParams.get("redirect");
+
+  useEffect(() => {
+    if (loading || !user || !redirect) return;
+    // Only allow relative paths to avoid open redirect
+    const path = redirect.startsWith("/") ? redirect : `/${redirect}`;
+    if (!path.startsWith("/")) return;
+    navigate(path, { replace: true });
+  }, [loading, user, redirect, navigate]);
+
+  return null;
+};
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -41,7 +60,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // After loading is complete, check if user is authenticated
   if (!user) {
     sessionStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search);
-    return <Navigate to="/auth" replace />;
+    return <Navigate to="/auth#login" replace />;
   }
 
   // Check if new user needs to complete profile
@@ -76,6 +95,7 @@ const App = () => (
       <AuthProvider>
         <ProfileProvider>
           <ThemeProvider>
+            <PostAuthRedirectHandler />
             <Routes>
               {/* Public Routes */}
               <Route path="/" element={<Index />} />

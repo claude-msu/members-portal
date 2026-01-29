@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -11,7 +11,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 const Auth = () => {
-  const [isLogin, setIsLogin] = useState(true);
+  const location = useLocation();
+  const hash = location.hash?.toLowerCase() || '';
+  const [isLogin, setIsLogin] = useState(hash === '#signup' ? false : true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -21,6 +23,15 @@ const Auth = () => {
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
   const isMobile = useIsMobile();
+
+  // Sync tab with URL hash (#signup → signup, #login or default → login)
+  useEffect(() => {
+    if (hash === '#signup') {
+      setIsLogin(false);
+    } else if (hash === '#login' || hash === '') {
+      setIsLogin(true);
+    }
+  }, [hash]);
 
   // Redirect logged-in users (only after auth finishes loading)
   useEffect(() => {
@@ -126,12 +137,19 @@ const Auth = () => {
           return;
         }
 
-        // Sign up
+        // Sign up: include stored redirect in confirmation link so members can claim points after verifying
+        const storedRedirect = sessionStorage.getItem('redirectAfterLogin');
+        const redirectPath = storedRedirect || '/dashboard';
+        const emailRedirectTo =
+          storedRedirect
+            ? `${window.location.origin}/dashboard?redirect=${encodeURIComponent(redirectPath)}`
+            : `${window.location.origin}/dashboard`;
+
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo: `${window.location.origin}/dashboard`,
+            emailRedirectTo,
             data: {
               full_name: fullName,
             },
@@ -240,8 +258,10 @@ const Auth = () => {
               variant="ghost"
               className={`w-full hover:bg-transparent hover:text-primary transition-all duration-200 ${isMobile ? 'h-11 text-sm' : ''}`}
               onClick={() => {
-                setIsLogin(!isLogin);
-                setBanError(null); // Clear ban error when switching modes
+                const nextLogin = !isLogin;
+                setIsLogin(nextLogin);
+                setBanError(null);
+                navigate(nextLogin ? '/auth#login' : '/auth#signup', { replace: true });
               }}
             >
               {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Login'}

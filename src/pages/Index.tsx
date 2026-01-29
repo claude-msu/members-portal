@@ -371,7 +371,7 @@ const Index = () => {
 
                 <Button
                   size="lg"
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/auth#signup')}
                   className={`bg-white text-primary hover:bg-cream font-bold shadow-2xl hover:scale-110 transition-transform border-4 border-white/50 ${isMobile ? 'text-lg px-12 py-7 w-full max-w-xs' : 'text-xl px-16 py-8'}`}
                 >
                   Apply Now

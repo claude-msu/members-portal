@@ -14,7 +14,7 @@ const InteractiveLogo = () => {
   };
 
   const handleClick = () => {
-    navigate("/auth");
+    navigate("/auth#login");
   };
 
   return (

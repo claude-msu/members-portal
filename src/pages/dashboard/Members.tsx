@@ -10,7 +10,8 @@ import ProfileViewer from '@/components/modals/ProfileViewer';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
-import { Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Search, Mail } from 'lucide-react';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -148,6 +149,29 @@ const Members = () => {
     setIsProfileModalOpen(true);
   };
 
+  const copyEmailsCsv = () => {
+    const emails = processedMembers
+      .map(m => m.email)
+      .filter((e): e is string => Boolean(e));
+    if (emails.length === 0) {
+      toast({
+        title: 'No emails',
+        description: 'No emails to copy for the current filter.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    const escapeCsv = (s: string) =>
+      /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    const csv = emails.map(escapeCsv).join(',');
+    void navigator.clipboard.writeText(csv).then(() => {
+      toast({
+        title: 'Copied',
+        description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV`,
+      });
+    });
+  };
+
   // Only e-board can change roles; board and e-board can kick/ban
   const canManageRoles = userRole === 'e-board';
   const canManageActions = userRole === 'board' || userRole === 'e-board';
@@ -214,15 +238,20 @@ const Members = () => {
               : `${members.length} club ${members.length === 1 ? 'member' : 'members'}`}
           </p>
         </div>
-        <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder={isMobile ? "Search" : "Search members..."}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex items-center gap-3">
+          <Button size="icon" onClick={copyEmailsCsv} title="Copy filtered emails as CSV">
+            <Mail className="h-4 w-4" />
+          </Button>
+          <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder={isMobile ? "Search" : "Search members..."}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
       </div>
 

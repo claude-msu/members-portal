@@ -41,7 +41,7 @@ describe('InteractiveLogo', () => {
     if (logoContainer) {
       await user.click(logoContainer);
       await waitFor(() => {
-        expect(mockNavigate).toHaveBeenCalledWith('/auth');
+        expect(mockNavigate).toHaveBeenCalledWith('/auth#login');
       });
     }
   });
