@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { RoleBadge } from '@/contexts/ProfileContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -14,9 +15,9 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Trophy, Mail, GraduationCap, Crown, Users, Award, Eye, Settings, UserMinus, Ban, ArrowBigUpDashIcon } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
+import type { AppRole } from '@/contexts/ProfileContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-type AppRole = Database['public']['Enums']['app_role'];
 
 interface MemberWithRole extends Profile {
     role: AppRole;
@@ -44,19 +45,6 @@ const getInitials = (name: string) => {
         .join('')
         .toUpperCase()
         .slice(0, 2);
-};
-
-const getRoleBadgeVariant = (role: AppRole) => {
-    switch (role) {
-        case 'e-board':
-            return 'default';
-        case 'board':
-            return 'default';
-        case 'member':
-            return 'secondary';
-        default:
-            return 'outline';
-    }
 };
 
 export const PersonCard = ({
@@ -113,18 +101,7 @@ export const PersonCard = ({
 
                     {/* Badge */}
                     {type === 'member' ? (
-                        person.role === 'e-board' ? (
-                            <Badge className="capitalize shrink-0 whitespace-nowrap sparkle gold-shimmer text-yellow-900 font-semibold border-2 border-yellow-400/50 relative">
-                                <span className="sparkle-particle"></span>
-                                <span className="sparkle-particle"></span>
-                                <span className="sparkle-particle"></span>
-                                <span className="relative z-10">{person.role.replace('-', ' ')}</span>
-                            </Badge>
-                        ) : (
-                            <Badge variant={getRoleBadgeVariant(person.role)} className="capitalize shrink-0 whitespace-nowrap">
-                                {person.role.replace('-', ' ')}
-                            </Badge>
-                        )
+                        <RoleBadge role={person.role} className="capitalize shrink-0 whitespace-nowrap" />
                     ) : (
                         <Badge variant="secondary" className="capitalize shrink-0 whitespace-nowrap">
                             {person.term_joined

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile, UserBadge } from '@/contexts/ProfileContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -396,12 +396,6 @@ const Profile = () => {
     }
   };
 
-  const getRoleBadgeVariant = (roleValue: string | null): "default" | "secondary" | "outline" => {
-    if (roleValue === 'e-board' || roleValue === 'board') return 'default';
-    if (roleValue === 'member') return 'secondary';
-    return 'outline';
-  };
-
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -471,23 +465,7 @@ const Profile = () => {
               </div>
               <div className="relative flex justify-center">
                 <div className="bg-card px-4 gap-2 flex flex-row">
-                  {role && (
-                    role === 'e-board' ? (
-                      <Badge className="text-xs capitalize px-4 py-1.5 shrink-0 whitespace-nowrap sparkle gold-shimmer text-yellow-900 font-semibold border-2 border-yellow-400/50 relative">
-                        <span className="sparkle-particle"></span>
-                        <span className="sparkle-particle"></span>
-                        <span className="sparkle-particle"></span>
-                        <span className="relative z-10">{role.replace('-', ' ')}</span>
-                      </Badge>
-                    ) : (
-                      <Badge
-                        variant={getRoleBadgeVariant(role)}
-                        className="text-xs capitalize px-4 py-1.5"
-                      >
-                        {role.replace('-', ' ')}
-                      </Badge>
-                    )
-                  )}
+                  <UserBadge className="text-xs capitalize px-4 py-1.5 shrink-0 whitespace-nowrap" />
                   <Badge variant="secondary" className="px-4 py-1.5 shrink-0 whitespace-nowrap bg-green-700 text-white font-semibold border-1 border-black">
                     {profile.term_joined || (() => {
                       const date = user.created_at ? new Date(user.created_at) : new Date();

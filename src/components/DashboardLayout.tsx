@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile, UserBadge } from '@/contexts/ProfileContext';
 import {
   Sidebar,
   SidebarContent,
@@ -35,7 +35,6 @@ import {
   ChevronUp,
   TabletSmartphone
 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
@@ -44,7 +43,6 @@ import { Database } from '@/integrations/supabase/database.types';
 import { User } from '@supabase/supabase-js';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-type AppRole = Database['public']['Enums']['app_role'];
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -264,9 +262,7 @@ const AppSidebar = ({
                     {profile?.full_name || 'No name'}
                   </p>
                   <div className="flex items-center gap-4 mt-0.5">
-                    {role && (
-                      <RoleBadge role={role} />
-                    )}
+                    <UserBadge className="text-xs capitalize px-2 py-0 shrink-0 whitespace-nowrap" />
                     {profile && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground">
                         <Trophy className="h-3 w-3" />
@@ -304,29 +300,6 @@ const AppSidebar = ({
         </div>
       </SidebarContent>
     </Sidebar>
-  );
-};
-
-// --- Role Badge Component ---
-const RoleBadge = ({ role }: { role: AppRole }) => {
-  if (role === 'e-board') {
-    return (
-      <Badge className="text-xs capitalize px-2 py-0 shrink-0 whitespace-nowrap sparkle gold-shimmer text-yellow-900 font-semibold border-2 border-yellow-400/50 relative">
-        <span className="sparkle-particle"></span>
-        <span className="sparkle-particle"></span>
-        <span className="sparkle-particle"></span>
-        <span className="relative z-10">{role.replace('-', ' ')}</span>
-      </Badge>
-    );
-  }
-
-  return (
-    <Badge
-      variant={getRoleBadgeVariant(role)}
-      className="text-xs capitalize px-2 py-0"
-    >
-      {role.replace('-', ' ')}
-    </Badge>
   );
 };
 

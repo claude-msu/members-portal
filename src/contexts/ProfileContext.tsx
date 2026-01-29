@@ -2,7 +2,10 @@ import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import { Badge } from '@/components/ui/badge';
 import type { Database } from '@/integrations/supabase/database.types';
+
+export type AppRole = Database['public']['Enums']['app_role'];
 
 export type Project = Database['public']['Tables']['projects']['Row'] & {
     semesters: { code: string; name: string; start_date: string; end_date: string } | null;
@@ -16,7 +19,6 @@ export type Class = Database['public']['Tables']['classes']['Row'] & {
 
 type Application = Database['public']['Tables']['applications']['Row'];
 type Event = Database['public']['Tables']['events']['Row'];
-type AppRole = Database['public']['Enums']['app_role'];
 
 interface UserProjects {
     inProgress: Project[];
@@ -645,3 +647,36 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
         </ProfileContext.Provider>
     );
 };
+
+// --- Shared user/role badge (created in profile context, used across the app) ---
+function getRoleBadgeVariant(role: AppRole): 'default' | 'secondary' | 'outline' {
+    if (role === 'e-board' || role === 'board') return 'default';
+    if (role === 'member') return 'secondary';
+    return 'outline';
+}
+
+/** Renders a role badge for any app role (e-board gets gold styling). Use for current user or other members. */
+export function RoleBadge({ role, className }: { role: AppRole; className?: string }) {
+    if (role === 'e-board') {
+        return (
+            <Badge className={`capitalize shrink-0 whitespace-nowrap sparkle gold-shimmer text-yellow-900 font-semibold border-2 border-yellow-400/50 relative ${className ?? ''}`}>
+                <span className="sparkle-particle"></span>
+                <span className="sparkle-particle"></span>
+                <span className="sparkle-particle"></span>
+                <span className="relative z-10">{role.replace('-', ' ')}</span>
+            </Badge>
+        );
+    }
+    return (
+        <Badge variant={getRoleBadgeVariant(role)} className={`capitalize shrink-0 whitespace-nowrap ${className ?? ''}`}>
+            {role.replace('-', ' ')}
+        </Badge>
+    );
+}
+
+/** Current user's role badge from profile context. Use in header/sidebar and profile page. */
+export function UserBadge({ className }: { className?: string }) {
+    const { role } = useProfile();
+    if (!role) return null;
+    return <RoleBadge role={role} className={className} />;
+}

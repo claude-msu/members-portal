@@ -1,4 +1,4 @@
-import { Badge } from '@/components/ui/badge';
+import { RoleBadge } from '@/contexts/ProfileContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,9 +11,9 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
+import type { AppRole } from '@/contexts/ProfileContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
-type AppRole = Database['public']['Enums']['app_role'];
 
 interface MemberWithRole extends Profile {
   role: AppRole;
@@ -35,19 +35,6 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
       .join('')
       .toUpperCase()
       .slice(0, 2);
-  };
-
-  const getRoleBadgeVariant = (role: AppRole) => {
-    switch (role) {
-      case 'e-board':
-        return 'default';
-      case 'board':
-        return 'default';
-      case 'member':
-        return 'secondary';
-      default:
-        return 'outline';
-    }
   };
 
   const getRoleIcon = (role: AppRole) => {
@@ -79,18 +66,7 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
           </h3>
           <div className="flex items-center justify-center gap-2">
             {getRoleIcon(member.role)}
-            {member.role === 'e-board' ? (
-              <Badge className="capitalize sparkle gold-shimmer text-yellow-900 font-semibold border-2 border-yellow-400/50 relative">
-                <span className="sparkle-particle"></span>
-                <span className="sparkle-particle"></span>
-                <span className="sparkle-particle"></span>
-                <span className="relative z-10">{member.role.replace('-', ' ')}</span>
-              </Badge>
-            ) : (
-              <Badge variant={getRoleBadgeVariant(member.role)} className="capitalize">
-                {member.role.replace('-', ' ')}
-              </Badge>
-            )}
+            <RoleBadge role={member.role} className="capitalize" />
           </div>
         </div>
       </div>
