@@ -142,8 +142,8 @@ const Auth = () => {
         const redirectPath = storedRedirect || '/dashboard';
         const emailRedirectTo =
           storedRedirect
-            ? `${window.location.origin}/dashboard?redirect=${encodeURIComponent(redirectPath)}`
-            : `${window.location.origin}/dashboard`;
+            ? `https://claudemsu.dev/dashboard?redirect=${encodeURIComponent(redirectPath)}`
+            : `https://claudemsu.dev/dashboard`;
 
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
