@@ -261,9 +261,9 @@ const Members = () => {
             <PersonCard
               person={member}
               onViewProfile={handleViewProfile}
-              onRoleChange={canManageRoles ? handleRoleChange : undefined}
-              onKick={canManageActions ? handleKickMember : undefined}
-              onBan={canManageActions ? handleBanMember : undefined}
+              onRoleChange={handleRoleChange}
+              onKick={handleKickMember}
+              onBan={handleBanMember}
               canManage={canManageActions}
               canChangeRoles={canManageRoles}
               isMobile={isMobile}

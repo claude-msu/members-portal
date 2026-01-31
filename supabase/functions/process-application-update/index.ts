@@ -1,6 +1,8 @@
 // supabase/functions/process-application-update/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
+import Resend from 'npm:resend'
+
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
@@ -33,23 +35,17 @@ async function sendDecisionEmail(
     const subject = getEmailSubject(applicationType, boardPosition)
     const html = getEmailHtml(fullName, applicationType, boardPosition, status, hasSlackAccount)
 
-    const response = await fetch('https://api.resend.com/emails', {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${RESEND_API_KEY}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+    const resend = new Resend(RESEND_API_KEY)
+
+    try {
+        await resend.emails.send({
             from: 'Claude Builder Club <noreply@claudemsu.dev>',
             to: email,
             subject: subject,
             html: html
         })
-    })
-
-    if (!response.ok) {
-        const errorData = await response.text()
-        console.warn(`⚠️ Email sending failed for ${email}:`, errorData)
+    } catch (error) {
+        console.warn(`Email sending failed for ${email}:`, error)
     }
 }
 
