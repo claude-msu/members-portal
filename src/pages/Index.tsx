@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import InteractiveLogo from "@/components/InteractiveLogo";
 
@@ -413,6 +414,7 @@ const Index = () => {
         </footer>
       </div>
       <Analytics />
+      <SpeedInsights />
     </div>
   );
 };
