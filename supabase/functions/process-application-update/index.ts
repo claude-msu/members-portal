@@ -126,7 +126,7 @@ function getEmailHtml(
         ${slackButton}
 
         <div style="text-align: center; margin-top: 15px;">
-          <a href="https://members.claudemsu.dev/dashboard"
+          <a href="https://claudemsu.dev/dashboard"
              style="display: inline-block; background: rgb(223, 115, 83); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
             Go to Dashboard
           </a>
@@ -142,17 +142,16 @@ function getEmailHtml(
           </ul>
         </div>
         <div style="text-align: center; margin-top: 30px;">
-          <a href="https://members.claudemsu.dev/applications"
+          <a href="https://claudemsu.dev/dashboard/applications"
              style="display: inline-block; background: rgb(223, 115, 83); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
             View Applications
           </a>
         </div>`
         }
 
-    <p style="margin-top: 30px; font-size: 14px; color: #666; border-top: 1px solid #e0e0e0; padding-top: 20px;">
-      Questions? Reply to this email or reach out on Slack!<br>
-      <strong>Claude Builder Club @ MSU</strong>
-    </p>
+        <p style="margin-top: 30px; font-size: 14px; color: #666; border-top: 1px solid #e0e0e0; padding-top: 20px;">
+            <strong>Claude Builder Club @ MSU</strong>
+        </p>
   </div>
 </body>
 </html>
