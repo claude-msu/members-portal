@@ -133,6 +133,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           position: null,
           term_joined: null,
           theme: 'light',
+          slack_user_id: ''
         };
 
         setProfile(fallbackProfile);

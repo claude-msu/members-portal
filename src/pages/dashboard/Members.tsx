@@ -239,9 +239,11 @@ const Members = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button size="icon" onClick={copyEmailsCsv} title="Copy filtered emails as CSV">
-            <Mail className="h-4 w-4" />
-          </Button>
+          {canManageActions && (
+            <Button size="icon" onClick={copyEmailsCsv} title="Copy filtered emails as CSV">
+              <Mail className="h-4 w-4" />
+            </Button>
+          )}
           <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
