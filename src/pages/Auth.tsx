@@ -49,10 +49,10 @@ const Auth = () => {
   }, [user, authLoading, navigate]);
 
   const validateEmail = (email: string) => {
-    if (!email.endsWith('@msu.edu')) {
+    if (!email.endsWith('.edu')) {
       toast({
         title: 'Invalid Email',
-        description: 'Please use your @msu.edu email address.',
+        description: 'Please use your .edu email address.',
         variant: 'destructive',
       });
       return false;
@@ -217,12 +217,13 @@ const Auth = () => {
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Tom Izzo"
                 />
               </div>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email" required>Email (@msu.edu)</Label>
+              <Label htmlFor="email" required>University Email</Label>
               <Input
                 id="email"
                 type="email"
@@ -231,7 +232,7 @@ const Auth = () => {
                   setEmail(e.target.value);
                   setBanError(null); // Clear ban error when user types
                 }}
-                placeholder="your.name@msu.edu"
+                placeholder="tom@msu.edu"
               />
             </div>
 
@@ -246,6 +247,7 @@ const Auth = () => {
                   setBanError(null); // Clear ban error when user types
                 }}
                 minLength={6}
+                placeholder="Enter your password"
               />
             </div>
 

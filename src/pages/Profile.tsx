@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Trophy, Mail, Award, Linkedin, Github, FileText, Camera, RotateCw, ExternalLink, Trash2 } from 'lucide-react';
@@ -528,6 +528,7 @@ const Profile = () => {
                         <SelectItem value="sophomore">Sophomore</SelectItem>
                         <SelectItem value="junior">Junior</SelectItem>
                         <SelectItem value="senior">Senior</SelectItem>
+                        <SelectItem value="graduate">Graduate</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -695,14 +696,29 @@ const Profile = () => {
               </div>
             </div>
           </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowCropModal(false)} disabled={loading}>
+          <div
+            className={`gap-2 pt-4 w-full flex flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60
+              ${isMobile ? 'flex-col' : 'flex-row'}
+            `}
+          >
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowCropModal(false)}
+              disabled={loading}
+              className="w-full"
+            >
               Cancel
             </Button>
-            <Button onClick={handleSaveCroppedImage} disabled={loading}>
+            <Button
+              type="button"
+              onClick={handleSaveCroppedImage}
+              disabled={loading}
+              className="w-full"
+            >
               {loading ? 'Saving...' : 'Save Picture'}
             </Button>
-          </DialogFooter>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
