@@ -64,7 +64,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Check if new user needs to complete profile
-  if (!profile.updated_at && window.location.pathname !== "/profile") {
+  if (!profile?.updated_at && window.location.pathname !== "/profile") {
     // Preserve the original redirect URL if it exists, so we can redirect back after profile completion
     const existingRedirect = sessionStorage.getItem('redirectAfterLogin');
     if (!existingRedirect) {
@@ -74,7 +74,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   // Successfully reached protected route - clear redirect URL if we're on the intended destination
-  // Use a more flexible comparison to handle potential pathname differences
   const storedRedirect = sessionStorage.getItem('redirectAfterLogin');
   if (storedRedirect) {
     const currentPath = window.location.pathname + window.location.search;
