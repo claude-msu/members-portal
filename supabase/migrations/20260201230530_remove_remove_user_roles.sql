@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS trigger_remove_banned_user_roles ON profiles;
