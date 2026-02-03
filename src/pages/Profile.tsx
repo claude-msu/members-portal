@@ -380,9 +380,9 @@ const Profile = () => {
       setResumeFile(null);
 
       // Check if there's a redirect URL stored (e.g., from check-in flow)
+      // ProtectedRoute will handle the redirect after profile is complete
       const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
       if (redirectUrl) {
-        sessionStorage.removeItem('redirectAfterLogin');
         navigate(redirectUrl, { replace: true });
       }
     } catch (error) {

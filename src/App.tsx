@@ -35,6 +35,9 @@ const PostAuthRedirectHandler = () => {
     // Only allow relative paths to avoid open redirect
     const path = redirect.startsWith("/") ? redirect : `/${redirect}`;
     if (!path.startsWith("/")) return;
+
+    // Store as redirect so ProtectedRoute can handle profile completion flow
+    sessionStorage.setItem('redirectAfterLogin', path);
     navigate(path, { replace: true });
   }, [loading, user, redirect, navigate]);
 
@@ -46,6 +49,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { user, loading: authLoading, profile } = useAuth();
   const { loading: profileLoading } = useProfile();
 
+  // Show loading spinner while auth is initializing
   if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -57,32 +61,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     );
   }
 
-  // After loading is complete, check if user is authenticated
+  // User not logged in - save current URL and redirect to auth
   if (!user) {
-    sessionStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search);
+    const currentPath = window.location.pathname + window.location.search;
+    sessionStorage.setItem('redirectAfterLogin', currentPath);
     return <Navigate to="/auth#login" replace />;
   }
 
-  // Check if new user needs to complete profile
-  if (!profile?.updated_at && window.location.pathname !== "/profile") {
-    // Preserve the original redirect URL if it exists, so we can redirect back after profile completion
+  // Check if user is truly new (profile never manually updated after initial creation)
+  // We check if updated_at equals created_at, which means they never saved their profile
+  const isNewUser = profile?.created_at && profile?.updated_at &&
+                    profile.created_at === profile.updated_at;
+  const isOnProfilePage = window.location.pathname === '/profile';
+
+  if (isNewUser && !isOnProfilePage) {
+    // Save where they were trying to go
+    const currentPath = window.location.pathname + window.location.search;
     const existingRedirect = sessionStorage.getItem('redirectAfterLogin');
+
+    // Only save if not already stored (to preserve original destination)
     if (!existingRedirect) {
-      sessionStorage.setItem('redirectAfterLogin', window.location.pathname + window.location.search);
+      sessionStorage.setItem('redirectAfterLogin', currentPath);
     }
+
     return <Navigate to="/profile" replace />;
   }
 
-  // Successfully reached protected route - clear redirect URL if we're on the intended destination
+  // Successfully on protected route - clear redirect if we've reached the destination
   const storedRedirect = sessionStorage.getItem('redirectAfterLogin');
   if (storedRedirect) {
     const currentPath = window.location.pathname + window.location.search;
-    // Check if current path matches stored redirect (exact match or pathname matches)
-    if (currentPath === storedRedirect || window.location.pathname === storedRedirect.split('?')[0]) {
+
+    // Clear redirect if we've reached the intended destination
+    if (currentPath === storedRedirect ||
+        window.location.pathname === new URL(storedRedirect, window.location.origin).pathname) {
       sessionStorage.removeItem('redirectAfterLogin');
     }
   }
 
+  // Render children if all checks pass
   return <>{children}</>;
 };
 

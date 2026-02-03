@@ -87,7 +87,7 @@ const Index = () => {
                 variants={fadeInUp}
                 className={isMobile ? "space-y-6" : "space-y-10"}
               >
-                <h1 className={`${isMobile ? 'text-4xl' : 'text-6xl md:text-8xl'} font-black bg-gradient-to-r from-primary via-primary/90 to-primary bg-clip-text text-transparent leading-tight`}>
+                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black bg-gradient-to-r from-primary via-primary/90 to-primary bg-clip-text text-transparent leading-tight`}>
                   Claude Builder Club
                 </h1>
                 <div className="flex items-center justify-center gap-3">

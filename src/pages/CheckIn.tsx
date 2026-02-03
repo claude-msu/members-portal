@@ -51,10 +51,8 @@ const Checkin = () => {
                     setResult(resultData);
                 }
 
-                // Clear redirect URL and refresh profile (to update points) after check-in (success or penalty)
+                // Refresh profile to get updated points after check-in (success or penalty)
                 if (resultData?.points_awarded !== undefined) {
-                    sessionStorage.removeItem('redirectAfterLogin');
-                    // Refresh profile to get updated points
                     await refreshProfile();
                 }
             } catch (error) {
