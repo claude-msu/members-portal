@@ -13,7 +13,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Calendar } from '@/components/ui/calendar';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useModalState } from '@/hooks/use-modal';
+import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
 import {
   Popover,
   PopoverContent,
@@ -81,7 +81,7 @@ const Events = () => {
   const [recurrenceOccurrences, setRecurrenceOccurrences] = useState(5);
   const [recurrenceEndCalendarOpen, setRecurrenceEndCalendarOpen] = useState(false);
 
-  const modalState = useModalState<Event>();
+  const modalState = useDeepLinkModal<Event>(isBoardOrAbove);
 
   // Query for attendance data for current user
   const { data: userAttendanceData } = useQuery({
@@ -155,6 +155,47 @@ const Events = () => {
   });
 
   // Events are now loaded via ProfileContext
+
+  // Restore selected item from URL parameter
+  useEffect(() => {
+    if (modalState.id && !modalState.selectedItem && events.length > 0) {
+      const item = events.find(e => e.id === modalState.id);
+      if (item) {
+        modalState.setSelectedItem(item);
+      } else if (isBoardOrAbove) {
+        // For board users, fetch the event separately if not in visible list
+        const fetchEventById = async (id: string) => {
+          const { data: eventData, error: eventError } = await supabase
+            .from('events')
+            .select('*')
+            .eq('id', id)
+            .single();
+
+          if (eventError || !eventData) {
+            toast({
+              title: 'Event Not Found',
+              description: 'The requested event could not be found.',
+              variant: 'destructive',
+            });
+            modalState.close();
+            return;
+          }
+
+          modalState.setSelectedItem(eventData);
+        };
+
+        fetchEventById(modalState.id);
+      } else {
+        // Regular members can't access events not in their list
+        toast({
+          title: 'Access Denied',
+          description: 'You do not have access to this event.',
+          variant: 'destructive',
+        });
+        modalState.close();
+      }
+    }
+  }, [modalState.id, events, isBoardOrAbove, modalState.selectedItem]);
 
   // Load form data when editing
   useEffect(() => {
@@ -687,7 +728,7 @@ const Events = () => {
     if (isBoardOrAbove) {
       actions.push({
         label: isMobile ? 'Edit' : 'Edit Details',
-        onClick: () => modalState.openEdit(event),
+        onClick: () => modalState.open(event, event.id),
         icon: <Edit className="h-4 w-4 mr-2" />,
         variant: 'outline' as const,
       });
@@ -704,7 +745,7 @@ const Events = () => {
     if (!isBoardOrAbove) {
       actions.push({
         label: isMobile ? 'Details' : 'View Details',
-        onClick: () => modalState.openDetails(event),
+        onClick: () => modalState.open(event, event.id),
         icon: <Eye className="h-4 w-4 mr-2" />,
         variant: 'default' as const,
       });

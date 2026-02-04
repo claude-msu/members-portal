@@ -516,6 +516,7 @@ export type Database = {
       ban_user_by_id: { Args: { target_user_id: string }; Returns: Json }
       checkin_user_for_event: { Args: { p_token: string }; Returns: Json }
       delete_user_by_id: { Args: { target_user_id: string }; Returns: Json }
+      delete_own_account: { Args: Record<string, never>; Returns: Json }
     }
     Enums: {
       app_role: "prospect" | "member" | "board" | "e-board"

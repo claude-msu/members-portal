@@ -32,13 +32,29 @@ const Auth = () => {
   // Check for password reset token on mount
   useEffect(() => {
     const checkForResetToken = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const hash = window.location.hash;
+
+      if (!hash) return;
+
+      const hashParams = new URLSearchParams(hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const type = hashParams.get('type');
 
+      console.log('Auth page loaded with hash params:', {
+        hasAccessToken: !!accessToken,
+        type,
+        fullHash: hash.substring(0, 50) + '...' // Log first 50 chars for debugging
+      });
+
       if (accessToken && type === 'recovery') {
+        console.log('Password recovery flow detected');
         setIsResettingPassword(true);
-        setIsLogin(true); // Ensure we're in login mode
+        setIsLogin(true);
+        setShowForgotPassword(false);
+      } else if (type === 'signup' || hash.includes('confirmation')) {
+        console.log('Email confirmation flow detected');
+        // Let Supabase handle the email confirmation
+        // The user will be automatically logged in if successful
       }
     };
 
@@ -103,15 +119,18 @@ const Auth = () => {
 
     setLoading(true);
     try {
+      // Use the auth page URL - Supabase will append the recovery hash
+      const resetUrl = `${window.location.origin}/auth`;
+
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth`,
+        redirectTo: resetUrl,
       });
 
       if (error) throw error;
 
       toast({
         title: 'Password Reset Email Sent',
-        description: 'Check your email for a link to reset your password.',
+        description: 'Check your email for a link to reset your password. The link expires in 1 hour.',
       });
       setShowForgotPassword(false);
     } catch (error) {

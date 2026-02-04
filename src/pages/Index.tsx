@@ -398,18 +398,27 @@ const Index = () => {
               <img src="/claude-logo-transparent.png" alt="Claude Logo" className="h-8 w-8" />
               <span className="text-lg text-black font-bold">Claude Builder Club @ MSU</span>
             </div>
-            <p className="text-sm text-muted-foreground">
-              © 2025 Claude Builder Club. Spreading the joy of CS, one project at a time.
+            <div className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground mb-2">
+              <span>
+                Claude Builder Club. Spreading the joy of CS, one project at a time.
+              </span>
+              <span className="mx-2">|</span>
+              <a
+                href="mailto:RSO.claudemsu@msu.edu"
+                className="underline text-primary hover:text-primary/70 transition-colors font-medium"
+              >
+                Email us
+              </a>
               <span className="mx-2">|</span>
               <a
                 href="https://github.com/claude-msu/members-portal/issues/new/choose"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="underline text-primary hover:text-primary/70 transition-colors"
+                className="underline text-primary hover:text-primary/70 transition-colors font-medium"
               >
                 Report an Issue
               </a>
-            </p>
+            </div>
           </div>
         </footer>
       </div>

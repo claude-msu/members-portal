@@ -11,7 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useModalState, useItemStatus, useFilteredItems } from '@/hooks/use-modal';
+import { useItemStatus, useFilteredItems } from '@/hooks/use-modal';
+import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
 import {
   Popover,
   PopoverContent,
@@ -57,7 +58,7 @@ const Classes = () => {
   const [teacherSearchOpen, setTeacherSearchOpen] = useState(false);
   const [availableTeachers, setAvailableTeachers] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
 
-  const modalState = useModalState<ClassWithMembers>();
+  const modalState = useDeepLinkModal<ClassWithMembers>(isBoardOrAbove);
 
   // Query for admin users to fetch all classes with enrollment data
   const { data: allClassesWithMembers, isLoading: allClassesLoading } = useQuery({
@@ -281,6 +282,88 @@ const Classes = () => {
     }
   );
 
+  // Restore selected item from URL parameter
+  useEffect(() => {
+    if (modalState.id && !modalState.selectedItem && classesData.length > 0) {
+      const item = classesData.find(c => c.id === modalState.id);
+      if (item) {
+        modalState.setSelectedItem(item);
+      } else if (isBoardOrAbove) {
+        // For board users, fetch the class separately if not in visible list
+        const fetchClassById = async (id: string) => {
+          const { data: classData, error: classError } = await supabase
+            .from('classes')
+            .select(`
+              *,
+              semesters (
+                code,
+                name,
+                start_date,
+                end_date
+              )
+            `)
+            .eq('id', id)
+            .single();
+
+          if (classError || !classData) {
+            toast({
+              title: 'Class Not Found',
+              description: 'The requested class could not be found.',
+              variant: 'destructive',
+            });
+            modalState.close();
+            return;
+          }
+
+          // Fetch enrollments for this class
+          const { data: enrollmentsData } = await supabase
+            .from('class_enrollments')
+            .select('*')
+            .eq('class_id', id);
+
+          const enrolledUserIds = [...new Set(enrollmentsData?.map(e => e.user_id) || [])];
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', enrolledUserIds);
+
+          const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+          const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
+
+          const members: MembershipInfo[] = (enrollmentsData || [])
+            .map(enrollment => ({
+              id: enrollment.id,
+              user_id: enrollment.user_id,
+              role: enrollment.role,
+              profile: profilesMap.get(enrollment.user_id)!,
+            }))
+            .filter(m => m.profile);
+
+          const userMembership = members.find(m => m.user_id === user!.id);
+
+          const classWithMembers: ClassWithMembers = {
+            ...classData as Class,
+            members,
+            memberCount: members.length,
+            userMembership,
+          };
+
+          modalState.setSelectedItem(classWithMembers);
+        };
+
+        fetchClassById(modalState.id);
+      } else {
+        // Regular members can't access classes not in their list
+        toast({
+          title: 'Access Denied',
+          description: 'You do not have access to this class.',
+          variant: 'destructive',
+        });
+        modalState.close();
+      }
+    }
+  }, [modalState.id, classesData, isBoardOrAbove, modalState.selectedItem]);
+
   const handleSubmit = async () => {
     if (!user) return;
 
@@ -455,14 +538,14 @@ const Classes = () => {
     if (isBoardOrAbove) {
       actions.push({
         label: 'Edit Details',
-        onClick: () => modalState.openEdit(cls),
+        onClick: () => modalState.open(cls, cls.id),
         icon: <Edit className="h-4 w-4 mr-2" />,
         variant: 'outline' as const,
       });
     } else {
       actions.push({
         label: 'View Details',
-        onClick: () => modalState.openDetails(cls),
+        onClick: () => modalState.open(cls, cls.id),
         icon: <Eye className="h-4 w-4 mr-2" />,
         variant: 'default' as const,
       });

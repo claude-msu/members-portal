@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -25,6 +26,7 @@ const Prospects = () => {
   const { role: userRole } = useProfile();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [prospects, setProspects] = useState<ProspectWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedProspect, setSelectedProspect] = useState<ProspectWithRole | null>(null);
@@ -32,9 +34,30 @@ const Prospects = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
 
+  const prospectId = searchParams.get('id');
+
   useEffect(() => {
     fetchProspects();
   }, []);
+
+  // Restore selected prospect from URL parameter
+  useEffect(() => {
+    if (prospectId && !selectedProspect && prospects.length > 0) {
+      const prospect = prospects.find(p => p.id === prospectId);
+      if (prospect) {
+        setSelectedProspect(prospect);
+        setIsProfileModalOpen(true);
+      } else {
+        // Prospect not found or user doesn't have access
+        toast({
+          title: 'Prospect Not Found',
+          description: 'The requested prospect could not be found.',
+          variant: 'destructive',
+        });
+        setSearchParams({});
+      }
+    }
+  }, [prospectId, prospects, selectedProspect]);
 
   const fetchProspects = async () => {
     const { data: profilesData, error: profilesError } = await supabase
@@ -192,6 +215,7 @@ const Prospects = () => {
   const handleViewProfile = (prospect: ProspectWithRole) => {
     setSelectedProspect(prospect);
     setIsProfileModalOpen(true);
+    setSearchParams({ id: prospect.id });
   };
 
   const copyEmailsCsv = () => {
@@ -304,6 +328,7 @@ const Prospects = () => {
         onClose={() => {
           setIsProfileModalOpen(false);
           setSelectedProspect(null);
+          setSearchParams({});
         }}
         member={selectedProspect}
       />

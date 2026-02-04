@@ -10,6 +10,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Trophy, Mail, Award, Linkedin, Github, FileText, Camera, RotateCw, ExternalLink, Trash2 } from 'lucide-react';
@@ -26,7 +37,7 @@ import type { Database } from '@/integrations/supabase/database.types';
 
 const Profile = () => {
   // Get data from contexts
-  const { user, profile, refreshProfile, loading: authLoading } = useAuth();
+  const { user, profile, refreshProfile, signOut, loading: authLoading } = useAuth();
   const { isBoardOrAbove } = useProfile();
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -48,6 +59,7 @@ const Profile = () => {
   const [rotation, setRotation] = useState(0);
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [showCropModal, setShowCropModal] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Populate form when profile loads
@@ -396,6 +408,60 @@ const Profile = () => {
     }
   };
 
+  const handleDeleteProfile = async () => {
+    if (!user) return;
+
+    setIsDeleting(true);
+
+    try {
+      // Step 1: Delete all files from storage
+      const sanitizedName = (profile?.full_name || fullName)
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+      const folderPath = `${sanitizedName}_${user.id}`;
+
+      // List and delete all files in user's folder
+      const { data: files } = await supabase.storage
+        .from('profiles')
+        .list(folderPath);
+
+      if (files && files.length > 0) {
+        const filePaths = files.map(file => `${folderPath}/${file.name}`);
+        await supabase.storage
+          .from('profiles')
+          .remove(filePaths);
+      }
+
+      // Step 2: Call the database function to delete the user account
+      // This will cascade delete the profile and all related data
+      const { data, error: rpcError } = await supabase.rpc('delete_own_account');
+
+      if (rpcError) {
+        console.error('RPC error:', rpcError);
+        throw new Error('Failed to delete account. Please contact support.');
+      }
+
+      toast({
+        title: 'Account Deleted',
+        description: 'Your account has been permanently deleted.',
+      });
+
+      // Step 3: Sign out and redirect
+      await signOut();
+      navigate('/auth#signup', { replace: true });
+    } catch (error) {
+      console.error('Delete profile error:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete account. Please contact support.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -423,7 +489,7 @@ const Profile = () => {
 
   return (
     <div className="p-6 w-full h-full overflow-y-auto">
-      <div className={`grid gap-6 ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-3'} h-full lg:justify-start justify-center items-center`}>
+      <div className="grid gap-x-6 gap-y-6 lg:gap-y-2 grid-cols-1 lg:grid-cols-3 justify-center items-center lg:h-full lg:grid-rows-[1fr_auto]">
         {/* Left Column - Profile Overview */}
         <div className="lg:col-span-1">
           <Card className="flex flex-col">
@@ -644,6 +710,48 @@ const Profile = () => {
               </form>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Delete Profile Link - Spans all columns */}
+        <div className="flex items-center justify-center lg:col-span-3 py-2">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button
+                disabled={isDeleting}
+                className="text-sm text-muted-foreground/60 hover:text-destructive transition-colors"
+              >
+                {isDeleting ? 'Deleting your profile...' : 'Delete your profile'}
+              </button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                <AlertDialogDescription className="space-y-2">
+                  <p>
+                    This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
+                  </p>
+                  <p className="font-semibold text-destructive">
+                    You will lose:
+                  </p>
+                  <ul className="list-disc list-inside text-sm space-y-1 ml-2">
+                    <li>All your points ({profile?.points || 0} points)</li>
+                    <li>Your profile information and settings</li>
+                    <li>Uploaded files (resume, profile picture)</li>
+                    <li>Access to the members portal</li>
+                  </ul>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDeleteProfile}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
+                  Yes, delete my account
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       </div>
 

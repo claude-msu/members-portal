@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,6 +27,7 @@ const Members = () => {
   const { role: userRole } = useProfile();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [members, setMembers] = useState<MemberWithRole[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<MemberWithRole | null>(null);
@@ -34,9 +36,30 @@ const Members = () => {
   const isMobile = useIsMobile();
   const [isJotFormOpen, setIsJotFormOpen] = useState(false);
 
+  const memberId = searchParams.get('id');
+
   useEffect(() => {
     fetchMembers();
   }, []);
+
+  // Restore selected member from URL parameter
+  useEffect(() => {
+    if (memberId && !selectedMember && members.length > 0) {
+      const member = members.find(m => m.id === memberId);
+      if (member) {
+        setSelectedMember(member);
+        setIsProfileModalOpen(true);
+      } else {
+        // Member not found or user doesn't have access
+        toast({
+          title: 'Member Not Found',
+          description: 'The requested member could not be found.',
+          variant: 'destructive',
+        });
+        setSearchParams({});
+      }
+    }
+  }, [memberId, members, selectedMember]);
 
   const fetchMembers = async () => {
     const { data: profilesData, error: profilesError } = await supabase
@@ -149,6 +172,7 @@ const Members = () => {
   const handleViewProfile = (member: MemberWithRole) => {
     setSelectedMember(member);
     setIsProfileModalOpen(true);
+    setSearchParams({ id: member.id });
   };
 
   const copyEmailsCsv = () => {
@@ -306,6 +330,7 @@ const Members = () => {
         onClose={() => {
           setIsProfileModalOpen(false);
           setSelectedMember(null);
+          setSearchParams({});
         }}
         member={selectedMember}
       />

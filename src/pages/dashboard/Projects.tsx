@@ -12,7 +12,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useModalState, useItemStatus, useFilteredItems } from '@/hooks/use-modal';
+import { useItemStatus, useFilteredItems } from '@/hooks/use-modal';
+import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
 import {
   Popover,
   PopoverContent,
@@ -59,7 +60,7 @@ const Projects = () => {
   const [leadSearchOpen, setLeadSearchOpen] = useState(false);
   const [availableLeads, setAvailableLeads] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
 
-  const modalState = useModalState<ProjectWithMembers>();
+  const modalState = useDeepLinkModal<ProjectWithMembers>(isBoardOrAbove);
 
   // Query for admin users to fetch all projects with member data
   const { data: allProjectsWithMembers, isLoading: allProjectsLoading } = useQuery({
@@ -287,6 +288,88 @@ const Projects = () => {
     }
   );
 
+  // Restore selected item from URL parameter
+  useEffect(() => {
+    if (modalState.id && !modalState.selectedItem && projectsData.length > 0) {
+      const item = projectsData.find(p => p.id === modalState.id);
+      if (item) {
+        modalState.setSelectedItem(item);
+      } else if (isBoardOrAbove) {
+        // For board users, fetch the project separately if not in visible list
+        const fetchProjectById = async (id: string) => {
+          const { data: projectData, error: projectError } = await supabase
+            .from('projects')
+            .select(`
+              *,
+              semesters (
+                code,
+                name,
+                start_date,
+                end_date
+              )
+            `)
+            .eq('id', id)
+            .single();
+
+          if (projectError || !projectData) {
+            toast({
+              title: 'Project Not Found',
+              description: 'The requested project could not be found.',
+              variant: 'destructive',
+            });
+            modalState.close();
+            return;
+          }
+
+          // Fetch members for this project
+          const { data: membersData } = await supabase
+            .from('project_members')
+            .select('*')
+            .eq('project_id', id);
+
+          const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('*')
+            .in('id', memberUserIds);
+
+          const activeProfilesData = profilesData?.filter(p => !p.is_banned) || [];
+          const profilesMap = new Map(activeProfilesData.map(p => [p.id, p]));
+
+          const members: MembershipInfo[] = (membersData || [])
+            .map(membership => ({
+              id: membership.id,
+              user_id: membership.user_id,
+              role: membership.role,
+              profile: profilesMap.get(membership.user_id)!,
+            }))
+            .filter(m => m.profile);
+
+          const userMembership = members.find(m => m.user_id === user!.id);
+
+          const projectWithMembers: ProjectWithMembers = {
+            ...projectData as Project,
+            members,
+            memberCount: members.length,
+            userMembership,
+          };
+
+          modalState.setSelectedItem(projectWithMembers);
+        };
+
+        fetchProjectById(modalState.id);
+      } else {
+        // Regular members can't access projects not in their list
+        toast({
+          title: 'Access Denied',
+          description: 'You do not have access to this project.',
+          variant: 'destructive',
+        });
+        modalState.close();
+      }
+    }
+  }, [modalState.id, projectsData, isBoardOrAbove, modalState.selectedItem]);
+
   const handleSubmit = async () => {
     if (!user) return;
 
@@ -475,7 +558,7 @@ const Projects = () => {
     if (isBoardOrAbove) {
       actions.push({
         label: 'Edit Details',
-        onClick: () => modalState.openEdit(project),
+        onClick: () => modalState.open(project, project.id),
         icon: <Edit className="h-4 w-4 mr-2" />,
         variant: 'outline',
       });
@@ -494,7 +577,7 @@ const Projects = () => {
     if (!isBoardOrAbove) {
       actions.push({
         label: 'View Details',
-        onClick: () => modalState.openDetails(project),
+        onClick: () => modalState.open(project, project.id),
         icon: <Eye className="h-4 w-4 mr-2" />,
         variant: 'default',
       });

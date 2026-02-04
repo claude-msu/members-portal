@@ -113,7 +113,7 @@ double_confirm_changes = true
 
 # Require email confirmation before signing in
 # Set to true to require users to verify their email before they can sign in
-enable_confirmations = false
+enable_confirmations = true
 
 # Require reauthentication for password changes
 secure_password_change = false

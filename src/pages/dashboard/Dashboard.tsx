@@ -409,7 +409,7 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3">
               {allEvents.map((event) => (
-                <Card key={event.id} className="w-full border bg-card hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => navigate('/dashboard/events')}>
+                <Card key={event.id} className="w-full border bg-card hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => navigate(`/dashboard/events?id=${event.id}`)}>
                   <CardHeader className="p-3 pb-0">
                     <div className="flex items-center justify-between gap-2">
                       <CardTitle className="text-lg font-semibold truncate">{event.name}</CardTitle>
@@ -503,7 +503,7 @@ export default function Dashboard() {
                 return (
                   <Card key={item.id} className="w-full border bg-card hover:bg-primary/5 transition-colors cursor-pointer" onClick={(e) => {
                     if ((e.target as HTMLElement).closest('button')) return;
-                    navigate(link);
+                    navigate(`${link}?id=${item.id}`);
                   }}>
                     <CardHeader className={`${isMobile ? "p-5" : "xl:p-5 lg:p-3 md:p-4"} !pb-0`}>
                       <div className="flex items-center justify-between w-full">
