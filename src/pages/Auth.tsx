@@ -27,6 +27,10 @@ const Auth = () => {
   const [resetCode, setResetCode] = useState('');
   const [showCodeInput, setShowCodeInput] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
+  const [showSignupVerification, setShowSignupVerification] = useState(false);
+  const [signupEmail, setSignupEmail] = useState('');
+  const [signupPassword, setSignupPassword] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
@@ -185,8 +189,82 @@ const Auth = () => {
     }
   };
 
+  const handleVerifySignup = async () => {
+    if (!verificationCode.trim()) {
+      toast({
+        title: 'Code Required',
+        description: 'Please enter the verification code from your email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (verificationCode.length < 6) {
+      toast({
+        title: 'Invalid Code',
+        description: 'Please enter the complete verification code.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Verify the signup OTP
+      const { error } = await supabase.auth.verifyOtp({
+        email: signupEmail,
+        token: verificationCode,
+        type: 'signup',
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Email Verified!',
+        description: 'Your account has been verified. Logging you in...',
+      });
+
+      // Log the user in with their credentials
+      await signIn(signupEmail, signupPassword);
+
+      // Clear verification state
+      setShowSignupVerification(false);
+      setVerificationCode('');
+      setSignupEmail('');
+      setSignupPassword('');
+
+      // Navigation will be handled by the useEffect that watches for user state
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+      if (errorMessage.includes('expired') || errorMessage.includes('Token has expired')) {
+        toast({
+          title: 'Code Expired',
+          description: 'The verification code has expired. Please request a new one.',
+          variant: 'destructive',
+        });
+      } else if (errorMessage.includes('invalid') || errorMessage.includes('not found')) {
+        toast({
+          title: 'Invalid Code',
+          description: 'The verification code is incorrect. Please check and try again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleResendVerification = async () => {
-    if (!email.trim()) {
+    const emailToUse = signupEmail || email;
+
+    if (!emailToUse.trim()) {
       toast({
         title: 'Email Required',
         description: 'Please enter your email address.',
@@ -195,27 +273,19 @@ const Auth = () => {
       return;
     }
 
-    if (!validateEmail(email)) {
-      return;
-    }
-
     setLoading(true);
     try {
       const { error } = await supabase.auth.resend({
         type: 'signup',
-        email: email,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-        },
+        email: emailToUse,
       });
 
       if (error) throw error;
 
       toast({
-        title: 'Verification Email Sent',
-        description: 'Please check your email and click the verification link.',
+        title: 'Verification Code Sent',
+        description: 'A new verification code has been sent to your email.',
       });
-      setShowResendVerification(false);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       toast({
@@ -436,19 +506,11 @@ const Auth = () => {
           return;
         }
 
-        // Sign up: include stored redirect in confirmation link so members can claim points after verifying
-        const storedRedirect = sessionStorage.getItem('redirectAfterLogin');
-        const redirectPath = storedRedirect || '/dashboard';
-        const emailRedirectTo =
-          storedRedirect
-            ? `https://claudemsu.dev/dashboard?redirect=${encodeURIComponent(redirectPath)}`
-            : `https://claudemsu.dev/dashboard`;
-
+        // Sign up with OTP verification
         const { data: authData, error: signUpError } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            emailRedirectTo,
             data: {
               full_name: fullName,
             },
@@ -461,11 +523,17 @@ const Auth = () => {
           throw new Error('User creation failed');
         }
 
+        // Store credentials for after verification
+        setSignupEmail(email);
+        setSignupPassword(password);
+
+        // Show verification code input
+        setShowSignupVerification(true);
+
         toast({
-          title: 'Success',
-          description: 'Account created! Please check your email to verify.',
+          title: 'Verification Code Sent',
+          description: 'Check your email for a verification code to complete signup.',
         });
-        setIsLogin(true);
       }
     } catch (error: unknown) {
       // Handle specific errors
@@ -512,16 +580,26 @@ const Auth = () => {
       <Card className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'}`}>
         <CardHeader className={isMobile ? 'pb-4' : ''}>
           <CardTitle className={isMobile ? 'text-xl' : ''}>
-            {showCodeInput ? 'Verify Code' : isResettingPassword ? 'Reset Password' : isLogin ? 'Login' : 'Sign Up'}
+            {showSignupVerification
+              ? 'Verify Your Email'
+              : showCodeInput
+                ? 'Verify Code'
+                : isResettingPassword
+                  ? 'Reset Password'
+                  : isLogin
+                    ? 'Login'
+                    : 'Sign Up'}
           </CardTitle>
           <CardDescription className={isMobile ? 'text-sm' : ''}>
-            {showCodeInput
-              ? 'Check your email for the verification code'
-              : isResettingPassword
-                ? 'Enter your new password'
-                : isLogin
-                  ? 'Welcome back to Claude Builder Club'
-                  : 'Join Claude Builder Club @ MSU'}
+            {showSignupVerification
+              ? 'Enter the verification code from your email'
+              : showCodeInput
+                ? 'Check your email for the verification code'
+                : isResettingPassword
+                  ? 'Enter your new password'
+                  : isLogin
+                    ? 'Welcome back to Claude Builder Club'
+                    : 'Join Claude Builder Club @ MSU'}
           </CardDescription>
         </CardHeader>
         <CardContent className={isMobile ? 'pt-0' : ''}>
@@ -533,7 +611,61 @@ const Auth = () => {
             </Alert>
           )}
 
-          {showCodeInput ? (
+          {showSignupVerification ? (
+            <div className={`space-y-4 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+              <Alert className="border-primary/20">
+                <AlertDescription className="text-sm">
+                  A verification code has been sent to <strong>{signupEmail}</strong>. Enter it below to verify your account.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label htmlFor="verificationCode" required>Verification Code</Label>
+                <Input
+                  id="verificationCode"
+                  type="text"
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                  maxLength={8}
+                  placeholder="Enter code from email"
+                  className="text-center text-2xl tracking-widest"
+                />
+              </div>
+
+              <Button
+                onClick={handleVerifySignup}
+                className={`w-full ${isMobile ? 'h-11' : ''}`}
+                disabled={loading}
+              >
+                {loading ? 'Verifying...' : 'Verify Email'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className={`w-full ${isMobile ? 'h-11' : ''}`}
+                onClick={handleResendVerification}
+                disabled={loading}
+              >
+                Resend Code
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className={`w-full hover:bg-transparent hover:text-primary transition-all duration-200 ${isMobile ? 'h-11 text-sm' : ''}`}
+                onClick={() => {
+                  setShowSignupVerification(false);
+                  setVerificationCode('');
+                  setSignupEmail('');
+                  setSignupPassword('');
+                  setIsLogin(false);
+                }}
+              >
+                Back to Sign Up
+              </Button>
+            </div>
+          ) : showCodeInput ? (
             <div className={`space-y-4 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
               <Alert className="border-primary/20">
                 <AlertDescription className="text-sm">
@@ -711,7 +843,7 @@ const Auth = () => {
                 <Alert className="border-primary/20">
                   <AlertDescription>
                     <p className="text-sm mb-3">
-                      Enter your email address and we'll send you a 6-digit verification code to reset your password.
+                      Enter your email address and we'll send you a verification code to reset your password.
                     </p>
                     <div className="flex gap-2">
                       <Button

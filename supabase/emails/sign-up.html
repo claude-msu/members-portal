@@ -10,7 +10,7 @@
     <div style="text-align: center; padding: 40px 30px 30px 30px;">
       <img src="https://claudemsu.dev/claude-logo.png" alt="Claude Builder Club" style="height: 60px; width: auto;">
       <h2 style="margin: 20px 0 0 0; font-size: 24px; font-weight: 600; color: #1a1a1a;">
-        Confirm Your Email
+        Verify Your Email
       </h2>
     </div>
 
@@ -21,26 +21,32 @@
       </p>
 
       <p style="font-size: 16px; color: #4b5563; margin: 0 0 30px 0;">
-        To complete your registration and access the members portal, please confirm your email address:
+        To complete your registration and access the members portal, please use the verification code below:
       </p>
 
-      <!-- CTA Button -->
-      <div style="text-align: center; margin: 35px 0;">
-        <a href="{{ .ConfirmationURL }}"
-           style="display: inline-block; background-color: rgb(223, 115, 83); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px; transition: background-color 0.2s;">
-          Confirm Your Email
-        </a>
+      <!-- OTP Code Box -->
+      <div style="background: linear-gradient(135deg, rgb(223, 115, 83) 0%, rgb(235, 135, 103) 100%); padding: 30px; border-radius: 8px; margin: 35px 0; text-align: center; box-shadow: 0 2px 8px rgba(223, 115, 83, 0.15);">
+        <p style="margin: 0 0 12px 0; color: rgba(255, 255, 255, 0.95); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 1.5px;">
+          Your Verification Code
+        </p>
+        <p style="margin: 0; color: white; font-size: 48px; font-weight: 700; letter-spacing: 10px; font-family: 'Courier New', monospace;">
+          {{ .Token }}
+        </p>
+        <p style="margin: 12px 0 0 0; color: rgba(255, 255, 255, 0.9); font-size: 14px;">
+          Expires in 1 hour
+        </p>
       </div>
+
+      <p style="font-size: 15px; color: #4b5563; margin: 0 0 20px 0;">
+        Enter this 8-digit code on the signup page to verify your email and complete registration.
+      </p>
 
       <!-- Divider -->
       <div style="border-top: 1px solid #e5e7eb; margin: 35px 0;"></div>
 
-      <!-- Fallback Link -->
-      <p style="font-size: 14px; color: #6b7280; margin: 0 0 10px 0;">
-        If the button doesn't work, copy and paste this link:
-      </p>
-      <p style="font-size: 13px; color: rgb(223, 115, 83); word-break: break-all; margin: 0 0 30px 0;">
-        {{ .ConfirmationURL }}
+      <!-- Security Notice -->
+      <p style="font-size: 14px; color: #6b7280; margin: 0 0 20px 0;">
+        <strong>Didn't sign up?</strong> If you didn't create an account, you can safely ignore this email.
       </p>
 
       <!-- Help Section -->
