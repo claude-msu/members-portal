@@ -47,6 +47,14 @@ const Auth = () => {
 
   // Sync tab with URL hash (#signup → signup, #login or default → login)
   useEffect(() => {
+    const hashParams = new URLSearchParams(hash.substring(1));
+    const type = hashParams.get('type');
+
+    // Don't interfere with password reset flow
+    if (type === 'recovery') {
+      return;
+    }
+
     if (hash === '#signup') {
       setIsLogin(false);
       setIsResettingPassword(false);
@@ -96,7 +104,7 @@ const Auth = () => {
     setLoading(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth#reset-password`,
+        redirectTo: `${window.location.origin}/auth`,
       });
 
       if (error) throw error;
