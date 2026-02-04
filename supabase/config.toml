@@ -252,6 +252,23 @@ policy = "per_worker"
 inspector_port = 8083
 deno_version = 2
 
+# =====================================================================
+# Edge Function: process-application-update
+# ---------------------------------------------------------------------
+# Disables JWT verification for this function at the gateway level. The
+# function itself is responsible for authentication and authorization.
+[functions.process-application-update]
+verify_jwt = false
+
+# =====================================================================
+# Edge Function: process-start-automation
+# ---------------------------------------------------------------------
+# Disables JWT verification for this automation-triggering function at
+# the gateway level. Internal logic must handle authentication.
+[functions.process-start-automation]
+verify_jwt = false
+
+
 # =============================================================================
 # NOTES FOR PRODUCTION DEPLOYMENT
 # =============================================================================

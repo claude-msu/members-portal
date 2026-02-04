@@ -1,7 +1,7 @@
 // supabase/functions/process-application-update/index.ts
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
-import Resend from 'npm:resend'
+import { Resend } from 'npm:resend'
 
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!

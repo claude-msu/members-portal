@@ -48,7 +48,7 @@ const ApplicationViewerPage = () => {
     const { toast } = useToast();
     const isMobile = useIsMobile();
     const { user } = useAuth();
-    const { role } = useProfile();
+    const { role, refreshApplications } = useProfile();
 
     // State
     const [application, setApplication] = useState<Application | null>(null);
@@ -166,8 +166,9 @@ const ApplicationViewerPage = () => {
                 setShowSuccessScreen(true);
             }, 300);
 
-            // Navigate back after showing success
-            setTimeout(() => {
+            // Refresh applications data and navigate back after showing success
+            setTimeout(async () => {
+                await refreshApplications();
                 navigate('/dashboard/applications');
             }, 3000);
         } catch (error) {
@@ -202,8 +203,9 @@ const ApplicationViewerPage = () => {
                 setShowRejectionScreen(true);
             }, 300);
 
-            // Navigate back after showing rejection
-            setTimeout(() => {
+            // Refresh applications data and navigate back after showing rejection
+            setTimeout(async () => {
+                await refreshApplications();
                 navigate('/dashboard/applications');
             }, 3000);
         } catch (error) {
