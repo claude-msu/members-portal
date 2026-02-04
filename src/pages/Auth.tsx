@@ -24,6 +24,9 @@ const Auth = () => {
   const [isResettingPassword, setIsResettingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [resetCode, setResetCode] = useState('');
+  const [showCodeInput, setShowCodeInput] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
@@ -39,12 +42,44 @@ const Auth = () => {
       const hashParams = new URLSearchParams(hash.substring(1));
       const accessToken = hashParams.get('access_token');
       const type = hashParams.get('type');
+      const error = hashParams.get('error');
+      const errorCode = hashParams.get('error_code');
+      const errorDescription = hashParams.get('error_description');
 
       console.log('Auth page loaded with hash params:', {
         hasAccessToken: !!accessToken,
         type,
+        error,
+        errorCode,
         fullHash: hash.substring(0, 50) + '...' // Log first 50 chars for debugging
       });
+
+      // Handle password reset errors
+      if (error) {
+        if (errorCode === 'otp_expired') {
+          toast({
+            title: 'Link Expired or Invalid',
+            description: 'The password reset link has expired or already been used. Please request a new one.',
+            variant: 'destructive',
+          });
+          setShowForgotPassword(true);
+          setIsLogin(true);
+          // Clear the error from URL
+          navigate('/auth#login', { replace: true });
+          return;
+        } else if (error === 'access_denied') {
+          toast({
+            title: 'Access Denied',
+            description: errorDescription || 'Unable to verify the reset link. Please request a new password reset.',
+            variant: 'destructive',
+          });
+          setShowForgotPassword(true);
+          setIsLogin(true);
+          // Clear the error from URL
+          navigate('/auth#login', { replace: true });
+          return;
+        }
+      }
 
       if (accessToken && type === 'recovery') {
         console.log('Password recovery flow detected');
@@ -59,7 +94,7 @@ const Auth = () => {
     };
 
     checkForResetToken();
-  }, []);
+  }, [toast, navigate]);
 
   // Sync tab with URL hash (#signup → signup, #login or default → login)
   useEffect(() => {
@@ -119,20 +154,25 @@ const Auth = () => {
 
     setLoading(true);
     try {
-      // Use the auth page URL - Supabase will append the recovery hash
-      const resetUrl = `${window.location.origin}/auth`;
-
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: resetUrl,
+      // Send OTP code via email (won't be consumed by email scanners)
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false, // Don't create new users during password reset
+        },
       });
 
       if (error) throw error;
 
-      toast({
-        title: 'Password Reset Email Sent',
-        description: 'Check your email for a link to reset your password. The link expires in 1 hour.',
-      });
+      // Store email for verification step
+      setResetEmail(email);
+      setShowCodeInput(true);
       setShowForgotPassword(false);
+
+      toast({
+        title: 'Verification Code Sent',
+        description: 'Check your email for a verification code. The code expires in 1 hour.',
+      });
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
       toast({
@@ -188,6 +228,74 @@ const Auth = () => {
     }
   };
 
+  const handleVerifyCode = async () => {
+    if (!resetCode.trim()) {
+      toast({
+        title: 'Code Required',
+        description: 'Please enter the verification code from your email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (resetCode.length < 6) {
+      toast({
+        title: 'Invalid Code',
+        description: 'Please enter the complete verification code.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Verify the OTP code - this will log the user in
+      const { error } = await supabase.auth.verifyOtp({
+        email: resetEmail,
+        token: resetCode,
+        type: 'email',
+      });
+
+      if (error) throw error;
+
+      // Code verified and user is now logged in
+      // Show password reset form immediately
+      toast({
+        title: 'Code Verified',
+        description: 'You are now logged in. Please set a new password to secure your account.',
+      });
+
+      setShowCodeInput(false);
+      setIsResettingPassword(true);
+      setResetCode('');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+      // Check for specific error types
+      if (errorMessage.includes('expired') || errorMessage.includes('Token has expired')) {
+        toast({
+          title: 'Code Expired',
+          description: 'The verification code has expired. Please request a new one.',
+          variant: 'destructive',
+        });
+      } else if (errorMessage.includes('invalid') || errorMessage.includes('not found')) {
+        toast({
+          title: 'Invalid Code',
+          description: 'The verification code is incorrect. Please check and try again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -235,6 +343,7 @@ const Auth = () => {
       setNewPassword('');
       setConfirmPassword('');
       setIsResettingPassword(false);
+      setResetEmail('');
 
       // Clear URL hash
       navigate('/auth#login', { replace: true });
@@ -403,14 +512,16 @@ const Auth = () => {
       <Card className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'}`}>
         <CardHeader className={isMobile ? 'pb-4' : ''}>
           <CardTitle className={isMobile ? 'text-xl' : ''}>
-            {isResettingPassword ? 'Reset Password' : isLogin ? 'Login' : 'Sign Up'}
+            {showCodeInput ? 'Verify Code' : isResettingPassword ? 'Reset Password' : isLogin ? 'Login' : 'Sign Up'}
           </CardTitle>
           <CardDescription className={isMobile ? 'text-sm' : ''}>
-            {isResettingPassword
-              ? 'Enter your new password'
-              : isLogin
-                ? 'Welcome back to Claude Builder Club'
-                : 'Join Claude Builder Club @ MSU'}
+            {showCodeInput
+              ? 'Check your email for the verification code'
+              : isResettingPassword
+                ? 'Enter your new password'
+                : isLogin
+                  ? 'Welcome back to Claude Builder Club'
+                  : 'Join Claude Builder Club @ MSU'}
           </CardDescription>
         </CardHeader>
         <CardContent className={isMobile ? 'pt-0' : ''}>
@@ -422,7 +533,64 @@ const Auth = () => {
             </Alert>
           )}
 
-          {isResettingPassword ? (
+          {showCodeInput ? (
+            <div className={`space-y-4 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+              <Alert className="border-primary/20">
+                <AlertDescription className="text-sm">
+                  A verification code has been sent to <strong>{resetEmail}</strong>. Enter it below to reset your password.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label htmlFor="resetCode" required>Verification Code</Label>
+                <Input
+                  id="resetCode"
+                  type="text"
+                  value={resetCode}
+                  onChange={(e) => setResetCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                  maxLength={8}
+                  placeholder="Enter code from email"
+                  className="text-center text-2xl tracking-widest"
+                />
+              </div>
+
+              <Button
+                onClick={handleVerifyCode}
+                className={`w-full ${isMobile ? 'h-11' : ''}`}
+                disabled={loading}
+              >
+                {loading ? 'Verifying...' : 'Verify Code'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className={`w-full ${isMobile ? 'h-11' : ''}`}
+                onClick={() => {
+                  setShowForgotPassword(true);
+                  setShowCodeInput(false);
+                  setResetCode('');
+                }}
+                disabled={loading}
+              >
+                Resend Code
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className={`w-full hover:bg-transparent hover:text-primary transition-all duration-200 ${isMobile ? 'h-11 text-sm' : ''}`}
+                onClick={() => {
+                  setShowCodeInput(false);
+                  setResetCode('');
+                  setResetEmail('');
+                  navigate('/auth#login', { replace: true });
+                }}
+              >
+                Back to Login
+              </Button>
+            </div>
+          ) : isResettingPassword ? (
             <form onSubmit={handlePasswordReset} className={`space-y-4 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
               <div className="space-y-2">
                 <Label htmlFor="newPassword" required>New Password</Label>
@@ -460,6 +628,7 @@ const Auth = () => {
                   setIsResettingPassword(false);
                   setNewPassword('');
                   setConfirmPassword('');
+                  setResetEmail('');
                   navigate('/auth#login', { replace: true });
                 }}
               >
@@ -542,7 +711,7 @@ const Auth = () => {
                 <Alert className="border-primary/20">
                   <AlertDescription>
                     <p className="text-sm mb-3">
-                      Enter your email address and we'll send you a link to reset your password.
+                      Enter your email address and we'll send you a 6-digit verification code to reset your password.
                     </p>
                     <div className="flex gap-2">
                       <Button
@@ -551,7 +720,7 @@ const Auth = () => {
                         onClick={handleForgotPassword}
                         disabled={loading}
                       >
-                        Send Reset Link
+                        Send Code
                       </Button>
                       <Button
                         type="button"

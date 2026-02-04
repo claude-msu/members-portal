@@ -147,6 +147,12 @@ content_path = "./supabase/emails/sign-up.html"
 subject = "Reset Your Password - Claude Builder Club"
 content_path = "./supabase/emails/reset-password.html"
 
+# Magic link email
+[auth.email.template.otp]
+subject = "Your OTP - Claude Builder Club"
+content_path = "./supabase/emails/magic-link.html"
+
+
 # Magic link email (passwordless sign-in)
 # [auth.email.template.magic_link]
 # subject = "Sign in to Claude Builder Club"

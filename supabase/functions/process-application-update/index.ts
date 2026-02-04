@@ -81,9 +81,9 @@ function getEmailHtml(
         : `<li style="margin: 10px 0;"><strong>Join Slack:</strong> This is where we communicate. Please join using the button below.</li>`
 
     const slackButton = !hasSlackAccount
-        ? `<div style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+        ? `<div style="text-align: center; margin: 25px 0;">
              <a href="${SLACK_JOIN_LINK}"
-                style="display: inline-block; background: #4A154B; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+                style="display: inline-block; background: #4A154B; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
                Join Slack Workspace
              </a>
            </div>`
@@ -96,58 +96,85 @@ function getEmailHtml(
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-  <div style="background: linear-gradient(135deg, rgb(223, 115, 83) 0%, rgb(223, 115, 83) 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-    <h1 style="color: white; margin: 0; font-size: 28px;">
-      Application Update
-    </h1>
-  </div>
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1a1a1a; background-color: #f9fafb; margin: 0; padding: 0;">
+  <div style="max-width: 600px; margin: 40px auto; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
 
-  <div style="background: white; padding: 30px; border: 1px solid #e0e0e0; border-top: none; border-radius: 0 0 10px 10px;">
-    <p style="font-size: 18px; margin-top: 0;">Hi ${fullName},</p>
+    <!-- Logo Header -->
+    <div style="text-align: center; padding: 40px 30px 30px 30px;">
+      <img src="https://claudemsu.dev/claude-logo.png" alt="Claude Builder Club" style="height: 60px; width: auto;">
+      <h2 style="margin: 20px 0 0 0; font-size: 24px; font-weight: 600; color: #1a1a1a;">
+        Application Update
+      </h2>
+    </div>
 
-    ${accepted
-            ? `<p style="font-size: 16px;">
+    <!-- Content -->
+    <div style="padding: 0 40px 40px 40px;">
+      <p style="font-size: 16px; color: #4b5563; margin: 0 0 20px 0;">
+        Hi ${fullName},
+      </p>
+
+      ${accepted
+            ? `<p style="font-size: 16px; color: #4b5563; margin: 0 0 30px 0;">
           We're excited to inform you that your application to <strong>${target}</strong> has been accepted!
         </p>
+
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
-          <h3 style="margin-top: 0; color: rgb(223, 115, 83);">Next Steps:</h3>
-          <ul style="padding-left: 20px;">
+          <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #1a1a1a;">Next Steps:</h3>
+          <ul style="padding-left: 20px; margin: 0; color: #4b5563;">
             ${slackSection}
-            <li style="margin: 10px 0;">Log in to the members portal to access your dashboard</li>
-            <li style="margin: 10px 0;">Attend our next meeting to meet the team</li>
+            <li style="margin: 8px 0;">Log in to the members portal to access your dashboard</li>
+            <li style="margin: 8px 0;">Attend our next meeting to meet the team</li>
           </ul>
         </div>
 
         ${slackButton}
 
-        <div style="text-align: center; margin-top: 15px;">
+        <div style="text-align: center; margin: 35px 0;">
           <a href="https://claudemsu.dev/dashboard"
-             style="display: inline-block; background: rgb(223, 115, 83); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+             style="display: inline-block; background-color: rgb(223, 115, 83); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
             Go to Dashboard
           </a>
         </div>`
-            : `<p style="font-size: 16px;">
+            : `<p style="font-size: 16px; color: #4b5563; margin: 0 0 30px 0;">
           Thank you for your application to <strong>${target}</strong>. After careful review, we've decided not to move forward at this time.
         </p>
+
         <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 25px 0;">
-          <h3 style="margin-top: 0; color: rgb(223, 115, 83);">Stay Involved:</h3>
-          <ul style="padding-left: 20px;">
-            <li style="margin: 10px 0;">We encourage you to stay active in Claude Builder Club events</li>
-            <li style="margin: 10px 0;">You're welcome to apply again in a future semester</li>
+          <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #1a1a1a;">Stay Involved:</h3>
+          <ul style="padding-left: 20px; margin: 0; color: #4b5563;">
+            <li style="margin: 8px 0;">We encourage you to stay active in Claude Builder Club events</li>
+            <li style="margin: 8px 0;">You're welcome to apply again in a future semester</li>
           </ul>
         </div>
-        <div style="text-align: center; margin-top: 30px;">
+
+        <div style="text-align: center; margin: 35px 0;">
           <a href="https://claudemsu.dev/dashboard/applications"
-             style="display: inline-block; background: rgb(223, 115, 83); color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: 600;">
+             style="display: inline-block; background-color: rgb(223, 115, 83); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
             View Applications
           </a>
         </div>`
         }
 
-        <p style="margin-top: 30px; font-size: 14px; color: #666; border-top: 1px solid #e0e0e0; padding-top: 20px;">
-            <strong>Claude Builder Club @ MSU</strong>
-        </p>
+      <!-- Divider -->
+      <div style="border-top: 1px solid #e5e7eb; margin: 35px 0;"></div>
+
+      <!-- Help Section -->
+      <p style="font-size: 14px; color: #6b7280; margin: 0;">
+        Need help? Email us at
+        <a href="mailto:RSO.claudemsu@msu.edu" style="color: rgb(223, 115, 83); text-decoration: none;">rso.claudemsu@msu.edu</a>
+      </p>
+    </div>
+
+    <!-- Footer -->
+    <div style="background-color: #f9fafb; padding: 30px; text-align: center; border-top: 1px solid #e5e7eb;">
+      <p style="margin: 0; font-size: 14px; color: #6b7280; font-weight: 500;">
+        Claude Builder Club @ MSU
+      </p>
+      <p style="margin: 8px 0 0 0; font-size: 13px; color: #9ca3af;">
+        Building the future with AI, one project at a time.
+      </p>
+    </div>
+
   </div>
 </body>
 </html>

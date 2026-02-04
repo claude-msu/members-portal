@@ -328,7 +328,10 @@ const ApplicationViewerPage = () => {
         // Location (classes) or Repository (projects)
         if ('location' in item && item.location) {
             gridItems.push(
-                <div key="location" className="space-y-2">
+                <div
+                    key="location"
+                    className="space-y-2 md:col-span-2"
+                >
                     <h4 className="font-semibold text-sm">Location</h4>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                         <MapPin className="h-4 w-4" />
@@ -623,44 +626,42 @@ const ApplicationViewerPage = () => {
                                     (application.application_type === 'project' && projectData)) && (
                                         <>
                                             <Separator className="my-4" />
-                                            <div className="bg-blue-50 dark:bg-blue-950 rounded-lg p-4">
-                                                <p className="text-sm font-medium mb-3 text-muted-foreground">
-                                                    {application.application_type === 'board' && 'Position Applied For'}
-                                                    {application.application_type === 'class' && 'Class Applied For'}
-                                                    {application.application_type === 'project' && 'Project Applied For'}
-                                                </p>
-                                                <div
-                                                    className={`grid ${isMobile ? 'grid-rows-2 justify-items-start gap-3' : 'grid-cols-2 gap-6'
-                                                        }`}
-                                                >
-                                                    <div className="flex items-center gap-2">
-                                                        {application.application_type === 'board' && <Briefcase className="h-5 w-5" />}
-                                                        {application.application_type === 'class' && <BookOpen className="h-5 w-5" />}
-                                                        {application.application_type === 'project' && <Briefcase className="h-5 w-5" />}
-                                                        <p className="text-lg font-semibold">
-                                                            {application.application_type === 'board' && application.board_position}
-                                                            {application.application_type === 'class' && classData?.name}
-                                                            {application.application_type === 'project' && projectData?.name}
-                                                        </p>
-                                                    </div>
-                                                    <div className="flex items-center gap-2">
-                                                        {application.application_type === 'class' && application.class_role && (
-                                                            <>
-                                                                <BookUser className="h-5 w-5 text-muted-foreground" />
-                                                                <span className="text-lg font-semibold capitalize">
-                                                                    {application.class_role.replace('_', ' ')}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                        {application.application_type === 'project' && application.project_role && (
-                                                            <>
-                                                                <BookUser className="h-5 w-5 text-muted-foreground" />
-                                                                <span className="text-lg font-semibold capitalize">
-                                                                    {application.project_role.replace('_', ' ')}
-                                                                </span>
-                                                            </>
-                                                        )}
-                                                    </div>
+                                            <p className="text-sm font-medium mb-3 text-muted-foreground">
+                                                {application.application_type === 'board' && 'Position Applied For'}
+                                                {application.application_type === 'class' && 'Class Applied For'}
+                                                {application.application_type === 'project' && 'Project Applied For'}
+                                            </p>
+                                            <div
+                                                className={`grid ${isMobile ? 'grid-rows-2 justify-items-start gap-3' : 'grid-cols-2 gap-6'
+                                                    }`}
+                                            >
+                                                <div className="flex items-center gap-2">
+                                                    {application.application_type === 'board' && <Briefcase className="h-5 w-5" />}
+                                                    {application.application_type === 'class' && <BookOpen className="h-5 w-5" />}
+                                                    {application.application_type === 'project' && <Briefcase className="h-5 w-5" />}
+                                                    <p className="text-lg font-semibold">
+                                                        {application.application_type === 'board' && application.board_position}
+                                                        {application.application_type === 'class' && classData?.name}
+                                                        {application.application_type === 'project' && projectData?.name}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    {application.application_type === 'class' && application.class_role && (
+                                                        <>
+                                                            <BookUser className="h-5 w-5 text-muted-foreground" />
+                                                            <span className="text-lg font-semibold capitalize">
+                                                                {application.class_role.replace('_', ' ')}
+                                                            </span>
+                                                        </>
+                                                    )}
+                                                    {application.application_type === 'project' && application.project_role && (
+                                                        <>
+                                                            <BookUser className="h-5 w-5 text-muted-foreground" />
+                                                            <span className="text-lg font-semibold capitalize">
+                                                                {application.project_role.replace('_', ' ')}
+                                                            </span>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </>

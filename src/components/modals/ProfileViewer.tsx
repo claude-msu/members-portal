@@ -9,7 +9,11 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
-import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github, Briefcase, BookOpen } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { AppRole } from '@/contexts/ProfileContext';
 
@@ -27,7 +31,99 @@ interface ProfileViewerProps {
   className?: string;
 }
 
+interface InvolvementBadge {
+  id: string;
+  type: 'project' | 'class';
+  role: string;
+  semesterCode: string;
+  name: string;
+}
+
 const ProfileViewer = ({ open = false, onClose, member, embedded = false, className = '' }: ProfileViewerProps) => {
+  const [involvementBadges, setInvolvementBadges] = useState<InvolvementBadge[]>([]);
+
+  useEffect(() => {
+    if (member?.id) {
+      fetchInvolvement();
+    }
+  }, [member?.id]);
+
+  const fetchInvolvement = async () => {
+    if (!member?.id) return;
+
+    try {
+      const badges: InvolvementBadge[] = [];
+
+      // Fetch project memberships with project and semester data
+      const { data: projectMemberships, error: projectError } = await supabase
+        .from('project_members')
+        .select(`
+          id,
+          role,
+          projects (
+            name,
+            semesters (code)
+          )
+        `)
+        .eq('user_id', member.id);
+
+      if (projectError) {
+        console.error('Error fetching project memberships:', projectError);
+      }
+
+      if (projectMemberships) {
+        for (const membership of projectMemberships) {
+          const project = membership.projects;
+          if (project?.name && project?.semesters?.code) {
+            badges.push({
+              id: membership.id,
+              type: 'project',
+              role: membership.role === 'lead' ? 'Lead' : 'Member',
+              semesterCode: project.semesters.code,
+              name: project.name,
+            });
+          }
+        }
+      }
+
+      // Fetch class enrollments with class and semester data
+      const { data: classEnrollments, error: classError } = await supabase
+        .from('class_enrollments')
+        .select(`
+          id,
+          role,
+          classes (
+            name,
+            semesters (code)
+          )
+        `)
+        .eq('user_id', member.id);
+
+      if (classError) {
+        console.error('Error fetching class enrollments:', classError);
+      }
+
+      if (classEnrollments) {
+        for (const enrollment of classEnrollments) {
+          const classData = enrollment.classes;
+          if (classData?.name && classData?.semesters?.code) {
+            badges.push({
+              id: enrollment.id,
+              type: 'class',
+              role: enrollment.role === 'teacher' ? 'Teacher' : 'Student',
+              semesterCode: classData.semesters.code,
+              name: classData.name,
+            });
+          }
+        }
+      }
+
+      setInvolvementBadges(badges);
+    } catch (error) {
+      console.error('Error fetching involvement:', error);
+    }
+  };
+
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -139,6 +235,43 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
                   </Button>
                 )}
               </div>
+            </div>
+          </>
+        )}
+
+        {involvementBadges.length > 0 && (
+          <>
+            <Separator />
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-muted-foreground">Involvement</p>
+              <TooltipProvider delayDuration={200}>
+                <div className="flex flex-wrap gap-2">
+                  {involvementBadges.map((badge) => (
+                    <Tooltip key={badge.id}>
+                      <TooltipTrigger asChild>
+                        <span className="inline-block">
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
+                          >
+                            {badge.type === 'project' ? (
+                              <Briefcase className="h-3 w-3" />
+                            ) : (
+                              <BookOpen className="h-3 w-3" />
+                            )}
+                            <span>
+                              {badge.role} {badge.semesterCode}
+                            </span>
+                          </Badge>
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent side="top" align="center" className="max-w-xs">
+                        <p className="text-sm">{badge.name}</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
+              </TooltipProvider>
             </div>
           </>
         )}
