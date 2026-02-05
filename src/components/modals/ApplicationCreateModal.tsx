@@ -133,7 +133,7 @@ export const ApplicationCreateModal = ({
   };
 
   const fetchAvailableOptions = async (applicationsToFilter: Array<{ class_id: string | null; project_id: string | null }> = existingApplications) => {
-    const now = new Date().toISOString();
+    const now = new Date().toLocaleString("en-US", { timeZone: "America/Detroit" });
 
     // Fetch classes where the semester start date is in the future
     const { data: classesData } = await supabase
