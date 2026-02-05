@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -61,13 +61,7 @@ const ApplicationViewerPage = () => {
     const [showSuccessScreen, setShowSuccessScreen] = useState(false);
     const [showRejectionScreen, setShowRejectionScreen] = useState(false);
 
-    useEffect(() => {
-        if (id) {
-            fetchApplication();
-        }
-    }, [id]);
-
-    const fetchApplication = async () => {
+    const fetchApplication = useCallback(async () => {
         if (!id) return;
 
         try {
@@ -141,7 +135,13 @@ const ApplicationViewerPage = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [id, toast, navigate]);
+
+    useEffect(() => {
+        if (id) {
+            fetchApplication();
+        }
+    }, [id, fetchApplication]);
 
     const handleAccept = async () => {
         if (!user || !application) return;

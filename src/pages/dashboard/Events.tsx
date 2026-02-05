@@ -195,7 +195,8 @@ const Events = () => {
         modalState.close();
       }
     }
-  }, [modalState.id, events, isBoardOrAbove, modalState.selectedItem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalState.id, events, isBoardOrAbove, modalState.selectedItem]); // modalState and toast are stable
 
   // Load form data when editing
   useEffect(() => {

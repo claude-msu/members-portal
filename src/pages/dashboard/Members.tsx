@@ -59,7 +59,8 @@ const Members = () => {
         setSearchParams({});
       }
     }
-  }, [memberId, members, selectedMember]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [memberId, members, selectedMember]); // setSearchParams and toast are stable
 
   const fetchMembers = async () => {
     const { data: profilesData, error: profilesError } = await supabase

@@ -57,7 +57,8 @@ const Prospects = () => {
         setSearchParams({});
       }
     }
-  }, [prospectId, prospects, selectedProspect]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [prospectId, prospects, selectedProspect]); // setSearchParams and toast are stable
 
   const fetchProspects = async () => {
     const { data: profilesData, error: profilesError } = await supabase

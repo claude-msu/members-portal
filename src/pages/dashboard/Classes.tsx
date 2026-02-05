@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useItemStatus, useFilteredItems } from '@/hooks/use-modal';
+import { getItemStatus, useFilteredItems } from '@/hooks/use-modal';
 import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
 import {
   Popover,
@@ -362,7 +362,8 @@ const Classes = () => {
         modalState.close();
       }
     }
-  }, [modalState.id, classesData, isBoardOrAbove, modalState.selectedItem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalState.id, classesData, isBoardOrAbove, modalState.selectedItem]); // modalState, toast, user are stable
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -484,7 +485,7 @@ const Classes = () => {
     const isEnrolled = !!cls.userMembership;
     const isTeacher = cls.userMembership?.role === 'teacher';
     const teacher = cls.members.find(m => m.role === 'teacher');
-    const status = useItemStatus(cls);
+    const status = getItemStatus(cls);
 
     if (!status) return null;
 

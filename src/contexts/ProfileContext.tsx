@@ -94,6 +94,7 @@ interface ProfileContextType {
 
 const ProfileContext = createContext<ProfileContextType | null>(null);
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useProfile = () => {
     const context = useContext(ProfileContext);
     if (!context) {
@@ -576,6 +577,7 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
             applicationsChannel.unsubscribe();
             eventRecordsChannel.unsubscribe();
         };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [user?.id, refetchRole, refetchProjects, refetchClasses, refetchApplications, refetchEvents]);
 
     // Computed permission helpers

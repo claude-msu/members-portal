@@ -28,8 +28,8 @@ export const useModalState = <T,>() => {
     };
 };
 
-// Hook for computing item status (available/in-progress/completed)
-export const useItemStatus = (item) => {
+// Helper function for computing item status (available/in-progress/completed)
+export const getItemStatus = (item) => {
     if (!item) return null;
 
     const now = new Date();
@@ -69,17 +69,17 @@ export const useItemStatus = (item) => {
     };
 };
 
-// Hook for filtering items by status
+// Helper function for filtering items by status
 export const useFilteredItems = <T>(
     items: T[],
-    filterFn?: (item: T, status: ReturnType<typeof useItemStatus>) => boolean
+    filterFn?: (item: T, status: ReturnType<typeof getItemStatus>) => boolean
 ) => {
     const available: T[] = [];
     const inProgress: T[] = [];
     const completed: T[] = [];
 
     items.forEach((item) => {
-        const status = useItemStatus(item);
+        const status = getItemStatus(item);
         if (!status) return;
 
         // Apply custom filter if provided

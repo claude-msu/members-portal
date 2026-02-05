@@ -12,7 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useItemStatus, useFilteredItems } from '@/hooks/use-modal';
+import { getItemStatus, useFilteredItems } from '@/hooks/use-modal';
 import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
 import {
   Popover,
@@ -368,7 +368,8 @@ const Projects = () => {
         modalState.close();
       }
     }
-  }, [modalState.id, projectsData, isBoardOrAbove, modalState.selectedItem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modalState.id, projectsData, isBoardOrAbove, modalState.selectedItem]); // modalState, toast, user are stable
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -500,7 +501,7 @@ const Projects = () => {
     const isMember = !!project.userMembership;
     const isLead = project.userMembership?.role === 'lead';
     const lead = project.members.find(m => m.role === 'lead');
-    const status = useItemStatus(project);
+    const status = getItemStatus(project);
 
     if (!status) return null;
 

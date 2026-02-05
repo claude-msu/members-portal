@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -103,19 +103,8 @@ export const ApplicationCreateModal = ({
     }
   }, [profile, open]);
 
-  // Fetch available options and existing applications
-  useEffect(() => {
-    if (open && user) {
-      const loadData = async () => {
-        const applications = await fetchExistingApplications();
-        await fetchAvailableOptions(applications);
-      };
-      loadData();
-    }
-  }, [open, user]);
-
-  const fetchExistingApplications = async () => {
-    if (!user) return;
+  const fetchExistingApplications = useCallback(async () => {
+    if (!user) return [];
 
     const { data, error } = await supabase
       .from('applications')
@@ -130,9 +119,9 @@ export const ApplicationCreateModal = ({
     const applications = data || [];
     setExistingApplications(applications);
     return applications;
-  };
+  }, [user]);
 
-  const fetchAvailableOptions = async (applicationsToFilter: Array<{ class_id: string | null; project_id: string | null }> = existingApplications) => {
+  const fetchAvailableOptions = useCallback(async (applicationsToFilter: Array<{ class_id: string | null; project_id: string | null }>) => {
     const now = new Date().toLocaleString("en-US", { timeZone: "America/Detroit" });
 
     // Fetch classes where the semester start date is in the future
@@ -188,7 +177,20 @@ export const ApplicationCreateModal = ({
       );
       setAvailableProjects(filteredProjects);
     }
-  };
+  }, []);
+
+  // Fetch available options and existing applications
+  useEffect(() => {
+    if (open && user) {
+      const loadData = async () => {
+        const applications = await fetchExistingApplications();
+        if (applications) {
+          await fetchAvailableOptions(applications);
+        }
+      };
+      loadData();
+    }
+  }, [open, user, fetchExistingApplications, fetchAvailableOptions]);
 
   const handleApplicationTypeChange = (type: ApplicationType) => {
     // Check if user has GitHub username for project applications
@@ -252,7 +254,7 @@ export const ApplicationCreateModal = ({
     return filePath;
   };
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
     setApplicationType('');
     setFullName(profile?.full_name || '');
     setClassYear(profile?.class_year || '');
@@ -270,7 +272,7 @@ export const ApplicationCreateModal = ({
     setSelectedBoardPosition('');
     setSelectedClassRole('student');
     setSelectedProjectRole('member');
-  };
+  }, [profile]);
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -756,7 +758,7 @@ export const ApplicationCreateModal = ({
     if (!open) {
       resetForm();
     }
-  }, [open]);
+  }, [open, resetForm]);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>

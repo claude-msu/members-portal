@@ -12,7 +12,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github, Briefcase, BookOpen } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { AppRole } from '@/contexts/ProfileContext';
@@ -42,13 +42,7 @@ interface InvolvementBadge {
 const ProfileViewer = ({ open = false, onClose, member, embedded = false, className = '' }: ProfileViewerProps) => {
   const [involvementBadges, setInvolvementBadges] = useState<InvolvementBadge[]>([]);
 
-  useEffect(() => {
-    if (member?.id) {
-      fetchInvolvement();
-    }
-  }, [member?.id]);
-
-  const fetchInvolvement = async () => {
+  const fetchInvolvement = useCallback(async () => {
     if (!member?.id) return;
 
     try {
@@ -122,7 +116,13 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
     } catch (error) {
       console.error('Error fetching involvement:', error);
     }
-  };
+  }, [member?.id]);
+
+  useEffect(() => {
+    if (member?.id) {
+      fetchInvolvement();
+    }
+  }, [member?.id, fetchInvolvement]);
 
   const getInitials = (name: string) => {
     return name

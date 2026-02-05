@@ -28,6 +28,7 @@ const AuthContext = createContext<AuthContextType>({
   refreshProfile: async () => {},
 });
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -178,7 +179,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       mountedRef.current = false;
     };
-  }, []); // ✅ Only run once on mount - no auth listener needed!
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // ✅ Only run once on mount - fetchProfile is intentionally stable
 
   // Separate effect for profile real-time subscription
   useEffect(() => {
@@ -208,7 +210,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     return () => {
       profileSubscription.unsubscribe();
     };
-  }, [user?.id]); // ✅ This effect CAN safely depend on user.id
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]); // ✅ fetchProfile is intentionally stable and uses refs
 
   const signIn = async (email: string, password: string) => {
     // Sign in with Supabase

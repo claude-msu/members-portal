@@ -40,7 +40,7 @@ export function ThemeProvider({
       setTheme(profile.theme);
     }
     // Handle the case when profile is null: do nothing
-  }, [profile?.theme, profile]);
+  }, [profile?.theme, profile, theme]);
 
 
   useEffect(() => {
@@ -90,6 +90,7 @@ export function ThemeProvider({
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
 
