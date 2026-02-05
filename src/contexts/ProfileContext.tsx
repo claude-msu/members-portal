@@ -309,9 +309,9 @@ async function fetchUserApplications(userId: string, role: AppRole): Promise<Use
 
     // Initialize review categories
     const review = {
+        pending: [] as Application[],
         accepted: [] as Application[],
         rejected: [] as Application[],
-        pending: [] as Application[],
     };
 
     // Fetch applications the user can review based on their role
@@ -336,8 +336,8 @@ async function fetchUserApplications(userId: string, role: AppRole): Promise<Use
         if (reviewableApplications) {
             // Categorize reviewable applications
             review.pending = reviewableApplications.filter(a => a.status === 'pending');
-            review.accepted = reviewableApplications.filter(a => a.status === 'accepted' && a.reviewed_by === userId);
-            review.rejected = reviewableApplications.filter(a => a.status === 'rejected' && a.reviewed_by === userId);
+            review.accepted = reviewableApplications.filter(a => a.status === 'accepted');
+            review.rejected = reviewableApplications.filter(a => a.status === 'rejected');
         }
     }
 
