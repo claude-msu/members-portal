@@ -834,6 +834,9 @@ const Classes = () => {
           members={modalState.selectedItem.members}
           showRole={true}
           roleIcon={(role) => (role === 'teacher' ? <GraduationCap className="h-3 w-3 mr-1" /> : null)}
+          entityType="class"
+          entityId={modalState.selectedItem.id}
+          onMemberRemoved={refreshClasses}
         />
       )}
     </div>

@@ -7,7 +7,12 @@ import {
 } from '@/components/ui/dialog';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
-import { GraduationCap } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { GraduationCap, X } from 'lucide-react';
+import { useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import { useProfile } from '@/contexts/ProfileContext';
 import type { MembershipInfo } from '@/types/modal.types';
 
 interface MembersListModalProps {
@@ -18,6 +23,10 @@ interface MembersListModalProps {
     members: MembershipInfo[];
     showRole?: boolean;
     roleIcon?: (role: string) => React.ReactNode;
+    entityType?: 'project' | 'class';
+    entityId?: string;
+    onMemberRemoved?: () => void;
+    canRemoveMembers?: boolean;
 }
 
 const getInitials = (name: string) => {
@@ -49,9 +58,48 @@ export const MembersListModal = ({
     members,
     showRole = true,
     roleIcon = defaultRoleIcon,
+    entityType,
+    entityId,
+    onMemberRemoved,
 }: MembersListModalProps) => {
     const memberCount = members.length;
     const displaySubtitle = subtitle || `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
+    const { toast } = useToast();
+    const { isBoardOrAbove } = useProfile();
+    const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+
+    const showRemoveButton = isBoardOrAbove && entityType && entityId;
+
+    const handleRemoveMember = async (membershipId: string, memberName: string) => {
+        if (!entityType || !entityId) return;
+
+        setRemovingMemberId(membershipId);
+        try {
+            const tableName = entityType === 'project' ? 'project_members' : 'class_enrollments';
+            const { error } = await supabase
+                .from(tableName)
+                .delete()
+                .eq('id', membershipId);
+
+            if (error) throw error;
+
+            toast({
+                title: 'Member removed',
+                description: `${memberName} has been removed from the ${entityType}.`,
+            });
+
+            onMemberRemoved?.();
+        } catch (error) {
+            console.error('Error removing member:', error);
+            toast({
+                title: 'Error',
+                description: `Failed to remove member from ${entityType}.`,
+                variant: 'destructive',
+            });
+        } finally {
+            setRemovingMemberId(null);
+        }
+    };
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
@@ -91,6 +139,18 @@ export const MembersListModal = ({
                                     {roleIcon(member.role)}
                                     {member.role}
                                 </Badge>
+                            )}
+
+                            {showRemoveButton && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => handleRemoveMember(member.id, member.profile.full_name || member.profile.email)}
+                                    disabled={removingMemberId === member.id}
+                                >
+                                    <X className="h-4 w-4" />
+                                </Button>
                             )}
                         </div>
                     ))}

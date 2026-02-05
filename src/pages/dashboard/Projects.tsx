@@ -717,7 +717,7 @@ const Projects = () => {
         <div className="space-y-2">
           <Label htmlFor="repositoryName" required>GitHub Repository Name</Label>
           <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-claude-peach/90">
               {isMobile ? (
                 "claude-msu/"
               ) : (
@@ -910,6 +910,9 @@ const Projects = () => {
           title={`${modalState.selectedItem.name} - Team Members`}
           members={modalState.selectedItem.members}
           showRole={true}
+          entityType="project"
+          entityId={modalState.selectedItem.id}
+          onMemberRemoved={refreshProjects}
         />
       )}
     </div>
