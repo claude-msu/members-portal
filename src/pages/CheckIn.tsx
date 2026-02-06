@@ -70,7 +70,7 @@ const Checkin = () => {
             doCheckin();
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [user, loading, token, refreshProfile]); // checking is intentionally excluded to prevent re-runs
+    }, [user, loading, token]); // checking and refreshProfile are intentionally excluded to prevent re-runs
 
     if (loading || checking) {
         return (
