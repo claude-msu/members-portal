@@ -8,12 +8,25 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, X } from 'lucide-react';
-import { useState } from 'react';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from '@/components/ui/command';
+import { GraduationCap, X, Plus } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/contexts/ProfileContext';
-import type { MembershipInfo } from '@/types/modal.types';
+import type { MembershipInfo, Profile } from '@/types/modal.types';
 
 interface MembersListModalProps {
     open: boolean;
@@ -62,18 +75,65 @@ export const MembersListModal = ({
     entityId,
     onMemberRemoved,
 }: MembersListModalProps) => {
-    const memberCount = members.length;
-    const displaySubtitle = subtitle || `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
     const { toast } = useToast();
     const { isBoardOrAbove } = useProfile();
     const [removingMemberId, setRemovingMemberId] = useState<string | null>(null);
+    const [addMemberOpen, setAddMemberOpen] = useState(false);
+    const [availableMembers, setAvailableMembers] = useState<Profile[]>([]);
+    const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
+    const [locallyRemovedIds, setLocallyRemovedIds] = useState<Set<string>>(new Set());
+    const [locallyAddedMembers, setLocallyAddedMembers] = useState<MembershipInfo[]>([]);
+
+    const displayMembers = useMemo(
+        () => [
+            ...members.filter(m => !locallyRemovedIds.has(m.id)),
+            ...locallyAddedMembers,
+        ],
+        [members, locallyRemovedIds, locallyAddedMembers]
+    );
+    const memberCount = displayMembers.length;
+    const displaySubtitle = subtitle || `${memberCount} ${memberCount === 1 ? 'member' : 'members'}`;
 
     const showRemoveButton = isBoardOrAbove && entityType && entityId;
+
+    useEffect(() => {
+        if (!open) {
+            setLocallyRemovedIds(new Set());
+            setLocallyAddedMembers([]);
+        }
+    }, [open]);
+
+    useEffect(() => {
+        const fetchAvailableMembers = async () => {
+            if (!open || !entityType || !entityId) return;
+
+            try {
+                const { data: allProfiles } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('is_banned', false)
+                    .order('full_name');
+
+                if (!allProfiles) return;
+
+                const existingUserIds = displayMembers.map(m => m.user_id);
+                const available = allProfiles.filter(p => !existingUserIds.includes(p.id));
+
+                setAvailableMembers(available);
+            } catch (error) {
+                console.error('Error fetching available members:', error);
+            }
+        };
+
+        fetchAvailableMembers();
+    }, [open, entityType, entityId, displayMembers]);
 
     const handleRemoveMember = async (membershipId: string, memberName: string) => {
         if (!entityType || !entityId) return;
 
         setRemovingMemberId(membershipId);
+        setLocallyRemovedIds(prev => new Set([...prev, membershipId]));
+
         try {
             const tableName = entityType === 'project' ? 'project_members' : 'class_enrollments';
             const { error } = await supabase
@@ -91,6 +151,11 @@ export const MembersListModal = ({
             onMemberRemoved?.();
         } catch (error) {
             console.error('Error removing member:', error);
+            setLocallyRemovedIds(prev => {
+                const updated = new Set(prev);
+                updated.delete(membershipId);
+                return updated;
+            });
             toast({
                 title: 'Error',
                 description: `Failed to remove member from ${entityType}.`,
@@ -98,6 +163,73 @@ export const MembersListModal = ({
             });
         } finally {
             setRemovingMemberId(null);
+        }
+    };
+
+    const handleAddMember = async (userId: string, memberName: string, profile: Profile) => {
+        if (!entityType || !entityId) return;
+
+        setAddingMemberId(userId);
+        const defaultRole = entityType === 'project' ? 'member' : 'student';
+
+        try {
+            const tableName = entityType === 'project' ? 'project_members' : 'class_enrollments';
+
+            const insertData = entityType === 'project'
+                ? {
+                    user_id: userId,
+                    project_id: entityId,
+                    role: defaultRole as 'member' | 'lead',
+                }
+                : {
+                    user_id: userId,
+                    class_id: entityId,
+                    role: defaultRole as 'student' | 'teacher',
+                };
+
+            const { data: insertedData, error } = await supabase
+                .from(tableName)
+                .insert(insertData)
+                .select();
+
+            if (error) {
+                if (error.code === '23505') {
+                    toast({
+                        title: 'Already Added',
+                        description: `${memberName} is already in this ${entityType}.`,
+                        variant: 'destructive',
+                    });
+                } else {
+                    throw error;
+                }
+                return;
+            }
+
+            const newMembership: MembershipInfo = {
+                id: insertedData?.[0]?.id || `temp-${userId}`,
+                user_id: userId,
+                role: defaultRole,
+                profile,
+            };
+
+            setLocallyAddedMembers(prev => [...prev, newMembership]);
+
+            toast({
+                title: 'Member added',
+                description: `${memberName} has been added to the ${entityType}.`,
+            });
+
+            setAddMemberOpen(false);
+            onMemberRemoved?.();
+        } catch (error) {
+            console.error('Error adding member:', error);
+            toast({
+                title: 'Error',
+                description: `Failed to add member to ${entityType}.`,
+                variant: 'destructive',
+            });
+        } finally {
+            setAddingMemberId(null);
         }
     };
 
@@ -110,8 +242,71 @@ export const MembersListModal = ({
                     <DialogDescription>{displaySubtitle}</DialogDescription>
                 </DialogHeader>
 
+                {showRemoveButton && (
+                    <div className="hidden md:block pb-3 border-b">
+                        <Popover open={addMemberOpen} onOpenChange={setAddMemberOpen}>
+                            <PopoverTrigger asChild>
+                                <Button
+                                    variant="default"
+                                    className="w-full"
+                                    disabled={availableMembers.length === 0}
+                                >
+                                    <Plus className="h-4 w-4 mr-2" />
+                                    Add Member
+                                    {availableMembers.length === 0 && ' (All members added)'}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent
+                                className="w-96 p-0"
+                                align="center"
+                                onOpenAutoFocus={e => e.preventDefault()}
+                            >
+                                <div
+                                    className="p-1"
+                                    style={{
+                                        height: '300px',
+                                        overflowY: 'scroll',
+                                        overflowX: 'hidden',
+                                        WebkitOverflowScrolling: 'touch',
+                                    }}
+                                    onWheel={e => e.stopPropagation()}
+                                    onTouchMove={e => e.stopPropagation()}
+                                >
+                                    <Command>
+                                        <CommandInput placeholder="Search members..." />
+                                        <CommandList>
+                                            <CommandEmpty>No members found.</CommandEmpty>
+                                            <CommandGroup>
+                                                {availableMembers.map((profile) => (
+                                                    <CommandItem
+                                                        key={profile.id}
+                                                        value={`${profile.full_name || ''} ${profile.email}`}
+                                                        onSelect={() => {
+                                                            handleAddMember(
+                                                                profile.id,
+                                                                profile.full_name || profile.email,
+                                                                profile
+                                                            );
+                                                        }}
+                                                        disabled={addingMemberId === profile.id}
+                                                    >
+                                                        <div className="flex flex-col">
+                                                            <span>{profile.full_name || 'No name'}</span>
+                                                            <span className="text-xs">{profile.email}</span>
+                                                        </div>
+                                                    </CommandItem>
+                                                ))}
+                                            </CommandGroup>
+                                        </CommandList>
+                                    </Command>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                )}
+
                 <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                    {members.map((member) => (
+                    {displayMembers.map((member) => (
                         <div
                             key={member.id}
                             className="flex items-center gap-3 p-3 rounded-lg border bg-card"
@@ -145,7 +340,7 @@ export const MembersListModal = ({
                                 <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                    className="hidden md:flex h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                                     onClick={() => handleRemoveMember(member.id, member.profile.full_name || member.profile.email)}
                                     disabled={removingMemberId === member.id}
                                 >
@@ -155,7 +350,7 @@ export const MembersListModal = ({
                         </div>
                     ))}
 
-                    {members.length === 0 && (
+                    {displayMembers.length === 0 && (
                         <div className="text-center text-muted-foreground py-8">
                             No members yet
                         </div>
