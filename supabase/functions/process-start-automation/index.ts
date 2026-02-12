@@ -277,7 +277,10 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    const today = new Date().toISOString().split('T')[0]
+    // Generate ISO string in US Eastern Timezone (e.g., 'America/New_York')
+    const today = new Date(
+      new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
+    ).toISOString()
 
     interface AutomationResult {
       type: 'project' | 'class'
