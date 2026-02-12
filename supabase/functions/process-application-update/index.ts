@@ -309,69 +309,49 @@ serve(async (req) => {
             // STEP 4: Add to project/class (CRITICAL - must succeed)
             // ======================================================================
             if (application.application_type === 'project' && application.project_id) {
-                // Check if already a member (idempotent)
-                const { data: existingMember } = await supabase
+                const { error: memberError } = await supabase
                     .from('project_members')
-                    .select('id')
-                    .eq('project_id', application.project_id)
-                    .eq('user_id', application.user_id)
-                    .maybeSingle()
-
-                if (!existingMember) {
-                    const { error: memberError } = await supabase
-                        .from('project_members')
-                        .insert({
-                            project_id: application.project_id,
-                            user_id: application.user_id,
-                            role: application.project_role || 'member'
-                        })
-
-                    if (memberError) {
-                        throw new Error(`Failed to add to project: ${memberError.message}`)
-                    }
-
-                    // Add rollback for project membership
-                    rollbackActions.push(async () => {
-                        await supabase
-                            .from('project_members')
-                            .delete()
-                            .eq('project_id', application.project_id)
-                            .eq('user_id', application.user_id)
+                    .insert({
+                        project_id: application.project_id,
+                        user_id: application.user_id,
+                        role: application.project_role || 'member'
                     })
+
+                if (memberError) {
+                    throw new Error(`Failed to add to project: ${memberError.message}`)
                 }
+
+                // Add rollback for project membership
+                rollbackActions.push(async () => {
+                    await supabase
+                        .from('project_members')
+                        .delete()
+                        .eq('project_id', application.project_id)
+                        .eq('user_id', application.user_id)
+                })
             }
 
             if (application.application_type === 'class' && application.class_id) {
-                // Check if already enrolled (idempotent)
-                const { data: existingEnrollment } = await supabase
+                const { error: enrollError } = await supabase
                     .from('class_enrollments')
-                    .select('id')
-                    .eq('class_id', application.class_id)
-                    .eq('user_id', application.user_id)
-                    .maybeSingle()
-
-                if (!existingEnrollment) {
-                    const { error: enrollError } = await supabase
-                        .from('class_enrollments')
-                        .insert({
-                            class_id: application.class_id,
-                            user_id: application.user_id,
-                            role: application.class_role || 'student'
-                        })
-
-                    if (enrollError) {
-                        throw new Error(`Failed to enroll in class: ${enrollError.message}`)
-                    }
-
-                    // Add rollback for class enrollment
-                    rollbackActions.push(async () => {
-                        await supabase
-                            .from('class_enrollments')
-                            .delete()
-                            .eq('class_id', application.class_id)
-                            .eq('user_id', application.user_id)
+                    .insert({
+                        class_id: application.class_id,
+                        user_id: application.user_id,
+                        role: application.class_role || 'student'
                     })
+
+                if (enrollError) {
+                    throw new Error(`Failed to enroll in class: ${enrollError.message}`)
                 }
+
+                // Add rollback for class enrollment
+                rollbackActions.push(async () => {
+                    await supabase
+                        .from('class_enrollments')
+                        .delete()
+                        .eq('class_id', application.class_id)
+                        .eq('user_id', application.user_id)
+                })
             }
         }
 
