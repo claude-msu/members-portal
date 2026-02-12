@@ -4,7 +4,6 @@ DROP FUNCTION IF EXISTS delete_profile(UUID);
 -- Also drop the user deletion functions, grants, and comments defined in 20260110030518_rpc_user_deletion.sql
 
 DROP FUNCTION IF EXISTS delete_user_by_id(UUID);
-REVOKE EXECUTE ON FUNCTION delete_user_by_id(UUID);
 -- Remove comments if your migration tool doesn't remove them automatically.
 
 
