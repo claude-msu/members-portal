@@ -144,14 +144,12 @@ const Applications = () => {
 
   const myApplicationsTotal = userApplications ? (
     userApplications.self.pending.length +
-    userApplications.self.accepted.length +
-    userApplications.self.rejected.length
+    userApplications.self.decided.length
   ) : 0;
 
   const reviewApplicationsTotal = userApplications ? (
     userApplications.review.pending.length +
-    userApplications.review.accepted.length +
-    userApplications.review.rejected.length
+    userApplications.review.pending.length
   ) : 0;
 
   return (
@@ -221,7 +219,7 @@ const Applications = () => {
                   {/* My Reviewed Applications */}
                   {renderApplicationSection(
                     "Reviewed",
-                    [...userApplications.self.accepted, ...userApplications.self.rejected],
+                    userApplications.self.decided,
                     myReviewedCollapsed,
                     () => setMyReviewedCollapsed(!myReviewedCollapsed),
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
@@ -264,7 +262,7 @@ const Applications = () => {
                   {/* Review Reviewed Applications */}
                   {renderApplicationSection(
                     "Reviewed",
-                    [...userApplications.review.accepted, ...userApplications.review.rejected],
+                    userApplications.review.decided,
                     reviewReviewedCollapsed,
                     () => setReviewReviewedCollapsed(!reviewReviewedCollapsed),
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>

@@ -36,14 +36,12 @@ interface UserClasses {
 
 interface UserApplications {
     self: {
-        accepted: Application[];
-        rejected: Application[];
         pending: Application[];
+        decided: Application[];
     };
     review: {
-        accepted: Application[];
-        rejected: Application[];
         pending: Application[];
+        decided: Application[];
     };
 }
 
@@ -304,15 +302,13 @@ async function fetchUserApplications(userId: string, role: AppRole): Promise<Use
     // Categorize user's own applications
     const self = {
         pending: ownApplications?.filter(a => a.status === 'pending') || [],
-        accepted: ownApplications?.filter(a => a.status === 'accepted') || [],
-        rejected: ownApplications?.filter(a => a.status === 'rejected') || [],
+        decided: ownApplications?.filter(a => ['accepted', 'rejected'].includes(a.status)) || [],
     };
 
     // Initialize review categories
     const review = {
         pending: [] as Application[],
-        accepted: [] as Application[],
-        rejected: [] as Application[],
+        decided: [] as Application[],
     };
 
     // Fetch applications the user can review based on their role
@@ -337,8 +333,7 @@ async function fetchUserApplications(userId: string, role: AppRole): Promise<Use
         if (reviewableApplications) {
             // Categorize reviewable applications
             review.pending = reviewableApplications.filter(a => a.status === 'pending');
-            review.accepted = reviewableApplications.filter(a => a.status === 'accepted');
-            review.rejected = reviewableApplications.filter(a => a.status === 'rejected');
+            review.decided = reviewableApplications.filter(a => ['accepted', 'rejected'].includes(a.status));
         }
     }
 
