@@ -26,7 +26,7 @@ const Checkin = () => {
             setChecking(true);
 
             try {
-                const { data, error } = await supabase.rpc('checkin_user_for_event', {
+                const { data, error } = await supabase.rpc('checkin_member', {
                     p_token: token,
                 });
 

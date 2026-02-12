@@ -336,12 +336,6 @@ const Events = () => {
           .eq('id', modalState.selectedItem.id);
         if (error) throw error;
 
-        await supabase
-          .from('event_qr_codes')
-          .update({ points: eventData.points })
-          .eq('event_id', modalState.selectedItem.id);
-        // No error handling here: you can add further checks if required
-
         toast({ title: 'Success', description: 'Event updated!' });
       } else {
         if (isRecurring) {
