@@ -10,7 +10,7 @@ DROP FUNCTION IF EXISTS public.handle_new_user();
 DROP FUNCTION IF EXISTS public.set_term_joined();
 
 -- Consolidated function that creates profile when user confirms email
-CREATE OR REPLACE FUNCTION public.create_profile_on_confirmation()
+CREATE OR REPLACE FUNCTION public.create_profile()
 RETURNS trigger AS $$
 DECLARE
   matching_semester_code TEXT := NULL;
@@ -83,12 +83,12 @@ CREATE TRIGGER on_email_confirmation
   AFTER UPDATE ON auth.users
   FOR EACH ROW
   WHEN (OLD.email_confirmed_at IS NULL AND NEW.email_confirmed_at IS NOT NULL)
-  EXECUTE FUNCTION public.create_profile_on_confirmation();
+  EXECUTE FUNCTION public.create_profile();
 
 -- Grant necessary permissions
-GRANT EXECUTE ON FUNCTION public.create_profile_on_confirmation() TO service_role;
+GRANT EXECUTE ON FUNCTION public.create_profile() TO service_role;
 
-COMMENT ON FUNCTION public.create_profile_on_confirmation() IS
+COMMENT ON FUNCTION public.create_profile() IS
   'Automatically creates profile and assigns prospect role when user confirms email. Also sets term_joined based on confirmation date.';
 
 DROP FUNCTION IF EXISTS remove_banned_user_roles();

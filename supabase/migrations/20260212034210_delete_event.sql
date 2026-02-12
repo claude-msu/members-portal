@@ -1,28 +1,6 @@
--- Drop the old trigger-based system since we're consolidating into a function
+-- Drop the old trigger-based system
 DROP TRIGGER IF EXISTS trigger_delete_event_related_data ON events;
 DROP FUNCTION IF EXISTS delete_event_related_data();
-
--- Ensure CASCADE constraints exist on related tables
-ALTER TABLE event_qr_codes
-  DROP CONSTRAINT IF EXISTS event_qr_codes_event_id_fkey,
-  ADD CONSTRAINT event_qr_codes_event_id_fkey
-    FOREIGN KEY (event_id)
-    REFERENCES events(id)
-    ON DELETE CASCADE;
-
-ALTER TABLE event_checkins
-  DROP CONSTRAINT IF EXISTS event_checkins_event_id_fkey,
-  ADD CONSTRAINT event_checkins_event_id_fkey
-    FOREIGN KEY (event_id)
-    REFERENCES events(id)
-    ON DELETE CASCADE;
-
-ALTER TABLE event_attendance
-  DROP CONSTRAINT IF EXISTS event_attendance_event_id_fkey,
-  ADD CONSTRAINT event_attendance_event_id_fkey
-    FOREIGN KEY (event_id)
-    REFERENCES events(id)
-    ON DELETE CASCADE;
 
 -- Function to delete an event with QR code cleanup
 CREATE OR REPLACE FUNCTION delete_event(target_event_id UUID)
@@ -82,7 +60,7 @@ BEGIN
     END;
   END LOOP;
 
-  -- Delete the event (this will CASCADE to event_qr_codes, event_checkins, event_attendance)
+  -- Delete the event (CASCADE will handle event_qr_codes and event_attendance)
   DELETE FROM events WHERE id = target_event_id;
 
   RETURN jsonb_build_object(
@@ -101,7 +79,4 @@ $$;
 GRANT EXECUTE ON FUNCTION delete_event(UUID) TO authenticated;
 
 COMMENT ON FUNCTION delete_event(UUID) IS
-  'Deletes an event, QR code images, and all related data (event_qr_codes, event_checkins, event_attendance) via cascades. Only callable by board+ roles.';
-
--- Rename function create_profile_on_confirmation to create_profile
-ALTER FUNCTION public.create_profile_on_confirmation() RENAME TO create_profile;
+  'Deletes an event, QR code images, and all related data (event_qr_codes, event_attendance) via cascades. Only callable by board+ roles.';
