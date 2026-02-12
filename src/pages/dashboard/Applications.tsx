@@ -149,7 +149,7 @@ const Applications = () => {
 
   const reviewApplicationsTotal = userApplications ? (
     userApplications.review.pending.length +
-    userApplications.review.pending.length
+    userApplications.review.decided.length
   ) : 0;
 
   return (
