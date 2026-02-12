@@ -31,6 +31,9 @@ const Auth = () => {
   const [showSignupVerification, setShowSignupVerification] = useState(false);
   const [signupEmail, setSignupEmail] = useState('');
   const [signupPassword, setSignupPassword] = useState('');
+  const [showLoginEmailVerification, setShowLoginEmailVerification] = useState(false);
+  const [loginVerificationEmail, setLoginVerificationEmail] = useState('');
+  const [loginVerificationCode, setLoginVerificationCode] = useState('');
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user, signIn, loading: authLoading } = useAuth();
@@ -282,6 +285,13 @@ const Auth = () => {
 
       if (error) throw error;
 
+      // If we're in the login verification flow, show the code input
+      if (showResendVerification && isLogin) {
+        setLoginVerificationEmail(emailToUse);
+        setShowLoginEmailVerification(true);
+        setShowResendVerification(false);
+      }
+
       toast({
         title: 'Verification Code Sent',
         description: 'A new verification code has been sent to your email.',
@@ -293,6 +303,75 @@ const Auth = () => {
         description: errorMessage,
         variant: 'destructive',
       });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyLoginEmail = async () => {
+    if (!loginVerificationCode.trim()) {
+      toast({
+        title: 'Code Required',
+        description: 'Please enter the verification code from your email.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (loginVerificationCode.length < 6) {
+      toast({
+        title: 'Invalid Code',
+        description: 'Please enter the complete verification code.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Verify the signup OTP for email confirmation
+      const { error } = await supabase.auth.verifyOtp({
+        email: loginVerificationEmail,
+        token: loginVerificationCode,
+        type: 'signup',
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Email Verified!',
+        description: 'Your email has been verified. Logging you in...',
+      });
+
+      // Log the user in with their original credentials
+      await signIn(loginVerificationEmail, password);
+
+      // Clear verification state
+      setShowLoginEmailVerification(false);
+      setLoginVerificationCode('');
+      setLoginVerificationEmail('');
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+
+      if (errorMessage.includes('expired') || errorMessage.includes('Token has expired')) {
+        toast({
+          title: 'Code Expired',
+          description: 'The verification code has expired. Please request a new one.',
+          variant: 'destructive',
+        });
+      } else if (errorMessage.includes('invalid') || errorMessage.includes('not found')) {
+        toast({
+          title: 'Invalid Code',
+          description: 'The verification code is incorrect. Please check and try again.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error',
+          description: errorMessage,
+          variant: 'destructive',
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -550,6 +629,7 @@ const Auth = () => {
         errorMessage?.toLowerCase().includes('email link is invalid') ||
         errorMessage?.toLowerCase().includes('confirm your email')) {
         setShowResendVerification(true);
+        setLoginVerificationEmail(email);
         toast({
           title: 'Email Not Verified',
           description: 'Please verify your email address. Click "Resend Verification Email" below.',
@@ -582,24 +662,28 @@ const Auth = () => {
           <CardTitle className={isMobile ? 'text-xl' : ''}>
             {showSignupVerification
               ? 'Verify Your Email'
-              : showCodeInput
-                ? 'Verify Code'
-                : isResettingPassword
-                  ? 'Reset Password'
-                  : isLogin
-                    ? 'Login'
-                    : 'Sign Up'}
+              : showLoginEmailVerification
+                ? 'Verify Your Email'
+                : showCodeInput
+                  ? 'Verify Code'
+                  : isResettingPassword
+                    ? 'Reset Password'
+                    : isLogin
+                      ? 'Login'
+                      : 'Sign Up'}
           </CardTitle>
           <CardDescription className={isMobile ? 'text-sm' : ''}>
             {showSignupVerification
               ? 'Enter the verification code from your email'
-              : showCodeInput
-                ? 'Check your email for the verification code'
-                : isResettingPassword
-                  ? 'Enter your new password'
-                  : isLogin
-                    ? 'Welcome back to Claude Builder Club'
-                    : 'Join Claude Builder Club @ MSU'}
+              : showLoginEmailVerification
+                ? 'Enter the verification code from your email'
+                : showCodeInput
+                  ? 'Check your email for the verification code'
+                  : isResettingPassword
+                    ? 'Enter your new password'
+                    : isLogin
+                      ? 'Welcome back to Claude Builder Club'
+                      : 'Join Claude Builder Club @ MSU'}
           </CardDescription>
         </CardHeader>
         <CardContent className={isMobile ? 'pt-0' : ''}>
@@ -663,6 +747,62 @@ const Auth = () => {
                 }}
               >
                 Back to Sign Up
+              </Button>
+            </div>
+          ) : showLoginEmailVerification ? (
+            <div className={`space-y-4 ${isMobile ? 'space-y-3' : 'space-y-4'}`}>
+              <Alert className="border-primary/20">
+                <AlertDescription className="text-sm">
+                  A verification code has been sent to <strong>{loginVerificationEmail}</strong>. Enter it below to verify your email and complete login.
+                </AlertDescription>
+              </Alert>
+
+              <div className="space-y-2">
+                <Label htmlFor="loginVerificationCode" required>Verification Code</Label>
+                <Input
+                  id="loginVerificationCode"
+                  type="text"
+                  value={loginVerificationCode}
+                  onChange={(e) => setLoginVerificationCode(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                  maxLength={8}
+                  placeholder="Enter code from email"
+                  className="text-center text-2xl tracking-widest"
+                />
+              </div>
+
+              <Button
+                onClick={handleVerifyLoginEmail}
+                className={`w-full ${isMobile ? 'h-11' : ''}`}
+                disabled={loading}
+              >
+                {loading ? 'Verifying...' : 'Verify Email'}
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                className={`w-full ${isMobile ? 'h-11' : ''}`}
+                onClick={handleResendVerification}
+                disabled={loading}
+              >
+                Resend Code
+              </Button>
+
+              <Button
+                type="button"
+                variant="ghost"
+                className={`w-full hover:bg-transparent hover:text-primary transition-all duration-200 ${isMobile ? 'h-11 text-sm' : ''}`}
+                onClick={() => {
+                  setShowLoginEmailVerification(false);
+                  setLoginVerificationCode('');
+                  setLoginVerificationEmail('');
+                  setShowResendVerification(false);
+                  setEmail('');
+                  setPassword('');
+                  navigate('/auth#login', { replace: true });
+                }}
+              >
+                Back to Login
               </Button>
             </div>
           ) : showCodeInput ? (
