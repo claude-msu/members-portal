@@ -433,9 +433,9 @@ const Profile = () => {
           .remove(filePaths);
       }
 
-      // Step 2: Call the database function to delete the user account
-      // This will cascade delete the profile and all related data
-      const { error: rpcError } = await supabase.rpc('delete_own_account');
+      const { error: rpcError } = await supabase.rpc('delete_profile', {
+        target_user_id: user.id,
+      });
 
       if (rpcError) {
         console.error('RPC error:', rpcError);

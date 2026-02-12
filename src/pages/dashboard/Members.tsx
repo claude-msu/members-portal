@@ -120,7 +120,7 @@ const Members = () => {
 
   const handleKickMember = async (memberId: string, memberName: string) => {
     try {
-      const { error } = await supabase.rpc('delete_user_by_id', {
+      const { error } = await supabase.rpc('delete_profile', {
         target_user_id: memberId,
       });
 
