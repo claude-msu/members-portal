@@ -277,10 +277,7 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    // Generate ISO string in US Eastern Timezone (e.g., 'America/New_York')
-    const today = new Date(
-      new Date().toLocaleString('en-US', { timeZone: 'America/New_York' })
-    ).toISOString()
+    const now = new Date().toLocaleString("en-US", { timeZone: "America/Detroit" });
 
     interface AutomationResult {
       type: 'project' | 'class'
@@ -297,7 +294,7 @@ serve(async (req) => {
         id, name, repository_name, slack_channel_id,
         semesters!inner(code, start_date)
       `)
-      .lte('semesters.start_date', today)
+      .lte('semesters.start_date', now)
       .is('slack_channel_id', null) // Only process if not already done
 
     if (projectsError) throw projectsError
@@ -308,7 +305,7 @@ serve(async (req) => {
         id, name, slack_channel_id,
         semesters!inner(code, start_date)
       `)
-      .lte('semesters.start_date', today)
+      .lte('semesters.start_date', now)
       .is('slack_channel_id', null) // Only process if not already done
 
     if (classesError) throw classesError
