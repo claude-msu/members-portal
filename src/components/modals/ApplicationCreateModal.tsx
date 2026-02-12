@@ -547,6 +547,7 @@ export const ApplicationCreateModal = ({
               <SelectItem value="sophomore">Sophomore</SelectItem>
               <SelectItem value="junior">Junior</SelectItem>
               <SelectItem value="senior">Senior</SelectItem>
+              <SelectItem value="graduate">Graduate</SelectItem>
             </SelectContent>
           </Select>
         </div>
