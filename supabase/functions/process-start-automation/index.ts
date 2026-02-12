@@ -38,7 +38,7 @@ async function ensureGitHubTeam(name: string, description: string): Promise<stri
   const data = await res.json()
 
   // Success or already exists - both are fine
-  if (res.ok || data.errors?.some((e) => e.code === 'already_exists')) {
+  if (res.ok || data.errors?.some((e: any) => e.code === 'already_exists')) {
     return data.slug || slug
   }
 
@@ -192,7 +192,7 @@ async function ensureSlackChannel(name: string): Promise<string> {
     const listData = await listRes.json()
 
     if (listData.ok) {
-      const existingChannel = listData.channels?.find((c) => c.name === channelName)
+      const existingChannel = listData.channels?.find((c: any) => c.name === channelName)
       if (existingChannel) {
         return existingChannel.id
       }
@@ -204,7 +204,7 @@ async function ensureSlackChannel(name: string): Promise<string> {
 
 async function getSlackUserIds(
   emails: string[],
-  supabase
+  supabase: any
 ): Promise<string[]> {
   const ids: string[] = []
 
@@ -291,7 +291,7 @@ serve(async (req) => {
     const { data: projects, error: projectsError } = await supabase
       .from('projects')
       .select(`
-        id, name, repository_name, slack_channel_id, repository_url,
+        id, name, repository_name, slack_channel_id,
         semesters!inner(code, start_date)
       `)
       .lte('semesters.start_date', today)
@@ -325,6 +325,15 @@ serve(async (req) => {
           continue
         }
 
+        // Lead is optional - if exists with GitHub, they get maintainer permissions
+        const lead = members.find(m => m.role === 'lead')
+
+        if (!lead) {
+          console.warn(`Project ${project.name} has no lead assigned`)
+        } else if (!lead.profiles.github_username) {
+          console.warn(`Project ${project.name} lead has no GitHub username`)
+        }
+
         // A. GitHub Setup (all idempotent)
         const teamSlug = await ensureGitHubTeam(
           `${project.name}-${project.semesters.code}`,
@@ -332,8 +341,6 @@ serve(async (req) => {
         )
 
         // Add Lead as maintainer (if exists and has GitHub username)
-        const lead = members.find(m => m.role === 'lead')
-
         if (lead?.profiles.github_username) {
           await addGitHubTeamMember(teamSlug, lead.profiles.github_username, 'maintainer')
         }
@@ -370,12 +377,10 @@ serve(async (req) => {
         )
 
         // C. Update database - LAST STEP (marks as complete)
+        // Only update slack_channel_id - repository_name already exists
         const { error: updateError } = await supabase
           .from('projects')
-          .update({
-            slack_channel_id: channelId,
-            repository_url: repoUrl
-          })
+          .update({ slack_channel_id: channelId })
           .eq('id', project.id)
 
         if (updateError) {
@@ -384,7 +389,7 @@ serve(async (req) => {
 
         results.push({ type: 'project', name: project.name, status: 'success' })
 
-      } catch (err) {
+      } catch (err: any) {
         console.error(`Error processing project ${project.name}:`, err)
         results.push({ type: 'project', name: project.name, error: err.message })
         // NO ROLLBACK - let next run fix it via idempotency
@@ -433,7 +438,7 @@ serve(async (req) => {
 
         results.push({ type: 'class', name: cls.name, status: 'success' })
 
-      } catch (err) {
+      } catch (err: any) {
         console.error(`Error processing class ${cls.name}:`, err)
         results.push({ type: 'class', name: cls.name, error: err.message })
         // NO ROLLBACK - let next run fix it via idempotency
@@ -444,7 +449,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Critical automation error:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
