@@ -569,11 +569,15 @@ const Auth = () => {
         // The useEffect above will handle the navigation when user state updates
       } else {
         // Check if email belongs to a banned user before signup
-        const { data: existingProfile } = await supabase
+        const { data: existingProfile, error: profileError } = await supabase
           .from('profiles')
           .select('is_banned')
           .eq('email', email)
-          .single();
+          .maybeSingle();
+
+        if (profileError) {
+          throw profileError;
+        }
 
         if (existingProfile?.is_banned) {
           toast({

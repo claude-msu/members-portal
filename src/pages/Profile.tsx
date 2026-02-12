@@ -12,7 +12,6 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -23,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Trophy, Mail, Award, Linkedin, Github, FileText, Camera, RotateCw, ExternalLink, Trash2 } from 'lucide-react';
+import { Trophy, Mail, Award, Linkedin, Github, FileText, Camera, RotateCw, ExternalLink, Trash2, AlertTriangle } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import {
   Select,
@@ -60,6 +59,8 @@ const Profile = () => {
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
   const [showCropModal, setShowCropModal] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmationEmail, setDeleteConfirmationEmail] = useState('');
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Populate form when profile loads
@@ -447,6 +448,9 @@ const Profile = () => {
         description: 'Your account has been permanently deleted.',
       });
 
+      // Close the dialog before signing out
+      setShowDeleteDialog(false);
+
       // Step 3: Sign out and redirect
       await signOut();
       navigate('/auth#signup', { replace: true });
@@ -714,7 +718,12 @@ const Profile = () => {
 
         {/* Delete Profile Link - Spans all columns */}
         <div className="flex items-center justify-center lg:col-span-3 py-2">
-          <AlertDialog>
+          <AlertDialog open={showDeleteDialog} onOpenChange={(open) => {
+            setShowDeleteDialog(open);
+            if (!open) {
+              setDeleteConfirmationEmail('');
+            }
+          }}>
             <AlertDialogTrigger asChild>
               <button
                 disabled={isDeleting}
@@ -725,30 +734,61 @@ const Profile = () => {
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription className="space-y-2">
+                <div className="flex w-full justify-between items-center">
+                  <AlertDialogTitle className="text-left">Delete account</AlertDialogTitle>
+                  <div className="h-8 w-8 flex items-center justify-center rounded-full bg-red-100 dark:bg-red-900/20">
+                    <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
+                  </div>
+                </div>
+                <AlertDialogDescription className="text-left mt-4 space-y-3">
                   <p>
                     This action cannot be undone. This will permanently delete your account and remove all your data from our servers.
                   </p>
-                  <p className="font-semibold text-destructive">
-                    You will lose:
-                  </p>
-                  <ul className="list-disc list-inside text-sm space-y-1 ml-2">
-                    <li>All your points ({profile?.points || 0} points)</li>
-                    <li>Your profile information and settings</li>
-                    <li>Uploaded files (resume, profile picture)</li>
-                    <li>Access to the members portal</li>
-                  </ul>
+
+                  <div className="space-y-2">
+                    <p className="font-semibold text-foreground text-sm">
+                      You will lose:
+                    </p>
+                    <ol className="text-sm space-y-1 text-muted-foreground ml-4">
+                      <li className="list-decimal">All your points ({profile?.points || 0} points)</li>
+                      <li className="list-decimal">Your profile information and settings</li>
+                      <li className="list-decimal">Uploaded files (resume, profile picture)</li>
+                      <li className="list-decimal">Access to the members portal</li>
+                    </ol>
+                  </div>
+
+                  <div className="space-y-2 pt-2">
+                    <p className="text-sm font-medium">
+                      Type your email to confirm deletion:
+                    </p>
+                    <Input
+                      type="email"
+                      placeholder={user?.email || "your@email.com"}
+                      value={deleteConfirmationEmail}
+                      onChange={(e) => setDeleteConfirmationEmail(e.target.value)}
+                      disabled={isDeleting}
+                      autoComplete="off"
+                    />
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={handleDeleteProfile}
-                  className="bg-destructive hover:bg-destructive/90"
+              <AlertDialogFooter
+                className={`flex !justify-around ${isMobile ? 'space-y-2 flex-col-reverse' : 'flex-row'}`}
+              >
+                <AlertDialogCancel
+                  disabled={isDeleting}
+                  className={isMobile ? '' : 'w-[47%] mt-0'}
                 >
-                  Yes, delete my account
-                </AlertDialogAction>
+                  Cancel
+                </AlertDialogCancel>
+                <Button
+                  variant="destructive"
+                  onClick={handleDeleteProfile}
+                  disabled={isDeleting || deleteConfirmationEmail !== user?.email}
+                  className={!isMobile ? 'w-[47%]' : 'w-full'}
+                >
+                  {isDeleting ? 'Deleting...' : 'Delete my account'}
+                </Button>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
