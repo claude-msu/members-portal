@@ -246,7 +246,6 @@ export type Database = {
           created_at: string
           event_id: string
           id: string
-          points: number
           qr_code_url: string | null
           token: string
         }
@@ -254,7 +253,6 @@ export type Database = {
           created_at?: string
           event_id: string
           id?: string
-          points: number
           qr_code_url?: string | null
           token: string
         }
@@ -262,7 +260,6 @@ export type Database = {
           created_at?: string
           event_id?: string
           id?: string
-          points?: number
           qr_code_url?: string | null
           token?: string
         }

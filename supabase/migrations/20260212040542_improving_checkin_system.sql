@@ -24,15 +24,19 @@ BEGIN
     RETURN jsonb_build_object('success', false, 'message', 'Not authenticated');
   END IF;
 
-  -- Get QR code and event details
-  SELECT qr.*, e.* INTO v_qr_code, v_event
-  FROM event_qr_codes qr
-  JOIN events e ON e.id = qr.event_id
-  WHERE qr.token = p_token;
+  -- Get QR code details
+  SELECT * INTO v_qr_code
+  FROM event_qr_codes
+  WHERE token = p_token;
 
   IF NOT FOUND THEN
     RETURN jsonb_build_object('success', false, 'message', 'Invalid or expired QR code');
   END IF;
+
+  -- Get event details
+  SELECT * INTO v_event
+  FROM events
+  WHERE id = v_qr_code.event_id;
 
   -- Check existing attendance status
   SELECT
