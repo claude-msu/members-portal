@@ -48,13 +48,14 @@ const Events = () => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
+
   // Combine and sort all events with grace period
   // Include events from the past 12 hours (grace period) plus future events
-  const twelveHoursAgo = new Date(Date.now() - 12 * 60 * 60 * 1000);
+  const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000);
   const events = ((userEvents?.attending ?? []).concat(userEvents?.notAttending ?? []))
     .slice()
     .sort((a, b) => new Date(a.event_date).getTime() - new Date(b.event_date).getTime())
-    .filter(event => new Date(event.event_date) >= twelveHoursAgo); // Events from past 12 hours + future
+    .filter(event => new Date(event.event_date) >= sixHoursAgo); // Events from past 12 hours + future
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [generatingQR, setGeneratingQR] = useState<string | null>(null);
   const [saveLoading, setSaveLoading] = useState(false);
@@ -421,13 +422,15 @@ const Events = () => {
     if (!modalState.selectedItem) return;
 
     const { error } = await supabase
-      .from('events')
-      .delete()
-      .eq('id', modalState.selectedItem.id);
+      .rpc('delete_event', { target_event_id: modalState.selectedItem.id });
 
     if (error) {
-      toast({ title: 'Error', description: error.message, variant: 'destructive' });
-      throw error;
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to delete event',
+        variant: 'destructive'
+      });
+      return;
     }
 
     toast({ title: 'Success', description: 'Event deleted!' });
@@ -701,7 +704,7 @@ const Events = () => {
         actions.push({
           label: 'Attended',
           icon: <CheckCircle className="h-4 w-4 mr-2" />,
-          onClick: () => {}, // No action needed
+          onClick: () => { }, // No action needed
           variant: 'secondary' as const,
           disabled: true,
         });
