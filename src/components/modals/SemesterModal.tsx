@@ -33,6 +33,16 @@ interface SemesterModalProps {
   required?: boolean;
 }
 
+// Helper function to convert date to ISO string with timezone offset
+const getLocalISOString = (date: Date): string => {
+  const offset = -date.getTimezoneOffset();
+  const sign = offset >= 0 ? '+' : '-';
+  const hours = String(Math.abs(Math.floor(offset / 60))).padStart(2, '0');
+  const minutes = String(Math.abs(offset % 60)).padStart(2, '0');
+  const isoString = date.toISOString().split('Z')[0];
+  return `${isoString}${sign}${hours}:${minutes}`;
+};
+
 const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -228,7 +238,7 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
                     mode="single"
                     selected={formData.start_date ? new Date(formData.start_date) : undefined}
                     onSelect={(selectedDate) => {
-                      setFormData({ ...formData, start_date: selectedDate ? new Date(selectedDate).toISOString() : '' });
+                      setFormData({ ...formData, start_date: selectedDate ? getLocalISOString(selectedDate) : '' });
                       setStartCalendarOpen(false);
                     }}
                     initialFocus
@@ -261,7 +271,7 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
                     mode="single"
                     selected={formData.end_date ? new Date(formData.end_date) : undefined}
                     onSelect={(selectedDate) => {
-                      setFormData({ ...formData, end_date: selectedDate ? new Date(selectedDate).toISOString() : '' });
+                      setFormData({ ...formData, end_date: selectedDate ? getLocalISOString(selectedDate) : '' });
                       setEndCalendarOpen(false);
                     }}
                     initialFocus

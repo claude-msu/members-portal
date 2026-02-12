@@ -38,7 +38,7 @@ async function ensureGitHubTeam(name: string, description: string): Promise<stri
   const data = await res.json()
 
   // Success or already exists - both are fine
-  if (res.ok || data.errors?.some((e: any) => e.code === 'already_exists')) {
+  if (res.ok || data.errors?.some((e) => e.code === 'already_exists')) {
     return data.slug || slug
   }
 
@@ -192,7 +192,7 @@ async function ensureSlackChannel(name: string): Promise<string> {
     const listData = await listRes.json()
 
     if (listData.ok) {
-      const existingChannel = listData.channels?.find((c: any) => c.name === channelName)
+      const existingChannel = listData.channels?.find((c) => c.name === channelName)
       if (existingChannel) {
         return existingChannel.id
       }
@@ -204,7 +204,7 @@ async function ensureSlackChannel(name: string): Promise<string> {
 
 async function getSlackUserIds(
   emails: string[],
-  supabase: any
+  supabase
 ): Promise<string[]> {
   const ids: string[] = []
 
@@ -384,7 +384,7 @@ serve(async (req) => {
 
         results.push({ type: 'project', name: project.name, status: 'success' })
 
-      } catch (err: any) {
+      } catch (err) {
         console.error(`Error processing project ${project.name}:`, err)
         results.push({ type: 'project', name: project.name, error: err.message })
         // NO ROLLBACK - let next run fix it via idempotency
@@ -433,7 +433,7 @@ serve(async (req) => {
 
         results.push({ type: 'class', name: cls.name, status: 'success' })
 
-      } catch (err: any) {
+      } catch (err) {
         console.error(`Error processing class ${cls.name}:`, err)
         results.push({ type: 'class', name: cls.name, error: err.message })
         // NO ROLLBACK - let next run fix it via idempotency
@@ -444,7 +444,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Critical automation error:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,

@@ -467,8 +467,6 @@ serve(async (req) => {
             // STEP 5: Smart Slack Channel Auto-Add (if already started)
             // ======================================================================
             if (slackChannelId && SLACK_BOT_TOKEN) {
-                let originalSlackUserId = slackUserId
-
                 // If we don't have their Slack user ID yet, look it up
                 if (!slackUserId) {
                     slackUserId = await lookupSlackUserIdByEmail(userEmail)
