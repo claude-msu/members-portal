@@ -20,6 +20,7 @@ const corsHeaders = {
 async function ensureGitHubTeam(name: string, description: string): Promise<string> {
   const slug = name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
 
+  // Try to create team
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams`, {
     method: 'POST',
     headers: {
@@ -36,23 +37,12 @@ async function ensureGitHubTeam(name: string, description: string): Promise<stri
 
   const data = await res.json()
 
-  if (res.ok) return data.slug
-
-  if (data.errors?.some((e) => e.code === 'already_exists')) {
-    return slug
+  // Success or already exists - both are fine
+  if (res.ok || data.errors?.some((e: any) => e.code === 'already_exists')) {
+    return data.slug || slug
   }
 
   throw new Error(`Failed to create GitHub Team: ${JSON.stringify(data)}`)
-}
-
-async function deleteGitHubTeam(teamSlug: string): Promise<void> {
-  await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
-    }
-  })
 }
 
 async function addGitHubTeamMember(
@@ -60,15 +50,24 @@ async function addGitHubTeamMember(
   username: string,
   role: 'member' | 'maintainer'
 ): Promise<void> {
-  await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/memberships/${username}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ role })
-  })
+  const res = await fetch(
+    `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/memberships/${username}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ role })
+    }
+  )
+
+  // Idempotent - PUT will create or update
+  if (!res.ok) {
+    const data = await res.json()
+    console.warn(`Failed to add ${username} to team ${teamSlug}:`, data)
+  }
 }
 
 async function ensureGitHubRepo(
@@ -76,6 +75,35 @@ async function ensureGitHubRepo(
   description: string,
   teamSlug: string
 ): Promise<string> {
+  const repoUrl = `https://github.com/${GITHUB_ORG}/${name}`
+
+  // Check if repo exists first
+  const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${name}`, {
+    headers: {
+      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+    }
+  })
+
+  if (checkRes.ok) {
+    // Repo exists, just ensure team has access
+    await fetch(
+      `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/repos/${GITHUB_ORG}/${name}`,
+      {
+        method: 'PUT',
+        headers: {
+          'Authorization': `token ${GITHUB_ORG_PAT}`,
+          'Accept': 'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ permission: 'push' })
+      }
+    )
+
+    return repoUrl
+  }
+
+  // Repo doesn't exist, create it
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos`, {
     method: 'POST',
     headers: {
@@ -91,62 +119,59 @@ async function ensureGitHubRepo(
     })
   })
 
-  const data = await res.json()
-
-  if (!res.ok && !data.errors?.some((e) => e.message === 'name already exists on this account')) {
-    throw new Error(`Failed to create Repo: ${JSON.stringify(data)}`)
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(`Failed to create repo: ${JSON.stringify(data)}`)
   }
 
-  // Add Team Permission (Push access)
-  await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/repos/${GITHUB_ORG}/${name}`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({ permission: 'push' })
-  })
-
-  // Protect Main Branch
-  await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${name}/branches/main/protection`, {
-    method: 'PUT',
-    headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      required_status_checks: null,
-      enforce_admins: false,
-      required_pull_request_reviews: {
-        dismiss_stale_reviews: true,
-        required_approving_review_count: 1,
+  // Add Team Permission
+  await fetch(
+    `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/repos/${GITHUB_ORG}/${name}`,
+    {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
       },
-      restrictions: null
-    })
-  })
-
-  return `https://github.com/${GITHUB_ORG}/${name}`
-}
-
-async function deleteGitHubRepo(name: string): Promise<void> {
-  await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${name}`, {
-    method: 'DELETE',
-    headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
+      body: JSON.stringify({ permission: 'push' })
     }
-  })
+  )
+
+  // Protect Main Branch (best effort - might fail if no commits yet)
+  try {
+    await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${name}/branches/main/protection`, {
+      method: 'PUT',
+      headers: {
+        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        required_status_checks: null,
+        enforce_admins: false,
+        required_pull_request_reviews: {
+          dismiss_stale_reviews: true,
+          required_approving_review_count: 1,
+        },
+        restrictions: null
+      })
+    })
+  } catch (e) {
+    console.warn(`Branch protection failed for ${name} (may not have commits yet):`, e)
+  }
+
+  return repoUrl
 }
 
 // ============================================================================
 // SLACK HELPERS
 // ============================================================================
 
-async function createSlackChannel(name: string): Promise<string> {
+async function ensureSlackChannel(name: string): Promise<string> {
   const channelName = name.toLowerCase().replace(/[^a-z0-9-_]/g, '-').slice(0, 80)
 
+  // Try to create channel
   const res = await fetch('https://slack.com/api/conversations.create', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
@@ -155,17 +180,26 @@ async function createSlackChannel(name: string): Promise<string> {
 
   const data = await res.json()
 
+  // Success - return channel ID
   if (data.ok) return data.channel.id
 
-  throw new Error(`Slack Create Channel Error: ${data.error}`)
-}
+  // Already exists - find it
+  if (data.error === 'name_taken') {
+    // List channels to find it (paginate if needed)
+    const listRes = await fetch('https://slack.com/api/conversations.list?limit=1000', {
+      headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` }
+    })
+    const listData = await listRes.json()
 
-async function archiveSlackChannel(channelId: string): Promise<void> {
-  await fetch('https://slack.com/api/conversations.archive', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ channel: channelId })
-  })
+    if (listData.ok) {
+      const existingChannel = listData.channels?.find((c: any) => c.name === channelName)
+      if (existingChannel) {
+        return existingChannel.id
+      }
+    }
+  }
+
+  throw new Error(`Slack channel error: ${data.error}`)
 }
 
 async function getSlackUserIds(
@@ -186,7 +220,7 @@ async function getSlackUserIds(
         const slackUserId = data.user.id
         ids.push(slackUserId)
 
-        // Save Slack user ID to profile for future use
+        // Save Slack user ID to profile (idempotent - only updates if null)
         try {
           await supabase
             .from('profiles')
@@ -208,6 +242,7 @@ async function getSlackUserIds(
 async function inviteToSlackChannel(channelId: string, userIds: string[]): Promise<void> {
   if (!channelId || userIds.length === 0) return
 
+  // Invite users (idempotent - already_in_channel is not an error)
   const res = await fetch('https://slack.com/api/conversations.invite', {
     method: 'POST',
     headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
@@ -221,11 +256,16 @@ async function inviteToSlackChannel(channelId: string, userIds: string[]): Promi
 }
 
 async function postSlackMessage(channelId: string, text: string): Promise<void> {
-  await fetch('https://slack.com/api/chat.postMessage', {
-    method: 'POST',
-    headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ channel: channelId, text })
-  })
+  // Best effort - don't throw on failure
+  try {
+    await fetch('https://slack.com/api/chat.postMessage', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ channel: channelId, text })
+    })
+  } catch (e) {
+    console.warn('Failed to post welcome message:', e)
+  }
 }
 
 // ============================================================================
@@ -247,15 +287,15 @@ serve(async (req) => {
     }
     const results: AutomationResult[] = []
 
-    // Fetch Projects and Classes
+    // Fetch Projects and Classes that need processing
     const { data: projects, error: projectsError } = await supabase
       .from('projects')
       .select(`
-        id, name, repository_name, slack_channel_id,
+        id, name, repository_name, slack_channel_id, repository_url,
         semesters!inner(code, start_date)
       `)
       .lte('semesters.start_date', today)
-      .is('slack_channel_id', null)
+      .is('slack_channel_id', null) // Only process if not already done
 
     if (projectsError) throw projectsError
 
@@ -266,7 +306,7 @@ serve(async (req) => {
         semesters!inner(code, start_date)
       `)
       .lte('semesters.start_date', today)
-      .is('slack_channel_id', null)
+      .is('slack_channel_id', null) // Only process if not already done
 
     if (classesError) throw classesError
 
@@ -274,8 +314,6 @@ serve(async (req) => {
     // PROCESS PROJECTS
     // ========================================================================
     for (const project of projects || []) {
-      const rollbackActions: (() => Promise<void>)[] = []
-
       try {
         const { data: members } = await supabase
           .from('project_members')
@@ -287,84 +325,69 @@ serve(async (req) => {
           continue
         }
 
-        const lead = members.find(m => m.role === 'lead')
-        if (!lead?.profiles.github_username) {
-          results.push({ type: 'project', name: project.name, error: 'No Lead/GitHub' })
-          continue
-        }
-
-        // A. GitHub Setup
+        // A. GitHub Setup (all idempotent)
         const teamSlug = await ensureGitHubTeam(
           `${project.name}-${project.semesters.code}`,
           `Team for ${project.name}`
         )
 
-        rollbackActions.push(async () => {
-          await deleteGitHubTeam(teamSlug)
-        })
+        // Add Lead as maintainer (if exists and has GitHub username)
+        const lead = members.find(m => m.role === 'lead')
 
-        // Add Lead
-        await addGitHubTeamMember(teamSlug, lead.profiles.github_username, 'maintainer')
-
-        // Add Members
-        for (const m of members) {
-          if (m.user_id !== lead.user_id && m.profiles.github_username) {
-            await addGitHubTeamMember(teamSlug, m.profiles.github_username, 'member')
-          }
+        if (lead?.profiles.github_username) {
+          await addGitHubTeamMember(teamSlug, lead.profiles.github_username, 'maintainer')
         }
 
-        // Create Repo & Protect
+        // Add all other members with GitHub usernames
+        const membersWithGitHub = members.filter(m => m.profiles.github_username)
+
+        if (membersWithGitHub.length === 0 && !lead?.profiles.github_username) {
+          console.warn(`Project ${project.name} has no members with GitHub usernames - team will be empty`)
+        }
+
+        for (const m of members) {
+          // Skip lead (already added as maintainer) or members without GitHub
+          if (m.user_id === lead?.user_id || !m.profiles.github_username) continue
+
+          await addGitHubTeamMember(teamSlug, m.profiles.github_username, 'member')
+        }
+
+        // Create/ensure repo exists
         const repoUrl = await ensureGitHubRepo(project.repository_name, project.name, teamSlug)
 
-        rollbackActions.push(async () => {
-          await deleteGitHubRepo(project.repository_name)
-        })
+        // B. Slack Setup (idempotent)
+        const channelId = await ensureSlackChannel(`project-${project.name}`)
 
-        // B. Slack Setup
-        const channelId = await createSlackChannel(`project-${project.name}`)
-
-        rollbackActions.push(async () => {
-          await archiveSlackChannel(channelId)
-        })
-
-        // Save channel ID and repo URL to DB
-        const { error: updateError } = await supabase
-          .from('projects')
-          .update({ slack_channel_id: channelId, repository_url: repoUrl })
-          .eq('id', project.id)
-
-        if (updateError) throw updateError
-
-        rollbackActions.push(async () => {
-          await supabase
-            .from('projects')
-            .update({ slack_channel_id: null, repository_url: null })
-            .eq('id', project.id)
-        })
-
-        // Invite Members to Slack
+        // Invite members to Slack
         const emails = members.map(m => m.profiles.email)
         const slackIds = await getSlackUserIds(emails, supabase)
         await inviteToSlackChannel(channelId, slackIds)
 
-        // Welcome Message
-        await postSlackMessage(channelId, `🚀 Welcome to ${project.name}!\n\nGitHub: ${repoUrl}\n\nLet's build! 💪`)
+        // Post welcome message (best effort)
+        await postSlackMessage(
+          channelId,
+          `🚀 Welcome to ${project.name}!\n\nGitHub: ${repoUrl}\n\nLet's build! 💪`
+        )
+
+        // C. Update database - LAST STEP (marks as complete)
+        const { error: updateError } = await supabase
+          .from('projects')
+          .update({
+            slack_channel_id: channelId,
+            repository_url: repoUrl
+          })
+          .eq('id', project.id)
+
+        if (updateError) {
+          throw new Error(`Failed to update database: ${updateError.message}`)
+        }
 
         results.push({ type: 'project', name: project.name, status: 'success' })
 
-      } catch (err) {
+      } catch (err: any) {
         console.error(`Error processing project ${project.name}:`, err)
-
-        // Execute rollbacks for this project
-        for (const rollback of rollbackActions.reverse()) {
-          try {
-            await rollback()
-          } catch (rollbackError) {
-            console.error('Rollback failed:', rollbackError)
-          }
-        }
-
         results.push({ type: 'project', name: project.name, error: err.message })
+        // NO ROLLBACK - let next run fix it via idempotency
       }
     }
 
@@ -372,8 +395,6 @@ serve(async (req) => {
     // PROCESS CLASSES
     // ========================================================================
     for (const cls of classes || []) {
-      const rollbackActions: (() => Promise<void>)[] = []
-
       try {
         const { data: members } = await supabase
           .from('class_enrollments')
@@ -385,54 +406,37 @@ serve(async (req) => {
           continue
         }
 
-        // A. Slack Setup
-        const channelId = await createSlackChannel(`class-${cls.name}-${cls.semesters.code}`)
+        // A. Slack Setup (idempotent)
+        const channelId = await ensureSlackChannel(`class-${cls.name}-${cls.semesters.code}`)
 
-        rollbackActions.push(async () => {
-          await archiveSlackChannel(channelId)
-        })
-
-        // Save channel ID to DB
-        const { error: updateError } = await supabase
-          .from('classes')
-          .update({ slack_channel_id: channelId })
-          .eq('id', cls.id)
-
-        if (updateError) throw updateError
-
-        rollbackActions.push(async () => {
-          await supabase
-            .from('classes')
-            .update({ slack_channel_id: null })
-            .eq('id', cls.id)
-        })
-
-        // B. Invite & Welcome
+        // Invite members
         const emails = members.map(m => m.profiles.email)
         const slackIds = await getSlackUserIds(emails, supabase)
         await inviteToSlackChannel(channelId, slackIds)
 
+        // Welcome message (best effort)
         const teacher = members.find(m => m.role === 'teacher')
         await postSlackMessage(
           channelId,
           `📚 Welcome to ${cls.name}!\n\n${teacher ? `Instructor: ${teacher.profiles.full_name}` : ''}`
         )
 
-        results.push({ type: 'class', name: cls.name, status: 'success' })
+        // B. Update database - LAST STEP (marks as complete)
+        const { error: updateError } = await supabase
+          .from('classes')
+          .update({ slack_channel_id: channelId })
+          .eq('id', cls.id)
 
-      } catch (err) {
-        console.error(`Error processing class ${cls.name}:`, err)
-
-        // Execute rollbacks for this class
-        for (const rollback of rollbackActions.reverse()) {
-          try {
-            await rollback()
-          } catch (rollbackError) {
-            console.error('Rollback failed:', rollbackError)
-          }
+        if (updateError) {
+          throw new Error(`Failed to update database: ${updateError.message}`)
         }
 
+        results.push({ type: 'class', name: cls.name, status: 'success' })
+
+      } catch (err: any) {
+        console.error(`Error processing class ${cls.name}:`, err)
         results.push({ type: 'class', name: cls.name, error: err.message })
+        // NO ROLLBACK - let next run fix it via idempotency
       }
     }
 
@@ -440,7 +444,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
 
-  } catch (error) {
+  } catch (error: any) {
     console.error('Critical automation error:', error)
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
