@@ -525,7 +525,6 @@ const Events = () => {
         .insert({
           event_id: event.id,
           token,
-          points: event.points,
           qr_code_url: publicUrl,
         });
 
