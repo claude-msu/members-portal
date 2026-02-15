@@ -459,7 +459,7 @@ const Classes = () => {
 
     if (isEnrolled) {
       badges.push(
-        <Badge key="enrolled" variant="secondary" className="shrink-0 whitespace-nowrap">
+        <Badge key="enrolled" variant="outline" className="shrink-0 whitespace-nowrap">
           {isTeacher ? 'Teacher' : 'Enrolled'}
         </Badge>
       );
@@ -726,7 +726,6 @@ const Classes = () => {
           onClose={modalState.close}
           title={`${modalState.selectedItem.name} - Class Members`}
           members={modalState.selectedItem.members}
-          roleIcon={(role) => (role === 'teacher' ? <GraduationCap className="h-3 w-3 mr-1" /> : null)}
           entityType="class"
           entityId={modalState.selectedItem.id}
           onMemberRemoved={refreshClasses}

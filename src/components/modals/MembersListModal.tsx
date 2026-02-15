@@ -35,7 +35,6 @@ interface MembersListModalProps {
     title: string;
     subtitle?: string;
     members: MembershipInfo[];
-    roleIcon?: (role: string) => React.ReactNode;
     entityType?: 'project' | 'class';
     entityId?: string;
     onMemberRemoved?: () => void;
@@ -74,7 +73,6 @@ export const MembersListModal = ({
     const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
     const [locallyRemovedIds, setLocallyRemovedIds] = useState<Set<string>>(new Set());
     const [locallyAddedMembers, setLocallyAddedMembers] = useState<MembershipInfo[]>([]);
-    const [animatingMemberId, setAnimatingMemberId] = useState<string | null>(null);
     const [memberRoles, setMemberRoles] = useState<Record<string, string>>({});
 
     const displayMembers = useMemo(
@@ -135,11 +133,6 @@ export const MembersListModal = ({
                 .eq('id', membershipId);
 
             if (error) throw error;
-
-            toast({
-                title: 'Member removed',
-                description: `${memberName} has been removed from the ${entityType}.`,
-            });
 
             onMemberRemoved?.();
         } catch (error) {
@@ -206,12 +199,6 @@ export const MembersListModal = ({
             };
 
             setLocallyAddedMembers(prev => [...prev, newMembership]);
-
-            toast({
-                title: 'Member added',
-                description: `${memberName} has been added to the ${entityType}.`,
-            });
-
             setAddMemberOpen(false);
             onMemberRemoved?.();
         } catch (error) {
@@ -238,7 +225,6 @@ export const MembersListModal = ({
         if (!entityType || !entityId) return;
 
         const nextRole = getNextRole(currentRole);
-        setAnimatingMemberId(memberId);
 
         try {
             const tableName = entityType === 'project' ? 'project_members' : 'class_enrollments';
@@ -254,11 +240,6 @@ export const MembersListModal = ({
                 [memberId]: nextRole,
             }));
 
-            toast({
-                title: 'Role updated',
-                description: `${memberName} is now a ${nextRole}.`,
-            });
-
             onMemberRemoved?.();
         } catch (error) {
             console.error('Error updating member role:', error);
@@ -267,8 +248,6 @@ export const MembersListModal = ({
                 description: `Failed to update member role.`,
                 variant: 'destructive',
             });
-        } finally {
-            setTimeout(() => setAnimatingMemberId(null), 300);
         }
     };
 
@@ -369,17 +348,8 @@ export const MembersListModal = ({
                             </div>
 
                             <motion.div
-                                animate={
-                                    animatingMemberId === member.id
-                                        ? { scale: [1, 0.95, 1.05, 1] }
-                                        : { scale: 1 }
-                                }
-                                transition={{
-                                    type: 'spring',
-                                    stiffness: 300,
-                                    damping: 15,
-                                    duration: 0.4,
-                                }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                whileTap={{ scale: 0.93, opacity: 0.7 }}
                                 className="cursor-pointer"
                                 onClick={() =>
                                     isBoardOrAbove &&
