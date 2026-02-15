@@ -18,7 +18,7 @@ import { EditModal } from '@/components/modals/EditModal';
 import { MembersListModal } from '@/components/modals/MembersListModal';
 import { ItemCard } from '@/components/ItemCard';
 import SemesterSelector from '@/components/SemesterSelector';
-import { Plus, MapPin, Users, Edit, GraduationCap, Calendar as CalendarIcon, Eye, Crown } from 'lucide-react';
+import { Plus, MapPin, Users, Edit, Calendar as CalendarIcon, Eye, Crown } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
 

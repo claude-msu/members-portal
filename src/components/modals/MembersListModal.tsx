@@ -119,7 +119,7 @@ export const MembersListModal = ({
         fetchAvailableMembers();
     }, [open, entityType, entityId, displayMembers]);
 
-    const handleRemoveMember = async (membershipId: string, memberName: string) => {
+    const handleRemoveMember = async (membershipId: string) => {
         if (!entityType || !entityId) return;
 
         setRemovingMemberId(membershipId);
@@ -221,7 +221,7 @@ export const MembersListModal = ({
         }
     };
 
-    const handleRoleChange = async (memberId: string, currentRole: string, memberName: string) => {
+    const handleRoleChange = async (memberId: string, currentRole: string) => {
         if (!entityType || !entityId) return;
 
         const nextRole = getNextRole(currentRole);
@@ -353,11 +353,7 @@ export const MembersListModal = ({
                                 className="cursor-pointer"
                                 onClick={() =>
                                     isBoardOrAbove &&
-                                    handleRoleChange(
-                                        member.id,
-                                        memberRoles[member.id] || member.role,
-                                        member.profile.full_name || member.profile.email
-                                    )
+                                    handleRoleChange(member.id, memberRoles[member.id] || member.role)
                                 }
                             >
                                 <Badge
@@ -373,7 +369,7 @@ export const MembersListModal = ({
                                     variant="ghost"
                                     size="icon"
                                     className="hidden md:flex h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                    onClick={() => handleRemoveMember(member.id, member.profile.full_name || member.profile.email)}
+                                    onClick={() => handleRemoveMember(member.id)}
                                     disabled={removingMemberId === member.id}
                                 >
                                     <X className="h-4 w-4" />
