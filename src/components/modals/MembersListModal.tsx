@@ -21,8 +21,9 @@ import {
     CommandItem,
     CommandList,
 } from '@/components/ui/command';
-import { GraduationCap, X, Plus } from 'lucide-react';
+import { X, Plus } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/contexts/ProfileContext';
@@ -55,20 +56,12 @@ const getRoleVariant = (role: string): 'default' | 'secondary' => {
     return 'default';
 };
 
-const defaultRoleIcon = (role: string) => {
-    if (role === 'teacher') {
-        return <GraduationCap className="h-3 w-3 mr-1" />;
-    }
-    return null;
-};
-
 export const MembersListModal = ({
     open,
     onClose,
     title,
     subtitle,
     members,
-    roleIcon = defaultRoleIcon,
     entityType,
     entityId,
     onMemberRemoved,
@@ -81,6 +74,8 @@ export const MembersListModal = ({
     const [addingMemberId, setAddingMemberId] = useState<string | null>(null);
     const [locallyRemovedIds, setLocallyRemovedIds] = useState<Set<string>>(new Set());
     const [locallyAddedMembers, setLocallyAddedMembers] = useState<MembershipInfo[]>([]);
+    const [animatingMemberId, setAnimatingMemberId] = useState<string | null>(null);
+    const [memberRoles, setMemberRoles] = useState<Record<string, string>>({});
 
     const displayMembers = useMemo(
         () => [
@@ -231,6 +226,52 @@ export const MembersListModal = ({
         }
     };
 
+    const getNextRole = (currentRole: string) => {
+        if (entityType === 'project') {
+            return currentRole === 'member' ? 'lead' : 'member';
+        } else {
+            return currentRole === 'student' ? 'teacher' : 'student';
+        }
+    };
+
+    const handleRoleChange = async (memberId: string, currentRole: string, memberName: string) => {
+        if (!entityType || !entityId) return;
+
+        const nextRole = getNextRole(currentRole);
+        setAnimatingMemberId(memberId);
+
+        try {
+            const tableName = entityType === 'project' ? 'project_members' : 'class_enrollments';
+            const { error } = await supabase
+                .from(tableName)
+                .update({ role: nextRole })
+                .eq('id', memberId);
+
+            if (error) throw error;
+
+            setMemberRoles(prev => ({
+                ...prev,
+                [memberId]: nextRole,
+            }));
+
+            toast({
+                title: 'Role updated',
+                description: `${memberName} is now a ${nextRole}.`,
+            });
+
+            onMemberRemoved?.();
+        } catch (error) {
+            console.error('Error updating member role:', error);
+            toast({
+                title: 'Error',
+                description: `Failed to update member role.`,
+                variant: 'destructive',
+            });
+        } finally {
+            setTimeout(() => setAnimatingMemberId(null), 300);
+        }
+    };
+
     return (
         <Dialog open={open} onOpenChange={onClose}>
             <DialogContent className="max-w-lg w-[80vw] mx-auto rounded-lg">
@@ -327,10 +368,35 @@ export const MembersListModal = ({
                                 </p>
                             </div>
 
-                            <Badge variant={getRoleVariant(member.role)} className="capitalize">
-                                {roleIcon(member.role)}
-                                {member.role}
-                            </Badge>
+                            <motion.div
+                                animate={
+                                    animatingMemberId === member.id
+                                        ? { scale: [1, 0.95, 1.05, 1] }
+                                        : { scale: 1 }
+                                }
+                                transition={{
+                                    type: 'spring',
+                                    stiffness: 300,
+                                    damping: 15,
+                                    duration: 0.4,
+                                }}
+                                className="cursor-pointer"
+                                onClick={() =>
+                                    isBoardOrAbove &&
+                                    handleRoleChange(
+                                        member.id,
+                                        memberRoles[member.id] || member.role,
+                                        member.profile.full_name || member.profile.email
+                                    )
+                                }
+                            >
+                                <Badge
+                                    variant={getRoleVariant(memberRoles[member.id] || member.role)}
+                                    className="capitalize"
+                                >
+                                    {memberRoles[member.id] || member.role}
+                                </Badge>
+                            </motion.div>
 
                             {showRemoveButton && (
                                 <Button

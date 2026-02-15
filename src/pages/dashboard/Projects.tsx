@@ -14,26 +14,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getItemStatus, useFilteredItems } from '@/hooks/use-modal';
 import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import { DetailModal } from '@/components/modals/DetailModal';
 import { EditModal } from '@/components/modals/EditModal';
 import { MembersListModal } from '@/components/modals/MembersListModal';
 import { ItemCard } from '@/components/ItemCard';
 import SemesterSelector from '@/components/SemesterSelector';
-import { Plus, Github, Calendar as CalendarIcon, Users, Briefcase, Crown, Eye, Edit, Check, ChevronsUpDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Plus, Github, Calendar as CalendarIcon, Users, Briefcase, Crown, Eye, Edit } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
 
@@ -57,8 +43,6 @@ const Projects = () => {
   const [repositoryName, setRepositoryName] = useState('');
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
   const [selectedLead, setSelectedLead] = useState<string>('');
-  const [leadSearchOpen, setLeadSearchOpen] = useState(false);
-  const [availableLeads, setAvailableLeads] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
 
   const modalState = useDeepLinkModal<ProjectWithMembers>(isBoardOrAbove);
 
@@ -224,12 +208,6 @@ const Projects = () => {
     gcTime: 1000 * 60 * 5,
   });
 
-  useEffect(() => {
-    if (user && role) {
-      fetchAvailableLeads();
-    }
-  }, [user, role]);
-
   // Load form data when editing
   useEffect(() => {
     if (modalState.modalType === 'edit' && modalState.selectedItem) {
@@ -253,19 +231,6 @@ const Projects = () => {
       setSelectedLead('');
     }
   }, [modalState.modalType, modalState.selectedItem, isCreateModalOpen]);
-
-
-  const fetchAvailableLeads = async () => {
-    const { data: leadsData, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('is_banned', false)
-      .order('full_name');
-
-    if (!error && leadsData) {
-      setAvailableLeads(leadsData);
-    }
-  };
 
   // Determine which projects data to use
   const projectsData = isBoardOrAbove
@@ -327,7 +292,7 @@ const Projects = () => {
             .from('project_members')
             .select('*')
             .eq('project_id', id);
-            
+
           const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
           const { data: profilesData } = await supabase
             .from('profiles')
@@ -734,79 +699,6 @@ const Projects = () => {
               className={isMobile ? "pl-[105px]" : "pl-[190px]"}
             />
           </div>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Project Lead</Label>
-          <Popover open={leadSearchOpen} onOpenChange={setLeadSearchOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="secondary"
-                role="combobox"
-                aria-expanded={leadSearchOpen}
-                className="w-full justify-between"
-              >
-                {selectedLead
-                  ? availableLeads.find((lead) => lead.id === selectedLead)?.full_name ||
-                  availableLeads.find((lead) => lead.id === selectedLead)?.email ||
-                  'Select lead...'
-                  : 'Select lead...'}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className={`${isMobile ? 'w-72' : 'w-96'} p-0`}
-              align="center"
-              onOpenAutoFocus={e => e.preventDefault()}
-            >
-              <div
-                className="p-1"
-                style={{
-                  height: '300px',
-                  overflowY: 'scroll',
-                  overflowX: 'hidden',
-                  position: 'relative',
-                  WebkitOverflowScrolling: 'touch'
-                }}
-                onWheel={e => {
-                  e.stopPropagation();
-                }}
-                onTouchMove={e => {
-                  e.stopPropagation();
-                }}
-              >
-                <Command>
-                  <CommandInput placeholder="Search leads..." />
-                  <CommandList>
-                    <CommandEmpty>No leads found.</CommandEmpty>
-                    <CommandGroup>
-                      {availableLeads.map((lead) => (
-                        <CommandItem
-                          key={lead.id}
-                          value={`${lead.full_name || ''} ${lead.email}`}
-                          onSelect={() => {
-                            setSelectedLead(selectedLead === lead.id ? '' : lead.id);
-                            setLeadSearchOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              selectedLead === lead.id ? 'opacity-100' : 'opacity-0'
-                            )}
-                          />
-                          <div className="flex flex-col">
-                            <span>{lead.full_name || 'No name'}</span>
-                            <span className="text-xs">{lead.email}</span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </div>
-            </PopoverContent>
-          </Popover>
         </div>
       </EditModal>
 

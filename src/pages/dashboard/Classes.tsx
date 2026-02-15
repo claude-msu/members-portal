@@ -13,26 +13,12 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { getItemStatus, useFilteredItems } from '@/hooks/use-modal';
 import { useDeepLinkModal } from '@/hooks/use-deep-link-modal';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from '@/components/ui/command';
 import { DetailModal } from '@/components/modals/DetailModal';
 import { EditModal } from '@/components/modals/EditModal';
 import { MembersListModal } from '@/components/modals/MembersListModal';
 import { ItemCard } from '@/components/ItemCard';
 import SemesterSelector from '@/components/SemesterSelector';
-import { Plus, MapPin, Users, Edit, GraduationCap, Calendar as CalendarIcon, Eye, Crown, Check, ChevronsUpDown } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Plus, MapPin, Users, Edit, GraduationCap, Calendar as CalendarIcon, Eye, Crown } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
 
@@ -55,8 +41,6 @@ const Classes = () => {
   const [location, setLocation] = useState('');
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
   const [selectedTeacher, setSelectedTeacher] = useState<string>('');
-  const [teacherSearchOpen, setTeacherSearchOpen] = useState(false);
-  const [availableTeachers, setAvailableTeachers] = useState<Database['public']['Tables']['profiles']['Row'][]>([]);
 
   const modalState = useDeepLinkModal<ClassWithMembers>(isBoardOrAbove);
 
@@ -222,12 +206,6 @@ const Classes = () => {
     gcTime: 1000 * 60 * 5,
   });
 
-  useEffect(() => {
-    if (user && role) {
-      fetchAvailableTeachers();
-    }
-  }, [user, role]);
-
   // Load form data when editing
   useEffect(() => {
     if (modalState.modalType === 'edit' && modalState.selectedItem) {
@@ -247,19 +225,6 @@ const Classes = () => {
       setSelectedTeacher('');
     }
   }, [modalState.modalType, modalState.selectedItem, isCreateModalOpen]);
-
-
-  const fetchAvailableTeachers = async () => {
-    const { data: teachersData, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('is_banned', false)
-      .order('full_name');
-
-    if (!error && teachersData) {
-      setAvailableTeachers(teachersData);
-    }
-  };
 
   // Determine which classes data to use
   const classesData = isBoardOrAbove
@@ -682,79 +647,6 @@ const Classes = () => {
             onSelect={setSelectedSemester}
             required
           />
-        </div>
-
-        <div className="space-y-2">
-          <Label>Teacher</Label>
-          <Popover open={teacherSearchOpen} onOpenChange={setTeacherSearchOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="secondary"
-                role="combobox"
-                aria-expanded={teacherSearchOpen}
-                className="w-full justify-between"
-              >
-                {selectedTeacher
-                  ? availableTeachers.find((teacher) => teacher.id === selectedTeacher)?.full_name ||
-                  availableTeachers.find((teacher) => teacher.id === selectedTeacher)?.email ||
-                  'Select teacher...'
-                  : 'Select teacher...'}
-                <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className={`${isMobile ? 'w-72' : 'w-96'} p-0`}
-              align="center"
-              onOpenAutoFocus={e => e.preventDefault()}
-            >
-              <div
-                className="p-1"
-                style={{
-                  height: '300px',
-                  overflowY: 'scroll',
-                  overflowX: 'hidden',
-                  position: 'relative',
-                  WebkitOverflowScrolling: 'touch'
-                }}
-                onWheel={e => {
-                  e.stopPropagation();
-                }}
-                onTouchMove={e => {
-                  e.stopPropagation();
-                }}
-              >
-                <Command>
-                  <CommandInput placeholder="Search teachers..." />
-                  <CommandList>
-                    <CommandEmpty>No teachers found.</CommandEmpty>
-                    <CommandGroup>
-                      {availableTeachers.map((teacher) => (
-                        <CommandItem
-                          key={teacher.id}
-                          value={`${teacher.full_name || ''} ${teacher.email}`}
-                          onSelect={() => {
-                            setSelectedTeacher(selectedTeacher === teacher.id ? '' : teacher.id);
-                            setTeacherSearchOpen(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              'mr-2 h-4 w-4',
-                              selectedTeacher === teacher.id ? 'opacity-100' : 'opacity-0'
-                            )}
-                          />
-                          <div className="flex flex-col">
-                            <span>{teacher.full_name || 'No name'}</span>
-                            <span className="text-xs">{teacher.email}</span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </div>
-            </PopoverContent>
-          </Popover>
         </div>
       </EditModal>
 
