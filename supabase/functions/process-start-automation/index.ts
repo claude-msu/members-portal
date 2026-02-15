@@ -329,38 +329,26 @@ serve(async (req) => {
           continue
         }
 
-        // Lead is optional - if exists with GitHub, they get maintainer permissions
-        const lead = members.find(m => m.role === 'lead')
-
-        if (!lead) {
-          console.warn(`Project ${project.name} has no lead assigned`)
-        } else if (!lead.profiles.github_username) {
-          console.warn(`Project ${project.name} lead has no GitHub username`)
-        }
-
-        // A. GitHub Setup (all idempotent)
+        // Assign GitHub permissions based on member role in the loop
         const teamSlug = await ensureGitHubTeam(
           `${project.name}-${project.semesters.code}`,
           `Team for ${project.name}`
         )
 
-        // Add Lead as maintainer (if exists and has GitHub username)
-        if (lead?.profiles.github_username) {
-          await addGitHubTeamMember(teamSlug, lead.profiles.github_username, 'maintainer')
-        }
-
-        // Add all other members with GitHub usernames
-        const membersWithGitHub = members.filter(m => m.profiles.github_username)
-
-        if (membersWithGitHub.length === 0 && !lead?.profiles.github_username) {
-          console.warn(`Project ${project.name} has no members with GitHub usernames - team will be empty`)
-        }
+        let hasGitHubMember = false
 
         for (const m of members) {
-          // Skip lead (already added as maintainer) or members without GitHub
-          if (m.user_id === lead?.user_id || !m.profiles.github_username) continue
+          if (!m.profiles.github_username) continue
 
-          await addGitHubTeamMember(teamSlug, m.profiles.github_username, 'member')
+          hasGitHubMember = true
+
+          // Any lead(s) as maintainer, all others as member
+          const role: 'member' | 'maintainer' = m.role === 'lead' ? 'maintainer' : 'member'
+          await addGitHubTeamMember(teamSlug, m.profiles.github_username, role)
+        }
+
+        if (!hasGitHubMember) {
+          console.warn(`Project ${project.name} has no members with GitHub usernames - team will be empty`)
         }
 
         // Create/ensure repo exists
