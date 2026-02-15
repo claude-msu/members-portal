@@ -331,7 +331,7 @@ serve(async (req) => {
 
         // Assign GitHub permissions based on member role in the loop
         const teamSlug = await ensureGitHubTeam(
-          `${project.name}-${project.semesters.code}`,
+          `${project.name} (${project.semesters.code})`,
           `Team for ${project.name}`
         )
 
