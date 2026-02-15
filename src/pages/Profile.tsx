@@ -536,7 +536,7 @@ const Profile = () => {
               <div className="relative flex justify-center">
                 <div className="bg-card px-4 gap-2 flex flex-row">
                   <UserBadge className="text-xs capitalize px-4 py-1.5 shrink-0 whitespace-nowrap" />
-                  <Badge variant="secondary" className="px-4 py-1.5 shrink-0 whitespace-nowrap bg-green-700 text-white font-semibold border-1 border-black">
+                  <Badge className="px-4 py-1.5 shrink-0 whitespace-nowrap bg-green-700 text-white font-semibold border-1 border-black">
                     {profile.term_joined || (() => {
                       const date = user.created_at ? new Date(user.created_at) : new Date();
                       return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
@@ -686,7 +686,7 @@ const Profile = () => {
                         </Button>
                         <Button
                           type="button"
-                          variant="destructive"
+                          variant="red"
                           onClick={deleteResume}
                           disabled={loading}
                           className="px-3"
@@ -782,7 +782,7 @@ const Profile = () => {
                   Cancel
                 </AlertDialogCancel>
                 <Button
-                  variant="destructive"
+                  variant="red"
                   onClick={handleDeleteProfile}
                   disabled={isDeleting || deleteConfirmationEmail !== user?.email}
                   className={!isMobile ? 'w-[47%]' : 'w-full'}

@@ -28,14 +28,14 @@ const Applications = () => {
 
   const appsDisabled: boolean = false;
 
-  const getStatusVariant = (status: string): 'enable' | 'destructive' | 'secondary' => {
+  const getStatusVariant = (status: string): 'green' | 'red' | 'default' => {
     switch (status) {
       case 'accepted':
-        return 'enable';
+        return 'green';
       case 'rejected':
-        return 'destructive';
+        return 'red';
       default:
-        return 'secondary';
+        return 'default';
     }
   };
 
@@ -128,7 +128,7 @@ const Applications = () => {
                   {icon}
                   <span className="text-lg font-medium">{title}</span>
                 </div>
-                <Badge variant="secondary">{applications.length}</Badge>
+                <Badge>{applications.length}</Badge>
               </div>
             </Button>
           </CollapsibleTrigger>
@@ -202,7 +202,7 @@ const Applications = () => {
                         <User className="h-4 w-4" />
                         <h2 className="text-xl font-semibold">My Applications</h2>
                       </div>
-                      <Badge variant="secondary">{myApplicationsTotal}</Badge>
+                      <Badge>{myApplicationsTotal}</Badge>
                     </div>
                   </Button>
                 </CollapsibleTrigger>
@@ -245,7 +245,7 @@ const Applications = () => {
                         <Shield className="h-4 w-4" />
                         <h2 className="text-xl font-semibold">Review Applications</h2>
                       </div>
-                      <Badge variant="secondary">{reviewApplicationsTotal}</Badge>
+                      <Badge>{reviewApplicationsTotal}</Badge>
                     </div>
                   </Button>
                 </CollapsibleTrigger>

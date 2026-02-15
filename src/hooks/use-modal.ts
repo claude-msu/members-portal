@@ -57,7 +57,7 @@ export const getItemStatus = (item) => {
         console.log("ended");
         return {
             label: 'Completed',
-            variant: 'destructive' as const,
+            variant: 'red' as const,
             state: 'completed' as const,
         };
     }

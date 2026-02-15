@@ -86,7 +86,8 @@ const Projects = () => {
       // Fetch all project members
       const { data: membersData } = await supabase
         .from('project_members')
-        .select('*');
+        .select('*')
+        .order('role', { ascending: true });
 
       // Get unique user IDs from members
       const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
@@ -326,7 +327,7 @@ const Projects = () => {
             .from('project_members')
             .select('*')
             .eq('project_id', id);
-
+            
           const memberUserIds = [...new Set(membersData?.map(m => m.user_id) || [])];
           const { data: profilesData } = await supabase
             .from('profiles')
@@ -910,7 +911,6 @@ const Projects = () => {
           onClose={modalState.close}
           title={`${modalState.selectedItem.name} - Team Members`}
           members={modalState.selectedItem.members}
-          showRole={true}
           entityType="project"
           entityId={modalState.selectedItem.id}
           onMemberRemoved={refreshProjects}

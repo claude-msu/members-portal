@@ -103,7 +103,7 @@ export const PersonCard = ({
                     {type === 'member' ? (
                         <RoleBadge role={person.role} className="capitalize shrink-0 whitespace-nowrap" />
                     ) : (
-                        <Badge variant="secondary" className="capitalize shrink-0 whitespace-nowrap">
+                        <Badge className="capitalize shrink-0 whitespace-nowrap">
                             {person.term_joined
                                 ? person.term_joined
                                 : (() => {
@@ -137,7 +137,7 @@ export const PersonCard = ({
                 </div>
 
                 <div className="flex flex-row gap-2 mt-4">
-                    <Button variant="default" size="sm" className="w-full" onClick={() => onViewProfile(person)}>
+                    <Button size="sm" className="w-full" onClick={() => onViewProfile(person)}>
                         <Eye className="h-4 w-4" />
                         View Profile
                     </Button>
@@ -191,7 +191,7 @@ export const PersonCard = ({
                                 {type === 'prospect' && onGraduate && (
                                     <DropdownMenuItem
                                         onClick={() => onGraduate(person.id, person.full_name || person.email)}
-                                        variant="enable"
+                                        variant="green"
                                         className="rounded-t-md rounded-b-none bg-green-600/20 border-0 border-green-600 text-green-600 hover:bg-green-600 hover:text-cream hover:rounded-md transition-all duration-200"
                                     >
                                         <ArrowBigUpDashIcon className="h-4 w-4" />
@@ -203,7 +203,7 @@ export const PersonCard = ({
                                 {type === 'member' && onKick && (
                                     <DropdownMenuItem
                                         onClick={() => onKick(person.id, person.full_name || person.email)}
-                                        variant="destructive"
+                                        variant="red"
                                         className="border-0 rounded-t-md rounded-b-none hover:rounded-md transition-all duration-200"
                                     >
                                         <UserMinus className="h-4 w-4" />
@@ -215,7 +215,7 @@ export const PersonCard = ({
                                 {onBan && (
                                     <DropdownMenuItem
                                         onClick={() => onBan(person.id, person.full_name || person.email)}
-                                        variant="destructive"
+                                        variant="red"
                                         className={`border-0 ${type === 'member' ? 'rounded-b-md rounded-t-none' : 'rounded-b-md bg-destructive/20 rounded-t-none'} hover:rounded-md transition-all duration-200`}
                                     >
                                         <Ban className="h-4 w-4" />

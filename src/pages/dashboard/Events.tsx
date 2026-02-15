@@ -619,7 +619,7 @@ const Events = () => {
     const badges = [
       <Badge
         key="type"
-        variant={event.rsvp_required ? 'default' : 'secondary'}
+        variant={event.rsvp_required ? 'secondary' : 'default'}
         className="shrink-0 whitespace-nowrap"
       >
         {getEventTypeLabel(event)}
@@ -739,7 +739,7 @@ const Events = () => {
       });
     }
 
-    if (!isBoardOrAbove) {
+    else {
       actions.push({
         label: isMobile ? 'Details' : 'View Details',
         onClick: () => modalState.open(event, event.id),

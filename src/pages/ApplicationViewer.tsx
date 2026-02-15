@@ -719,7 +719,7 @@ const ApplicationViewerPage = () => {
                                     <h2 className="text-xl font-semibold mb-4">Review Actions</h2>
                                     <div className="flex gap-4">
                                         <Button
-                                            variant="enable"
+                                            variant="green"
                                             className="flex-1 h-12 text-base"
                                             onClick={handleAccept}
                                         >
@@ -727,7 +727,7 @@ const ApplicationViewerPage = () => {
                                             Accept Application
                                         </Button>
                                         <Button
-                                            variant="destructive"
+                                            variant="red"
                                             className="flex-1 h-12 text-base"
                                             onClick={handleReject}
                                         >

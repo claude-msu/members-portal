@@ -38,20 +38,20 @@ const getProjectStatus = (
   project: Project,
   isBoardOrAbove?: boolean
 ) => {
-  if (!project.semesters) return { label: 'Unknown', color: 'bg-gray-300' };
+  if (!project.semesters) return { label: 'Unknown', color: 'text-gray-300' };
   const now = new Date();
   const startDate = new Date(project.semesters.start_date);
   const endDate = new Date(project.semesters.end_date);
 
   if (isBoardOrAbove) {
-    if (startDate > now) return { label: 'Open', color: 'bg-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
-    return { label: 'Active', color: 'bg-blue-500' };
+    if (startDate > now) return { label: 'Open', color: 'text-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
+    return { label: 'Active', color: 'text-blue-500' };
   } else {
     // For regular members: use "Available" if not started, "Enrolled" if started and not completed, "Completed" if over
-    if (startDate > now) return { label: 'Available', color: 'bg-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
-    return { label: 'Enrolled', color: 'bg-blue-500' };
+    if (startDate > now) return { label: 'Available', color: 'text-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
+    return { label: 'Enrolled', color: 'text-blue-500' };
   }
 };
 
@@ -59,20 +59,20 @@ const getClassStatus = (
   cls: Class,
   isBoardOrAbove?: boolean
 ) => {
-  if (!cls.semesters) return { label: 'Unknown', color: 'bg-gray-300' };
+  if (!cls.semesters) return { label: 'Unknown', color: 'text-gray-300' };
   const now = new Date();
   const startDate = new Date(cls.semesters.start_date);
   const endDate = new Date(cls.semesters.end_date);
 
   if (isBoardOrAbove) {
-    if (startDate > now) return { label: 'Open', color: 'bg-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
-    return { label: 'Active', color: 'bg-blue-500' };
+    if (startDate > now) return { label: 'Open', color: 'text-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
+    return { label: 'Active', color: 'text-blue-500' };
   } else {
     // For regular members: use "Available" if not started, "Enrolled" if started and not completed, "Completed" if over
-    if (startDate > now) return { label: 'Available', color: 'bg-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'bg-gray-500' };
-    return { label: 'Enrolled', color: 'bg-blue-500' };
+    if (startDate > now) return { label: 'Available', color: 'text-green-500' };
+    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
+    return { label: 'Enrolled', color: 'text-blue-500' };
   }
 };
 
@@ -413,7 +413,7 @@ export default function Dashboard() {
                   <CardHeader className="p-3 pb-0">
                     <div className="flex items-center justify-between gap-2">
                       <CardTitle className="text-lg font-semibold truncate">{event.name}</CardTitle>
-                      {event.points > 0 && <Badge variant="secondary" className="scale-90 origin-right">+{event.points}</Badge>}
+                      {event.points > 0 && <Badge variant="default" className="scale-90 origin-right">+{event.points}</Badge>}
                     </div>
                   </CardHeader>
                   <CardContent className="p-3 pt-0.5 space-y-1">
@@ -509,7 +509,7 @@ export default function Dashboard() {
                       <div className="flex items-center justify-between w-full">
                         <CardTitle className="text-lg font-semibold truncate max-w-[70%] min-w-0">{item.name}</CardTitle>
                         <div className="flex flex-col items-end gap-2">
-                          <Badge variant="outline" className={`${status.color.replace('bg-', 'text-')} border-current scale-90 origin-right`}>{status.label}</Badge>
+                          <Badge variant="outline" className={`${status.color} border-current scale-90 origin-right`}>{status.label}</Badge>
                         </div>
                       </div>
                     </CardHeader>

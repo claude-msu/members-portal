@@ -84,7 +84,8 @@ const Classes = () => {
       // Fetch all class enrollments
       const { data: enrollmentsData } = await supabase
         .from('class_enrollments')
-        .select('*');
+        .select('*')
+        .order('role', { ascending: true });
 
       // Get unique user IDs from enrollments
       const enrolledUserIds = [...new Set(enrollmentsData?.map(e => e.user_id) || [])];
@@ -833,7 +834,6 @@ const Classes = () => {
           onClose={modalState.close}
           title={`${modalState.selectedItem.name} - Class Members`}
           members={modalState.selectedItem.members}
-          showRole={true}
           roleIcon={(role) => (role === 'teacher' ? <GraduationCap className="h-3 w-3 mr-1" /> : null)}
           entityType="class"
           entityId={modalState.selectedItem.id}

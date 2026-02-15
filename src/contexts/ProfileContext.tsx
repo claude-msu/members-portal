@@ -646,10 +646,9 @@ export const ProfileProvider = ({ children }: { children: ReactNode }) => {
 };
 
 // --- Shared user/role badge (created in profile context, used across the app) ---
-function getRoleBadgeVariant(role: AppRole): 'default' | 'secondary' | 'outline' {
-    if (role === 'e-board' || role === 'board') return 'default';
-    if (role === 'member') return 'secondary';
-    return 'outline';
+function getRoleBadgeVariant(role: AppRole) {
+    if (role === 'e-board') return 'default';
+    return role;
 }
 
 /** Renders a role badge for any app role (e-board gets gold styling). Use for current user or other members. */

@@ -34,7 +34,6 @@ interface MembersListModalProps {
     title: string;
     subtitle?: string;
     members: MembershipInfo[];
-    showRole?: boolean;
     roleIcon?: (role: string) => React.ReactNode;
     entityType?: 'project' | 'class';
     entityId?: string;
@@ -52,8 +51,8 @@ const getInitials = (name: string) => {
 };
 
 const getRoleVariant = (role: string): 'default' | 'secondary' => {
-    if (role === 'lead' || role === 'teacher') return 'default';
-    return 'secondary';
+    if (role === 'lead' || role === 'teacher') return 'secondary';
+    return 'default';
 };
 
 const defaultRoleIcon = (role: string) => {
@@ -69,7 +68,6 @@ export const MembersListModal = ({
     title,
     subtitle,
     members,
-    showRole = true,
     roleIcon = defaultRoleIcon,
     entityType,
     entityId,
@@ -329,12 +327,10 @@ export const MembersListModal = ({
                                 </p>
                             </div>
 
-                            {showRole && (
-                                <Badge variant={getRoleVariant(member.role)} className="capitalize">
-                                    {roleIcon(member.role)}
-                                    {member.role}
-                                </Badge>
-                            )}
+                            <Badge variant={getRoleVariant(member.role)} className="capitalize">
+                                {roleIcon(member.role)}
+                                {member.role}
+                            </Badge>
 
                             {showRemoveButton && (
                                 <Button

@@ -36,7 +36,11 @@ describe('utils', () => {
       const classes = buttonVariants();
       expect(classes).toContain('inline-flex');
       expect(classes).toContain('items-center');
+      // Should have the default background and text color for 'default' variant
       expect(classes).toContain('bg-primary');
+      expect(classes).toContain('text-primary-foreground');
+      expect(classes).toContain('border-2');
+      expect(classes).toContain('border-primary');
     });
 
     it('applies custom base classes', () => {
@@ -49,18 +53,47 @@ describe('utils', () => {
       const buttonVariants = createButtonVariants();
       const defaultClasses = buttonVariants({ variant: 'default' });
       const secondaryClasses = buttonVariants({ variant: 'secondary' });
+      const greenClasses = buttonVariants({ variant: 'green' });
+      const redClasses = buttonVariants({ variant: 'red' });
 
+      // Check for correct styles from the variant map in utils.ts
       expect(defaultClasses).toContain('bg-primary');
+      expect(defaultClasses).toContain('border-primary');
+      expect(defaultClasses).toContain('text-primary-foreground');
+
       expect(secondaryClasses).toContain('border-primary');
+      expect(secondaryClasses).toContain('hover:bg-primary');
+      expect(secondaryClasses).toContain('text-primary');
+      expect(secondaryClasses).toContain('hover:text-cream');
+
+      expect(greenClasses).toContain('bg-green-600');
+      expect(greenClasses).toContain('border-green-600');
+      expect(greenClasses).toContain('text-white');
+      expect(greenClasses).toContain('hover:bg-cream');
+      expect(greenClasses).toContain('hover:text-green-600');
+
+      expect(redClasses).toContain('border-destructive');
+      expect(redClasses).toContain('text-destructive');
+      expect(redClasses).toContain('hover:bg-destructive');
+      expect(redClasses).toContain('hover:text-cream');
     });
 
     it('applies size classes correctly', () => {
       const buttonVariants = createButtonVariants();
       const smClasses = buttonVariants({ size: 'sm' });
       const lgClasses = buttonVariants({ size: 'lg' });
+      const iconClasses = buttonVariants({ size: 'icon' });
 
       expect(smClasses).toContain('h-9');
+      expect(smClasses).toContain('rounded-md');
+      expect(smClasses).toContain('px-3');
+
       expect(lgClasses).toContain('h-11');
+      expect(lgClasses).toContain('rounded-md');
+      expect(lgClasses).toContain('px-8');
+
+      expect(iconClasses).toContain('h-10');
+      expect(iconClasses).toContain('w-10');
     });
   });
 
@@ -75,7 +108,10 @@ describe('utils', () => {
       const classes = badgeVariants();
       expect(classes).toContain('inline-flex');
       expect(classes).toContain('rounded-full');
-      expect(classes).toContain('border-primary');
+      expect(classes).toContain('border-2');
+      // Default is bg-secondary, text-secondary-foreground
+      expect(classes).toContain('bg-secondary');
+      expect(classes).toContain('text-secondary-foreground');
     });
 
     it('applies custom base classes', () => {
@@ -88,9 +124,34 @@ describe('utils', () => {
       const badgeVariants = createBadgeVariants();
       const defaultClasses = badgeVariants({ variant: 'default' });
       const secondaryClasses = badgeVariants({ variant: 'secondary' });
+      const boardClasses = badgeVariants({ variant: 'board' });
+      const greenClasses = badgeVariants({ variant: 'green' });
+      const redClasses = badgeVariants({ variant: 'red' });
 
-      expect(defaultClasses).toContain('bg-primary');
+      // default: bg-secondary text-secondary-foreground border-2
+      expect(defaultClasses).toContain('bg-secondary');
+      expect(defaultClasses).toContain('text-secondary-foreground');
+      expect(defaultClasses).toContain('border-2');
+
+      // secondary: border-2 bg-secondary text-primary
       expect(secondaryClasses).toContain('bg-secondary');
+      expect(secondaryClasses).toContain('border-2');
+      expect(secondaryClasses).toContain('text-primary');
+
+      // board: border-2 border-primary bg-primary text-primary-foreground
+      expect(boardClasses).toContain('bg-primary');
+      expect(boardClasses).toContain('border-primary');
+      expect(boardClasses).toContain('text-primary-foreground');
+
+      // green: border-2 border-green-600 bg-green-600 text-primary-foreground
+      expect(greenClasses).toContain('border-green-600');
+      expect(greenClasses).toContain('bg-green-600');
+      expect(greenClasses).toContain('text-primary-foreground');
+
+      // red: border-2 border-destructive bg-destructive text-destructive-foreground
+      expect(redClasses).toContain('border-destructive');
+      expect(redClasses).toContain('bg-destructive');
+      expect(redClasses).toContain('text-destructive-foreground');
     });
   });
 });

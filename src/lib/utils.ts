@@ -11,8 +11,10 @@ export const interfaceAttributes = {
   variants: {
     default: "bg-primary border-2 border-primary text-primary-foreground hover:bg-cream hover:text-primary",
     secondary: "border-2 border-primary hover:bg-primary text-primary hover:text-cream",
-    destructive: "bg-background border-2 border-destructive text-destructive hover:bg-destructive hover:text-cream",
-    enable: "bg-green-600 border-2 border-green-600 text-white hover:bg-cream hover:text-green-600",
+
+    green: "bg-green-600 border-2 border-green-600 text-white hover:bg-cream hover:text-green-600",
+    red: "bg-background border-2 border-destructive text-destructive hover:bg-destructive hover:text-cream",
+
     outline: "border-2 border-black hover:bg-black hover:text-cream",
     ghost: "hover:bg-primary hover:text-cream",
     link: "text-primary underline-offset-4 hover:underline",
@@ -60,10 +62,16 @@ export const createBadgeVariants = (baseClasses: string = "") => {
     {
       variants: {
         variant: {
-          default: "border-2 border-primary bg-primary text-primary-foreground",
-          secondary: "border-2 bg-secondary text-secondary-foreground",
-          destructive: "border-2 border-destructive bg-destructive text-destructive-foreground",
-          enable: "border-2 border-green-600 bg-green-600 text-primary-foreground",
+          board: "border-2 border-primary bg-primary text-primary-foreground",
+          member: "border-2 bg-secondary text-secondary-foreground",
+          prospect: "text-foreground",
+
+          default: "border-2 bg-secondary text-secondary-foreground",
+          secondary: "border-2 bg-secondary text-primary",
+
+          green: "border-2 border-green-600 bg-green-600 text-primary-foreground",
+          red: "border-2 border-destructive bg-destructive text-destructive-foreground",
+
           outline: "text-foreground",
           ghost: "border-primary",
           link: "text-primary underline-offset-4",

@@ -90,7 +90,7 @@ export const EditModal = ({
                         {onDelete && (
                             <Button
                                 type="button"
-                                variant="destructive"
+                                variant="red"
                                 onClick={() => setShowDeleteConfirm(true)}
                                 disabled={loading || deleteLoading}
                                 className="w-full"
@@ -150,7 +150,7 @@ export const EditModal = ({
                             <AlertDialogAction
                                 onClick={handleDelete}
                                 disabled={deleteLoading}
-                                variant="destructive"
+                                variant="red"
                                 className={!isMobile ? 'w-[47%]' : ''}
                             >
                                 {deleteLoading ? 'Deleting...' : `Delete ${deleteItemName || 'Item'}`}

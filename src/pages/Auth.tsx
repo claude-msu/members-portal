@@ -692,7 +692,7 @@ const Auth = () => {
         </CardHeader>
         <CardContent className={isMobile ? 'pt-0' : ''}>
           {banError && (
-            <Alert variant="destructive" className="mb-4">
+            <Alert variant="red" className="mb-4">
               <AlertDescription className="text-sm">
                 {banError}
               </AlertDescription>
