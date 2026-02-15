@@ -34,47 +34,22 @@ type AdminStats = {
 
 
 // --- Helper Functions ---
-const getProjectStatus = (
-  project: Project,
-  isBoardOrAbove?: boolean
-) => {
-  if (!project.semesters) return { label: 'Unknown', color: 'text-gray-300' };
+const getStatus = (
+  item: Project | Class,
+): { variant: 'gray' | 'green' | 'blue', label: string} => {
+  if (!item.semesters) return { variant: 'gray', label: 'Unknown' };
   const now = new Date();
-  const startDate = new Date(project.semesters.start_date);
-  const endDate = new Date(project.semesters.end_date);
+  const startDate = new Date(item.semesters.start_date);
+  const endDate = new Date(item.semesters.end_date);
 
-  if (isBoardOrAbove) {
-    if (startDate > now) return { label: 'Open', color: 'text-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
-    return { label: 'Active', color: 'text-blue-500' };
-  } else {
-    // For regular members: use "Available" if not started, "Enrolled" if started and not completed, "Completed" if over
-    if (startDate > now) return { label: 'Available', color: 'text-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
-    return { label: 'Enrolled', color: 'text-blue-500' };
+  if (startDate > now) {
+    return { variant: 'green', label: 'Available' };
   }
-};
-
-const getClassStatus = (
-  cls: Class,
-  isBoardOrAbove?: boolean
-) => {
-  if (!cls.semesters) return { label: 'Unknown', color: 'text-gray-300' };
-  const now = new Date();
-  const startDate = new Date(cls.semesters.start_date);
-  const endDate = new Date(cls.semesters.end_date);
-
-  if (isBoardOrAbove) {
-    if (startDate > now) return { label: 'Open', color: 'text-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
-    return { label: 'Active', color: 'text-blue-500' };
-  } else {
-    // For regular members: use "Available" if not started, "Enrolled" if started and not completed, "Completed" if over
-    if (startDate > now) return { label: 'Available', color: 'text-green-500' };
-    if (endDate < now) return { label: 'Completed', color: 'text-gray-500' };
-    return { label: 'Enrolled', color: 'text-blue-500' };
+  if (endDate < now) {
+    return { variant: 'gray', label: 'Completed' };
   }
-};
+  return { variant: 'blue', label: 'Current' };
+}
 
 // Dashboard data is now sourced from ProfileContext and separate admin queries
 
@@ -497,7 +472,7 @@ export default function Dashboard() {
           ) : (
             <div className={`grid gap-3 ${isBoardOrAbove && !isMobile ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3' : type === 'Classes' && !isMobile && !isBoardOrAbove ? 'grid-cols-1 md:grid-cols-1 lg:grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'}`}>
               {items.map((item) => {
-                const status = 'project_members' in item ? getProjectStatus(item, isBoardOrAbove) : getClassStatus(item, isBoardOrAbove);
+                const status = getStatus(item);
                 const count = 'project_members' in item ? item.project_members[0].count : item.class_enrollments[0].count;
 
                 return (
@@ -509,7 +484,7 @@ export default function Dashboard() {
                       <div className="flex items-center justify-between w-full">
                         <CardTitle className="text-lg font-semibold truncate max-w-[70%] min-w-0">{item.name}</CardTitle>
                         <div className="flex flex-col items-end gap-2">
-                          <Badge variant="outline" className={`${status.color} border-current scale-90 origin-right`}>{status.label}</Badge>
+                          <Badge variant={status.variant} className="scale-90 origin-right">{status.label}</Badge>
                         </div>
                       </div>
                     </CardHeader>

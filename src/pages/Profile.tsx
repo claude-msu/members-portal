@@ -637,7 +637,7 @@ const Profile = () => {
                       value={linkedinUsername}
                       onChange={(e) => setLinkedinUsername(e.target.value)}
                       placeholder="yourprofile"
-                      className="pl-[127px]"
+                      className="pl-[126px]"
                     />
                   </div>
                 </div>

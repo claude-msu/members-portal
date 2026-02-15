@@ -48,7 +48,7 @@ export const getItemStatus = (item) => {
     if (start > now) {
         return {
             label: 'Available',
-            variant: 'outline' as const,
+            variant: 'green' as const,
             state: 'available' as const,
         };
     }
@@ -64,7 +64,7 @@ export const getItemStatus = (item) => {
 
     return {
         label: 'In Progress',
-        variant: 'secondary' as const,
+        variant: 'blue' as const,
         state: 'in_progress' as const,
     };
 };

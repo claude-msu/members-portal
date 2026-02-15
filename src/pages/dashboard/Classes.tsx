@@ -460,7 +460,7 @@ const Classes = () => {
     if (isEnrolled) {
       badges.push(
         <Badge key="enrolled" variant="outline" className="shrink-0 whitespace-nowrap">
-          {isTeacher ? 'Teacher' : 'Enrolled'}
+          {isTeacher ? 'Teacher' : 'Student'}
         </Badge>
       );
     }

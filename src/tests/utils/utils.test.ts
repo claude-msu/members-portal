@@ -143,15 +143,27 @@ describe('utils', () => {
       expect(boardClasses).toContain('border-primary');
       expect(boardClasses).toContain('text-primary-foreground');
 
-      // green: border-2 border-green-600 bg-green-600 text-primary-foreground
-      expect(greenClasses).toContain('border-green-600');
-      expect(greenClasses).toContain('bg-green-600');
-      expect(greenClasses).toContain('text-primary-foreground');
+      // green: bg-green-600/5 text-green-600 (no border-green-600, see @src/lib/utils.ts)
+      expect(greenClasses).toContain('bg-green-600/5');
+      expect(greenClasses).toContain('text-green-600');
+      expect(greenClasses).toContain('border-2');
 
-      // red: border-2 border-destructive bg-destructive text-destructive-foreground
-      expect(redClasses).toContain('border-destructive');
-      expect(redClasses).toContain('bg-destructive');
-      expect(redClasses).toContain('text-destructive-foreground');
+      // red: bg-red-600/5 text-red-600 (no border-destructive, see @src/lib/utils.ts)
+      expect(redClasses).toContain('bg-red-600/5');
+      expect(redClasses).toContain('text-red-600');
+      expect(redClasses).toContain('border-2');
+
+      // blue: bg-blue-600/5 text-blue-800
+      const blueClasses = badgeVariants({ variant: 'blue' });
+      expect(blueClasses).toContain('bg-blue-600/5');
+      expect(blueClasses).toContain('text-blue-800');
+      expect(blueClasses).toContain('border-2');
+
+      // gray: bg-gray-600/5 text-gray-600
+      const grayClasses = badgeVariants({ variant: 'gray' });
+      expect(grayClasses).toContain('bg-gray-600/5');
+      expect(grayClasses).toContain('text-gray-600');
+      expect(grayClasses).toContain('border-2');
     });
   });
 });

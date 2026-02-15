@@ -479,7 +479,7 @@ const Projects = () => {
     const badges = [];
     if (isMember) {
       badges.push(
-        <Badge key="member" variant={isLead ? 'default' : 'secondary'} className="shrink-0 whitespace-nowrap">
+        <Badge key="member" variant="outline" className="shrink-0 whitespace-nowrap">
           {isLead ? 'Lead' : 'Member'}
         </Badge>
       );
