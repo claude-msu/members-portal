@@ -277,7 +277,11 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    const now = new Date().toLocaleString("en-US", { timeZone: "America/Detroit" });
+    // Parse now as an ISO string in UTC, for comparison to semesters.start_date in the format "YYYY-MM-DD HH:mm:ss+00"
+    const now = new Date()
+      .toISOString()
+      .replace('T', ' ')
+      .replace(/\.\d{3}Z$/, '+00');
 
     interface AutomationResult {
       type: 'project' | 'class'
