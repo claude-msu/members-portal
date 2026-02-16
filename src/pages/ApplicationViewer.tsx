@@ -341,12 +341,12 @@ const ApplicationViewerPage = () => {
             );
         }
 
-        if (hasStarted && 'repository_name' in item && item.repository_name) {
+        if (hasStarted && 'github_project_id' in item && item.github_project_id) {
             gridItems.push(
                 <div key="repo" className="space-y-2">
                     <h4 className="font-semibold text-sm">Repository</h4>
                     <a
-                        href={`https://github.com/claude-msu/${item.repository_name}`}
+                        href={`https://github.com/orgs/claude-msu/projects/${item.github_project_id}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="flex items-center gap-2 text-sm text-primary hover:underline"

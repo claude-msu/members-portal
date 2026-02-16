@@ -14,13 +14,42 @@ const corsHeaders = {
 }
 
 // ============================================================================
-// GITHUB HELPERS
+// DERIVATION HELPERS
 // ============================================================================
 
-async function ensureGitHubTeam(name: string, description: string): Promise<string> {
-  const slug = name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+function deriveTeamSlug(projectName: string, semesterCode: string): string {
+  const teamName = `${projectName} (${semesterCode})`
+  return teamName.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+}
 
-  // Try to create team
+function deriveTeamName(projectName: string, semesterCode: string): string {
+  return `${projectName} (${semesterCode})`
+}
+
+function deriveProjectUrl(githubProjectId: number): string {
+  return `https://github.com/orgs/${GITHUB_ORG}/projects/${githubProjectId}`
+}
+
+function deriveTeamUrl(teamSlug: string): string {
+  return `https://github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`
+}
+
+// ============================================================================
+// GITHUB TEAM HELPERS
+// ============================================================================
+
+async function findGitHubTeam(teamSlug: string): Promise<boolean> {
+  const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`, {
+    headers: {
+      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+    }
+  })
+
+  return res.ok
+}
+
+async function createGitHubTeam(name: string, description: string): Promise<string> {
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams`, {
     method: 'POST',
     headers: {
@@ -35,17 +64,65 @@ async function ensureGitHubTeam(name: string, description: string): Promise<stri
     })
   })
 
-  const data = await res.json()
-
-  // Success or already exists - both are fine
-  if (res.ok || data.errors?.some((e) => e.code === 'already_exists')) {
-    return data.slug || slug
+  if (!res.ok) {
+    const data = await res.json()
+    throw new Error(`Failed to create GitHub Team: ${JSON.stringify(data)}`)
   }
 
-  throw new Error(`Failed to create GitHub Team: ${JSON.stringify(data)}`)
+  const data = await res.json()
+  return data.slug
 }
 
-async function addGitHubTeamMember(
+async function ensureGitHubTeam(teamSlug: string, name: string, description: string): Promise<void> {
+  const exists = await findGitHubTeam(teamSlug)
+  if (exists) return
+
+  await createGitHubTeam(name, description)
+}
+
+async function getGitHubTeamMembers(teamSlug: string): Promise<Map<string, 'member' | 'maintainer'>> {
+  const members = new Map<string, 'member' | 'maintainer'>()
+
+  const res = await fetch(
+    `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/members?per_page=100`,
+    {
+      headers: {
+        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+      }
+    }
+  )
+
+  if (!res.ok) return members
+
+  const data = await res.json()
+
+  // Get membership details for each member to determine role
+  for (const member of data) {
+    try {
+      const membershipRes = await fetch(
+        `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/memberships/${member.login}`,
+        {
+          headers: {
+            'Authorization': `token ${GITHUB_ORG_PAT}`,
+            'Accept': 'application/vnd.github.v3+json',
+          }
+        }
+      )
+
+      if (membershipRes.ok) {
+        const membershipData = await membershipRes.json()
+        members.set(member.login, membershipData.role)
+      }
+    } catch (e) {
+      console.warn(`Failed to get membership for ${member.login}:`, e)
+    }
+  }
+
+  return members
+}
+
+async function syncGitHubTeamMember(
   teamSlug: string,
   username: string,
   role: 'member' | 'maintainer'
@@ -63,208 +140,308 @@ async function addGitHubTeamMember(
     }
   )
 
-  // Idempotent - PUT will create or update
   if (!res.ok) {
     const data = await res.json()
-    console.warn(`Failed to add ${username} to team ${teamSlug}:`, data)
+    throw new Error(`Failed to sync ${username}: ${JSON.stringify(data)}`)
   }
 }
 
-async function ensureGitHubRepo(
-  name: string,
-  description: string,
-  teamSlug: string
-): Promise<string> {
-  const repoUrl = `https://github.com/${GITHUB_ORG}/${name}`
+// ============================================================================
+// GITHUB PROJECT HELPERS
+// ============================================================================
 
-  // Check if repo exists first
-  const checkRes = await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${name}`, {
+async function getOrgNodeId(): Promise<string> {
+  const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}`, {
     headers: {
       'Authorization': `token ${GITHUB_ORG_PAT}`,
       'Accept': 'application/vnd.github.v3+json',
     }
   })
 
-  if (checkRes.ok) {
-    // Repo exists, just ensure team has access
-    await fetch(
-      `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/repos/${GITHUB_ORG}/${name}`,
-      {
-        method: 'PUT',
-        headers: {
-          'Authorization': `token ${GITHUB_ORG_PAT}`,
-          'Accept': 'application/vnd.github.v3+json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ permission: 'push' })
+  if (!res.ok) throw new Error('Failed to fetch org info')
+
+  const data = await res.json()
+  return data.node_id
+}
+
+async function findGitHubProjectByNumber(
+  projectNumber: number,
+  orgNodeId: string
+): Promise<boolean> {
+  const query = `
+    query($orgId: ID!, $number: Int!) {
+      node(id: $orgId) {
+        ... on Organization {
+          projectV2(number: $number) {
+            id
+            number
+          }
+        }
       }
-    )
+    }
+  `
 
-    return repoUrl
-  }
-
-  // Repo doesn't exist, create it
-  const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/repos`, {
+  const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
-      'Accept': 'application/vnd.github.v3+json',
+      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      name: name,
-      description: description,
-      private: true,
-      auto_init: true,
+      query,
+      variables: { orgId: orgNodeId, number: projectNumber }
     })
   })
 
-  if (!res.ok) {
-    const data = await res.json()
-    throw new Error(`Failed to create repo: ${JSON.stringify(data)}`)
-  }
+  const data = await res.json()
+  return !!data.data?.node?.projectV2
+}
 
-  // Add Team Permission
-  await fetch(
-    `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/repos/${GITHUB_ORG}/${name}`,
-    {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${GITHUB_ORG_PAT}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ permission: 'push' })
+async function findGitHubProjectByTitle(
+  title: string,
+  orgNodeId: string
+): Promise<number | null> {
+  const query = `
+    query($orgId: ID!) {
+      node(id: $orgId) {
+        ... on Organization {
+          projectsV2(first: 100) {
+            nodes {
+              number
+              title
+            }
+          }
+        }
+      }
     }
-  )
+  `
 
-  // Protect Main Branch (best effort - might fail if no commits yet)
-  try {
-    await fetch(`https://api.github.com/repos/${GITHUB_ORG}/${name}/branches/main/protection`, {
-      method: 'PUT',
-      headers: {
-        'Authorization': `token ${GITHUB_ORG_PAT}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        required_status_checks: null,
-        enforce_admins: false,
-        required_pull_request_reviews: {
-          dismiss_stale_reviews: true,
-          required_approving_review_count: 1,
-        },
-        restrictions: null
-      })
+  const res = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query,
+      variables: { orgId: orgNodeId }
     })
-  } catch (e) {
-    console.warn(`Branch protection failed for ${name} (may not have commits yet):`, e)
+  })
+
+  const data = await res.json()
+
+  if (data.data?.node?.projectsV2?.nodes) {
+    const match = data.data.node.projectsV2.nodes.find(
+      (p) => p.title === title
+    )
+
+    if (match) return match.number
   }
 
-  return repoUrl
+  return null
+}
+
+async function createGitHubProject(
+  title: string,
+  orgNodeId: string
+): Promise<number> {
+  const mutation = `
+    mutation($ownerId: ID!, $title: String!) {
+      createProjectV2(input: {ownerId: $ownerId, title: $title}) {
+        projectV2 {
+          number
+        }
+      }
+    }
+  `
+
+  const res = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: mutation,
+      variables: { ownerId: orgNodeId, title }
+    })
+  })
+
+  const data = await res.json()
+
+  if (data.errors) {
+    throw new Error(`Failed to create GitHub Project: ${JSON.stringify(data.errors)}`)
+  }
+
+  return data.data.createProjectV2.projectV2.number
+}
+
+async function ensureGitHubProject(
+  title: string,
+  existingProjectId: number | null,
+  orgNodeId: string
+): Promise<number> {
+  // Check if stored project ID is still valid
+  if (existingProjectId && await findGitHubProjectByNumber(existingProjectId, orgNodeId)) {
+    return existingProjectId
+  }
+
+  // Search for project by title
+  const foundProjectId = await findGitHubProjectByTitle(title, orgNodeId)
+  if (foundProjectId) return foundProjectId
+
+  // Create new project
+  return await createGitHubProject(title, orgNodeId)
 }
 
 // ============================================================================
 // SLACK HELPERS
 // ============================================================================
 
-async function ensureSlackChannel(name: string): Promise<string> {
+async function findSlackChannel(channelId: string): Promise<boolean> {
+  if (!channelId) return false
+
+  const res = await fetch(`https://slack.com/api/conversations.info?channel=${channelId}`, {
+    headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` }
+  })
+
+  const data = await res.json()
+  return data.ok
+}
+
+async function createSlackChannel(name: string): Promise<string> {
   const channelName = name.toLowerCase().replace(/[^a-z0-9-_]/g, '-').slice(0, 80)
 
-  // Try to create channel
   const res = await fetch('https://slack.com/api/conversations.create', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
+    headers: {
+      'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
     body: JSON.stringify({ name: channelName, is_private: false })
   })
 
   const data = await res.json()
 
-  // Success - return channel ID
   if (data.ok) return data.channel.id
 
-  // Already exists - find it
   if (data.error === 'name_taken') {
-    // List channels to find it (paginate if needed)
     const listRes = await fetch('https://slack.com/api/conversations.list?limit=1000', {
       headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` }
     })
     const listData = await listRes.json()
 
     if (listData.ok) {
-      const existingChannel = listData.channels?.find((c) => c.name === channelName)
-      if (existingChannel) {
-        return existingChannel.id
-      }
+      const existing = listData.channels?.find((c) => c.name === channelName)
+      if (existing) return existing.id
     }
   }
 
-  throw new Error(`Slack channel error: ${data.error}`)
+  throw new Error(`Failed to create Slack channel: ${data.error}`)
 }
 
-async function getSlackUserIds(
-  emails: string[],
-  supabase
-): Promise<string[]> {
-  const ids: string[] = []
+async function ensureSlackChannel(name: string, existingChannelId: string | null): Promise<string> {
+  // Check if existing channel ID is still valid
+  if (existingChannelId && await findSlackChannel(existingChannelId)) {
+    return existingChannelId
+  }
 
-  for (const email of emails) {
-    try {
-      const res = await fetch(
-        `https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`,
-        { headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` } }
-      )
-      const data = await res.json()
+  // Create or find channel
+  return await createSlackChannel(name)
+}
 
-      if (data.ok && data.user?.id) {
-        const slackUserId = data.user.id
-        ids.push(slackUserId)
+async function getSlackChannelMembers(channelId: string): Promise<Set<string>> {
+  const members = new Set<string>()
 
-        // Save Slack user ID to profile (idempotent - only updates if null)
-        try {
-          await supabase
-            .from('profiles')
-            .update({ slack_user_id: slackUserId })
-            .eq('email', email)
-            .is('slack_user_id', null)
-        } catch (saveError) {
-          console.warn(`Failed to save Slack ID for ${email}:`, saveError)
-        }
-      }
-    } catch (e) {
-      console.warn(`Slack lookup failed for ${email}:`, e)
+  const res = await fetch(
+    `https://slack.com/api/conversations.members?channel=${channelId}&limit=1000`,
+    { headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` } }
+  )
+
+  const data = await res.json()
+
+  if (data.ok && data.members) {
+    for (const memberId of data.members) {
+      members.add(memberId)
     }
   }
 
-  return ids
+  return members
 }
 
-async function inviteToSlackChannel(channelId: string, userIds: string[]): Promise<void> {
-  if (!channelId || userIds.length === 0) return
+async function lookupSlackUserId(email: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`,
+      { headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` } }
+    )
+    const data = await res.json()
 
-  // Invite users (idempotent - already_in_channel is not an error)
+    if (data.ok && data.user?.id) {
+      return data.user.id
+    }
+  } catch (e) {
+    console.warn(`Slack lookup failed for ${email}:`, e)
+  }
+
+  return null
+}
+
+async function syncSlackChannelMember(
+  channelId: string,
+  userId: string
+): Promise<void> {
   const res = await fetch('https://slack.com/api/conversations.invite', {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ channel: channelId, users: userIds.join(',') })
+    headers: {
+      'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      channel: channelId,
+      users: userId
+    })
   })
 
   const data = await res.json()
+
   if (!data.ok && data.error !== 'already_in_channel') {
-    console.warn('Failed to invite users to Slack channel:', data.error)
+    throw new Error(`Failed to add user to Slack: ${data.error}`)
   }
 }
 
 async function postSlackMessage(channelId: string, text: string): Promise<void> {
-  // Best effort - don't throw on failure
   try {
     await fetch('https://slack.com/api/chat.postMessage', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}`, 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({ channel: channelId, text })
     })
   } catch (e) {
-    console.warn('Failed to post welcome message:', e)
+    console.warn('Failed to post message:', e)
+  }
+}
+
+// ============================================================================
+// PROFILE HELPERS
+// ============================================================================
+
+async function saveSlackUserId(
+  supabase,
+  email: string,
+  slackUserId: string
+): Promise<void> {
+  try {
+    await supabase
+      .from('profiles')
+      .update({ slack_user_id: slackUserId })
+      .eq('email', email)
+      .is('slack_user_id', null)
+  } catch (e) {
+    console.warn(`Failed to save Slack ID for ${email}:`, e)
   }
 }
 
@@ -277,29 +454,33 @@ serve(async (req) => {
 
   try {
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-    // Parse now as an ISO string in UTC, for comparison to semesters.start_date in the format "YYYY-MM-DD HH:mm:ss+00"
     const now = new Date()
       .toISOString()
       .replace('T', ' ')
-      .replace(/\.\d{3}Z$/, '+00');
+      .replace(/\.\d{3}Z$/, '+00')
 
     interface AutomationResult {
       type: 'project' | 'class'
       name: string
-      status?: string
-      error?: string
+      status: 'success' | 'partial' | 'error'
+      errors?: string[]
     }
     const results: AutomationResult[] = []
 
-    // Fetch Projects and Classes that need processing
+    // Get org node ID once for all GraphQL operations
+    const orgNodeId = await getOrgNodeId()
+
+    // ========================================================================
+    // FETCH PROJECTS AND CLASSES
+    // ========================================================================
+
     const { data: projects, error: projectsError } = await supabase
       .from('projects')
       .select(`
-        id, name, repository_name, slack_channel_id,
+        id, name, github_project_id, slack_channel_id,
         semesters!inner(code, start_date)
       `)
       .lte('semesters.start_date', now)
-      .is('slack_channel_id', null) // Only process if not already done
 
     if (projectsError) throw projectsError
 
@@ -310,132 +491,280 @@ serve(async (req) => {
         semesters!inner(code, start_date)
       `)
       .lte('semesters.start_date', now)
-      .is('slack_channel_id', null) // Only process if not already done
 
     if (classesError) throw classesError
 
     // ========================================================================
     // PROCESS PROJECTS
     // ========================================================================
+
     for (const project of projects || []) {
+      const errors: string[] = []
+
       try {
+        // Fetch members
         const { data: members } = await supabase
           .from('project_members')
-          .select('user_id, role, profiles!inner(github_username, email, full_name)')
+          .select('user_id, role, profiles!inner(github_username, email, full_name, slack_user_id)')
           .eq('project_id', project.id)
 
         if (!members?.length) {
-          results.push({ type: 'project', name: project.name, error: 'No members' })
+          results.push({
+            type: 'project',
+            name: project.name,
+            status: 'error',
+            errors: ['No members found']
+          })
           continue
         }
 
-        // Assign GitHub permissions based on member role in the loop
-        const teamSlug = await ensureGitHubTeam(
-          `${project.name} (${project.semesters.code})`,
-          `Team for ${project.name}`
-        )
+        // Derive team slug and name
+        const teamSlug = deriveTeamSlug(project.name, project.semesters.code)
+        const teamName = deriveTeamName(project.name, project.semesters.code)
 
-        let hasGitHubMember = false
-
-        for (const m of members) {
-          if (!m.profiles.github_username) continue
-
-          hasGitHubMember = true
-
-          // Any lead(s) as maintainer, all others as member
-          const role: 'member' | 'maintainer' = m.role === 'lead' ? 'maintainer' : 'member'
-          await addGitHubTeamMember(teamSlug, m.profiles.github_username, role)
+        // STEP 1: Ensure GitHub Team exists
+        try {
+          await ensureGitHubTeam(teamSlug, teamName, `Team for ${project.name}`)
+        } catch (err) {
+          errors.push(`GitHub Team creation: ${err.message}`)
         }
 
-        if (!hasGitHubMember) {
-          console.warn(`Project ${project.name} has no members with GitHub usernames - team will be empty`)
+        // STEP 2: Sync GitHub Team Members
+        try {
+          const existingMembers = await getGitHubTeamMembers(teamSlug)
+
+          for (const m of members) {
+            if (!m.profiles.github_username) continue
+
+            try {
+              const desiredRole: 'member' | 'maintainer' = m.role === 'lead' ? 'maintainer' : 'member'
+              const currentRole = existingMembers.get(m.profiles.github_username)
+
+              // Add or update if role changed
+              if (!currentRole || currentRole !== desiredRole) {
+                await syncGitHubTeamMember(teamSlug, m.profiles.github_username, desiredRole)
+              }
+            } catch (err) {
+              errors.push(`GitHub member ${m.profiles.github_username}: ${err.message}`)
+            }
+          }
+        } catch (err) {
+          errors.push(`GitHub member sync: ${err.message}`)
         }
 
-        // Create/ensure repo exists
-        const repoUrl = await ensureGitHubRepo(project.repository_name, project.name, teamSlug)
+        // STEP 3: Ensure GitHub Project exists
+        let githubProjectId = project.github_project_id
+        try {
+          githubProjectId = await ensureGitHubProject(
+            project.name, // Use project name directly (no semester suffix)
+            project.github_project_id,
+            orgNodeId
+          )
 
-        // B. Slack Setup (idempotent)
-        const channelId = await ensureSlackChannel(`project-${project.name}`)
-
-        // Invite members to Slack
-        const emails = members.map(m => m.profiles.email)
-        const slackIds = await getSlackUserIds(emails, supabase)
-        await inviteToSlackChannel(channelId, slackIds)
-
-        // Post welcome message (best effort)
-        await postSlackMessage(
-          channelId,
-          `🚀 Welcome to ${project.name}!\n\nGitHub: ${repoUrl}\n\nLet's build! 💪`
-        )
-
-        // C. Update database - LAST STEP (marks as complete)
-        // Only update slack_channel_id - repository_name already exists
-        const { error: updateError } = await supabase
-          .from('projects')
-          .update({ slack_channel_id: channelId })
-          .eq('id', project.id)
-
-        if (updateError) {
-          throw new Error(`Failed to update database: ${updateError.message}`)
+          // Update database if changed
+          if (githubProjectId !== project.github_project_id) {
+            await supabase
+              .from('projects')
+              .update({ github_project_id: githubProjectId })
+              .eq('id', project.id)
+          }
+        } catch (err) {
+          errors.push(`GitHub Project: ${err.message}`)
         }
 
-        results.push({ type: 'project', name: project.name, status: 'success' })
+        // STEP 4: Ensure Slack Channel exists
+        let channelId = project.slack_channel_id
+        let isNewChannel = false
+        try {
+          const channelName = `project-${project.name}`
+          const newChannelId = await ensureSlackChannel(channelName, project.slack_channel_id)
+
+          isNewChannel = newChannelId !== project.slack_channel_id
+          channelId = newChannelId
+
+          // Update database if changed
+          if (isNewChannel) {
+            await supabase
+              .from('projects')
+              .update({ slack_channel_id: channelId })
+              .eq('id', project.id)
+          }
+        } catch (err) {
+          errors.push(`Slack Channel: ${err.message}`)
+        }
+
+        // STEP 5: Sync Slack Channel Members
+        if (channelId) {
+          try {
+            const existingMembers = await getSlackChannelMembers(channelId)
+
+            for (const m of members) {
+              try {
+                let slackUserId = m.profiles.slack_user_id
+
+                // Lookup if not cached
+                if (!slackUserId) {
+                  slackUserId = await lookupSlackUserId(m.profiles.email)
+                  if (slackUserId) {
+                    await saveSlackUserId(supabase, m.profiles.email, slackUserId)
+                  }
+                }
+
+                // Add to channel if found and not already in
+                if (slackUserId && !existingMembers.has(slackUserId)) {
+                  await syncSlackChannelMember(channelId, slackUserId)
+                }
+              } catch (err) {
+                errors.push(`Slack member ${m.profiles.email}: ${err.message}`)
+              }
+            }
+
+            // Post welcome message only for new channels
+            if (isNewChannel && githubProjectId) {
+              const projectUrl = deriveProjectUrl(githubProjectId)
+              const teamUrl = deriveTeamUrl(teamSlug)
+
+              await postSlackMessage(
+                channelId,
+                `🚀 Welcome to ${project.name}!\n\n` +
+                `GitHub Project: ${projectUrl}\n` +
+                `GitHub Team: ${teamUrl}\n\n` +
+                `Create your repos and link them to the project board!`
+              )
+            }
+          } catch (err) {
+            errors.push(`Slack member sync: ${err.message}`)
+          }
+        }
+
+        // Determine overall status
+        const status = errors.length === 0 ? 'success' : 'partial'
+        results.push({
+          type: 'project',
+          name: project.name,
+          status,
+          ...(errors.length > 0 && { errors })
+        })
 
       } catch (err) {
-        console.error(`Error processing project ${project.name}:`, err)
-        results.push({ type: 'project', name: project.name, error: err.message })
-        // NO ROLLBACK - let next run fix it via idempotency
+        console.error(`Critical error processing project ${project.name}:`, err)
+        results.push({
+          type: 'project',
+          name: project.name,
+          status: 'error',
+          errors: [err.message]
+        })
       }
     }
 
     // ========================================================================
     // PROCESS CLASSES
     // ========================================================================
+
     for (const cls of classes || []) {
+      const errors: string[] = []
+
       try {
+        // Fetch members
         const { data: members } = await supabase
           .from('class_enrollments')
-          .select('user_id, role, profiles!inner(email, full_name)')
+          .select('user_id, role, profiles!inner(email, full_name, slack_user_id)')
           .eq('class_id', cls.id)
 
         if (!members?.length) {
-          results.push({ type: 'class', name: cls.name, error: 'No members' })
+          results.push({
+            type: 'class',
+            name: cls.name,
+            status: 'error',
+            errors: ['No members found']
+          })
           continue
         }
 
-        // A. Slack Setup (idempotent)
-        const channelId = await ensureSlackChannel(`class-${cls.name}-${cls.semesters.code}`)
+        // STEP 1: Ensure Slack Channel exists
+        let channelId = cls.slack_channel_id
+        let isNewChannel = false
+        try {
+          const channelName = `class-${cls.name}-${cls.semesters.code}`
+          const newChannelId = await ensureSlackChannel(channelName, cls.slack_channel_id)
 
-        // Invite members
-        const emails = members.map(m => m.profiles.email)
-        const slackIds = await getSlackUserIds(emails, supabase)
-        await inviteToSlackChannel(channelId, slackIds)
+          isNewChannel = newChannelId !== cls.slack_channel_id
+          channelId = newChannelId
 
-        // Welcome message (best effort)
-        const teacher = members.find(m => m.role === 'teacher')
-        await postSlackMessage(
-          channelId,
-          `📚 Welcome to ${cls.name}!\n\n${teacher ? `Instructor: ${teacher.profiles.full_name}` : ''}`
-        )
-
-        // B. Update database - LAST STEP (marks as complete)
-        const { error: updateError } = await supabase
-          .from('classes')
-          .update({ slack_channel_id: channelId })
-          .eq('id', cls.id)
-
-        if (updateError) {
-          throw new Error(`Failed to update database: ${updateError.message}`)
+          // Update database if changed
+          if (isNewChannel) {
+            await supabase
+              .from('classes')
+              .update({ slack_channel_id: channelId })
+              .eq('id', cls.id)
+          }
+        } catch (err) {
+          errors.push(`Slack Channel: ${err.message}`)
         }
 
-        results.push({ type: 'class', name: cls.name, status: 'success' })
+        // STEP 2: Sync Slack Channel Members
+        if (channelId) {
+          try {
+            const existingMembers = await getSlackChannelMembers(channelId)
+
+            for (const m of members) {
+              try {
+                let slackUserId = m.profiles.slack_user_id
+
+                // Lookup if not cached
+                if (!slackUserId) {
+                  slackUserId = await lookupSlackUserId(m.profiles.email)
+                  if (slackUserId) {
+                    await saveSlackUserId(supabase, m.profiles.email, slackUserId)
+                  }
+                }
+
+                // Add to channel if found and not already in
+                if (slackUserId && !existingMembers.has(slackUserId)) {
+                  await syncSlackChannelMember(channelId, slackUserId)
+                }
+              } catch (err) {
+                errors.push(`Slack member ${m.profiles.email}: ${err.message}`)
+              }
+            }
+
+            // Post welcome message only for new channels
+            if (isNewChannel) {
+              const teacher = members.find(m => m.role === 'teacher')
+              await postSlackMessage(
+                channelId,
+                `📚 Welcome to ${cls.name}!\n\n` +
+                `${teacher ? `Instructor: ${teacher.profiles.full_name}` : ''}`
+              )
+            }
+          } catch (err) {
+            errors.push(`Slack member sync: ${err.message}`)
+          }
+        }
+
+        // Determine overall status
+        const status = errors.length === 0 ? 'success' : 'partial'
+        results.push({
+          type: 'class',
+          name: cls.name,
+          status,
+          ...(errors.length > 0 && { errors })
+        })
 
       } catch (err) {
-        console.error(`Error processing class ${cls.name}:`, err)
-        results.push({ type: 'class', name: cls.name, error: err.message })
-        // NO ROLLBACK - let next run fix it via idempotency
+        console.error(`Critical error processing class ${cls.name}:`, err)
+        results.push({
+          type: 'class',
+          name: cls.name,
+          status: 'error',
+          errors: [err.message]
+        })
       }
     }
+
+    // ========================================================================
+    // RETURN RESULTS
+    // ========================================================================
 
     return new Response(JSON.stringify({ processed: results }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

@@ -40,7 +40,6 @@ const Projects = () => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [clientName, setClientName] = useState('');
-  const [repositoryName, setRepositoryName] = useState('');
   const [selectedSemester, setSelectedSemester] = useState<Semester | null>(null);
   const [selectedLead, setSelectedLead] = useState<string>('');
 
@@ -215,9 +214,6 @@ const Projects = () => {
       setName(project.name);
       setDescription(project.description || '');
       setClientName(project.client_name || '');
-      // Extract repository name from full URL
-      const repoName = project.repository_name
-      setRepositoryName(repoName);
       setSelectedSemester(project.semester_id ? { id: project.semester_id } as Semester : null);
       const lead = project.members.find(m => m.role === 'lead');
       setSelectedLead(lead ? lead.user_id : '');
@@ -226,7 +222,6 @@ const Projects = () => {
       setName('');
       setDescription('');
       setClientName('');
-      setRepositoryName('');
       setSelectedSemester(null);
       setSelectedLead('');
     }
@@ -350,15 +345,6 @@ const Projects = () => {
       return;
     }
 
-    if (!repositoryName.trim()) {
-      toast({
-        title: 'Required Field Missing',
-        description: 'Please enter a GitHub repository name',
-        variant: 'destructive',
-      });
-      return;
-    }
-
     if (!selectedSemester) {
       toast({
         title: 'Required Field Missing',
@@ -375,7 +361,6 @@ const Projects = () => {
         name,
         description: description || null,
         client_name: clientName || null,
-        repository_name: repositoryName,
         semester_id: selectedSemester?.id || null,
       };
 
@@ -535,7 +520,7 @@ const Projects = () => {
     if (projectHasStarted) {
       actions.push({
         label: 'View on GitHub',
-        onClick: () => window.open(`https://github.com/claude-msu/${project.repository_name}`, '_blank'),
+        onClick: () => window.open(`https://github.com/orgs/claude-msu/projects/${project.github_project_id}`, '_blank'),
         icon: <Github className="h-4 w-4 mr-2" />,
         variant: isBoardOrAbove ? 'default' : 'outline',
       });
@@ -680,26 +665,6 @@ const Projects = () => {
             required
           />
         </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="repositoryName" required>GitHub Repository Name</Label>
-          <div className="relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-claude-peach/90">
-              {isMobile ? (
-                "claude-msu/"
-              ) : (
-                "github.com/claude-msu/"
-              )}
-            </span>
-            <Input
-              id="repositoryName"
-              value={repositoryName}
-              onChange={(e) => setRepositoryName(e.target.value)}
-              placeholder="project-name"
-              className={isMobile ? "pl-[105px]" : "pl-[190px]"}
-            />
-          </div>
-        </div>
       </EditModal>
 
       {/* DETAIL MODAL */}
@@ -774,20 +739,20 @@ const Projects = () => {
                 : false;
 
               return projectHasStarted ? [{
-                title: 'GitHub Repository',
+                title: 'GitHub Project',
                 content: (
                   <Button
                     variant="outline"
                     className="w-full justify-start"
                     onClick={() =>
                       window.open(
-                        `https://github.com/claude-msu/${modalState.selectedItem!.repository_name}`,
+                        `https://github.com/orgs/claude-msu/projects/${modalState.selectedItem!.github_project_id}`,
                         '_blank'
                       )
                     }
                   >
                     <Github className="h-4 w-4 mr-2" />
-                    {`claude-msu/${modalState.selectedItem!.repository_name}`}
+                    {`GitHub Project #${modalState.selectedItem!.github_project_id}`}
                   </Button>
                 ),
               }] : [];

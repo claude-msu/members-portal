@@ -418,7 +418,7 @@ export type Database = {
           description: string | null
           id: string
           name: string
-          repository_name: string
+          github_project_id: number | null
           semester_id: string | null
           updated_at: string
         }
@@ -429,7 +429,7 @@ export type Database = {
           description?: string | null
           id?: string
           name: string
-          repository_name: string
+          github_project_id?: number | null
           semester_id?: string | null
           updated_at?: string
         }
@@ -440,7 +440,7 @@ export type Database = {
           description?: string | null
           id?: string
           name?: string
-          repository_name?: string
+          github_project_id?: number | null
           semester_id?: string | null
           updated_at?: string
         }
