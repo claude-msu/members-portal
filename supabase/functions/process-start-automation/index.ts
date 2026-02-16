@@ -128,7 +128,7 @@ async function createGitHubTeam(name: string, description: string): Promise<stri
   }
 
   // Team already exists - derive slug and continue
-  if (res.status === 422 && data.errors?.some((e) => e.message?.includes('unique'))) {
+  if (res.status === 422 && data.errors?.some((e: any) => e.message?.includes('unique'))) {
     console.log(`Team "${name}" already exists, continuing`)
     return name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
   }
@@ -304,7 +304,7 @@ async function findGitHubProjectByTitle(
 
   if (data.data?.node?.projectsV2?.nodes) {
     const match = data.data.node.projectsV2.nodes.find(
-      (p) => p.title === title
+      (p: any) => p.title === title
     )
 
     if (match) return match.number
@@ -367,6 +367,120 @@ async function ensureGitHubProject(
 }
 
 // ============================================================================
+// GITHUB PROJECT-TEAM LINKING
+// ============================================================================
+
+async function getTeamNodeId(teamSlug: string): Promise<string | null> {
+  const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`, {
+    headers: {
+      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Accept': 'application/vnd.github.v3+json',
+    }
+  })
+
+  if (!res.ok) return null
+
+  const data = await res.json()
+  return data.node_id
+}
+
+async function linkTeamToProject(
+  projectNumber: number,
+  teamSlug: string,
+  orgNodeId: string
+): Promise<void> {
+  // Get team node ID
+  const teamNodeId = await getTeamNodeId(teamSlug)
+  if (!teamNodeId) {
+    console.warn(`Could not find team ${teamSlug} to link to project`)
+    return
+  }
+
+  // Get project node ID from number
+  const projectQuery = `
+    query($orgId: ID!, $number: Int!) {
+      node(id: $orgId) {
+        ... on Organization {
+          projectV2(number: $number) {
+            id
+          }
+        }
+      }
+    }
+  `
+
+  const projectRes = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: projectQuery,
+      variables: { orgId: orgNodeId, number: projectNumber }
+    })
+  })
+
+  const projectData = await projectRes.json()
+  const projectNodeId = projectData.data?.node?.projectV2?.id
+
+  if (!projectNodeId) {
+    console.warn(`Could not find project ${projectNumber} to link team`)
+    return
+  }
+
+  // Link team to project with ADMIN access
+  const linkMutation = `
+    mutation($projectId: ID!, $teamId: ID!) {
+      updateProjectV2Collaborators(
+        input: {
+          projectId: $projectId
+          collaborators: [
+            {
+              teamId: $teamId
+              role: ADMIN
+            }
+          ]
+        }
+      ) {
+        collaborators {
+          edges {
+            node {
+              ... on Team {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  `
+
+  const linkRes = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: linkMutation,
+      variables: {
+        projectId: projectNodeId,
+        teamId: teamNodeId
+      }
+    })
+  })
+
+  const linkData = await linkRes.json()
+
+  if (linkData.errors) {
+    console.warn(`Failed to link team to project:`, linkData.errors)
+  } else {
+    console.log(`Successfully linked team ${teamSlug} to project ${projectNumber}`)
+  }
+}
+
+// ============================================================================
 // SLACK HELPERS
 // ============================================================================
 
@@ -404,7 +518,7 @@ async function createSlackChannel(name: string): Promise<string> {
     const listData = await listRes.json()
 
     if (listData.ok) {
-      const existing = listData.channels?.find((c) => c.name === channelName)
+      const existing = listData.channels?.find((c: any) => c.name === channelName)
       if (existing) return existing.id
     }
   }
@@ -502,7 +616,7 @@ async function postSlackMessage(channelId: string, text: string): Promise<void> 
 // ============================================================================
 
 async function saveSlackUserId(
-  supabase,
+  supabase: any,
   email: string,
   slackUserId: string
 ): Promise<void> {
@@ -639,7 +753,7 @@ serve(async (req) => {
         let githubProjectId = project.github_project_id
         try {
           githubProjectId = await ensureGitHubProject(
-            project.name, // Use project name directly (no semester suffix)
+            project.name,
             project.github_project_id,
             orgNodeId
           )
@@ -655,7 +769,16 @@ serve(async (req) => {
           errors.push(`GitHub Project: ${err.message}`)
         }
 
-        // STEP 4: Ensure Slack Channel exists
+        // STEP 4: Link Team to Project
+        if (githubProjectId) {
+          try {
+            await linkTeamToProject(githubProjectId, teamSlug, orgNodeId)
+          } catch (err) {
+            errors.push(`Link team to project: ${err.message}`)
+          }
+        }
+
+        // STEP 5: Ensure Slack Channel exists
         let channelId = project.slack_channel_id
         let isNewChannel = false
         try {
@@ -676,7 +799,7 @@ serve(async (req) => {
           errors.push(`Slack Channel: ${err.message}`)
         }
 
-        // STEP 5: Sync Slack Channel Members
+        // STEP 6: Sync Slack Channel Members
         if (channelId) {
           try {
             const existingMembers = await getSlackChannelMembers(channelId)
