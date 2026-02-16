@@ -8,7 +8,6 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
 const SLACK_JOIN_LINK = Deno.env.get('SLACK_JOIN_LINK')
-const SLACK_BOT_TOKEN = Deno.env.get('SLACK_BOT_TOKEN')
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -22,69 +21,6 @@ interface ApplicationUpdatePayload {
 }
 
 // ============================================================================
-// SLACK HELPER FUNCTIONS
-// ============================================================================
-
-async function lookupSlackUserIdByEmail(email: string): Promise<string | null> {
-    if (!SLACK_BOT_TOKEN) return null
-
-    try {
-        const res = await fetch(
-            `https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`,
-            {
-                headers: { 'Authorization': `Bearer ${SLACK_BOT_TOKEN}` }
-            }
-        )
-        const data = await res.json()
-
-        if (data.ok && data.user?.id) {
-            return data.user.id
-        }
-
-        if (data.error !== 'users_not_found') {
-            console.warn(`Slack lookup failed for ${email}:`, data.error)
-        }
-        return null
-    } catch (error) {
-        console.warn(`Slack lookup error for ${email}:`, error)
-        return null
-    }
-}
-
-async function addUserToSlackChannel(
-    slackUserId: string,
-    channelId: string
-): Promise<boolean> {
-    if (!SLACK_BOT_TOKEN) return false
-
-    try {
-        const res = await fetch('https://slack.com/api/conversations.invite', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                channel: channelId,
-                users: slackUserId
-            })
-        })
-
-        const data = await res.json()
-
-        if (data.ok || data.error === 'already_in_channel') {
-            return true
-        }
-
-        console.warn(`Failed to add user to Slack channel:`, data.error)
-        return false
-    } catch (error) {
-        console.warn('Slack API error:', error)
-        return false
-    }
-}
-
-// ============================================================================
 // EMAIL HELPER FUNCTIONS
 // ============================================================================
 
@@ -95,7 +31,6 @@ async function sendDecisionEmail(
     boardPosition: string | null,
     status: 'accepted' | 'rejected',
     hasSlackAccount: boolean,
-    addedToChannel: boolean // <--- NEW: Did we add them to a channel?
 ): Promise<void> {
     const subject = getEmailSubject(applicationType, boardPosition)
     const html = getEmailHtml(
@@ -104,7 +39,6 @@ async function sendDecisionEmail(
         boardPosition,
         status,
         hasSlackAccount,
-        addedToChannel
     )
 
     const resend = new Resend(RESEND_API_KEY)
@@ -143,7 +77,6 @@ function getEmailHtml(
     boardPosition: string | null,
     status: 'accepted' | 'rejected',
     hasSlackAccount: boolean,
-    addedToChannel: boolean
 ): string {
     const target = getApplicationTarget(applicationType, boardPosition)
     const accepted = status === 'accepted'
@@ -153,15 +86,12 @@ function getEmailHtml(
     let slackButton = ''
 
     if (accepted) {
-        if (addedToChannel) {
-            // User was added to the project/class channel immediately
-            slackSection = `<li style="margin: 10px 0;"><strong>Slack:</strong> You've been added to the ${applicationType} channel${hasSlackAccount ? '' : ' - please join the workspace first using the button below'}!</li>`
-        } else if (hasSlackAccount) {
+        if (hasSlackAccount) {
             // Has Slack account, channel will be created when semester starts
             slackSection = `<li style="margin: 10px 0;"><strong>Slack:</strong> You'll be added to the ${applicationType} channel when the semester starts!</li>`
         } else {
             // Needs to join Slack workspace first
-            slackSection = `<li style="margin: 10px 0;"><strong>Join Slack:</strong> This is where we communicate. Please join using the button below.</li>`
+            slackSection = `<li style="margin: 10px 0;"><strong>Join Slack:</strong> This is where we communicate. Please join using your <b>@msu.edu</b> university email.</li>`
         }
 
         // Show join button only if they don't have Slack account
@@ -322,8 +252,7 @@ serve(async (req) => {
 
         const userEmail = profile.email
         const userName = profile.full_name || application.full_name
-        let slackUserId = profile.slack_user_id
-        const hadSlackAccount = !!slackUserId
+        const hasSlackAccount = !!profile.slack_user_id
 
         // Save original values for rollback
         const originalStatus = application.status
@@ -361,7 +290,6 @@ serve(async (req) => {
         // ========================================================================
         // STEP 3: For ACCEPTED applications only - upgrade role if needed
         // ========================================================================
-        let addedToSlackChannel = false
 
         if (payload.status === 'accepted') {
             const { data: currentRole } = await supabase
@@ -397,7 +325,6 @@ serve(async (req) => {
             // ======================================================================
             // STEP 4: Add to project/class (CRITICAL - must succeed)
             // ======================================================================
-            let slackChannelId: string | null = null
 
             if (application.application_type === 'project' && application.project_id) {
                 const { error: memberError } = await supabase
@@ -421,14 +348,6 @@ serve(async (req) => {
                         .eq('user_id', application.user_id)
                 })
 
-                // Check if project has already started (has Slack channel)
-                const { data: project } = await supabase
-                    .from('projects')
-                    .select('slack_channel_id')
-                    .eq('id', application.project_id)
-                    .single()
-
-                slackChannelId = project?.slack_channel_id || null
             }
 
             if (application.application_type === 'class' && application.class_id) {
@@ -453,63 +372,12 @@ serve(async (req) => {
                         .eq('user_id', application.user_id)
                 })
 
-                // Check if class has already started (has Slack channel)
-                const { data: classData } = await supabase
-                    .from('classes')
-                    .select('slack_channel_id')
-                    .eq('id', application.class_id)
-                    .single()
-
-                slackChannelId = classData?.slack_channel_id || null
             }
 
-            // ======================================================================
-            // STEP 5: Smart Slack Channel Auto-Add (if already started)
-            // ======================================================================
-            if (slackChannelId && SLACK_BOT_TOKEN) {
-                // If we don't have their Slack user ID yet, look it up
-                if (!slackUserId) {
-                    slackUserId = await lookupSlackUserIdByEmail(userEmail)
-
-                    // Save it to their profile for future use
-                    if (slackUserId) {
-                        const { error: profileUpdateError } = await supabase
-                            .from('profiles')
-                            .update({ slack_user_id: slackUserId })
-                            .eq('id', application.user_id)
-
-                        if (profileUpdateError) {
-                            console.warn('Failed to save Slack user ID:', profileUpdateError)
-                        } else {
-                            // Add rollback for Slack user ID save
-                            rollbackActions.push(async () => {
-                                await supabase
-                                    .from('profiles')
-                                    .update({ slack_user_id: null })
-                                    .eq('id', application.user_id)
-                            })
-                        }
-                    }
-                }
-
-                // Add them to the channel immediately
-                if (slackUserId) {
-                    addedToSlackChannel = await addUserToSlackChannel(
-                        slackUserId,
-                        slackChannelId
-                    )
-
-                    if (!addedToSlackChannel) {
-                        console.warn(`Could not add user to Slack channel for ${userEmail}`)
-                    }
-                } else {
-                    console.warn(`Could not find Slack account for ${userEmail}`)
-                }
-            }
         }
 
         // ========================================================================
-        // STEP 6: Send decision email (non-critical - don't throw on failure)
+        // STEP 5: Send decision email (non-critical - don't throw on failure)
         // ========================================================================
         try {
             await sendDecisionEmail(
@@ -518,8 +386,7 @@ serve(async (req) => {
                 application.application_type,
                 application.board_position,
                 payload.status,
-                hadSlackAccount,
-                addedToSlackChannel
+                hasSlackAccount
             )
         } catch (emailError) {
             console.warn('⚠️ Email sending failed:', emailError)
@@ -533,7 +400,6 @@ serve(async (req) => {
             JSON.stringify({
                 success: true,
                 message: `Application ${payload.status} successfully`,
-                slack_channel_added: addedToSlackChannel,
             }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
