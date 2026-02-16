@@ -135,7 +135,8 @@ export const ApplicationCreateModal = ({
           start_date
         )
       `)
-      .gt('semesters.start_date', now)
+      // TODO: Re-implement this
+      // .gt('semesters.start_date', now)
       .order('name', { ascending: true });
 
     if (classesData) {
@@ -162,7 +163,8 @@ export const ApplicationCreateModal = ({
           start_date
         )
       `)
-      .gt('semesters.start_date', now)
+      // TODO: Re-implement this
+      // .gt('semesters.start_date', now)
       .order('name', { ascending: true });
 
     if (projectsData) {
