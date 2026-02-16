@@ -35,62 +35,6 @@ function deriveTeamUrl(teamSlug: string): string {
 }
 
 // ============================================================================
-// GITHUB ORG INVITE HELPERS
-// ============================================================================
-
-async function inviteToGitHubOrg(username: string): Promise<void> {
-  const res = await fetch(
-    `https://api.github.com/orgs/${GITHUB_ORG}/invitations`,
-    {
-      method: 'POST',
-      headers: {
-        'Authorization': `token ${GITHUB_ORG_PAT}`,
-        'Accept': 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        login: username,
-        role: 'direct_member'
-      })
-    }
-  )
-
-  // Success, already invited, or already a member - all OK
-  if (res.ok || res.status === 422) {
-    return
-  }
-
-  const data = await res.json()
-  console.warn(`Org invite for ${username} failed:`, data)
-}
-
-async function ensureGitHubOrgMember(username: string): Promise<boolean> {
-  // Check if user is already in org
-  const checkRes = await fetch(
-    `https://api.github.com/orgs/${GITHUB_ORG}/members/${username}`,
-    {
-      headers: {
-        'Authorization': `token ${GITHUB_ORG_PAT}`,
-        'Accept': 'application/vnd.github.v3+json',
-      }
-    }
-  )
-
-  if (checkRes.ok) {
-    return true // Already a member
-  }
-
-  // Not a member - send invite
-  try {
-    await inviteToGitHubOrg(username)
-    return false // Invited, but not yet a member
-  } catch (e) {
-    console.warn(`Failed to invite ${username} to org:`, e)
-    return false
-  }
-}
-
-// ============================================================================
 // GITHUB TEAM HELPERS
 // ============================================================================
 
@@ -129,7 +73,6 @@ async function createGitHubTeam(name: string, description: string): Promise<stri
 
   // Team already exists - derive slug and continue
   if (res.status === 422 && data.errors?.some((e) => e.message?.includes('unique'))) {
-    console.log(`Team "${name}" already exists, continuing`)
     return name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
   }
 
@@ -206,9 +149,9 @@ async function syncGitHubTeamMember(
   if (!res.ok) {
     const data = await res.json()
 
-    // Soft fail - user not in org yet (invitation pending)
+    // User doesn't exist on GitHub
     if (res.status === 404) {
-      console.warn(`User ${username} not in org yet - invitation sent, will be added on next run`)
+      console.warn(`User ${username} not found on GitHub`)
       return
     }
 
@@ -474,9 +417,7 @@ async function linkTeamToProject(
   const linkData = await linkRes.json()
 
   if (linkData.errors) {
-    console.warn(`Failed to link team to project:`, linkData.errors)
-  } else {
-    console.log(`Successfully linked team ${teamSlug} to project ${projectNumber}`)
+    throw new Error(`Failed to link team to project: ${JSON.stringify(linkData.errors)}`)
   }
 }
 
@@ -715,28 +656,21 @@ serve(async (req) => {
           errors.push(`GitHub Team creation: ${err.message}`)
         }
 
-        // STEP 2: Sync GitHub Team Members
+        // STEP 2: Ensure GitHub Project exists
+        let githubProjectId = project.github_project_id
+
+        // STEP 3: Sync GitHub Team Members
         try {
           const existingMembers = await getGitHubTeamMembers(teamSlug)
 
           for (const m of members) {
-            if (!m.profiles.github_username) continue
+            if (!m.profiles.github_username) continue;
 
             try {
-              // Ensure user is in org (send invite if not)
-              const isInOrg = await ensureGitHubOrgMember(m.profiles.github_username)
-
-              if (!isInOrg) {
-                // User was just invited, they'll be added to team on next run
-                console.log(`Invited ${m.profiles.github_username} to org - will add to team after they accept`)
-                continue
-              }
-
-              // User is in org - sync their team membership
               const desiredRole: 'member' | 'maintainer' = m.role === 'lead' ? 'maintainer' : 'member'
               const currentRole = existingMembers.get(m.profiles.github_username)
 
-              // Add or update if role changed
+              // Add or update if role changed or not in team yet
               if (!currentRole || currentRole !== desiredRole) {
                 await syncGitHubTeamMember(teamSlug, m.profiles.github_username, desiredRole)
               }
@@ -745,28 +679,26 @@ serve(async (req) => {
               errors.push(`GitHub member ${m.profiles.github_username}: ${err.message}`)
             }
           }
-        } catch (err) {
-          errors.push(`GitHub member sync: ${err.message}`)
-        }
 
-        // STEP 3: Ensure GitHub Project exists
-        let githubProjectId = project.github_project_id
-        try {
-          githubProjectId = await ensureGitHubProject(
-            project.name,
-            project.github_project_id,
-            orgNodeId
-          )
+          try {
+            githubProjectId = await ensureGitHubProject(
+              project.name,
+              project.github_project_id,
+              orgNodeId
+            )
 
-          // Update database if changed
-          if (githubProjectId !== project.github_project_id) {
-            await supabase
-              .from('projects')
-              .update({ github_project_id: githubProjectId })
-              .eq('id', project.id)
+            // Update database if changed
+            if (githubProjectId !== project.github_project_id) {
+              await supabase
+                .from('projects')
+                .update({ github_project_id: githubProjectId })
+                .eq('id', project.id)
+            }
+          } catch (err) {
+            errors.push(`GitHub Project: ${err.message}`)
           }
         } catch (err) {
-          errors.push(`GitHub Project: ${err.message}`)
+          errors.push(`GitHub member sync: ${err.message}`)
         }
 
         // STEP 4: Link Team to Project
