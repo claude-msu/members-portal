@@ -128,7 +128,7 @@ async function createGitHubTeam(name: string, description: string): Promise<stri
   }
 
   // Team already exists - derive slug and continue
-  if (res.status === 422 && data.errors?.some((e: any) => e.message?.includes('unique'))) {
+  if (res.status === 422 && data.errors?.some((e) => e.message?.includes('unique'))) {
     console.log(`Team "${name}" already exists, continuing`)
     return name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
   }
@@ -304,7 +304,7 @@ async function findGitHubProjectByTitle(
 
   if (data.data?.node?.projectsV2?.nodes) {
     const match = data.data.node.projectsV2.nodes.find(
-      (p: any) => p.title === title
+      (p) => p.title === title
     )
 
     if (match) return match.number
@@ -404,7 +404,7 @@ async function createSlackChannel(name: string): Promise<string> {
     const listData = await listRes.json()
 
     if (listData.ok) {
-      const existing = listData.channels?.find((c: any) => c.name === channelName)
+      const existing = listData.channels?.find((c) => c.name === channelName)
       if (existing) return existing.id
     }
   }
@@ -502,7 +502,7 @@ async function postSlackMessage(channelId: string, text: string): Promise<void> 
 // ============================================================================
 
 async function saveSlackUserId(
-  supabase: any,
+  supabase,
   email: string,
   slackUserId: string
 ): Promise<void> {
