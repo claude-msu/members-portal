@@ -358,6 +358,56 @@ const Profile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // --- Username validation ---
+    // GitHub username:
+    // - only alphanumeric characters or single hyphens
+    // - cannot begin or end with a hyphen
+    // - no multiple consecutive hyphens
+    // - must not contain a slash at all
+    // - max 39 chars, min 1 char
+    function isValidGithubUsername(username: string) {
+      if (!username) return true; // allow empty (optional field)
+      if (username.length > 39) return false;
+      if (username.startsWith('-') || username.endsWith('-')) return false;
+      if (username.includes('--')) return false;
+      if (username.includes('/')) return false;
+      if (!/^[a-zA-Z0-9-]+$/.test(username)) return false;
+      return true;
+    }
+
+    // LinkedIn username:
+    // - min 5 chars, max 30 chars
+    // - only letters, digits, "-", "_"
+    // - must start with letter/number
+    // - cannot end with a hyphen or underscore
+    function isValidLinkedinUsername(username: string) {
+      if (!username) return true; // allow empty (optional field)
+      if (username.length < 5 || username.length > 30) return false;
+      if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{3,28}[a-zA-Z0-9]$/.test(username)) return false;
+      return true;
+    }
+
+    if (!isValidGithubUsername(githubUsername)) {
+      toast({
+        title: 'Invalid GitHub Username',
+        description:
+          'GitHub usernames may only contain letters, numbers, single hyphens (not consecutive, not at start/end), and be 1-39 characters.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    if (!isValidLinkedinUsername(linkedinUsername)) {
+      toast({
+        title: 'Invalid LinkedIn Username',
+        description:
+          'LinkedIn usernames must be 5-30 characters, only letters, numbers, hyphens or underscores, not start/end with hyphen/underscore.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {

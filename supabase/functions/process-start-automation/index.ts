@@ -35,6 +35,62 @@ function deriveTeamUrl(teamSlug: string): string {
 }
 
 // ============================================================================
+// GITHUB ORG INVITE HELPERS
+// ============================================================================
+
+async function inviteToGitHubOrg(username: string): Promise<void> {
+  const res = await fetch(
+    `https://api.github.com/orgs/${GITHUB_ORG}/invitations`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        login: username,
+        role: 'direct_member'
+      })
+    }
+  )
+
+  // Success, already invited, or already a member - all OK
+  if (res.ok || res.status === 422) {
+    return
+  }
+
+  const data = await res.json()
+  console.warn(`Org invite for ${username} failed:`, data)
+}
+
+async function ensureGitHubOrgMember(username: string): Promise<boolean> {
+  // Check if user is already in org
+  const checkRes = await fetch(
+    `https://api.github.com/orgs/${GITHUB_ORG}/members/${username}`,
+    {
+      headers: {
+        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Accept': 'application/vnd.github.v3+json',
+      }
+    }
+  )
+
+  if (checkRes.ok) {
+    return true // Already a member
+  }
+
+  // Not a member - send invite
+  try {
+    await inviteToGitHubOrg(username)
+    return false // Invited, but not yet a member
+  } catch (e) {
+    console.warn(`Failed to invite ${username} to org:`, e)
+    return false
+  }
+}
+
+// ============================================================================
 // GITHUB TEAM HELPERS
 // ============================================================================
 
@@ -64,13 +120,20 @@ async function createGitHubTeam(name: string, description: string): Promise<stri
     })
   })
 
-  if (!res.ok) {
-    const data = await res.json()
-    throw new Error(`Failed to create GitHub Team: ${JSON.stringify(data)}`)
+  const data = await res.json()
+
+  // Success
+  if (res.ok) {
+    return data.slug
   }
 
-  const data = await res.json()
-  return data.slug
+  // Team already exists - derive slug and continue
+  if (res.status === 422 && data.errors?.some((e: any) => e.message?.includes('unique'))) {
+    console.log(`Team "${name}" already exists, continuing`)
+    return name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+  }
+
+  throw new Error(`Failed to create GitHub Team: ${JSON.stringify(data)}`)
 }
 
 async function ensureGitHubTeam(teamSlug: string, name: string, description: string): Promise<void> {
@@ -142,7 +205,16 @@ async function syncGitHubTeamMember(
 
   if (!res.ok) {
     const data = await res.json()
-    throw new Error(`Failed to sync ${username}: ${JSON.stringify(data)}`)
+
+    // Soft fail - user not in org yet (invitation pending)
+    if (res.status === 404) {
+      console.warn(`User ${username} not in org yet - invitation sent, will be added on next run`)
+      return
+    }
+
+    // Other errors - log but don't throw (soft fail)
+    console.warn(`Failed to sync ${username} to team ${teamSlug}:`, data)
+    return
   }
 }
 
@@ -232,7 +304,7 @@ async function findGitHubProjectByTitle(
 
   if (data.data?.node?.projectsV2?.nodes) {
     const match = data.data.node.projectsV2.nodes.find(
-      (p) => p.title === title
+      (p: any) => p.title === title
     )
 
     if (match) return match.number
@@ -332,7 +404,7 @@ async function createSlackChannel(name: string): Promise<string> {
     const listData = await listRes.json()
 
     if (listData.ok) {
-      const existing = listData.channels?.find((c) => c.name === channelName)
+      const existing = listData.channels?.find((c: any) => c.name === channelName)
       if (existing) return existing.id
     }
   }
@@ -430,7 +502,7 @@ async function postSlackMessage(channelId: string, text: string): Promise<void> 
 // ============================================================================
 
 async function saveSlackUserId(
-  supabase,
+  supabase: any,
   email: string,
   slackUserId: string
 ): Promise<void> {
@@ -537,6 +609,16 @@ serve(async (req) => {
             if (!m.profiles.github_username) continue
 
             try {
+              // Ensure user is in org (send invite if not)
+              const isInOrg = await ensureGitHubOrgMember(m.profiles.github_username)
+
+              if (!isInOrg) {
+                // User was just invited, they'll be added to team on next run
+                console.log(`Invited ${m.profiles.github_username} to org - will add to team after they accept`)
+                continue
+              }
+
+              // User is in org - sync their team membership
               const desiredRole: 'member' | 'maintainer' = m.role === 'lead' ? 'maintainer' : 'member'
               const currentRole = existingMembers.get(m.profiles.github_username)
 
@@ -545,6 +627,7 @@ serve(async (req) => {
                 await syncGitHubTeamMember(teamSlug, m.profiles.github_username, desiredRole)
               }
             } catch (err) {
+              // Soft fail - log but continue processing other members
               errors.push(`GitHub member ${m.profiles.github_username}: ${err.message}`)
             }
           }
