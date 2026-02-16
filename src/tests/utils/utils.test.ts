@@ -156,7 +156,7 @@ describe('utils', () => {
       // blue: bg-blue-600/5 text-blue-800
       const blueClasses = badgeVariants({ variant: 'blue' });
       expect(blueClasses).toContain('bg-blue-600/5');
-      expect(blueClasses).toContain('text-blue-800');
+      expect(blueClasses).toContain('text-blue-600');
       expect(blueClasses).toContain('border-2');
 
       // gray: bg-gray-600/5 text-gray-600

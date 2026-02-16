@@ -16,6 +16,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { AppRole } from '@/contexts/ProfileContext';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -41,6 +42,8 @@ interface InvolvementBadge {
 
 const ProfileViewer = ({ open = false, onClose, member, embedded = false, className = '' }: ProfileViewerProps) => {
   const [involvementBadges, setInvolvementBadges] = useState<InvolvementBadge[]>([]);
+  const isMobile = useIsMobile();
+
 
   const fetchInvolvement = useCallback(async () => {
     if (!member?.id) return;
@@ -239,7 +242,7 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
           </>
         )}
 
-        {involvementBadges.length > 0 && (
+        {!isMobile && involvementBadges.length > 0 && (
           <>
             <Separator />
             <div className="space-y-3">

@@ -240,8 +240,8 @@ const ApplicationViewerPage = () => {
 
     const getStatusBadge = (status: string) => {
         const variants = {
-            accepted: { variant: 'enable', text: 'Accepted' },
-            rejected: { variant: 'destructive', text: 'Rejected' },
+            accepted: { variant: 'green', text: 'Accepted' },
+            rejected: { variant: 'red', text: 'Rejected' },
             pending: { variant: 'secondary', text: 'Pending' },
         };
         const config = variants[status as keyof typeof variants] || variants.pending;
