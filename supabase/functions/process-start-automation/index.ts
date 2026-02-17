@@ -424,7 +424,20 @@ async function findSlackChannel(channelId: string): Promise<boolean> {
 }
 
 async function createSlackChannel(name: string): Promise<string> {
-  const channelName = name.toLowerCase().replace(/[^a-z0-9-_]/g, '-').slice(0, 80)
+  // Convert the given name to a Slack-compatible channel name following a similar pattern to the team slug:
+  // - Lowercase all characters
+  // - Replace all sequences of non-alphanumeric characters with a single hyphen
+  // - Remove leading/trailing hyphens
+  // - Remove all ampersands (&)
+  // - Collapse multiple consecutive hyphens to a single hyphen
+  // - Truncate to 80 characters
+  let channelName = name
+    .toLowerCase()
+    .replace(/&/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-')
+    .slice(0, 80)
 
   const res = await fetch('https://slack.com/api/conversations.create', {
     method: 'POST',
