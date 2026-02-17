@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
@@ -26,8 +26,9 @@ export function ThemeProvider({
   ...props
 }: ThemeProviderProps) {
   const { user, profile, refreshProfile } = useAuth();
+  const isLocalUpdateRef = useRef(false);
 
-  const [theme, setTheme] = useState<Theme>(() => {
+  const [theme, setThemeState] = useState<Theme>(() => {
     if (user && profile?.theme) {
       return profile.theme;
     }
@@ -36,11 +37,16 @@ export function ThemeProvider({
   });
 
   useEffect(() => {
+    if (isLocalUpdateRef.current) {
+      isLocalUpdateRef.current = false;
+      return;
+    }
+
     if (profile && profile.theme && profile.theme !== theme) {
-      setTheme(profile.theme);
+      setThemeState(profile.theme);
     }
     // Handle the case when profile is null: do nothing
-  }, [profile?.theme, profile, theme]);
+  }, [profile, profile?.theme, theme]);
 
 
   useEffect(() => {
@@ -52,7 +58,8 @@ export function ThemeProvider({
   }, [theme]);
 
   const handleSetTheme = async (newTheme: Theme) => {
-    setTheme(newTheme);
+    isLocalUpdateRef.current = true;
+    setThemeState(newTheme);
 
     if (user) {
       try {
