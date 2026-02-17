@@ -431,7 +431,7 @@ async function createSlackChannel(name: string): Promise<string> {
   // - Remove all ampersands (&)
   // - Collapse multiple consecutive hyphens to a single hyphen
   // - Truncate to 80 characters
-  let channelName = name
+  const channelName = name
     .toLowerCase()
     .replace(/&/g, '')
     .replace(/[^a-z0-9]+/g, '-')
