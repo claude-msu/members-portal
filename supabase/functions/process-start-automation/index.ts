@@ -19,7 +19,12 @@ const corsHeaders = {
 
 function deriveTeamSlug(projectName: string, semesterCode: string): string {
   const teamName = `${projectName} (${semesterCode})`
-  return teamName.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+
+  // Replace any sequence of non-alphanumeric characters with a single hyphen, and remove leading/trailing hyphens
+  return teamName
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 }
 
 function deriveTeamName(projectName: string, semesterCode: string): string {
@@ -148,16 +153,7 @@ async function syncGitHubTeamMember(
 
   if (!res.ok) {
     const data = await res.json()
-
-    // User doesn't exist on GitHub
-    if (res.status === 404) {
-      console.warn(`User ${username} not found on GitHub`)
-      return
-    }
-
-    // Other errors - log but don't throw (soft fail)
-    console.warn(`Failed to sync ${username} to team ${teamSlug}:`, data)
-    return
+    throw new Error(`Failed to sync ${username} to team ${teamSlug}: ${JSON.stringify(data)}`)
   }
 }
 
@@ -368,8 +364,7 @@ async function linkTeamToProject(
   const projectNodeId = projectData.data?.node?.projectV2?.id
 
   if (!projectNodeId) {
-    console.warn(`Could not find project ${projectNumber} to link team`)
-    return
+    throw new Error(`Could not find project ${projectNumber} to link team`)
   }
 
   // Link team to project with ADMIN access
@@ -386,15 +381,7 @@ async function linkTeamToProject(
           ]
         }
       ) {
-        collaborators {
-          edges {
-            node {
-              ... on Team {
-                name
-              }
-            }
-          }
-        }
+        __typename
       }
     }
   `
