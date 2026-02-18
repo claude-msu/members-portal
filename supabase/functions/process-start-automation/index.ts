@@ -54,7 +54,7 @@ async function findGitHubTeam(teamSlug: string): Promise<boolean> {
   return res.ok
 }
 
-async function createGitHubTeam(name: string, description: string): Promise<string> {
+async function createGitHubTeam(name: string, description: string, slug: string): Promise<string> {
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams`, {
     method: 'POST',
     headers: {
@@ -76,9 +76,9 @@ async function createGitHubTeam(name: string, description: string): Promise<stri
     return data.slug
   }
 
-  // Team already exists - derive slug and continue
+  // Team already exists - return provided slug
   if (res.status === 422 && data.errors?.some((e) => e.message?.includes('unique'))) {
-    return name.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+    return slug
   }
 
   throw new Error(`Failed to create GitHub Team: ${JSON.stringify(data)}`)
@@ -88,7 +88,7 @@ async function ensureGitHubTeam(teamSlug: string, name: string, description: str
   const exists = await findGitHubTeam(teamSlug)
   if (exists) return
 
-  await createGitHubTeam(name, description)
+  await createGitHubTeam(name, description, teamSlug)
 }
 
 async function getGitHubTeamMembers(teamSlug: string): Promise<Map<string, 'member' | 'maintainer'>> {
@@ -714,7 +714,7 @@ serve(async (req) => {
         let channelId = project.slack_channel_id
         let isNewChannel = false
         try {
-          const channelName = `project-${project.name}`
+          const channelName = `project-${deriveTeamSlug(project.name, project.semesters.code)}`
           const newChannelId = await ensureSlackChannel(channelName, project.slack_channel_id)
 
           isNewChannel = newChannelId !== project.slack_channel_id
@@ -823,7 +823,7 @@ serve(async (req) => {
         let channelId = cls.slack_channel_id
         let isNewChannel = false
         try {
-          const channelName = `class-${cls.name}-${cls.semesters.code}`
+          const channelName = `class-${deriveTeamSlug(cls.name, cls.semesters.code)}`
           const newChannelId = await ensureSlackChannel(channelName, cls.slack_channel_id)
 
           isNewChannel = newChannelId !== cls.slack_channel_id
