@@ -462,7 +462,7 @@ const Projects = () => {
       : false;
 
     const badges = [];
-    if (isMember) {
+    if (isMember && !isMobile) {
       badges.push(
         <Badge key="member" variant="outline" className="shrink-0 whitespace-nowrap">
           {isLead ? 'Lead' : 'Member'}

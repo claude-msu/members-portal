@@ -457,7 +457,7 @@ const Classes = () => {
 
     const badges = [];
 
-    if (isEnrolled) {
+    if (isEnrolled && !isMobile) {
       badges.push(
         <Badge key="enrolled" variant="outline" className="shrink-0 whitespace-nowrap">
           {isTeacher ? 'Teacher' : 'Student'}
