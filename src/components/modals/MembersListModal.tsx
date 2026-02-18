@@ -255,7 +255,7 @@ export const MembersListModal = ({
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className={`max-w-lg mx-auto rounded-lg pb-2 ${isMobile ? 'w-[90vw] px-2' : 'w-[90vw]'}`}>
+            <DialogContent className={`max-w-lg mx-auto rounded-lg ${isMobile ? 'w-[90vw] px-2' : 'w-[90vw]'}`}>
 
 
                 <DialogHeader>
