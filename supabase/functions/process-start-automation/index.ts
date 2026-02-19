@@ -351,13 +351,13 @@ async function ensureGitHubProject(
   try {
     await addDraftIssueCard(
       nodeId,
-      '🎨 Create Frontend Repository',
+      'Create Frontend Repository',
       `## Setup your frontend repo\n\n` +
       `**Suggested repo name:** \`${teamSlug}-frontend\`\n\n` +
       `### Steps\n` +
       `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
       `2. Under *Repository template*, select **claude-msu/template-frontend**\n` +
-      `3. Name it \`${teamSlug}-frontend\` (adjust if this project doesn't need a frontend)\n` +
+      `3. Name it \`${teamSlug}-frontend\` (adjust if this if needed)\n` +
       `4. Set visibility to **Internal**\n` +
       `5. Click **Create repository**\n\n` +
       `### After creating\n` +
@@ -373,13 +373,13 @@ async function ensureGitHubProject(
   try {
     await addDraftIssueCard(
       nodeId,
-      '⚙️ Create Backend Repository',
+      'Create Backend Repository',
       `## Setup your backend repo\n\n` +
       `**Suggested repo name:** \`${teamSlug}-backend\`\n\n` +
       `### Steps\n` +
       `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
       `2. Under *Repository template*, select **claude-msu/template-backend**\n` +
-      `3. Name it \`${teamSlug}-backend\` (adjust if this project doesn't need a backend)\n` +
+      `3. Name it \`${teamSlug}-backend\` (adjust if this if needed)\n` +
       `4. Set visibility to **Internal**\n` +
       `5. Click **Create repository**\n\n` +
       `### After creating\n` +
