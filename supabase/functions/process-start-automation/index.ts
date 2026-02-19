@@ -41,11 +41,32 @@ async function getInstallationToken(): Promise<string> {
     .replace(/-----END RSA PRIVATE KEY-----/, '')
     .replace(/\s/g, '')
 
-  const keyData = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0))
+  // Convert PKCS#1 → PKCS#8 by wrapping in the required ASN.1 header
+  const pkcs1Der = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0))
+  const pkcs8Header = new Uint8Array([
+    0x30, 0x82, 0x00, 0x00, // SEQUENCE (length patched below)
+    0x02, 0x01, 0x00,       // INTEGER 0 (version)
+    0x30, 0x0d,             // SEQUENCE
+    0x06, 0x09,             // OID rsaEncryption
+    0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x01,
+    0x05, 0x00,             // NULL
+    0x04, 0x82, 0x00, 0x00, // OCTET STRING (length patched below)
+  ])
+
+  // Patch in the correct lengths
+  const totalLen = pkcs8Header.length - 4 + pkcs1Der.length
+  pkcs8Header[2] = (totalLen >> 8) & 0xff
+  pkcs8Header[3] = totalLen & 0xff
+  pkcs8Header[pkcs8Header.length - 2] = (pkcs1Der.length >> 8) & 0xff
+  pkcs8Header[pkcs8Header.length - 1] = pkcs1Der.length & 0xff
+
+  const pkcs8Der = new Uint8Array(pkcs8Header.length + pkcs1Der.length)
+  pkcs8Der.set(pkcs8Header)
+  pkcs8Der.set(pkcs1Der, pkcs8Header.length)
 
   const privateKey = await crypto.subtle.importKey(
     'pkcs8',
-    keyData,
+    pkcs8Der,
     { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
     false,
     ['sign']
