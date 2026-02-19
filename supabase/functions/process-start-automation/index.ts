@@ -255,12 +255,13 @@ async function findGitHubProjectByTitle(
 async function createGitHubProject(
   title: string,
   orgNodeId: string
-): Promise<number> {
+): Promise<{ number: number; nodeId: string }> {
   const mutation = `
     mutation($ownerId: ID!, $title: String!) {
       createProjectV2(input: {ownerId: $ownerId, title: $title}) {
         projectV2 {
           number
+          id
         }
       }
     }
@@ -284,11 +285,50 @@ async function createGitHubProject(
     throw new Error(`Failed to create GitHub Project: ${JSON.stringify(data.errors)}`)
   }
 
-  return data.data.createProjectV2.projectV2.number
+  const { number, id: nodeId } = data.data.createProjectV2.projectV2
+  return { number, nodeId }
+}
+
+async function addDraftIssueCard(
+  projectNodeId: string,
+  title: string,
+  body: string
+): Promise<void> {
+  const mutation = `
+    mutation($projectId: ID!, $title: String!, $body: String!) {
+      addProjectV2DraftIssue(input: {
+        projectId: $projectId,
+        title: $title,
+        body: $body
+      }) {
+        projectItem {
+          id
+        }
+      }
+    }
+  `
+
+  const res = await fetch('https://api.github.com/graphql', {
+    method: 'POST',
+    headers: {
+      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      query: mutation,
+      variables: { projectId: projectNodeId, title, body }
+    })
+  })
+
+  const data = await res.json()
+  if (data.errors) {
+    throw new Error(`Failed to add draft issue card: ${JSON.stringify(data.errors)}`)
+  }
 }
 
 async function ensureGitHubProject(
   title: string,
+  teamSlug: string,
   existingProjectId: number | null,
   orgNodeId: string
 ): Promise<number> {
@@ -297,12 +337,62 @@ async function ensureGitHubProject(
     return existingProjectId
   }
 
-  // Search for project by title
+  // Search for project by title (e.g. board was manually created before automation ran)
   const foundProjectId = await findGitHubProjectByTitle(title, orgNodeId)
   if (foundProjectId) return foundProjectId
 
   // Create new project
-  return await createGitHubProject(title, orgNodeId)
+  const { number, nodeId } = await createGitHubProject(title, orgNodeId)
+
+  // Add welcome cards — soft fail so a card error never blocks the rest of automation
+  const orgUrl = `https://github.com/${GITHUB_ORG}`
+  const teamUrl = `https://github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`
+
+  try {
+    await addDraftIssueCard(
+      nodeId,
+      '🎨 Create Frontend Repository',
+      `## Setup your frontend repo\n\n` +
+      `**Suggested repo name:** \`${teamSlug}-frontend\`\n\n` +
+      `### Steps\n` +
+      `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
+      `2. Under *Repository template*, select **claude-msu/template-frontend**\n` +
+      `3. Name it \`${teamSlug}-frontend\` (adjust if this project doesn't need a frontend)\n` +
+      `4. Set visibility to **Internal**\n` +
+      `5. Click **Create repository**\n\n` +
+      `### After creating\n` +
+      `- Go to repo **Settings → Collaborators and teams** → add [your project team](${teamUrl}) with **Write** access\n` +
+      `- Link the repo to this board via **Add item → Link repository**\n` +
+      `- Enable **Discussions** if needed under repo **Settings → Features**\n\n` +
+      `> 💡 The template includes issue templates, a PR template, contributing guidelines, and a \`.gitignore\`. Delete this card when done.`
+    )
+  } catch (err) {
+    console.warn(`Welcome card (frontend): ${err.message}`)
+  }
+
+  try {
+    await addDraftIssueCard(
+      nodeId,
+      '⚙️ Create Backend Repository',
+      `## Setup your backend repo\n\n` +
+      `**Suggested repo name:** \`${teamSlug}-backend\`\n\n` +
+      `### Steps\n` +
+      `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
+      `2. Under *Repository template*, select **claude-msu/template-backend**\n` +
+      `3. Name it \`${teamSlug}-backend\` (adjust if this project doesn't need a backend)\n` +
+      `4. Set visibility to **Internal**\n` +
+      `5. Click **Create repository**\n\n` +
+      `### After creating\n` +
+      `- Go to repo **Settings → Collaborators and teams** → add [your project team](${teamUrl}) with **Write** access\n` +
+      `- Link the repo to this board via **Add item → Link repository**\n` +
+      `- Enable **Discussions** if needed under repo **Settings → Features**\n\n` +
+      `> 💡 The template includes issue templates, a PR template, contributing guidelines, and a \`.gitignore\`. Delete this card when done.`
+    )
+  } catch (err) {
+    console.warn(`Welcome card (backend): ${err.message}`)
+  }
+
+  return number
 }
 
 // ============================================================================
@@ -683,6 +773,7 @@ serve(async (req) => {
           try {
             githubProjectId = await ensureGitHubProject(
               project.name,
+              teamSlug,
               project.github_project_id,
               orgNodeId
             )
