@@ -322,7 +322,7 @@ async function addDraftIssueCard(
 
   const data = await res.json()
   if (data.errors) {
-    throw new Error(`Failed to add draft issue card: ${JSON.stringify(data.errors)}`)
+    throw new Error(`Failed to add draft issue card "${title}": ${JSON.stringify(data.errors)}`)
   }
 }
 
@@ -348,49 +348,41 @@ async function ensureGitHubProject(
   const orgUrl = `https://github.com/${GITHUB_ORG}`
   const teamUrl = `https://github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`
 
-  try {
-    await addDraftIssueCard(
-      nodeId,
-      'Create Frontend Repository',
-      `## Setup your frontend repo\n\n` +
-      `**Suggested repo name:** \`${teamSlug}-frontend\`\n\n` +
-      `### Steps\n` +
-      `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
-      `2. Under *Repository template*, select **claude-msu/template-frontend**\n` +
-      `3. Name it \`${teamSlug}-frontend\` (adjust if this if needed)\n` +
-      `4. Set visibility to **Internal**\n` +
-      `5. Click **Create repository**\n\n` +
-      `### After creating\n` +
-      `- Go to repo **Settings → Collaborators and teams** → add [your project team](${teamUrl}) with **Write** access\n` +
-      `- Link the repo to this board via **Add item → Link repository**\n` +
-      `- Enable **Discussions** if needed under repo **Settings → Features**\n\n` +
-      `> 💡 The template includes issue templates, a PR template, contributing guidelines, and a \`.gitignore\`. Delete this card when done.`
-    )
-  } catch (err) {
-    console.warn(`Welcome card (frontend): ${err.message}`)
-  }
+  await addDraftIssueCard(
+    nodeId,
+    'Create Frontend Repository',
+    `## Setup your frontend repo\n\n` +
+    `**Suggested repo name:** \`${teamSlug}-frontend\`\n\n` +
+    `### Steps\n` +
+    `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
+    `2. Under *Repository template*, select **claude-msu/template-frontend**\n` +
+    `3. Name it \`${teamSlug}-frontend\` (adjust if this if needed)\n` +
+    `4. Set visibility to **Internal**\n` +
+    `5. Click **Create repository**\n\n` +
+    `### After creating\n` +
+    `- Go to repo **Settings → Collaborators and teams** → add [your project team](${teamUrl}) with **Write** access\n` +
+    `- Link the repo to this board via **Add item → Link repository**\n` +
+    `- Enable **Discussions** if needed under repo **Settings → Features**\n\n` +
+    `> 💡 The template includes issue templates, a PR template, contributing guidelines, and a \`.gitignore\`. Delete this card when done.`
+  )
 
-  try {
-    await addDraftIssueCard(
-      nodeId,
-      'Create Backend Repository',
-      `## Setup your backend repo\n\n` +
-      `**Suggested repo name:** \`${teamSlug}-backend\`\n\n` +
-      `### Steps\n` +
-      `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
-      `2. Under *Repository template*, select **claude-msu/template-backend**\n` +
-      `3. Name it \`${teamSlug}-backend\` (adjust if this if needed)\n` +
-      `4. Set visibility to **Internal**\n` +
-      `5. Click **Create repository**\n\n` +
-      `### After creating\n` +
-      `- Go to repo **Settings → Collaborators and teams** → add [your project team](${teamUrl}) with **Write** access\n` +
-      `- Link the repo to this board via **Add item → Link repository**\n` +
-      `- Enable **Discussions** if needed under repo **Settings → Features**\n\n` +
-      `> 💡 The template includes issue templates, a PR template, contributing guidelines, and a \`.gitignore\`. Delete this card when done.`
-    )
-  } catch (err) {
-    console.warn(`Welcome card (backend): ${err.message}`)
-  }
+  await addDraftIssueCard(
+    nodeId,
+    'Create Backend Repository',
+    `## Setup your backend repo\n\n` +
+    `**Suggested repo name:** \`${teamSlug}-backend\`\n\n` +
+    `### Steps\n` +
+    `1. Go to [${orgUrl}](${orgUrl}) → **New repository**\n` +
+    `2. Under *Repository template*, select **claude-msu/template-backend**\n` +
+    `3. Name it \`${teamSlug}-backend\` (adjust if this if needed)\n` +
+    `4. Set visibility to **Internal**\n` +
+    `5. Click **Create repository**\n\n` +
+    `### After creating\n` +
+    `- Go to repo **Settings → Collaborators and teams** → add [your project team](${teamUrl}) with **Write** access\n` +
+    `- Link the repo to this board via **Add item → Link repository**\n` +
+    `- Enable **Discussions** if needed under repo **Settings → Features**\n\n` +
+    `> 💡 The template includes issue templates, a PR template, contributing guidelines, and a \`.gitignore\`. Delete this card when done.`
+  )
 
   return number
 }
