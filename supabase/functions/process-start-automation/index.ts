@@ -2,7 +2,9 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
-const GITHUB_ORG_PAT = Deno.env.get('GITHUB_ORG_PAT')!
+const GITHUB_APP_ID = Deno.env.get('GITHUB_APP_ID')!
+const GITHUB_APP_PRIVATE_KEY = Deno.env.get('GITHUB_APP_PRIVATE_KEY')!
+const GITHUB_APP_INSTALLATION_ID = Deno.env.get('GITHUB_APP_INSTALLATION_ID')!
 const GITHUB_ORG = Deno.env.get('GITHUB_ORG')!
 const SLACK_BOT_TOKEN = Deno.env.get('SLACK_BOT_TOKEN')!
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
@@ -13,14 +15,81 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Module-level token — set once per invocation at the top of serve()
+let githubToken = ''
+
+// ============================================================================
+// GITHUB APP AUTH
+// ============================================================================
+
+async function getInstallationToken(): Promise<string> {
+  const now = Math.floor(Date.now() / 1000)
+
+  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  const payload = btoa(JSON.stringify({
+    iat: now - 60, // backdated to cover clock skew
+    exp: now + 500,
+    iss: GITHUB_APP_ID
+  })).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  // Normalize PEM — Supabase secrets may store newlines as literal \n
+  const pem = GITHUB_APP_PRIVATE_KEY.replace(/\\n/g, '\n')
+  const pemBody = pem
+    .replace(/-----BEGIN RSA PRIVATE KEY-----/, '')
+    .replace(/-----END RSA PRIVATE KEY-----/, '')
+    .replace(/\s/g, '')
+
+  const keyData = Uint8Array.from(atob(pemBody), c => c.charCodeAt(0))
+
+  const privateKey = await crypto.subtle.importKey(
+    'pkcs8',
+    keyData,
+    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
+    false,
+    ['sign']
+  )
+
+  const signingInput = `${header}.${payload}`
+  const signature = await crypto.subtle.sign(
+    'RSASSA-PKCS1-v1_5',
+    privateKey,
+    new TextEncoder().encode(signingInput)
+  )
+
+  const sig = btoa(String.fromCharCode(...new Uint8Array(signature)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  const jwt = `${header}.${payload}.${sig}`
+
+  const res = await fetch(
+    `https://api.github.com/app/installations/${GITHUB_APP_INSTALLATION_ID}/access_tokens`,
+    {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${jwt}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'User-Agent': 'claude-msu-bot',
+      }
+    }
+  )
+
+  if (!res.ok) {
+    const err = await res.json()
+    throw new Error(`Failed to get installation token: ${JSON.stringify(err)}`)
+  }
+
+  const data = await res.json()
+  return data.token
+}
+
 // ============================================================================
 // DERIVATION HELPERS
 // ============================================================================
 
 function deriveTeamSlug(projectName: string, semesterCode: string): string {
   const teamName = `${projectName} (${semesterCode})`
-
-  // Replace any sequence of non-alphanumeric characters with a single hyphen, and remove leading/trailing hyphens
   return teamName
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -46,7 +115,7 @@ function deriveTeamUrl(teamSlug: string): string {
 async function findGitHubTeam(teamSlug: string): Promise<boolean> {
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`, {
     headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Authorization': `token ${githubToken}`,
       'Accept': 'application/vnd.github.v3+json',
     }
   })
@@ -58,7 +127,7 @@ async function createGitHubTeam(name: string, description: string, slug: string)
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams`, {
     method: 'POST',
     headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Authorization': `token ${githubToken}`,
       'Accept': 'application/vnd.github.v3+json',
       'Content-Type': 'application/json',
     },
@@ -71,10 +140,7 @@ async function createGitHubTeam(name: string, description: string, slug: string)
 
   const data = await res.json()
 
-  // Success
-  if (res.ok) {
-    return data.slug
-  }
+  if (res.ok) return data.slug
 
   // Team already exists - return provided slug
   if (res.status === 422 && data.errors?.some((e) => e.message?.includes('unique'))) {
@@ -98,7 +164,7 @@ async function getGitHubTeamMembers(teamSlug: string): Promise<Map<string, 'memb
     `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/members?per_page=100`,
     {
       headers: {
-        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Authorization': `token ${githubToken}`,
         'Accept': 'application/vnd.github.v3+json',
       }
     }
@@ -108,14 +174,13 @@ async function getGitHubTeamMembers(teamSlug: string): Promise<Map<string, 'memb
 
   const data = await res.json()
 
-  // Get membership details for each member to determine role
   for (const member of data) {
     try {
       const membershipRes = await fetch(
         `https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}/memberships/${member.login}`,
         {
           headers: {
-            'Authorization': `token ${GITHUB_ORG_PAT}`,
+            'Authorization': `token ${githubToken}`,
             'Accept': 'application/vnd.github.v3+json',
           }
         }
@@ -143,7 +208,7 @@ async function syncGitHubTeamMember(
     {
       method: 'PUT',
       headers: {
-        'Authorization': `token ${GITHUB_ORG_PAT}`,
+        'Authorization': `token ${githubToken}`,
         'Accept': 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
       },
@@ -164,7 +229,7 @@ async function syncGitHubTeamMember(
 async function getOrgNodeId(): Promise<string> {
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}`, {
     headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Authorization': `token ${githubToken}`,
       'Accept': 'application/vnd.github.v3+json',
     }
   })
@@ -195,13 +260,10 @@ async function findGitHubProjectByNumber(
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Authorization': `bearer ${githubToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query,
-      variables: { orgId: orgNodeId, number: projectNumber }
-    })
+    body: JSON.stringify({ query, variables: { orgId: orgNodeId, number: projectNumber } })
   })
 
   const data = await res.json()
@@ -230,22 +292,16 @@ async function findGitHubProjectByTitle(
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Authorization': `bearer ${githubToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query,
-      variables: { orgId: orgNodeId }
-    })
+    body: JSON.stringify({ query, variables: { orgId: orgNodeId } })
   })
 
   const data = await res.json()
 
   if (data.data?.node?.projectsV2?.nodes) {
-    const match = data.data.node.projectsV2.nodes.find(
-      (p) => p.title === title
-    )
-
+    const match = data.data.node.projectsV2.nodes.find((p) => p.title === title)
     if (match) return match.number
   }
 
@@ -270,13 +326,10 @@ async function createGitHubProject(
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Authorization': `bearer ${githubToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query: mutation,
-      variables: { ownerId: orgNodeId, title }
-    })
+    body: JSON.stringify({ query: mutation, variables: { ownerId: orgNodeId, title } })
   })
 
   const data = await res.json()
@@ -311,13 +364,10 @@ async function addDraftIssueCard(
   const res = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Authorization': `bearer ${githubToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query: mutation,
-      variables: { projectId: projectNodeId, title, body }
-    })
+    body: JSON.stringify({ query: mutation, variables: { projectId: projectNodeId, title, body } })
   })
 
   const data = await res.json()
@@ -346,7 +396,7 @@ async function ensureGitHubProject(
 
   // Add welcome cards — soft fail so a card error never blocks the rest of automation
   const orgUrl = `https://github.com/${GITHUB_ORG}`
-  const teamUrl = `https://github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`
+  const teamUrl = deriveTeamUrl(teamSlug)
 
   await addDraftIssueCard(
     nodeId,
@@ -394,7 +444,7 @@ async function ensureGitHubProject(
 async function getTeamNodeId(teamSlug: string): Promise<string | null> {
   const res = await fetch(`https://api.github.com/orgs/${GITHUB_ORG}/teams/${teamSlug}`, {
     headers: {
-      'Authorization': `token ${GITHUB_ORG_PAT}`,
+      'Authorization': `token ${githubToken}`,
       'Accept': 'application/vnd.github.v3+json',
     }
   })
@@ -410,14 +460,12 @@ async function linkTeamToProject(
   teamSlug: string,
   orgNodeId: string
 ): Promise<void> {
-  // Get team node ID
   const teamNodeId = await getTeamNodeId(teamSlug)
   if (!teamNodeId) {
     console.warn(`Could not find team ${teamSlug} to link to project`)
     return
   }
 
-  // Get project node ID from number
   const projectQuery = `
     query($orgId: ID!, $number: Int!) {
       node(id: $orgId) {
@@ -433,13 +481,10 @@ async function linkTeamToProject(
   const projectRes = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Authorization': `bearer ${githubToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query: projectQuery,
-      variables: { orgId: orgNodeId, number: projectNumber }
-    })
+    body: JSON.stringify({ query: projectQuery, variables: { orgId: orgNodeId, number: projectNumber } })
   })
 
   const projectData = await projectRes.json()
@@ -449,18 +494,12 @@ async function linkTeamToProject(
     throw new Error(`Could not find project ${projectNumber} to link team`)
   }
 
-  // Link team to project with ADMIN access
   const linkMutation = `
     mutation($projectId: ID!, $teamId: ID!) {
       updateProjectV2Collaborators(
         input: {
           projectId: $projectId
-          collaborators: [
-            {
-              teamId: $teamId
-              role: ADMIN
-            }
-          ]
+          collaborators: [{ teamId: $teamId, role: ADMIN }]
         }
       ) {
         __typename
@@ -471,16 +510,10 @@ async function linkTeamToProject(
   const linkRes = await fetch('https://api.github.com/graphql', {
     method: 'POST',
     headers: {
-      'Authorization': `bearer ${GITHUB_ORG_PAT}`,
+      'Authorization': `bearer ${githubToken}`,
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      query: linkMutation,
-      variables: {
-        projectId: projectNodeId,
-        teamId: teamNodeId
-      }
-    })
+    body: JSON.stringify({ query: linkMutation, variables: { projectId: projectNodeId, teamId: teamNodeId } })
   })
 
   const linkData = await linkRes.json()
@@ -506,13 +539,6 @@ async function findSlackChannel(channelId: string): Promise<boolean> {
 }
 
 async function createSlackChannel(name: string): Promise<string> {
-  // Convert the given name to a Slack-compatible channel name following a similar pattern to the team slug:
-  // - Lowercase all characters
-  // - Replace all sequences of non-alphanumeric characters with a single hyphen
-  // - Remove leading/trailing hyphens
-  // - Remove all ampersands (&)
-  // - Collapse multiple consecutive hyphens to a single hyphen
-  // - Truncate to 80 characters
   const channelName = name
     .toLowerCase()
     .replace(/&/g, '')
@@ -550,12 +576,10 @@ async function createSlackChannel(name: string): Promise<string> {
 }
 
 async function ensureSlackChannel(name: string, existingChannelId: string | null): Promise<string> {
-  // Check if existing channel ID is still valid
   if (existingChannelId && await findSlackChannel(existingChannelId)) {
     return existingChannelId
   }
 
-  // Create or find channel
   return await createSlackChannel(name)
 }
 
@@ -586,9 +610,7 @@ async function lookupSlackUserId(email: string): Promise<string | null> {
     )
     const data = await res.json()
 
-    if (data.ok && data.user?.id) {
-      return data.user.id
-    }
+    if (data.ok && data.user?.id) return data.user.id
   } catch (e) {
     console.warn(`Slack lookup failed for ${email}:`, e)
   }
@@ -596,20 +618,14 @@ async function lookupSlackUserId(email: string): Promise<string | null> {
   return null
 }
 
-async function syncSlackChannelMember(
-  channelId: string,
-  userId: string
-): Promise<void> {
+async function syncSlackChannelMember(channelId: string, userId: string): Promise<void> {
   const res = await fetch('https://slack.com/api/conversations.invite', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${SLACK_BOT_TOKEN}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({
-      channel: channelId,
-      users: userId
-    })
+    body: JSON.stringify({ channel: channelId, users: userId })
   })
 
   const data = await res.json()
@@ -638,11 +654,7 @@ async function postSlackMessage(channelId: string, text: string): Promise<void> 
 // PROFILE HELPERS
 // ============================================================================
 
-async function saveSlackUserId(
-  supabase,
-  email: string,
-  slackUserId: string
-): Promise<void> {
+async function saveSlackUserId(supabase, email: string, slackUserId: string): Promise<void> {
   try {
     await supabase
       .from('profiles')
@@ -667,6 +679,9 @@ serve(async (req) => {
       .toISOString()
       .replace('T', ' ')
       .replace(/\.\d{3}Z$/, '+00')
+
+    // Mint a fresh installation token for this invocation
+    githubToken = await getInstallationToken()
 
     interface AutomationResult {
       type: 'project' | 'class'
@@ -711,23 +726,16 @@ serve(async (req) => {
       const errors: string[] = []
 
       try {
-        // Fetch members
         const { data: members } = await supabase
           .from('project_members')
           .select('user_id, role, profiles!inner(github_username, email, full_name, slack_user_id)')
           .eq('project_id', project.id)
 
         if (!members?.length) {
-          results.push({
-            type: 'project',
-            name: project.name,
-            status: 'error',
-            errors: ['No members found']
-          })
+          results.push({ type: 'project', name: project.name, status: 'error', errors: ['No members found'] })
           continue
         }
 
-        // Derive team slug and name
         const teamSlug = deriveTeamSlug(project.name, project.semesters.code)
         const teamName = deriveTeamName(project.name, project.semesters.code)
 
@@ -746,18 +754,16 @@ serve(async (req) => {
           const existingMembers = await getGitHubTeamMembers(teamSlug)
 
           for (const m of members) {
-            if (!m.profiles.github_username) continue;
+            if (!m.profiles.github_username) continue
 
             try {
               const desiredRole: 'member' | 'maintainer' = m.role === 'lead' ? 'maintainer' : 'member'
               const currentRole = existingMembers.get(m.profiles.github_username)
 
-              // Add or update if role changed or not in team yet
               if (!currentRole || currentRole !== desiredRole) {
                 await syncGitHubTeamMember(teamSlug, m.profiles.github_username, desiredRole)
               }
             } catch (err) {
-              // Soft fail - log but continue processing other members
               errors.push(`GitHub member ${m.profiles.github_username}: ${err.message}`)
             }
           }
@@ -770,7 +776,6 @@ serve(async (req) => {
               orgNodeId
             )
 
-            // Update database if changed
             if (githubProjectId !== project.github_project_id) {
               await supabase
                 .from('projects')
@@ -803,7 +808,6 @@ serve(async (req) => {
           isNewChannel = newChannelId !== project.slack_channel_id
           channelId = newChannelId
 
-          // Update database if changed
           if (isNewChannel) {
             await supabase
               .from('projects')
@@ -823,7 +827,6 @@ serve(async (req) => {
               try {
                 let slackUserId = m.profiles.slack_user_id
 
-                // Lookup if not cached
                 if (!slackUserId) {
                   slackUserId = await lookupSlackUserId(m.profiles.email)
                   if (slackUserId) {
@@ -831,7 +834,6 @@ serve(async (req) => {
                   }
                 }
 
-                // Add to channel if found and not already in
                 if (slackUserId && !existingMembers.has(slackUserId)) {
                   await syncSlackChannelMember(channelId, slackUserId)
                 }
@@ -840,7 +842,6 @@ serve(async (req) => {
               }
             }
 
-            // Post welcome message only for new channels
             if (isNewChannel && githubProjectId) {
               const projectUrl = deriveProjectUrl(githubProjectId)
               const teamUrl = deriveTeamUrl(teamSlug)
@@ -858,23 +859,12 @@ serve(async (req) => {
           }
         }
 
-        // Determine overall status
         const status = errors.length === 0 ? 'success' : 'partial'
-        results.push({
-          type: 'project',
-          name: project.name,
-          status,
-          ...(errors.length > 0 && { errors })
-        })
+        results.push({ type: 'project', name: project.name, status, ...(errors.length > 0 && { errors }) })
 
       } catch (err) {
         console.error(`Critical error processing project ${project.name}:`, err)
-        results.push({
-          type: 'project',
-          name: project.name,
-          status: 'error',
-          errors: [err.message]
-        })
+        results.push({ type: 'project', name: project.name, status: 'error', errors: [err.message] })
       }
     }
 
@@ -886,19 +876,13 @@ serve(async (req) => {
       const errors: string[] = []
 
       try {
-        // Fetch members
         const { data: members } = await supabase
           .from('class_enrollments')
           .select('user_id, role, profiles!inner(email, full_name, slack_user_id)')
           .eq('class_id', cls.id)
 
         if (!members?.length) {
-          results.push({
-            type: 'class',
-            name: cls.name,
-            status: 'error',
-            errors: ['No members found']
-          })
+          results.push({ type: 'class', name: cls.name, status: 'error', errors: ['No members found'] })
           continue
         }
 
@@ -912,7 +896,6 @@ serve(async (req) => {
           isNewChannel = newChannelId !== cls.slack_channel_id
           channelId = newChannelId
 
-          // Update database if changed
           if (isNewChannel) {
             await supabase
               .from('classes')
@@ -932,7 +915,6 @@ serve(async (req) => {
               try {
                 let slackUserId = m.profiles.slack_user_id
 
-                // Lookup if not cached
                 if (!slackUserId) {
                   slackUserId = await lookupSlackUserId(m.profiles.email)
                   if (slackUserId) {
@@ -940,7 +922,6 @@ serve(async (req) => {
                   }
                 }
 
-                // Add to channel if found and not already in
                 if (slackUserId && !existingMembers.has(slackUserId)) {
                   await syncSlackChannelMember(channelId, slackUserId)
                 }
@@ -949,7 +930,6 @@ serve(async (req) => {
               }
             }
 
-            // Post welcome message only for new channels
             if (isNewChannel) {
               const teacher = members.find(m => m.role === 'teacher')
               await postSlackMessage(
@@ -963,23 +943,12 @@ serve(async (req) => {
           }
         }
 
-        // Determine overall status
         const status = errors.length === 0 ? 'success' : 'partial'
-        results.push({
-          type: 'class',
-          name: cls.name,
-          status,
-          ...(errors.length > 0 && { errors })
-        })
+        results.push({ type: 'class', name: cls.name, status, ...(errors.length > 0 && { errors }) })
 
       } catch (err) {
         console.error(`Critical error processing class ${cls.name}:`, err)
-        results.push({
-          type: 'class',
-          name: cls.name,
-          status: 'error',
-          errors: [err.message]
-        })
+        results.push({ type: 'class', name: cls.name, status: 'error', errors: [err.message] })
       }
     }
 
