@@ -22,6 +22,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import React, { useEffect } from "react";
 
 // Class imports
+import GuideToLeetCode from "./pages/classes/guide-to-leetcode";
 import IntroductionToFundamentals from "./pages/classes/introduction-to-fundamentals";
 import Week1Lecture1 from "./pages/classes/introduction-to-fundamentals/week-1/lecture-1";
 import Week1Lecture2 from "./pages/classes/introduction-to-fundamentals/week-1/lecture-2";
@@ -47,6 +48,7 @@ import Week7Activity from "./pages/classes/introduction-to-fundamentals/week-7/a
 import Week8Lecture1 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-1";
 import Week8Lecture2 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-2";
 import Week8Activity from "./pages/classes/introduction-to-fundamentals/week-8/activity";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 const queryClient = new QueryClient();
 
@@ -137,229 +139,241 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <ProfileProvider>
-          <ThemeProvider>
-            <PostAuthRedirectHandler />
-            <Routes>
-              {/* Public Routes */}
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
+          <TooltipProvider>
+            <ThemeProvider>
+              <PostAuthRedirectHandler />
+              <Routes>
+                {/* Public Routes */}
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
 
-              {/* Protected Dashboard Routes */}
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Dashboard />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/applications"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Applications />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/events"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Events />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/classes"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Classes />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/projects"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Projects />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/members"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Members />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/profile"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Profile />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/prospects"
-                element={
-                  <ProtectedRoute>
-                    <DashboardLayout>
-                      <Prospects />
-                    </DashboardLayout>
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected Dashboard Routes */}
+                <Route
+                  path="/dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Dashboard />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/applications"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Applications />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/events"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Events />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/classes"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Classes />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/projects"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Projects />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/members"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Members />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/profile"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Profile />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/prospects"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Prospects />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Check-in Route - Requires authentication to track attendance */}
-              <Route
-                path="/events/checkin/:token"
-                element={
-                  <ProtectedRoute>
-                    <Checkin />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Check-in Route - Requires authentication to track attendance */}
+                <Route
+                  path="/events/checkin/:token"
+                  element={
+                    <ProtectedRoute>
+                      <Checkin />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Protected route application viewer */}
-              <Route
-                path="/applications/:id"
-                element={
-                  <ProtectedRoute>
-                    <ApplicationViewerPage />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Protected route application viewer */}
+                <Route
+                  path="/applications/:id"
+                  element={
+                    <ProtectedRoute>
+                      <ApplicationViewerPage />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Class resources */}
-              <Route
-                path="/classes/introduction-to-fundamentals"
-                element={
-                  <ProtectedRoute>
-                    <IntroductionToFundamentals />
-                  </ProtectedRoute>
-                }
-              />
+                {/* Class resources */}
+                <Route
+                  path="/classes/introduction-to-fundamentals"
+                  element={
+                    <ProtectedRoute>
+                      <IntroductionToFundamentals />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* Introduction to Fundamentals, lectures and activities */}
-              {[
-                {
-                  week: 1,
-                  lectures: [
-                    { path: "lecture-1", component: Week1Lecture1 },
-                    { path: "lecture-2", component: Week1Lecture2 },
-                  ],
-                  activity: { component: Week1Activity },
-                },
-                {
-                  week: 2,
-                  lectures: [
-                    { path: "lecture-1", component: Week2Lecture1 },
-                    { path: "lecture-2", component: Week2Lecture2 },
-                  ],
-                  activity: { component: Week2Activity },
-                },
-                {
-                  week: 3,
-                  lectures: [
-                    { path: "lecture-1", component: Week3Lecture1 },
-                    { path: "lecture-2", component: Week3Lecture2 },
-                  ],
-                  activity: { component: Week3Activity },
-                },
-                {
-                  week: 4,
-                  lectures: [
-                    { path: "lecture-1", component: Week4Lecture1 },
-                    { path: "lecture-2", component: Week4Lecture2 },
-                  ],
-                  activity: { component: Week4Activity },
-                },
-                {
-                  week: 5,
-                  lectures: [
-                    { path: "lecture-1", component: Week5Lecture1 },
-                    { path: "lecture-2", component: Week5Lecture2 },
-                  ],
-                  activity: { component: Week5Activity },
-                },
-                {
-                  week: 6,
-                  lectures: [
-                    { path: "lecture-1", component: Week6Lecture1 },
-                    { path: "lecture-2", component: Week6Lecture2 },
-                  ],
-                  activity: { component: Week6Activity },
-                },
-                {
-                  week: 7,
-                  lectures: [
-                    { path: "lecture-1", component: Week7Lecture1 },
-                    { path: "lecture-2", component: Week7Lecture2 },
-                  ],
-                  activity: { component: Week7Activity },
-                },
-                {
-                  week: 8,
-                  lectures: [
-                    { path: "lecture-1", component: Week8Lecture1 },
-                    { path: "lecture-2", component: Week8Lecture2 },
-                  ],
-                  activity: { component: Week8Activity },
-                },
-              ].map(({ week, lectures, activity }) => (
-                <React.Fragment key={week}>
-                  {lectures.map(({ path, component: Component }) => (
+                {/* Introduction to Fundamentals, lectures and activities */}
+                {[
+                  {
+                    week: 1,
+                    lectures: [
+                      { path: "lecture-1", component: Week1Lecture1 },
+                      { path: "lecture-2", component: Week1Lecture2 },
+                    ],
+                    activity: { component: Week1Activity },
+                  },
+                  {
+                    week: 2,
+                    lectures: [
+                      { path: "lecture-1", component: Week2Lecture1 },
+                      { path: "lecture-2", component: Week2Lecture2 },
+                    ],
+                    activity: { component: Week2Activity },
+                  },
+                  {
+                    week: 3,
+                    lectures: [
+                      { path: "lecture-1", component: Week3Lecture1 },
+                      { path: "lecture-2", component: Week3Lecture2 },
+                    ],
+                    activity: { component: Week3Activity },
+                  },
+                  {
+                    week: 4,
+                    lectures: [
+                      { path: "lecture-1", component: Week4Lecture1 },
+                      { path: "lecture-2", component: Week4Lecture2 },
+                    ],
+                    activity: { component: Week4Activity },
+                  },
+                  {
+                    week: 5,
+                    lectures: [
+                      { path: "lecture-1", component: Week5Lecture1 },
+                      { path: "lecture-2", component: Week5Lecture2 },
+                    ],
+                    activity: { component: Week5Activity },
+                  },
+                  {
+                    week: 6,
+                    lectures: [
+                      { path: "lecture-1", component: Week6Lecture1 },
+                      { path: "lecture-2", component: Week6Lecture2 },
+                    ],
+                    activity: { component: Week6Activity },
+                  },
+                  {
+                    week: 7,
+                    lectures: [
+                      { path: "lecture-1", component: Week7Lecture1 },
+                      { path: "lecture-2", component: Week7Lecture2 },
+                    ],
+                    activity: { component: Week7Activity },
+                  },
+                  {
+                    week: 8,
+                    lectures: [
+                      { path: "lecture-1", component: Week8Lecture1 },
+                      { path: "lecture-2", component: Week8Lecture2 },
+                    ],
+                    activity: { component: Week8Activity },
+                  },
+                ].map(({ week, lectures, activity }) => (
+                  <React.Fragment key={week}>
+                    {lectures.map(({ path, component: Component }) => (
+                      <Route
+                        key={`week${week}-${path}`}
+                        path={`/classes/introduction-to-fundamentals/week-${week}/${path}`}
+                        element={
+                          <ProtectedRoute>
+                            <Component />
+                          </ProtectedRoute>
+                        }
+                      />
+                    ))}
                     <Route
-                      key={`week${week}-${path}`}
-                      path={`/classes/introduction-to-fundamentals/week-${week}/${path}`}
+                      key={`week${week}-activity`}
+                      path={`/classes/introduction-to-fundamentals/week-${week}/activity`}
                       element={
                         <ProtectedRoute>
-                          <Component />
+                          <activity.component />
                         </ProtectedRoute>
                       }
                     />
-                  ))}
-                  <Route
-                    key={`week${week}-activity`}
-                    path={`/classes/introduction-to-fundamentals/week-${week}/activity`}
-                    element={
-                      <ProtectedRoute>
-                        <activity.component />
-                      </ProtectedRoute>
-                    }
-                  />
-                </React.Fragment>
-              ))}
+                  </React.Fragment>
+                ))}
 
-              {/* Redirects from legacy /dashboard/${page} routes to new /${page} routes */}
-              <Route path="/dashboard/applications" element={<Navigate to="/applications" replace />} />
-              <Route path="/dashboard/events" element={<Navigate to="/events" replace />} />
-              <Route path="/dashboard/classes" element={<Navigate to="/classes" replace />} />
-              <Route path="/dashboard/projects" element={<Navigate to="/projects" replace />} />
-              <Route path="/dashboard/members" element={<Navigate to="/members" replace />} />
-              <Route path="/dashboard/profile" element={<Navigate to="/profile" replace />} />
-              <Route path="/dashboard/prospects" element={<Navigate to="/prospects" replace />} />
+                {/* Guide to LeetCode class page */}
+                <Route
+                  path="/classes/guide-to-leetcode"
+                  element={
+                    <ProtectedRoute>
+                      <GuideToLeetCode />
+                    </ProtectedRoute>
+                  }
+                />
 
-              {/* 404 - Must be last */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </ThemeProvider>
+                {/* Redirects from legacy /dashboard/${page} routes to new /${page} routes */}
+                <Route path="/dashboard/applications" element={<Navigate to="/applications" replace />} />
+                <Route path="/dashboard/events" element={<Navigate to="/events" replace />} />
+                <Route path="/dashboard/classes" element={<Navigate to="/classes" replace />} />
+                <Route path="/dashboard/projects" element={<Navigate to="/projects" replace />} />
+                <Route path="/dashboard/members" element={<Navigate to="/members" replace />} />
+                <Route path="/dashboard/profile" element={<Navigate to="/profile" replace />} />
+                <Route path="/dashboard/prospects" element={<Navigate to="/prospects" replace />} />
+
+                {/* 404 - Must be last */}
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </ThemeProvider>
+          </TooltipProvider>
         </ProfileProvider>
       </AuthProvider>
     </BrowserRouter>

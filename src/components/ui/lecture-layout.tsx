@@ -22,21 +22,18 @@
  */
 
 import { motion } from 'framer-motion';
-import { TooltipProvider } from '@/components/ui/tooltip';
 
 interface LectureLayoutProps {
     children: React.ReactNode;
 }
 
 export const LectureLayout = ({ children }: LectureLayoutProps) => (
-    <TooltipProvider>
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.3 }}
-            className="max-w-5xl mx-auto px-4 py-8"
-        >
-            {children}
-        </motion.div>
-    </TooltipProvider>
+    <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="max-w-5xl mx-auto px-4 py-8"
+    >
+        {children}
+    </motion.div>
 );
