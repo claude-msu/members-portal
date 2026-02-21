@@ -7,7 +7,7 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
@@ -18,13 +18,14 @@ export default function Week1Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={1}
                 session="Activity"
-                title="The Git + Linux Gauntlet"
-                description="Two lectures down. Now you prove it. This activity strings together everything from Lecture 1 and Lecture 2 into a set of increasingly difficult challenges. There are no walkthroughs here — you have the knowledge, now apply it. Hints are available if you get stuck, but try without them first."
-                icon={<Zap className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Linux & Shell Scripting Gauntlet"
+                description="Apply what you learned in Lecture 1 (Linux & Command Line) and Lecture 2 (Shell Scripting & Permissions): terminal navigation, file operations, permissions, and scripting. Challenges 01 focus on Linux; sections 02–03 preview Git and are optional — you'll cover Version Control in depth in Week 2."
+                icon={<Zap className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -57,7 +58,7 @@ export default function Week1Activity() {
                     <p className="pl-4">└── .env</p>
                 </div>
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create the entire directory tree in a single command using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">mkdir -p</code></ActivityTask>
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">README.md</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">gauntlet/</code></ActivityTask>
                     <ActivityTask>Run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ls -la</code> inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">gauntlet/</code> and confirm <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> is visible (hint: it's a hidden file)</ActivityTask>
@@ -81,7 +82,7 @@ export default function Week1Activity() {
                     Inside your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">gauntlet/</code> directory, complete the following using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod</code>:
                 </LectureP>
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create a file called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deploy.sh</code> and make it executable by the owner, but completely inaccessible to everyone else</ActivityTask>
                     <ActivityTask>Set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">README.md</code> so the owner can read and write, but nobody else can do anything at all</ActivityTask>
                     <ActivityTask>Set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> so only the owner can read it — no write, no execute, no access for group or others</ActivityTask>
@@ -105,7 +106,7 @@ export default function Week1Activity() {
                     This challenge requires two terminal windows open at the same time.
                 </LectureP>
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>In terminal window 1, start a process that just sits there running: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sleep 9999</code></ActivityTask>
                     <ActivityTask>In terminal window 2, use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ps aux</code> combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">grep</code> to find the PID of that sleep process</ActivityTask>
                     <ActivityTask>Kill it gracefully using its PID</ActivityTask>
@@ -140,7 +141,7 @@ export default function Week1Activity() {
                     ]}
                 />
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Find every line containing <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TODO</code> across all files in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">src/</code>, and show the line numbers</ActivityTask>
                     <ActivityTask>Search for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">console.log</code> anywhere in the project — case-insensitively, recursively from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">gauntlet/</code></ActivityTask>
                     <ActivityTask>Count how many lines contain the word "function" across all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.js</code> files</ActivityTask>
@@ -154,11 +155,15 @@ export default function Week1Activity() {
                 </ActivityHint>
             </ActivityChallenge>
 
-            {/* ── 02 GIT IN PRACTICE ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Git in Practice" />
+            {/* ── 02 GIT IN PRACTICE (PREVIEW — FULL COVERAGE IN WEEK 2) ──────── */}
+            <LectureSectionHeading number="02" title="Git in Practice (optional preview)" />
+
+            <LectureCallout type="info">
+                Version Control with Git is the focus of <strong className="text-foreground">Week 2 Lecture 1</strong>. The challenges below are an optional preview — try them if you have time, or skip to the next activity and return after Week 2.
+            </LectureCallout>
 
             <LectureP>
-                Now Git. These challenges simulate real scenarios you'll encounter on actual projects. The goal isn't just to make the commands work — it's to understand what's happening at each step.
+                These challenges simulate real Git scenarios. The goal isn't just to make the commands work — it's to understand what's happening at each step.
             </LectureP>
 
             <ActivityChallenge
@@ -170,7 +175,7 @@ export default function Week1Activity() {
                     Inside your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">gauntlet/</code> directory:
                 </LectureP>
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Initialize a Git repository</ActivityTask>
                     <ActivityTask>Create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> that ignores <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules/</code></ActivityTask>
                     <ActivityTask>Stage and commit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">README.md</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> together as your initial commit</ActivityTask>
@@ -192,7 +197,7 @@ export default function Week1Activity() {
                 title="Branch and Merge"
                 description="Simulate a real feature branch workflow from start to finish."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create and switch to a branch called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature/add-tests</code></ActivityTask>
                     <ActivityTask>Create a file called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">tests/auth.test.js</code> with any content inside it</ActivityTask>
                     <ActivityTask>Commit it with a meaningful message on the feature branch</ActivityTask>
@@ -216,7 +221,7 @@ export default function Week1Activity() {
                     Most people encounter merge conflicts by accident. Here you'll create one on purpose, which forces you to understand exactly why they happen.
                 </LectureP>
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>On <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, write a line of text to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">README.md</code> and commit it</ActivityTask>
                     <ActivityTask>Create a new branch called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fix/update-readme</code> and switch to it</ActivityTask>
                     <ActivityTask>On the new branch, change that same line in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">README.md</code> to something different, and commit it</ActivityTask>
@@ -239,7 +244,7 @@ export default function Week1Activity() {
                 title="Travel Back in Time"
                 description="Use Git's recovery tools to undo a mistake without losing the history."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Make a commit that adds a file called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">mistake.txt</code> — pretend you committed something you shouldn't have</ActivityTask>
                     <ActivityTask>Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git log --oneline</code> to find the hash of the commit that added <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">mistake.txt</code></ActivityTask>
                     <ActivityTask>Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git revert</code> with that hash to undo it — do not use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git reset</code></ActivityTask>
@@ -273,7 +278,7 @@ export default function Week1Activity() {
                     Go to GitHub and create a new public repository called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">gauntlet-final</code> with a README. Then:
                 </LectureP>
 
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Clone the repository to your machine using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git clone</code></ActivityTask>
                     <ActivityTask>Navigate into it using only terminal commands and confirm your location with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pwd</code></ActivityTask>
                     <ActivityTask>Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ls -la</code> to see all files including hidden ones — find the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code> folder</ActivityTask>
@@ -315,14 +320,15 @@ export default function Week1Activity() {
 
             <LectureFooterNav
                 prev={{
-                    label: 'Version Control with Git',
+                    label: 'Shell Scripting & Permissions',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-2'),
                 }}
                 next={{
-                    label: 'Week 2 — Package Managers & Linux Deep Dive',
+                    label: 'Version Control with Git',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

@@ -6,7 +6,7 @@ import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
@@ -16,13 +16,14 @@ export default function Week8Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={8}
                 session="Activity"
                 title="Sprint Simulation & Project Showcase"
                 description="Close out your GitHub Project board, demo your full-stack web app as a sprint review demo, retrospective, and walk through what you would build in the next sprint."
-                icon={<Workflow className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                icon={<Workflow className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -37,7 +38,7 @@ export default function Week8Activity() {
                 title="Create the GitHub Project"
                 description="Get your board live before writing a single story."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Go to your chosen project's GitHub repo → <strong>Projects</strong> tab → <strong>New project</strong> → choose <strong>Board</strong> layout</ActivityTask>
                     <ActivityTask>Rename the default columns to: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Backlog</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Sprint</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">In Progress</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">In Review</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
                     <ActivityTask>Add a custom number field called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Points</code> for story point estimates</ActivityTask>
@@ -61,7 +62,7 @@ export default function Week8Activity() {
                 <LectureP>
                     Create two GitHub Issues that serve as your epics. Use the label <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">epic</code> (create the label if it doesn't exist). Epics don't get story points — they're containers for stories.
                 </LectureP>
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask><strong>Task Tracker epics (pick two):</strong> "User Authentication," "Task Filtering & Search," "Team Collaboration," "Mobile Responsive Design"</ActivityTask>
                     <ActivityTask><strong>Notes API epics (pick two):</strong> "User Management," "Note Organization (tags/folders)," "Search & Full-Text Index," "API Rate Limiting & Security"</ActivityTask>
                     <ActivityTask><strong>Library System epics (pick two):</strong> "Member Management," "Overdue & Fine Tracking," "Catalog Search," "Notification System"</ActivityTask>
@@ -77,7 +78,7 @@ export default function Week8Activity() {
                 <LectureP>
                     Create 8 GitHub Issues — 4 under each epic. Each issue must follow the format and include acceptance criteria:
                 </LectureP>
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Title: one-line summary of the feature (not a task — a user outcome)</ActivityTask>
                     <ActivityTask>Body: full user story — <em>"As a [user], I want [goal] so that [reason]"</em></ActivityTask>
                     <ActivityTask>Acceptance criteria: 2–4 bullet points defining exactly when this story is "done"</ActivityTask>
@@ -105,7 +106,7 @@ export default function Week8Activity() {
                 <LectureP>
                     Sprint planning answers two questions: <em>What can we deliver this sprint?</em> and <em>How will we do it?</em> Your velocity (capacity) for a one-person sprint is roughly 8–12 points.
                 </LectureP>
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Select stories from the Backlog that total 8–12 points — start with the highest priority (most valuable to users)</ActivityTask>
                     <ActivityTask>Move the selected stories to the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Sprint</code> column and assign them to the Sprint 1 milestone</ActivityTask>
                     <ActivityTask>Write a sprint goal: one sentence describing what users will be able to do after this sprint that they can't do now. Add it to the milestone description</ActivityTask>
@@ -125,7 +126,7 @@ export default function Week8Activity() {
                 title="Wire Up Your CI Pipeline"
                 description="No code merges unless the pipeline is green."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/workflows/ci.yml</code> in your project's repo</ActivityTask>
                     <ActivityTask>The pipeline must run on push to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> and on all pull requests targeting <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
                     <ActivityTask><strong>For TypeScript projects (Task Tracker):</strong> install dependencies with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm ci</code>, then run type check, lint, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm run build</code></ActivityTask>
@@ -143,7 +144,7 @@ export default function Week8Activity() {
                 title="Enable Branch Protection"
                 description="Enforce the pipeline — make it impossible to merge broken code."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Go to repo Settings → Branches → Add branch protection rule for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
                     <ActivityTask>Enable: <em>Require a pull request before merging</em></ActivityTask>
                     <ActivityTask>Enable: <em>Require status checks to pass before merging</em> — add your CI job as a required check</ActivityTask>
@@ -163,7 +164,7 @@ export default function Week8Activity() {
                 <LectureP>
                     For each story you complete, follow this exact workflow — no shortcuts:
                 </LectureP>
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create a branch named <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature/issue-{'{number}'}-short-description</code> off <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
                     <ActivityTask>Implement the feature. Commit with a descriptive message — not "fix" or "changes." Format: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: add search endpoint with title filter (#42)</code></ActivityTask>
                     <ActivityTask>Open a pull request. Write a description: what changed, why, and how to verify it works</ActivityTask>
@@ -192,7 +193,7 @@ export default function Week8Activity() {
                 <LectureP>
                     Pick one of the stories you shipped and write tests for its core logic. Tests go in a separate PR — this is intentional. Seeing the untested behavior first then writing tests that pin it down is a common pattern when adding tests to existing code.
                 </LectureP>
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask><strong>TypeScript:</strong> install Vitest (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install -D vitest</code>), add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test: vitest</code> to package.json scripts, write at least 3 tests for the feature's pure logic</ActivityTask>
                     <ActivityTask><strong>Python:</strong> use pytest (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install pytest</code>), create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test_feature.py</code>, write at least 3 tests covering the happy path, an edge case, and an error case</ActivityTask>
                     <ActivityTask>Add the test command to your CI pipeline — the pipeline should now fail if tests fail</ActivityTask>
@@ -216,7 +217,7 @@ export default function Week8Activity() {
                 <LectureP>
                     Create a new GitHub Issue titled <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Sprint 1 Retrospective</code> with label <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">retrospective</code>. Use this as the written record.
                 </LectureP>
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Record your sprint metrics: how many points planned, how many completed, which stories carried over and why</ActivityTask>
                     <ActivityTask>Write at least 2 items for each category: <em>Start</em> (things to begin doing), <em>Stop</em> (things that aren't working), <em>Continue</em> (things that are working)</ActivityTask>
                     <ActivityTask>For each Stop and Start item, write one concrete action: not "write more tests" but "every PR must include at least one test for the new behavior before requesting review"</ActivityTask>
@@ -275,6 +276,7 @@ export default function Week8Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

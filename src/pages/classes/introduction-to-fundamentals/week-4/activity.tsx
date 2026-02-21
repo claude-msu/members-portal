@@ -7,24 +7,24 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
-    LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week4Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={4}
                 session="Activity"
                 title="Build Your Backend"
                 description="The Dockerfile exists. Now fill it in — a real FastAPI backend with SQLite storage and Redis caching, all running via Docker Compose. By the end you have a documented API you can hand off to your frontend next week."
-                icon={<Server className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
+                icon={<Server className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -65,7 +65,7 @@ export default function Week4Activity() {
                 title="Write docker-compose.yml"
                 description="Define FastAPI + Redis services that work together."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code></ActivityTask>
                     <ActivityTask>Define an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">api</code> service: build from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code>, ports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">8000:8000</code>, depends_on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
                     <ActivityTask>Define a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> service: image <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis:7-alpine</code>, no extra config needed</ActivityTask>
@@ -92,7 +92,7 @@ export default function Week4Activity() {
                 title="Database Models"
                 description="Set up SQLAlchemy and define your data schema."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">models.py</code> with your SQLAlchemy model(s) representing your chosen domain</ActivityTask>
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">database.py</code> with engine setup and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code> dependency</ActivityTask>
                     <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> to create tables on startup</ActivityTask>
@@ -108,7 +108,7 @@ export default function Week4Activity() {
                 title="Core Endpoints"
                 description="Implement your 3 required REST endpoints."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Implement your 3 required endpoints. Each must use a Pydantic schema for request/response validation</ActivityTask>
                     <ActivityTask>Test each one through <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> before moving on</ActivityTask>
                 </div>
@@ -123,7 +123,7 @@ export default function Week4Activity() {
                 title="Redis Caching Layer"
                 description="Add caching to your most expensive read operation."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Connect to Redis using the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> Python package: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis.Redis(host='redis', port=6379)</code></ActivityTask>
                     <ActivityTask>Pick the most read-heavy endpoint — the one that does the most computation or hits the most rows</ActivityTask>
                     <ActivityTask>Cache its result in Redis with a 60-second TTL using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r.setex()</code></ActivityTask>
@@ -154,7 +154,7 @@ export default function Week4Activity() {
                 title="Verify and Document"
                 description="Finalize your API documentation."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> and confirm all endpoints appear with correct schemas</ActivityTask>
                     <ActivityTask>Test the cached endpoint twice in quick succession and confirm the second response is faster</ActivityTask>
                     <ActivityTask>Write a short <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">API.md</code> in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder documenting each endpoint: method, path, what it does, example request/response</ActivityTask>
@@ -166,7 +166,7 @@ export default function Week4Activity() {
                 title="PR and Board Update"
                 description="Finalize and ship Issue #2."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Commit everything</ActivityTask>
                     <ActivityTask>Push</ActivityTask>
                     <ActivityTask>Open a PR that closes Issue #2 from your GitHub Project board</ActivityTask>
@@ -185,6 +185,7 @@ export default function Week4Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

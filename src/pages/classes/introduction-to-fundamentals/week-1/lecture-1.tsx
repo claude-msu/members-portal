@@ -23,7 +23,7 @@ export default function Week1Lecture1() {
                 session="Lecture 1"
                 title="Linux & The Command Line"
                 description="Every server, container, and cloud environment runs Linux underneath. Learn to navigate, manipulate files, manage processes, and install software without touching a mouse."
-                icon={<Terminal className="h-4 w-4 text-yellow-800 dark:text-yellow-300" />}
+                icon={<Terminal className="h-4 w-4" />}
             />
 
             {/* ── 01 WHAT IS THE TERMINAL ─────────────────────────────────────── */}
@@ -340,7 +340,7 @@ export default function Week1Lecture1() {
 
             <LectureFooterNav
                 next={{
-                    label: 'Version Control with Git',
+                    label: 'Shell Scripting & Permissions',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-2'),
                 }}
             />

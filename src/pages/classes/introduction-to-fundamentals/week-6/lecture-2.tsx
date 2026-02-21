@@ -55,132 +55,11 @@ export default function Week6Lecture2() {
                 session="Lecture 2"
                 title="Polymorphism, STL & System Design"
                 description="Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core."
-                icon={<Cpu className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                icon={<Cpu className="h-4 w-4" />}
             />
 
-            {/* ── 01 BINARY TREES ─────────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Binary Trees" />
-
-            <LectureP>
-                A <LectureTerm>binary tree</LectureTerm> is a hierarchical structure where each node has at most two children: left and right. Unlike a linked list (linear), trees branch — which makes them ideal for representing hierarchical data and enables O(log n) search when the tree is balanced.
-            </LectureP>
-
-            <LectureP>
-                Key terminology: the topmost node is the <LectureTerm>root</LectureTerm>. Nodes with no children are <LectureTerm>leaves</LectureTerm>. The <LectureTerm>height</LectureTerm> of a tree is the longest path from root to a leaf. A <LectureTerm>balanced</LectureTerm> tree has roughly equal height on both sides of every node — this is what guarantees O(log n) operations.
-            </LectureP>
-
-            <CppBlock
-                title="binary tree node and basic traversals"
-                lines={[
-                    'struct TreeNode {',
-                    '    int val;',
-                    '    TreeNode* left;',
-                    '    TreeNode* right;',
-                    '    TreeNode(int v) : val(v), left(nullptr), right(nullptr) {}',
-                    '};',
-                    '',
-                    '// In-order: left → root → right  (gives sorted output for BST)',
-                    'void inOrder(TreeNode* node) {',
-                    '    if (!node) return;',
-                    '    inOrder(node->left);',
-                    '    cout << node->val << " ";',
-                    '    inOrder(node->right);',
-                    '}',
-                    '',
-                    '// Pre-order: root → left → right  (useful for copying a tree)',
-                    'void preOrder(TreeNode* node) {',
-                    '    if (!node) return;',
-                    '    cout << node->val << " ";',
-                    '    preOrder(node->left);',
-                    '    preOrder(node->right);',
-                    '}',
-                    '',
-                    '// Post-order: left → right → root  (useful for deleting a tree)',
-                    'void postOrder(TreeNode* node) {',
-                    '    if (!node) return;',
-                    '    postOrder(node->left);',
-                    '    postOrder(node->right);',
-                    '    cout << node->val << " ";',
-                    '}',
-                ]}
-            />
-
-            <LectureCallout type="info">
-                Tree problems are almost always solved recursively. The mental model: trust that your function correctly handles a subtree. Then define the base case (null node returns something sensible) and the recursive case (combine results from left and right subtrees). This is called <LectureTerm>thinking in terms of subproblems</LectureTerm>.
-            </LectureCallout>
-
-            {/* ── 02 BINARY SEARCH TREES ──────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Binary Search Trees" />
-
-            <LectureP>
-                A <LectureTerm>Binary Search Tree</LectureTerm> (BST) adds an ordering constraint: for every node, all values in its left subtree are smaller, and all values in its right subtree are larger. This property enables binary search on the tree — you eliminate half the remaining nodes at each step.
-            </LectureP>
-
-            <BstDiagram />
-
-            <CppBlock
-                title="BST — search and insert"
-                lines={[
-                    '// Search — O(log n) balanced, O(n) worst case (degenerate tree)',
-                    'TreeNode* search(TreeNode* root, int target) {',
-                    '    if (!root || root->val == target) return root;',
-                    '    if (target < root->val)',
-                    '        return search(root->left, target);',
-                    '    return search(root->right, target);',
-                    '}',
-                    '',
-                    '// Insert — O(log n) balanced',
-                    'TreeNode* insert(TreeNode* root, int val) {',
-                    '    if (!root) return new TreeNode(val);',
-                    '    if (val < root->val)',
-                    '        root->left = insert(root->left, val);',
-                    '    else if (val > root->val)',
-                    '        root->right = insert(root->right, val);',
-                    '    return root;',
-                    '}',
-                    '',
-                    '// Height of tree — O(n)',
-                    'int height(TreeNode* node) {',
-                    '    if (!node) return 0;',
-                    '    return 1 + max(height(node->left), height(node->right));',
-                    '}',
-                ]}
-            />
-
-            <LectureSubHeading title="Common tree interview problems" />
-
-            <CppBlock
-                title="max depth and check if tree is balanced"
-                lines={[
-                    '// Maximum depth — O(n)',
-                    'int maxDepth(TreeNode* root) {',
-                    '    if (!root) return 0;',
-                    '    return 1 + max(maxDepth(root->left), maxDepth(root->right));',
-                    '}',
-                    '',
-                    '// Is the tree balanced? (height difference between subtrees ≤ 1)',
-                    'bool isBalanced(TreeNode* root) {',
-                    '    if (!root) return true;',
-                    '    int leftH  = height(root->left);',
-                    '    int rightH = height(root->right);',
-                    '    return abs(leftH - rightH) <= 1',
-                    '        && isBalanced(root->left)',
-                    '        && isBalanced(root->right);',
-                    '}',
-                    '',
-                    '// Lowest Common Ancestor of two nodes p and q',
-                    'TreeNode* lca(TreeNode* root, TreeNode* p, TreeNode* q) {',
-                    '    if (!root || root == p || root == q) return root;',
-                    '    TreeNode* left  = lca(root->left, p, q);',
-                    '    TreeNode* right = lca(root->right, p, q);',
-                    '    if (left && right) return root;  // p and q are in different subtrees',
-                    '    return left ? left : right;',
-                    '}',
-                ]}
-            />
-
-            {/* ── 03 THE FOUR OOP PRINCIPLES ──────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="The Four OOP Principles" />
+            {/* ── 01 POLYMORPHISM & THE FOUR OOP PRINCIPLES ───────────────────── */}
+            <LectureSectionHeading number="01" title="Polymorphism & the Four OOP Principles" />
 
             <LectureP>
                 Object-Oriented Programming organizes software around objects — data bundled with the functions that operate on it. C++ has full OOP support. These four principles are the vocabulary of software design interviews and the foundation of every large codebase you'll work in.
@@ -233,8 +112,8 @@ export default function Week6Lecture2() {
                 ))}
             </div>
 
-            {/* ── 04 OOP IN C++ ───────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="OOP in C++ — Syntax and Patterns" />
+            {/* ── 02 OOP IN C++ — VIRTUAL & PURE VIRTUAL ──────────────────────── */}
+            <LectureSectionHeading number="02" title="OOP in C++ — Virtual & Pure Virtual" />
 
             <CppBlock
                 title="encapsulation — Book class with private state"
@@ -314,8 +193,8 @@ export default function Week6Lecture2() {
                 Always declare destructors <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> in base classes that have virtual methods. Without it, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> will only call the base destructor — the derived class's destructor won't run, leaking memory.
             </LectureCallout>
 
-            {/* ── 05 STL CONTAINERS ───────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="STL Containers — Your Toolbox" />
+            {/* ── 03 STL CONTAINERS ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="STL Containers — Your Toolbox" />
 
             <LectureP>
                 The C++ Standard Template Library ships production-grade implementations of every data structure you'll need. Know these cold:
@@ -341,8 +220,8 @@ export default function Week6Lecture2() {
                 ))}
             </div>
 
-            {/* ── 06 SOLVING PROBLEMS ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="A Framework for Solving Problems" />
+            {/* ── 04 SYSTEM DESIGN & SOLVING PROBLEMS ────────────────────────── */}
+            <LectureSectionHeading number="04" title="System Design & a Framework for Solving Problems" />
 
             <LectureP>
                 Technical interviews aren't just about knowing the right algorithm — they're about demonstrating a systematic thinking process. Here's the framework that works:
@@ -373,11 +252,11 @@ export default function Week6Lecture2() {
 
             <LectureFooterNav
                 prev={{
-                    label: 'Arrays, Linked Lists, Stacks & Queues',
+                    label: 'Classes, Encapsulation & Inheritance',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
                 }}
                 next={{
-                    label: 'Library Management System',
+                    label: 'CLI Phonebook — Part 1',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
                 }}
             />

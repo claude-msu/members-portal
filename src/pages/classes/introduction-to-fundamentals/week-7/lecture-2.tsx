@@ -71,7 +71,7 @@ export default function Week7Lecture2() {
                 session="Lecture 2"
                 title="Hash Maps, Complexity & Interview Patterns"
                 description="Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers."
-                icon={<Binary className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                icon={<Binary className="h-4 w-4" />}
             />
 
             {/* ── 01 DESIGN BEFORE CODE ───────────────────────────────────────── */}
@@ -373,11 +373,11 @@ export default function Week7Lecture2() {
 
             <LectureFooterNav
                 prev={{
-                    label: 'Trees, BFS & DFS',
+                    label: 'Trees, Stacks & Queues',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-1'),
                 }}
                 next={{
-                    label: 'Library Management System',
+                    label: 'CLI Phonebook — Part 2',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/activity'),
                 }}
             />

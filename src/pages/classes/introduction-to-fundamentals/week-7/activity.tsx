@@ -6,24 +6,24 @@ import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
-    LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week7Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={7}
                 session="Activity"
                 title="CLI Phonebook — Part 2"
                 description="Your OOP foundation from Week 6 is solid. Now add the data structures on top — a BST for alphabetically sorted lookups, a stack for undo, and an unordered_map for O(1) search."
-                icon={<Binary className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                icon={<Binary className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -70,7 +70,7 @@ export default function Week7Activity() {
                 title="Define the BST Node"
                 description="Create the foundation for tree-based storage."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* data</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* right</code>, a constructor that initializes all three</ActivityTask>
                     <ActivityTask>Do not delete the Contact class — ContactNode wraps it</ActivityTask>
                 </div>
@@ -81,7 +81,7 @@ export default function Week7Activity() {
                 title="BST Insert"
                 description="Replace vector storage with recursive tree insertion."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(ContactNode* node, Contact* contact)</code> recursive method to your PhoneBook class</ActivityTask>
                     <ActivityTask>Compare by last name (case-insensitive)</ActivityTask>
                     <ActivityTask>Replace your vector with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* root</code> initialized to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code></ActivityTask>
@@ -98,7 +98,7 @@ export default function Week7Activity() {
                 title="In-Order Traversal"
                 description="Print contacts in alphabetical order."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inOrder(ContactNode* node)</code> — left, visit, right</ActivityTask>
                     <ActivityTask>Call it from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">listAll()</code></ActivityTask>
                     <ActivityTask>Verify that adding contacts in random order still prints them alphabetically</ActivityTask>
@@ -121,7 +121,7 @@ export default function Week7Activity() {
                 title="Define the Action Stack"
                 description="Create a record of every change."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string type</code> ("add" or "delete"), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact contactSnapshot</code> (a copy of the contact at time of action)</ActivityTask>
                     <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stack&lt;Action&gt; history</code> to PhoneBook using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::stack</code></ActivityTask>
                 </div>
@@ -132,7 +132,7 @@ export default function Week7Activity() {
                 title="Push on Add and Delete"
                 description="Record every operation."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>: after inserting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action{"{"}"add", *newContact{"}"}</code> onto history</ActivityTask>
                     <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>: before deleting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action{"{"}"delete", *contactToDelete{"}"}</code> onto history</ActivityTask>
                     <ActivityTask>Compile and verify the stack size grows as you add contacts</ActivityTask>
@@ -144,7 +144,7 @@ export default function Week7Activity() {
                 title="Implement Undo"
                 description="Reverse the most recent operation."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void undo()</code> to PhoneBook</ActivityTask>
                     <ActivityTask>If history is empty, print "Nothing to undo." and return</ActivityTask>
                     <ActivityTask>Otherwise pop the top action</ActivityTask>
@@ -170,7 +170,7 @@ export default function Week7Activity() {
                 title="Add the Index"
                 description="Create a secondary index for phone number lookups."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map&lt;string, Contact*&gt; phoneIndex</code> to PhoneBook where the key is the phone number string</ActivityTask>
                     <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>, also insert into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
                     <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>, also erase from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
@@ -186,7 +186,7 @@ export default function Week7Activity() {
                 title="Search by Phone Number"
                 description="Implement instant phone number lookups."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* findByPhone(string number)</code> that checks <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
                     <ActivityTask>If found, return the pointer</ActivityTask>
                     <ActivityTask>If not, return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code></ActivityTask>
@@ -200,7 +200,7 @@ export default function Week7Activity() {
                 title="Final Menu"
                 description="Put it all together."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code> menu should now offer: 1) Add contact, 2) Delete contact, 3) List all (alphabetical), 4) Search by phone, 5) Undo last action, 6) Quit</ActivityTask>
                     <ActivityTask>Compile the full program and run through all 6 options to verify everything works together</ActivityTask>
                 </div>
@@ -216,6 +216,7 @@ export default function Week7Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

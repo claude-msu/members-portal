@@ -23,7 +23,7 @@ export default function Week8Lecture2() {
                 session="Lecture 2"
                 title="CI/CD, TDD & Engineering Culture"
                 description="Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight."
-                icon={<Workflow className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                icon={<Workflow className="h-4 w-4" />}
             />
 
             {/* ── 01 CI/CD ────────────────────────────────────────────────────── */}
@@ -342,7 +342,7 @@ export default function Week8Lecture2() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
                 }}
                 next={{
-                    label: 'Sprint Simulation',
+                    label: 'Sprint Simulation & Project Showcase',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/activity'),
                 }}
             />

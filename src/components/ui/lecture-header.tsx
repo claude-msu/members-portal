@@ -82,7 +82,7 @@ export const LectureHeader = ({
                 className="mb-6"
             >
                 <div className="flex items-center gap-4 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 flex items-center justify-center">
+                    <div className="w-8 h-8 rounded-lg text-orange-600 dark:text-orange-400 bg-orange-100 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 flex items-center justify-center">
                         {icon}
                     </div>
                     <span className="text-sm font-bold uppercase tracking-widest text-orange-600 dark:text-orange-400">

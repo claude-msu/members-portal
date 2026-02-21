@@ -94,7 +94,7 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'VersiGit',
+                title: 'Version Control with Git',
                 description:
                     'Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes.',
                 duration: '90 min',
@@ -128,7 +128,7 @@ const WEEKS: Week[] = [
         theme: 'Containerization with Docker',
         subtitle: 'Build once, run anywhere',
         icon: <Package className="h-5 w-5" />,
-        color: 'gray',
+        color: 'green',
         sessions: [
             {
                 type: 'lecture',
@@ -323,7 +323,7 @@ const WEEKS: Week[] = [
         theme: 'Sprint Review & Showcase',
         subtitle: 'Ship it and reflect',
         icon: <Workflow className="h-5 w-5" />,
-        color: 'green',
+        color: 'indigo',
         sessions: [
             {
                 type: 'lecture',
@@ -404,13 +404,7 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
         badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
         dot: 'bg-rose-400',
     },
-    teal: {
-        bg: 'bg-teal-50 dark:bg-teal-950/20',
-        text: 'text-teal-600 dark:text-teal-400',
-        border: 'border-teal-200 dark:border-teal-800',
-        badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
-        dot: 'bg-teal-400',
-    },
+
     brown: {
         bg: 'bg-yellow-50 dark:bg-yellow-900/30',
         text: 'text-yellow-800 dark:text-yellow-300',
@@ -424,6 +418,13 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
         border: 'border-gray-400 dark:border-gray-700',
         badge: 'bg-gray-100 text-gray-600 dark:bg-gray-800/60 dark:text-gray-200',
         dot: 'bg-gray-400',
+    },
+    indigo: {
+        bg: 'bg-indigo-50 dark:bg-indigo-900/20',
+        text: 'text-indigo-700 dark:text-indigo-300',
+        border: 'border-indigo-200 dark:border-indigo-700',
+        badge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200',
+        dot: 'bg-indigo-500',
     },
 };
 

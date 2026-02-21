@@ -6,7 +6,7 @@ import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
@@ -53,13 +53,14 @@ export default function Week6Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={6}
                 session="Activity"
                 title="CLI Phonebook — Part 1"
                 description="Build the OOP foundation of a CLI Phonebook in C++ — a Contact class hierarchy, a PhoneBook manager class with add/delete/list, and a working interactive menu. Week 7 adds data structures on top of this exact codebase."
-                icon={<Cpu className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                icon={<Cpu className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -80,7 +81,7 @@ export default function Week6Activity() {
                 title="Define LibraryItem"
                 description="The abstract base class all item types inherit from."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">library.cpp</code> with includes: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">iostream</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">algorithm</code></ActivityTask>
                     <ActivityTask>Define <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class LibraryItem</code> with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">protected</code> fields: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string id</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string title</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bool isCheckedOut = false</code></ActivityTask>
                     <ActivityTask>Add a constructor, public getters for all fields, and two pure virtual methods: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual string getType() const = 0</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual int getLoanDays() const = 0</code></ActivityTask>
@@ -101,7 +102,7 @@ export default function Week6Activity() {
                 title="Book, DVD, Magazine"
                 description="Three concrete types that inherit LibraryItem and add their own fields."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Book</code>: adds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string author</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int pages</code>. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getType()</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"Book"</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">21</code></ActivityTask>
                     <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DVD</code>: adds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string director</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int runtimeMinutes</code>. Loan: 7 days</ActivityTask>
                     <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Magazine</code>: adds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int issueNumber</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string month</code>. Loan: 3 days</ActivityTask>
@@ -125,7 +126,7 @@ export default function Week6Activity() {
                 title="Catalog and Loan Tracking"
                 description="The central class that manages all items and active loans."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class Library</code> with private: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<LibraryItem*> catalog"}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"unordered_map<string, string> loans"}</code> (item ID → patron name)</ActivityTask>
                     <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void addItem(LibraryItem* item)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void listAll()</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem* findById(string id)</code> (returns <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code> if not found)</ActivityTask>
                     <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bool checkout(string itemId, string patronName)</code> — find the item, verify it's available, call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'item->checkout()'}</code>, record the loan</ActivityTask>
@@ -145,7 +146,7 @@ export default function Week6Activity() {
                 title="Interactive Menu"
                 description="Wire it all together with a main() that loops on user input."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Write a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code> that pre-populates the library with 6+ items (mix of all three types) and loops on a menu</ActivityTask>
                     <ActivityTask>Menu: (1) List all, (2) Search by title, (3) Checkout, (4) Return, (5) View loans, (0) Exit</ActivityTask>
                     <ActivityTask>Test the full cycle: search → checkout → try again (fails) → return → checkout again (succeeds)</ActivityTask>
@@ -168,7 +169,7 @@ export default function Week6Activity() {
                 title="Arrays & Hashing"
                 description="Three problems — target O(n) for all three."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask><strong>Contains Duplicate</strong> — return true if any value appears more than once. Use an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_set</code></ActivityTask>
                     <ActivityTask><strong>Best Time to Buy and Sell Stock</strong> — one pass: track the minimum price seen so far and the maximum profit achievable at each step</ActivityTask>
                     <ActivityTask><strong>Two Sum</strong> — return indices of two numbers summing to target. Use an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code> mapping value → index</ActivityTask>
@@ -180,7 +181,7 @@ export default function Week6Activity() {
                 title="Two Pointers & Sliding Window"
                 description="Two patterns that eliminate nested loops."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask><strong>3Sum</strong> — find all unique triplets summing to zero. Sort first, then for each element use two pointers on the remainder. Skip duplicates to avoid repeated triplets in output</ActivityTask>
                     <ActivityTask><strong>Longest Substring Without Repeating Characters</strong> — sliding window with an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_set</code>: expand right, shrink left when a duplicate enters the window</ActivityTask>
                 </div>
@@ -195,7 +196,7 @@ export default function Week6Activity() {
                 title="Stack & Trees"
                 description="One stack problem, two tree problems."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask><strong>Valid Parentheses</strong> — use a stack: push opening brackets, pop and match on closing brackets</ActivityTask>
                     <ActivityTask><strong>Maximum Depth of Binary Tree</strong> — return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">1 + max(depth(left), depth(right))</code> recursively</ActivityTask>
                     <ActivityTask><strong>Validate BST</strong> — pass min/max bounds down recursively; a node is invalid if its value falls outside the bounds its ancestors impose</ActivityTask>
@@ -231,14 +232,15 @@ export default function Week6Activity() {
 
             <LectureFooterNav
                 prev={{
-                    label: 'Trees, Hash Maps & OOP',
+                    label: 'Polymorphism, STL & System Design',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-2'),
                 }}
                 next={{
-                    label: 'Week 7 — Agile & Software Engineering',
+                    label: 'Trees, Stacks & Queues',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

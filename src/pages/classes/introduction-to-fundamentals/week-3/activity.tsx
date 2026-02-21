@@ -7,7 +7,7 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
@@ -17,13 +17,14 @@ export default function Week3Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={3}
                 session="Activity"
                 title="Containerize Your Backend Stub"
                 description="You have a provided Python stub with one working endpoint. Your job is to containerize it, persist data with a volume, and explore what base image choice actually costs you in megabytes. The Dockerfile you write today is the one you will use in Week 4."
-                icon={<Package className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
+                icon={<Package className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -60,7 +61,7 @@ export default function Week3Activity() {
                 title="Write the Dockerfile"
                 description="Containerize the Python stub with the right base image and configuration."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code></ActivityTask>
                     <ActivityTask>Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python:3.11-slim</code> as the base image</ActivityTask>
                     <ActivityTask>Set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/app</code> as the working directory</ActivityTask>
@@ -81,11 +82,11 @@ export default function Week3Activity() {
                 title="Build and Run"
                 description="Verify the container works end-to-end."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Build the image: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build -t my-stub .</code></ActivityTask>
                     <ActivityTask>Run it: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run -p 8000:8000 my-stub</code></ActivityTask>
                     <ActivityTask>In another terminal, hit the endpoint: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">curl http://localhost:8000/health</code></ActivityTask>
-                    <ActivityTask>Verify you get <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'{\"status\": \"ok\"}'}</code></ActivityTask>
+                    <ActivityTask>Verify you get <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{`{"status": "ok"}`}</code></ActivityTask>
                 </div>
 
                 <TerminalBlock
@@ -120,7 +121,7 @@ export default function Week3Activity() {
                 title="Mount a Volume"
                 description="Bind mount a directory on your machine to the container's /data folder."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Stop and remove your running container</ActivityTask>
                     <ActivityTask>Re-run with a bind mount: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run -p 8000:8000 -v $(pwd)/data:/data my-stub</code></ActivityTask>
                     <ActivityTask>Hit the health endpoint 3 times</ActivityTask>
@@ -155,7 +156,7 @@ export default function Week3Activity() {
                 title="Prove It Survives a Restart"
                 description="Stop the container, start it again, and verify the log file persists."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Stop the container</ActivityTask>
                     <ActivityTask>Start it again with the same volume flag</ActivityTask>
                     <ActivityTask>Hit the endpoint 2 more times</ActivityTask>
@@ -179,7 +180,7 @@ export default function Week3Activity() {
                 title="Build with Alpine"
                 description="Compare Python slim vs. Alpine Linux."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create a second Dockerfile named <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile.alpine</code></ActivityTask>
                     <ActivityTask>Change only the FROM line to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python:3.11-alpine</code></ActivityTask>
                     <ActivityTask>Build it: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build -f Dockerfile.alpine -t my-stub-alpine .</code></ActivityTask>
@@ -196,7 +197,7 @@ export default function Week3Activity() {
                 title="Document Your Findings"
                 description="Record the size difference and explain why it matters."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>In your repo, create a file called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DOCKER.md</code></ActivityTask>
                     <ActivityTask>Write the size of each image</ActivityTask>
                     <ActivityTask>Write one sentence explaining why they differ</ActivityTask>
@@ -216,6 +217,7 @@ export default function Week3Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

@@ -12,77 +12,43 @@ import {
     LectureTerm,
 } from '@/components/ui/lecture-typography';
 
-// ── Relational table diagram ──────────────────────────────────────────────────
-const RelationalDiagram = () => (
-    <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {[
-            {
-                table: 'users',
-                color: 'text-blue-600 dark:text-blue-400',
-                border: 'border-blue-200 dark:border-blue-800',
-                header: 'bg-blue-50 dark:bg-blue-950/30',
-                rows: [
-                    { id: '1', name: 'Alice', email: 'alice@msu.edu' },
-                    { id: '2', name: 'Bob', email: 'bob@msu.edu' },
-                ],
-                cols: ['id', 'name', 'email'],
-            },
-            {
-                table: 'notes',
-                color: 'text-emerald-600 dark:text-emerald-400',
-                border: 'border-emerald-200 dark:border-emerald-800',
-                header: 'bg-emerald-50 dark:bg-emerald-950/30',
-                rows: [
-                    { id: '1', user_id: '1', title: 'FastAPI intro' },
-                    { id: '2', user_id: '1', title: 'SQL basics' },
-                    { id: '3', user_id: '2', title: 'React hooks' },
-                ],
-                cols: ['id', 'user_id', 'title'],
-            },
-        ].map((t) => (
-            <div key={t.table} className={`rounded-xl border ${t.border} overflow-hidden`}>
-                <div className={`px-4 py-2 ${t.header}`}>
-                    <code className={`text-xs font-bold ${t.color}`}>{t.table}</code>
-                </div>
-                <table className="w-full text-xs font-mono">
-                    <thead>
-                        <tr className="border-b border-border">
-                            {t.cols.map((c) => (
-                                <th key={c} className="px-3 py-1.5 text-left text-muted-foreground font-normal">{c}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {t.rows.map((row, i) => (
-                            <tr key={i} className="border-b border-border last:border-b-0">
-                                {t.cols.map((c) => (
-                                    <td key={c} className={`px-3 py-1.5 ${c === 'user_id' ? 'text-blue-600 dark:text-blue-400' : 'text-foreground'}`}>
-                                        {(row as Record<string, string>)[c]}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        ))}
-        <div className="sm:col-span-2 text-xs text-muted-foreground">
-            <code>notes.user_id</code> is a foreign key that references <code>users.id</code>. The relationship: one user has many notes.
-        </div>
-    </div>
-);
+// Tailwind default palette (hex) so dynamic color swatches render without purging
+const TAILWIND_PALETTE: Record<string, Record<number, string>> = {
+    slate: { 50: '#f8fafc', 100: '#f1f5f9', 200: '#e2e8f0', 300: '#cbd5e1', 400: '#94a3b8', 500: '#64748b', 600: '#475569', 700: '#334155', 800: '#1e293b', 900: '#0f172a', 950: '#020617' },
+    orange: { 50: '#fff7ed', 100: '#ffedd5', 200: '#fed7aa', 300: '#fdba74', 400: '#fb923c', 500: '#f97316', 600: '#ea580c', 700: '#c2410c', 800: '#9a3412', 900: '#7c2d12', 950: '#431407' },
+    blue: { 50: '#eff6ff', 100: '#dbeafe', 200: '#bfdbfe', 300: '#93c5fd', 400: '#60a5fa', 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8', 800: '#1e40af', 900: '#1e3a8a', 950: '#172554' },
+    emerald: { 50: '#ecfdf5', 100: '#d1fae5', 200: '#a7f3d0', 300: '#6ee7b7', 400: '#34d399', 500: '#10b981', 600: '#059669', 700: '#047857', 800: '#065f46', 900: '#064e3b', 950: '#022c22' },
+    rose: { 50: '#fff1f2', 100: '#ffe4e6', 200: '#fecdd3', 300: '#fda4af', 400: '#fb7185', 500: '#f43f5e', 600: '#e11d48', 700: '#be123c', 800: '#9f1239', 900: '#881337', 950: '#4c0519' },
+    amber: { 50: '#fffbeb', 100: '#fef3c7', 200: '#fde68a', 300: '#fcd34d', 400: '#fbbf24', 500: '#f59e0b', 600: '#d97706', 700: '#b45309', 800: '#92400e', 900: '#78350f', 950: '#451a03' },
+};
 
-// ── SQL code block ────────────────────────────────────────────────────────────
-const SqlBlock = ({ title, lines }: { title: string; lines: { comment?: string; sql: string }[] }) => (
-    <div className="my-4 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">{title}</div>
-        <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
-            {lines.map((line, i) => (
-                <div key={i}>
-                    {line.comment && <p className="text-zinc-500 mb-0.5">{`-- ${line.comment}`}</p>}
-                    <p className="text-zinc-300">{line.sql}</p>
-                </div>
-            ))}
+const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
+const PALETTE_COLORS = ['slate', 'orange', 'blue', 'emerald', 'rose', 'amber'] as const;
+
+// Shared class strings to satisfy Tailwind linter (no duplicate-utility warnings)
+const CODE_INLINE = 'text-xs bg-muted px-1.5 py-0.5 rounded border';
+const CODE_BLOCK_ROOT = 'my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs';
+const CODE_BLOCK_HEADER = 'bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none';
+const CODE_BLOCK_BODY = 'bg-zinc-950 px-4 py-4 space-y-1 select-none';
+
+// ── Live class preview card ───────────────────────────────────────────────────
+const TailwindPreview = ({
+    label,
+    className,
+    code,
+}: {
+    label: string;
+    className: string;
+    code: string;
+}) => (
+    <div className="rounded-lg border border-border bg-card overflow-hidden">
+        <div className="p-6 flex items-center justify-center bg-muted/30 min-h-[80px]">
+            <div className={className}>{label}</div>
+        </div>
+        <div className="px-4 py-2 border-t border-border bg-zinc-950">
+            <code className="text-xs text-emerald-400 select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+                {code}
+            </code>
         </div>
     </div>
 );
@@ -97,288 +63,368 @@ export default function Week5Lecture2() {
                 session="Lecture 2"
                 title="Tailwind CSS & Connecting to Your API"
                 description="Style your UI with utility classes that do exactly one thing, then wire your React frontend to the FastAPI backend you built last week using fetch."
-                icon={<Globe className="h-4 w-4 text-violet-600 dark:text-violet-400" />}
+                icon={<Globe className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
 
-            {/* ── 01 RELATIONAL DATABASES ─────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Relational Databases" />
+            {/* ── 01 THE UTILITY CLASS MODEL ──────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="The Utility Class Model" />
 
             <LectureP>
-                A <LectureTerm>relational database</LectureTerm> stores data in <LectureTerm>tables</LectureTerm> — rows and columns, like a spreadsheet. Each table represents one type of thing (users, notes, orders). Rows are individual records. Columns are the attributes of those records.
+                In traditional CSS, you write a class name, define it in a stylesheet, and apply it to elements. Tailwind inverts this: instead of writing custom CSS, you compose styles by applying small, single-purpose utility classes directly to your HTML elements.
             </LectureP>
             <LectureP>
-                What makes relational databases powerful is the ability to <LectureTerm>join</LectureTerm> tables together. Instead of duplicating user data into every note, you store users in one table and notes in another, linked by a <LectureTerm>foreign key</LectureTerm>. When you need the full picture, you join them in your query.
+                Every Tailwind class does exactly one thing. <code className={CODE_INLINE}>p-4</code> adds padding. <code className={CODE_INLINE}>text-blue-500</code> sets the text color. <code className={CODE_INLINE}>rounded-lg</code> rounds the corners. You describe a component's appearance by stacking these utilities together.
             </LectureP>
 
-            <RelationalDiagram />
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
+                    traditional CSS vs Tailwind
+                </div>
+                <div className="bg-zinc-950 px-5 py-4 space-y-4 select-none">
+                    <div>
+                        <p className="text-rose-400 mb-2">{`// Traditional — write CSS in a separate file, apply a class name`}</p>
+                        <p className="text-zinc-500">{`.card {`}</p>
+                        <p className="text-zinc-500 pl-4">{`background: white;`}</p>
+                        <p className="text-zinc-500 pl-4">{`border-radius: 8px;`}</p>
+                        <p className="text-zinc-500 pl-4">{`padding: 16px;`}</p>
+                        <p className="text-zinc-500 pl-4">{`box-shadow: 0 1px 3px rgba(0,0,0,0.1);`}</p>
+                        <p className="text-zinc-500">{`}`}</p>
+                        <p className="text-emerald-300 mt-1">{`<div class="card">...</div>`}</p>
+                    </div>
+                    <div>
+                        <p className="text-emerald-400 mb-2">{`// Tailwind — styles live directly in the element`}</p>
+                        <p className="text-emerald-300">{`<div class="bg-white rounded-lg p-4 shadow-sm">...</div>`}</p>
+                    </div>
+                </div>
+            </div>
+
+            <LectureP>
+                The tradeoff is real: Tailwind markup is more verbose. But you get enormous benefits in return. No naming things (notoriously hard). No stylesheet bloat — unused classes are automatically purged from your production build. No context-switching between files. And no specificity wars — utility classes have the same specificity, so the one you write last wins.
+            </LectureP>
 
             <LectureCallout type="info">
-                <strong className="text-foreground">SQLite</strong> stores the database in a single file on disk — zero configuration, perfect for development and small apps. <strong className="text-foreground">PostgreSQL</strong> is a full server, handles concurrent writes, supports advanced types, and is what you use in production. Start with SQLite, switch to Postgres when you need it. FastAPI + SQLAlchemy makes this switch trivial.
+                Tailwind generates CSS at build time by scanning your source files for class names and including only the ones you actually use. A production Tailwind CSS bundle is typically just a few KB regardless of how many utilities you use.
             </LectureCallout>
 
-            {/* ── 02 CORE SQL ─────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Core SQL" />
+            {/* ── 02 THE SCALE SYSTEM ─────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="The Scale System" />
 
             <LectureP>
-                SQL (Structured Query Language) is the language you use to talk to relational databases. The same syntax works across SQLite, PostgreSQL, MySQL, and most others with minor variations. Learn it once, use it everywhere.
+                Tailwind uses a consistent numeric scale for spacing, sizing, and more. The base unit is <strong className="text-foreground">4px</strong>, so <code className={CODE_INLINE}>1 = 4px</code>, <code className={CODE_INLINE}>2 = 8px</code>, <code className={CODE_INLINE}>4 = 16px</code>, <code className={CODE_INLINE}>8 = 32px</code>, and so on. This gives your UI inherent visual consistency — everything aligns to the same grid.
             </LectureP>
 
-            <LectureSubHeading title="Creating tables" />
+            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                    { category: 'Spacing (padding / margin)', classes: ['p-1 (4px)', 'p-2 (8px)', 'p-4 (16px)', 'p-8 (32px)', 'p-16 (64px)'], prefix: 'p- / m- / gap-' },
+                    { category: 'Font size', classes: ['text-xs', 'text-sm', 'text-base', 'text-lg', 'text-xl', 'text-2xl'], prefix: 'text-' },
+                    { category: 'Border radius', classes: ['rounded-sm', 'rounded', 'rounded-md', 'rounded-lg', 'rounded-xl', 'rounded-full'], prefix: 'rounded-' },
+                    { category: 'Font weight', classes: ['font-normal', 'font-medium', 'font-semibold', 'font-bold', 'font-black'], prefix: 'font-' },
+                ].map((group) => (
+                    <div key={group.category} className="rounded-lg border border-border bg-card p-4">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">{group.category}</p>
+                        <p className="text-xs text-orange-600 dark:text-orange-400 font-mono mb-2">{group.prefix}</p>
+                        <div className="flex flex-wrap gap-1.5">
+                            {group.classes.map((cls) => (
+                                <code key={cls} className="text-xs bg-muted px-1.5 py-0.5 rounded text-foreground select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+                                    {cls}
+                                </code>
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
-            <SqlBlock
-                title="DDL — defining the schema"
-                lines={[
-                    { comment: 'CREATE TABLE defines the structure. Run once when setting up.', sql: '' },
-                    { sql: 'CREATE TABLE users (' },
-                    { sql: '    id         INTEGER PRIMARY KEY AUTOINCREMENT,' },
-                    { sql: '    name       TEXT    NOT NULL,' },
-                    { sql: '    email      TEXT    NOT NULL UNIQUE,' },
-                    { sql: '    created_at TEXT    NOT NULL DEFAULT (datetime(\'now\'))' },
-                    { sql: ');' },
-                    { sql: '' },
-                    { sql: 'CREATE TABLE notes (' },
-                    { sql: '    id         INTEGER PRIMARY KEY AUTOINCREMENT,' },
-                    { sql: '    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,' },
-                    { sql: '    title      TEXT    NOT NULL,' },
-                    { sql: '    content    TEXT    NOT NULL,' },
-                    { sql: '    created_at TEXT    NOT NULL DEFAULT (datetime(\'now\'))' },
-                    { sql: ');' },
-                ]}
-            />
-
-            <LectureSubHeading title="Reading data — SELECT" />
-
-            <SqlBlock
-                title="SELECT — the most important SQL statement"
-                lines={[
-                    { comment: 'Get everything from a table', sql: 'SELECT * FROM notes;' },
-                    { comment: 'Get specific columns', sql: 'SELECT id, title FROM notes;' },
-                    { comment: 'Filter with WHERE', sql: "SELECT * FROM notes WHERE user_id = 1;" },
-                    { comment: 'Multiple conditions', sql: "SELECT * FROM notes WHERE user_id = 1 AND title LIKE '%SQL%';" },
-                    { comment: 'Sort results', sql: 'SELECT * FROM notes ORDER BY created_at DESC;' },
-                    { comment: 'Limit results (pagination)', sql: 'SELECT * FROM notes ORDER BY created_at DESC LIMIT 10 OFFSET 20;' },
-                    { comment: 'Count rows', sql: 'SELECT COUNT(*) FROM notes WHERE user_id = 1;' },
-                ]}
-            />
-
-            <LectureSubHeading title="JOIN — combining tables" />
+            {/* ── 03 COLOR SYSTEM ─────────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="The Color System" />
 
             <LectureP>
-                A <LectureTerm>JOIN</LectureTerm> combines rows from two tables based on a related column. The most common kind is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">INNER JOIN</code> — it returns only rows where the join condition matches in both tables.
+                Tailwind ships with a comprehensive color palette. Every color has a name and a numeric shade from <code className={CODE_INLINE}>50</code> (near-white) to <code className={CODE_INLINE}>950</code> (near-black). Colors can be applied to text (<code className={CODE_INLINE}>text-</code>), backgrounds (<code className={CODE_INLINE}>bg-</code>), borders (<code className={CODE_INLINE}>border-</code>), and more.
             </LectureP>
 
-            <SqlBlock
-                title="JOIN — get notes with their author's name"
-                lines={[
-                    { sql: 'SELECT' },
-                    { sql: '    notes.id,' },
-                    { sql: '    notes.title,' },
-                    { sql: '    users.name AS author_name,' },
-                    { sql: '    notes.created_at' },
-                    { sql: 'FROM notes' },
-                    { sql: 'INNER JOIN users ON notes.user_id = users.id' },
-                    { sql: 'WHERE users.email = \'alice@msu.edu\'' },
-                    { sql: 'ORDER BY notes.created_at DESC;' },
-                ]}
-            />
-
-            <LectureSubHeading title="Writing data — INSERT, UPDATE, DELETE" />
-
-            <SqlBlock
-                title="DML — modifying data"
-                lines={[
-                    { comment: 'INSERT — add a new row', sql: "INSERT INTO notes (user_id, title, content) VALUES (1, 'New note', 'Hello SQL');" },
-                    { comment: 'UPDATE — modify existing rows (ALWAYS include WHERE or you update everything)', sql: "UPDATE notes SET title = 'Updated title' WHERE id = 3;" },
-                    { comment: 'DELETE — remove rows (ALWAYS include WHERE or you delete everything)', sql: 'DELETE FROM notes WHERE id = 3;' },
-                ]}
-            />
-
-            <LectureCallout type="warning">
-                Every <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">UPDATE</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DELETE</code> without a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">WHERE</code> clause affects every row in the table. This is the most common way to accidentally destroy production data. Before running any destructive query, run the equivalent <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">SELECT</code> first to see exactly which rows you're about to modify.
-            </LectureCallout>
-
-            {/* ── 03 GROUP BY AND AGGREGATES ──────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Aggregates & GROUP BY" />
+            <div className="my-6 rounded-xl border border-border overflow-hidden">
+                {PALETTE_COLORS.map((color) => (
+                    <div key={color} className="flex items-center border-b border-border last:border-b-0">
+                        <div className="w-20 px-3 py-2 text-xs font-mono text-muted-foreground shrink-0">{color}</div>
+                        <div className="flex flex-1">
+                            {SHADES.map((shade) => (
+                                <div
+                                    key={shade}
+                                    className="flex-1 h-8 min-w-0"
+                                    style={{ backgroundColor: TAILWIND_PALETTE[color][shade] }}
+                                    title={`${color}-${shade}`}
+                                />
+                            ))}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
             <LectureP>
-                Aggregate functions compute a single value from a set of rows. Combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">GROUP BY</code>, you can compute statistics per group — notes per user, revenue per product, signups per day.
+                For any color you want to apply, the formula is <code className={CODE_INLINE}>{'{property}-{color}-{shade}'}</code>. For example: <code className={CODE_INLINE}>text-blue-600</code>, <code className={CODE_INLINE}>bg-orange-100</code>, <code className={CODE_INLINE}>border-slate-200</code>. You can also add opacity with a slash: <code className={CODE_INLINE}>bg-blue-500/20</code> gives you blue at 20% opacity.
             </LectureP>
 
-            <SqlBlock
-                title="aggregates with GROUP BY"
-                lines={[
-                    { comment: 'Count notes per user', sql: 'SELECT user_id, COUNT(*) AS note_count' },
-                    { sql: 'FROM notes' },
-                    { sql: 'GROUP BY user_id' },
-                    { sql: 'ORDER BY note_count DESC;' },
-                    { comment: 'Only include users with more than 5 notes (HAVING filters groups, WHERE filters rows)', sql: 'SELECT user_id, COUNT(*) AS note_count' },
-                    { sql: 'FROM notes' },
-                    { sql: 'GROUP BY user_id' },
-                    { sql: 'HAVING COUNT(*) > 5;' },
-                ]}
-            />
-
-            {/* ── 04 SQLALCHEMY ───────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="SQLAlchemy — Python's Database Toolkit" />
+            {/* ── 04 LAYOUT: FLEXBOX AND GRID ─────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Layout: Flexbox & Grid" />
 
             <LectureP>
-                Writing raw SQL strings in Python works but gets messy fast — no type safety, no autocomplete, and SQL injection risk if you're not careful. <LectureTerm>SQLAlchemy</LectureTerm> is Python's most widely used database library. It can be used as a pure query builder (Core) or as a full <LectureTerm>ORM</LectureTerm> (Object Relational Mapper) that maps Python classes to database tables.
-            </LectureP>
-            <LectureP>
-                With the ORM, you define your tables as Python classes. SQLAlchemy translates operations on those classes into SQL. You interact with Python objects — SQLAlchemy handles the database communication.
+                The two layout systems you'll use for 95% of layouts in Tailwind are <LectureTerm>Flexbox</LectureTerm> and <LectureTerm>CSS Grid</LectureTerm>. Tailwind makes both extremely easy to work with.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    database.py — connection setup
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy </span><span className="text-blue-400">import </span><span className="text-zinc-400">create_engine</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">sessionmaker, DeclarativeBase</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># SQLite for development — just a file, zero config</span></p>
-                    <p><span className="text-sky-300">DATABASE_URL </span><span className="text-zinc-400">= </span><span className="text-amber-400">"sqlite:///./notes.db"</span></p>
-                    <p className="mt-1"><span className="text-zinc-500"># Switch to Postgres in production — only this line changes</span></p>
-                    <p><span className="text-zinc-500"># DATABASE_URL = "postgresql://user:pass@localhost/notesdb"</span></p>
-                    <p className="mt-2"><span className="text-sky-300">engine </span><span className="text-zinc-400">= create_engine(DATABASE_URL, connect_args={'{"check_same_thread": False'}{'}'})  </span><span className="text-zinc-500"># SQLite only</span></p>
-                    <p><span className="text-sky-300">SessionLocal </span><span className="text-zinc-400">= sessionmaker(autocommit=</span><span className="text-blue-400">False</span><span className="text-zinc-400">, autoflush=</span><span className="text-blue-400">False</span><span className="text-zinc-400">, bind=engine)</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">Base</span><span className="text-zinc-400">(DeclarativeBase): </span><span className="text-blue-400">pass</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Dependency — gives each request its own DB session, then closes it</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_db</span><span className="text-zinc-400">():</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db </span><span className="text-zinc-400">= SessionLocal()</span></p>
-                    <p className="pl-4"><span className="text-blue-400">try</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-blue-400">yield </span><span className="text-sky-300">db</span></p>
-                    <p className="pl-4"><span className="text-blue-400">finally</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-sky-300">db</span><span className="text-zinc-400">.close()</span></p>
-                </div>
+            <LectureSubHeading title="Flexbox" />
+
+            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <TailwindPreview
+                    label="flex items-center justify-between"
+                    className="flex items-center justify-between w-full bg-muted rounded p-3 text-xs font-mono"
+                    code="flex items-center justify-between"
+                />
+                <TailwindPreview
+                    label="flex flex-col gap-2"
+                    className="flex flex-col gap-2 text-xs font-mono"
+                    code="flex flex-col gap-2"
+                />
             </div>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
                 <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    models.py — SQLAlchemy ORM models
+                    common flexbox classes
                 </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy </span><span className="text-blue-400">import </span><span className="text-zinc-400">Integer, String, Boolean, ForeignKey, func</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">mapped_column, Mapped, relationship</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">.database </span><span className="text-blue-400">import </span><span className="text-zinc-400">Base</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">User</span><span className="text-zinc-400">(Base):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">__tablename__ </span><span className="text-zinc-400">= </span><span className="text-amber-400">"users"</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(Integer, primary_key=</span><span className="text-blue-400">True</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">name</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">email</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, unique=</span><span className="text-blue-400">True</span><span className="text-zinc-400">, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">notes</span><span className="text-zinc-400">: Mapped[list[</span><span className="text-emerald-400">"Note"</span><span className="text-zinc-400">]] = relationship(back_populates=</span><span className="text-amber-400">"author"</span><span className="text-zinc-400">)</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">Note</span><span className="text-zinc-400">(Base):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">__tablename__ </span><span className="text-zinc-400">= </span><span className="text-amber-400">"notes"</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(Integer, primary_key=</span><span className="text-blue-400">True</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">user_id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(ForeignKey(</span><span className="text-amber-400">"users.id"</span><span className="text-zinc-400">))</span></p>
-                    <p className="pl-4"><span className="text-sky-300">title</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">content</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">author</span><span className="text-zinc-400">: Mapped[</span><span className="text-emerald-400">"User"</span><span className="text-zinc-400">] = relationship(back_populates=</span><span className="text-amber-400">"notes"</span><span className="text-zinc-400">)</span></p>
+                <div className="bg-zinc-950 px-5 py-4 select-none">
+                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
+                        {[
+                            ['flex', 'enable flexbox'],
+                            ['flex-col', 'stack vertically'],
+                            ['items-center', 'align on cross axis'],
+                            ['justify-center', 'align on main axis'],
+                            ['justify-between', 'space between items'],
+                            ['gap-4', 'gap between items (16px)'],
+                            ['flex-1', 'grow to fill available space'],
+                            ['shrink-0', 'prevent shrinking'],
+                            ['flex-wrap', 'wrap to next line'],
+                            ['items-start', 'align to start of cross axis'],
+                        ].map(([cls, desc]) => (
+                            <div key={cls} className="flex gap-2">
+                                <code className="text-emerald-400 w-32 shrink-0">{cls}</code>
+                                <span className="text-zinc-500">{desc}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            {/* ── 05 FASTAPI + SQLALCHEMY ─────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Wiring FastAPI to SQLAlchemy" />
-
+            <LectureSubHeading title="Grid" />
             <LectureP>
-                FastAPI uses <LectureTerm>Depends</LectureTerm> to inject dependencies into route handlers. The database session is a perfect use case: each request gets its own session (from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code>), uses it, and the session is closed after the response is sent.
+                CSS Grid is perfect for two-dimensional layouts. Tailwind's grid utilities map directly to <code className={CODE_INLINE}>grid-template-columns</code> and related properties.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+            <div className="my-4 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
                 <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    main.py — full CRUD with SQLAlchemy
+                    grid classes
                 </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">fastapi </span><span className="text-blue-400">import </span><span className="text-zinc-400">FastAPI, Depends, HTTPException</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">Session</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">. </span><span className="text-blue-400">import </span><span className="text-zinc-400">models, schemas</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">.database </span><span className="text-blue-400">import </span><span className="text-zinc-400">engine, get_db</span></p>
-                    <p className="mt-2"><span className="text-sky-300">models</span><span className="text-zinc-400">.Base.metadata.create_all(bind=engine)  </span><span className="text-zinc-500"># create tables if they don't exist</span></p>
-                    <p><span className="text-sky-300">app </span><span className="text-zinc-400">= FastAPI()</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=list[schemas.NoteResponse])</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">db</span><span className="text-zinc-400">.query(models.Note).offset(skip).limit(limit).all()</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.post(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=schemas.NoteResponse, status_code=201)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">create_note</span><span className="text-zinc-400">(note: schemas.NoteCreate, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db_note </span><span className="text-zinc-400">= models.Note(**note.model_dump())</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.add(db_note)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.commit()</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.refresh(db_note)  </span><span className="text-zinc-500"># load the auto-generated id from DB</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">db_note</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.delete(</span><span className="text-amber-400">"/notes/{'{note_id}'}"</span><span className="text-zinc-400">, status_code=204)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">delete_note</span><span className="text-zinc-400">(note_id: int, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">note </span><span className="text-zinc-400">= db.query(models.Note).filter(models.Note.id == note_id).first()</span></p>
-                    <p className="pl-4"><span className="text-blue-400">if not </span><span className="text-sky-300">note</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-blue-400">raise </span><span className="text-zinc-400">HTTPException(status_code=404, detail=</span><span className="text-amber-400">"Note not found"</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.delete(note)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.commit()</span></p>
+                <div className="bg-zinc-950 px-5 py-4 select-none">
+                    <div className="space-y-2">
+                        {[
+                            ['grid grid-cols-3 gap-4', '3 equal columns with 16px gap'],
+                            ['grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3', 'responsive: 1→2→3 columns'],
+                            ['col-span-2', 'span 2 columns'],
+                            ['grid-cols-[1fr_2fr]', 'custom column widths (arbitrary value)'],
+                        ].map(([cls, desc]) => (
+                            <div key={cls} className="flex gap-3 flex-wrap">
+                                <code className="text-emerald-400">{cls}</code>
+                                <span className="text-zinc-500">— {desc}</span>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
-            <LectureP>
-                The <LectureCmd tip="Depends() — FastAPI's dependency injection system. Pass a function to Depends() and FastAPI will call it for you and inject the result as the parameter value. Used for database sessions, authentication, config, and any shared logic that routes need.">Depends(get_db)</LectureCmd> annotation is FastAPI's dependency injection system. FastAPI calls <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db()</code> before the handler runs, injects the session, and runs the generator's cleanup (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db.close()</code>) after the response is sent. You never manage session lifecycle manually.
-            </LectureP>
-
-            {/* ── 06 INDEXING ─────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Indexing — Making Queries Fast" />
+            {/* ── 05 RESPONSIVE DESIGN ────────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Responsive Design" />
 
             <LectureP>
-                Without an index, a database has to scan every row to find matching records — a <LectureTerm>full table scan</LectureTerm>. For a table with 1M rows, that's 1M comparisons per query. An <LectureTerm>index</LectureTerm> is a data structure (usually a B-tree) that lets the database jump directly to matching rows. The cost: more disk space and slightly slower writes. The benefit: reads that would take seconds become milliseconds.
+                Tailwind is <LectureTerm>mobile-first</LectureTerm>. Classes without a prefix apply to all screen sizes. Breakpoint prefixes (<code className={CODE_INLINE}>sm:</code>, <code className={CODE_INLINE}>md:</code>, <code className={CODE_INLINE}>lg:</code>) apply the style <em>only at that size and above</em>. You build the mobile layout first, then add overrides for larger screens.
             </LectureP>
 
-            <SqlBlock
-                title="indexing common query patterns"
-                lines={[
-                    { comment: "Add an index on any column you filter by frequently", sql: 'CREATE INDEX idx_notes_user_id ON notes(user_id);' },
-                    { comment: "Unique index — enforces uniqueness AND speeds up lookups", sql: 'CREATE UNIQUE INDEX idx_users_email ON users(email);' },
-                    { comment: "Composite index — useful when you always filter by both columns together", sql: 'CREATE INDEX idx_notes_user_created ON notes(user_id, created_at DESC);' },
-                    { comment: "Check if a query is using an index (SQLite)", sql: 'EXPLAIN QUERY PLAN SELECT * FROM notes WHERE user_id = 1;' },
-                ]}
-            />
+            <div className="my-6 rounded-xl border border-border bg-muted/30 p-5">
+                <div className="grid grid-cols-4 gap-2 text-xs font-mono text-center">
+                    {[
+                        { prefix: '(none)', min: '0px', label: 'All screens', color: 'text-foreground' },
+                        { prefix: 'sm:', min: '640px', label: 'Small+', color: 'text-blue-600 dark:text-blue-400' },
+                        { prefix: 'md:', min: '768px', label: 'Medium+', color: 'text-emerald-600 dark:text-emerald-400' },
+                        { prefix: 'lg:', min: '1024px', label: 'Large+', color: 'text-orange-600 dark:text-orange-400' },
+                    ].map((bp) => (
+                        <div key={bp.prefix} className="rounded-lg border border-border bg-card p-3">
+                            <code className={`font-bold ${bp.color}`}>{bp.prefix}</code>
+                            <p className="text-muted-foreground mt-1">{bp.min}</p>
+                            <p className="text-muted-foreground text-xs">{bp.label}</p>
+                        </div>
+                    ))}
+                </div>
+                <div className="mt-4 rounded-lg border border-zinc-700 bg-zinc-950 px-4 py-3 font-mono text-xs text-emerald-400 select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+                    {`<div class="grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">`}
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">1 column on mobile → 2 on small → 4 on large</p>
+            </div>
 
             <LectureCallout type="tip">
-                A good rule of thumb: index every foreign key column and every column that appears in a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">WHERE</code> clause in a frequently-run query. Don't index everything — each index adds overhead to inserts and updates.
+                Resize your browser window while building and check your layout at every breakpoint. Tailwind's breakpoints map closely to real device widths: <code className={CODE_INLINE}>sm</code> ≈ landscape phone, <code className={CODE_INLINE}>md</code> ≈ tablet, <code className={CODE_INLINE}>lg</code> ≈ laptop.
             </LectureCallout>
 
-            {/* ── 07 NORMALIZATION ────────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Normalization — Designing Good Schemas" />
+            {/* ── 06 STATE VARIANTS ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="State Variants" />
 
             <LectureP>
-                <LectureTerm>Normalization</LectureTerm> is the practice of organizing data to eliminate redundancy. The core idea: store each piece of information in exactly one place. If you need to update it, you update it once.
+                Tailwind can apply styles conditionally based on element state using <LectureTerm>variants</LectureTerm> — prefixes that correspond to CSS pseudo-classes. The pattern is the same as responsive prefixes: <code className={CODE_INLINE}>variant:class</code>.
             </LectureP>
 
-            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-border bg-rose-50 dark:bg-rose-950/20">
-                        <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">❌ Denormalized — data repeated</p>
-                    </div>
-                    <div className="p-4 font-mono text-xs space-y-1 text-muted-foreground">
-                        <p className="text-foreground font-semibold">notes table</p>
-                        <p>id, title, content</p>
-                        <p className="text-rose-500">author_name, author_email ← repeated for every note</p>
-                        <p className="mt-2 text-rose-400 text-xs">If Alice changes her email, you update every note she wrote.</p>
-                    </div>
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
+                    common state variants
                 </div>
-                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-border bg-emerald-50 dark:bg-emerald-950/20">
-                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">✅ Normalized — data stored once</p>
-                    </div>
-                    <div className="p-4 font-mono text-xs space-y-1 text-muted-foreground">
-                        <p className="text-foreground font-semibold">users</p>
-                        <p>id, name, email ← stored once</p>
-                        <p className="text-foreground font-semibold mt-2">notes</p>
-                        <p>id, user_id, title, content ← references users</p>
-                        <p className="mt-2 text-emerald-400 text-xs">Update email in one place. All notes reflect it automatically.</p>
+                <div className="bg-zinc-950 px-5 py-4 select-none">
+                    <div className="space-y-2">
+                        {[
+                            ['hover:bg-blue-600', 'apply on mouse hover'],
+                            ['focus:ring-2 focus:ring-blue-500', 'apply when element is focused'],
+                            ['active:scale-95', 'apply while being clicked'],
+                            ['disabled:opacity-50 disabled:cursor-not-allowed', 'apply when input/button is disabled'],
+                            ['dark:bg-zinc-900', 'apply in dark mode'],
+                            ['group-hover:text-blue-500', 'apply when a parent with "group" class is hovered'],
+                        ].map(([cls, desc]) => (
+                            <div key={cls} className="flex gap-3 flex-wrap items-start">
+                                <code className="text-emerald-400 shrink-0">{cls}</code>
+                                <span className="text-zinc-500">— {desc}</span>
+                            </div>
+                        ))}
                     </div>
                 </div>
             </div>
+
+            <LectureP>
+                The <LectureCmd tip="group in Tailwind: add 'group' to a parent element, then use 'group-hover:' on children to apply styles when the parent is hovered. Useful for cards where hovering the card changes the appearance of text inside it.">group</LectureCmd> pattern is particularly powerful for cards. Add <code className={CODE_INLINE}>group</code> to the card container, then use <code className={CODE_INLINE}>group-hover:</code> on any child elements you want to change when the card is hovered.
+            </LectureP>
+
+            {/* ── 07 DYNAMIC CLASSES IN REACT ─────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Dynamic Classes in React" />
+
+            <LectureP>
+                Combining Tailwind with React state lets you style components dynamically. The key rule: <strong className="text-foreground">always write complete class names</strong>. Don't try to construct them from fragments at runtime — Tailwind's build tool scans for complete class strings, and if it never sees <code className={CODE_INLINE}>text-red-500</code> written out fully, it won't include it in the output.
+            </LectureP>
+
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
+                    dynamic classes — right vs wrong
+                </div>
+                <div className="bg-zinc-950 px-5 py-4 space-y-4 select-none">
+                    <div>
+                        <p className="text-rose-400 mb-1">{`// ❌ Broken — Tailwind never sees the full class name`}</p>
+                        <p className="text-zinc-400">{`const color = isError ? 'red' : 'green'`}</p>
+                        <p className="text-zinc-400">{`<p className={\`text-\${color}-500\`}>`}</p>
+                    </div>
+                    <div>
+                        <p className="text-emerald-400 mb-1">{`// ✅ Correct — full class names are always present in source`}</p>
+                        <p className="text-zinc-400">{`<p className={isError ? 'text-red-500' : 'text-green-500'}>`}</p>
+                    </div>
+                    <div>
+                        <p className="text-emerald-400 mb-1">{`// ✅ Also correct — use cn() for complex conditional merging`}</p>
+                        <p className="text-zinc-400">{`import { cn } from '@/lib/utils'`}</p>
+                        <p className="text-zinc-400 mt-1">{`<button className={cn(`}</p>
+                        <p className="text-zinc-400 pl-4">{`'px-4 py-2 rounded font-medium',`}</p>
+                        <p className="text-zinc-400 pl-4">{`variant === 'primary' && 'bg-orange-500 text-white',`}</p>
+                        <p className="text-zinc-400 pl-4">{`variant === 'ghost' && 'bg-transparent hover:bg-muted',`}</p>
+                        <p className="text-zinc-400 pl-4">{`disabled && 'opacity-50 cursor-not-allowed'`}</p>
+                        <p className="text-zinc-400">{`)}>`}</p>
+                    </div>
+                </div>
+            </div>
+
+            <LectureP>
+                The <LectureCmd tip="cn() — a utility function from @/lib/utils that combines clsx (conditional class joining) and tailwind-merge (deduplication of conflicting Tailwind classes). The standard pattern for dynamic Tailwind classes in a React + shadcn project.">cn()</LectureCmd> function (from <code className={CODE_INLINE}>@/lib/utils</code>) is already in this project and is the standard way to handle dynamic classes. It merges class strings and intelligently resolves conflicts — so if you pass both <code className={CODE_INLINE}>px-4</code> and <code className={CODE_INLINE}>px-8</code>, <code className={CODE_INLINE}>px-8</code> wins.
+            </LectureP>
+
+            {/* ── 08 BUILDING A COMPONENT ─────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Putting It Together: A Task Card" />
+
+            <LectureP>
+                Here's what a fully styled task card looks like combining everything from this lecture. Study the class breakdown before the activity.
+            </LectureP>
+
+            <div className={CODE_BLOCK_ROOT}>
+                <div className={CODE_BLOCK_HEADER}>
+                    TaskCard.tsx — fully styled with Tailwind
+                </div>
+                <div className={CODE_BLOCK_BODY}>
+                    <p><span className="text-blue-400">interface </span><span className="text-emerald-400">TaskCardProps </span><span className="text-zinc-400">{'{ title: string; done: boolean; onToggle: () => void }'}</span></p>
+                    <p className="mt-2"><span className="text-blue-400">export function </span><span className="text-emerald-400">TaskCard</span><span className="text-zinc-400">{'({ title, done, onToggle }: TaskCardProps) {'}</span></p>
+                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-zinc-400">{'('}</span></p>
+                    <p className="pl-8"><span className="text-zinc-500">{`{/* card container */}`}</span></p>
+                    <p className="pl-8"><span className="text-emerald-300">{'<div'}</span><span className="text-sky-300"> className</span><span className="text-zinc-400">=</span><span className="text-amber-400">"group flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow"</span><span className="text-emerald-300">{'>'}</span></p>
+                    <p className="pl-12"><span className="text-zinc-500">{`{/* checkbox */}`}</span></p>
+                    <p className="pl-12"><span className="text-emerald-300">{'<button'}</span></p>
+                    <p className="pl-16"><span className="text-sky-300">onClick</span><span className="text-zinc-400">={'{onToggle}'}</span></p>
+                    <p className="pl-16"><span className="text-sky-300">className</span><span className="text-zinc-400">=</span><span className="text-amber-400">"w-5 h-5 rounded border-2 border-muted-foreground/30 shrink-0 flex items-center justify-center hover:border-orange-500 transition-colors"</span></p>
+                    <p className="pl-12"><span className="text-emerald-300">{'>'}</span></p>
+                    <p className="pl-16"><span className="text-zinc-400">{'{'}</span><span className="text-sky-300">done</span><span className="text-zinc-400"> && <span className="text-emerald-300">{'<Check'}</span><span className="text-sky-300"> className</span><span className="text-zinc-400">=</span><span className="text-amber-400">"h-3 w-3 text-orange-500"</span><span className="text-emerald-300"> {'/>'}</span>{'}'}</span></p>
+                    <p className="pl-12"><span className="text-emerald-300">{'</button>'}</span></p>
+                    <p className="pl-12"><span className="text-zinc-500">{`{/* title */}`}</span></p>
+                    <p className="pl-12"><span className="text-emerald-300">{'<p'}</span><span className="text-sky-300"> className</span><span className="text-zinc-400">={'{cn('}</span><span className="text-amber-400">'text-sm flex-1'</span><span className="text-zinc-400">, </span><span className="text-sky-300">done</span><span className="text-zinc-400"> && </span><span className="text-amber-400">'line-through text-muted-foreground'</span><span className="text-zinc-400">{')}'}</span><span className="text-emerald-300">{'>'}</span></p>
+                    <p className="pl-16"><span className="text-zinc-400">{'{'}</span><span className="text-sky-300">title</span><span className="text-zinc-400">{'}'}</span></p>
+                    <p className="pl-12"><span className="text-emerald-300">{'</p>'}</span></p>
+                    <p className="pl-8"><span className="text-emerald-300">{'</div>'}</span></p>
+                    <p className="pl-4"><span className="text-zinc-400">{')'}</span></p>
+                    <p><span className="text-zinc-400">{'}'}</span></p>
+                </div>
+            </div>
+
+            <LectureP>
+                Notice how each class is purposeful: <code className={CODE_INLINE}>group</code> enables child hover targeting, <code className={CODE_INLINE}>flex items-center gap-3</code> lays out the row, <code className={CODE_INLINE}>transition-shadow</code> makes the hover effect smooth, and <code className={CODE_INLINE}>cn()</code> handles the conditional strikethrough. No custom CSS written anywhere.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                Install the <strong className="text-foreground">Tailwind CSS IntelliSense</strong> extension in VS Code. It autocompletes class names, shows the underlying CSS on hover, and highlights invalid classes. It's effectively required for productive Tailwind development.
+            </LectureCallout>
+
+            {/* ── 09 CONNECTING TO YOUR API ────────────────────────────────────── */}
+            <LectureSectionHeading number="09" title="Connecting to Your API" />
+
+            <LectureP>
+                Your React app runs in the browser; your FastAPI backend runs on a server. To get data, the frontend sends an <LectureTerm>HTTP request</LectureTerm> (usually with <code className={CODE_INLINE}>fetch</code>) and the backend returns JSON. You trigger the request when the component mounts using <code className={CODE_INLINE}>useEffect</code>, store the result in <code className={CODE_INLINE}>useState</code>, and render it.
+            </LectureP>
+
+            <div className={CODE_BLOCK_ROOT}>
+                <div className={CODE_BLOCK_HEADER}>
+                    fetching data on mount
+                </div>
+                <div className={CODE_BLOCK_BODY}>
+                    <p><span className="text-blue-400">const </span><span className="text-zinc-400">[</span><span className="text-sky-300">tasks</span><span className="text-zinc-400">, </span><span className="text-sky-300">setTasks</span><span className="text-zinc-400">] = </span><span className="text-emerald-400">useState</span><span className="text-zinc-400">{'<Task[]>([])'}</span></p>
+                    <p><span className="text-blue-400">useEffect</span><span className="text-zinc-400">{'(() => {'}</span></p>
+                    <p className="pl-4"><span className="text-zinc-400">{'fetch('}</span><span className="text-amber-400">{"'http://localhost:8000/api/tasks'"}</span><span className="text-zinc-400">{')'}</span></p>
+                    <p className="pl-8"><span className="text-zinc-400">.then(res =&gt; res.json())</span></p>
+                    <p className="pl-8"><span className="text-zinc-400">.then(setTasks)</span></p>
+                    <p className="pl-4"><span className="text-zinc-400">{'}, [])'}</span></p>
+                </div>
+            </div>
+
+            <LectureCallout type="info">
+                If your API is on a different origin (e.g. frontend on <code className={CODE_INLINE}>localhost:5173</code>, backend on <code className={CODE_INLINE}>localhost:8000</code>), the browser enforces <LectureTerm>CORS</LectureTerm>. Your FastAPI app must send <code className={CODE_INLINE}>Access-Control-Allow-Origin</code> (e.g. via <code className={CODE_INLINE}>CORSMiddleware</code>). Otherwise the browser will block the response.
+            </LectureCallout>
+
+            <LectureCallout type="warning">
+                Never put API keys or secrets in frontend code. Anything in your React bundle can be read by anyone. Use environment variables (e.g. <code className={CODE_INLINE}>VITE_API_URL</code>) only for non-secret configuration like the base URL; sensitive operations must go through your backend.
+            </LectureCallout>
+
+            <LectureSubHeading title="Deploy your frontend" />
+            <LectureP>
+                When you're ready to ship, run <code className={CODE_INLINE}>npm run build</code>. Vite compiles and bundles your app into a <code className={CODE_INLINE}>dist/</code> folder of static files. Use <code className={CODE_INLINE}>VITE_API_URL</code> (and other <code className={CODE_INLINE}>VITE_*</code> env vars) for the production API base URL; Vite inlines them at build time. Services like Vercel or Netlify can deploy from your repo and run the build step in CI — we cover pipelines in Week 8.
+            </LectureP>
 
             <LectureFooterNav
                 prev={{
-                    label: 'FastAPI & Python Backends',
+                    label: 'React Components & Hooks',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
                 }}
                 next={{
-                    label: 'Build the Notes API',
+                    label: 'Build Your Frontend',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/activity'),
                 }}
             />

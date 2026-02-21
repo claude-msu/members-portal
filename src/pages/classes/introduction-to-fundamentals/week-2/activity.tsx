@@ -7,24 +7,24 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
-    LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week2Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={2}
                 session="Activity"
                 title="Project Kickoff"
                 description="This is where your project starts. Choose your domain, scaffold the repo, set up your GitHub Project board with issues for the next three weeks, and open your first PR."
-                icon={<GitBranch className="h-4 w-4 text-gray-600 dark:text-gray-400" />}
+                icon={<GitBranch className="h-4 w-4" />}
             />
 
             {/* ── 01 CHOOSE YOUR DOMAIN ───────────────────────────────────────── */}
@@ -67,7 +67,7 @@ export default function Week2Activity() {
                 title="Create the Repo"
                 description="Start with the foundation — a GitHub repo with a README."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create a new public GitHub repo named after your project domain (<span title="A naming convention where words are lowercase and separated by hyphens. Example: my-project-name. Common for repo names and URLs.">kebab-case</span>)</ActivityTask>
                     <ActivityTask>Clone it locally</ActivityTask>
                     <ActivityTask>Create a README.md with: project name, your chosen domain, and a 2–3 sentence description of what it will do when finished</ActivityTask>
@@ -80,7 +80,7 @@ export default function Week2Activity() {
                 title="Set Up Your Folder Structure"
                 description="Create the directories that will hold your backend and frontend code."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create two folders at the root: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code></ActivityTask>
                     <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> create a placeholder main.py with a single comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border"># Week 4 — FastAPI backend goes here</code></ActivityTask>
                     <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code> create a placeholder index.html with a comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;!-- Week 5 — React frontend goes here --&gt;</code></ActivityTask>
@@ -110,7 +110,7 @@ export default function Week2Activity() {
                 title="Create the Board"
                 description="Get your Kanban board ready to track work."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Go to your GitHub repo → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Projects</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">New Project</code></ActivityTask>
                     <ActivityTask>Choose the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Board</code> template (Kanban)</ActivityTask>
                     <ActivityTask>Name it after your project</ActivityTask>
@@ -127,7 +127,7 @@ export default function Week2Activity() {
                 title="Write Your Issues"
                 description="Create the three issues that will track your Weeks 3–5 work."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 1</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: containerize backend stub</code> — body: "Write a Dockerfile for the backend stub provided in Week 3. Mount a volume for data persistence. Verify the container runs."</ActivityTask>
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 2</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build FastAPI backend</code> — body: "Implement the FastAPI backend with 3+ endpoints, SQLite storage, and a Redis caching layer running via Docker Compose."</ActivityTask>
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 3</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build React frontend</code> — body: "Build the React + Tailwind frontend with 3+ views connected to the live API."</ActivityTask>
@@ -147,7 +147,7 @@ export default function Week2Activity() {
                 title="Branch, Push, and PR"
                 description="Practice the Git workflow you'll use for every feature."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Create a new branch: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git checkout -b feat/project-scaffold</code></ActivityTask>
                     <ActivityTask>Make one small change (add your name to the README)</ActivityTask>
                     <ActivityTask>Commit: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git add . && git commit -m "chore: add my name to README"</code></ActivityTask>
@@ -166,7 +166,7 @@ export default function Week2Activity() {
                 title="Verify Your Setup"
                 description="Confirm everything is in place."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Confirm your GitHub Project board shows 3 issues in Backlog</ActivityTask>
                     <ActivityTask>Confirm your PR is open against <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
                     <ActivityTask>Confirm your repo has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder</ActivityTask>
@@ -184,6 +184,7 @@ export default function Week2Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

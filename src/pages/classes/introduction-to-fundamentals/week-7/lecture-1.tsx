@@ -75,7 +75,7 @@ export default function Week7Lecture1() {
                 session="Lecture 1"
                 title="Trees, Stacks & Queues"
                 description="Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take."
-                icon={<Binary className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
+                icon={<Binary className="h-4 w-4" />}
             />
 
             {/* ── 01 THE CALL STACK IS A STACK ────────────────────────────────── */}
@@ -358,11 +358,11 @@ export default function Week7Lecture1() {
 
             <LectureFooterNav
                 prev={{
-                    label: 'Library Management System',
+                    label: 'CLI Phonebook — Part 1',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
                 }}
                 next={{
-                    label: 'OOP in Practice — C++ Project',
+                    label: 'Hash Maps, Complexity & Interview Patterns',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
                 }}
             />

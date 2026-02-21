@@ -7,24 +7,23 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask } from '@/components/ui/activity-task';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
-    LectureP,
-    LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week5Activity() {
     const navigate = useNavigate();
 
     return (
-        <LectureLayout>
-            <LectureHeader
+        <ActivityTaskListProvider>
+            <LectureLayout>
+                <LectureHeader
                 week={5}
                 session="Activity"
                 title="Build Your Frontend"
                 description="Your API is live. Now build the interface — React components, Tailwind styling, and real data flowing from your backend. By the end of this session you have a complete full-stack app you built from scratch."
-                icon={<Globe className="h-4 w-4 text-violet-600 dark:text-violet-400" />}
+                icon={<Globe className="h-4 w-4" />}
             />
 
             <LectureCallout type="info">
@@ -39,7 +38,7 @@ export default function Week5Activity() {
                 title="Vite + React + Tailwind"
                 description="Set up the modern React development environment."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Navigate to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder</ActivityTask>
                     <ActivityTask>Delete the placeholder <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">index.html</code></ActivityTask>
                     <ActivityTask>Run: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm create vite@latest . -- --template react-ts</code></ActivityTask>
@@ -94,7 +93,7 @@ export default function Week5Activity() {
                 title="Set Up React Router"
                 description="Create navigation between your views."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Install React Router: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install react-router-dom</code></ActivityTask>
                     <ActivityTask>Wrap your app in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BrowserRouter</code></ActivityTask>
                     <ActivityTask>Define at least 3 routes</ActivityTask>
@@ -111,7 +110,7 @@ export default function Week5Activity() {
                 title="Fetch Real Data"
                 description="Build your primary list view with live API data."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>In your primary list view, fetch data from your backend using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useEffect</code> and store it in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useState</code></ActivityTask>
                     <ActivityTask>Show a loading state (a simple "Loading..." text is fine) while the fetch is in progress</ActivityTask>
                     <ActivityTask>Show an error message if the fetch fails</ActivityTask>
@@ -128,7 +127,7 @@ export default function Week5Activity() {
                 title="Build the Remaining Views"
                 description="Implement your remaining 2+ views with full styling."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Implement your remaining 2+ views</ActivityTask>
                     <ActivityTask>Each must fetch from or post to your API</ActivityTask>
                     <ActivityTask>Style everything with Tailwind — pay attention to spacing, color, and responsive layout</ActivityTask>
@@ -143,7 +142,7 @@ export default function Week5Activity() {
                 title="End-to-End Test"
                 description="Verify the full stack works together."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>With <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> running in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm run dev</code> running in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder:</ActivityTask>
                     <ActivityTask>Create a new resource through your UI</ActivityTask>
                     <ActivityTask>Verify it appears in the list</ActivityTask>
@@ -156,7 +155,7 @@ export default function Week5Activity() {
                 title="PR and Board Update"
                 description="Finalize and ship Issue #3."
             >
-                <div className="mt-4 space-y-1">
+                <div className="space-y-1">
                     <ActivityTask>Commit everything</ActivityTask>
                     <ActivityTask>Push</ActivityTask>
                     <ActivityTask>Open a PR that closes Issue #3 from your GitHub Project board</ActivityTask>
@@ -176,6 +175,7 @@ export default function Week5Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
                 }}
             />
-        </LectureLayout>
+            </LectureLayout>
+        </ActivityTaskListProvider>
     );
 }

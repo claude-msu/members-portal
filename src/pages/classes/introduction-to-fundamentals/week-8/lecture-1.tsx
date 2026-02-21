@@ -166,7 +166,7 @@ export default function Week8Lecture1() {
                 session="Lecture 1"
                 title="Scrum, Kanban & Sprint Cycles"
                 description="The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives."
-                icon={<Workflow className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
+                icon={<Workflow className="h-4 w-4" />}
             />
 
             {/* ── 01 WHY AGILE ────────────────────────────────────────────────── */}
@@ -402,7 +402,7 @@ export default function Week8Lecture1() {
 
             <LectureFooterNav
                 prev={{
-                    label: 'Library Management System',
+                    label: 'CLI Phonebook — Part 2',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/activity'),
                 }}
                 next={{
