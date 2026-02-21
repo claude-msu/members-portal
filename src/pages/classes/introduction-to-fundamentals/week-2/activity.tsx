@@ -11,7 +11,6 @@ import { ActivityTask } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
-    LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week2Activity() {
