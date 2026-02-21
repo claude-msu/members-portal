@@ -20,10 +20,19 @@ import ApplicationViewerPage from "@/pages/applications/ApplicationViewer";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useEffect } from "react";
+
+// Class imports
 import IntroductionToFundamentals from "./pages/classes/introduction-to-fundamentals";
 import Week1Lecture1 from "./pages/classes/introduction-to-fundamentals/week-1/lecture-1";
 import Week1Lecture2 from "./pages/classes/introduction-to-fundamentals/week-1/lecture-2";
 import Week1Activity from "./pages/classes/introduction-to-fundamentals/week-1/activity";
+import Week2Lecture1 from "./pages/classes/introduction-to-fundamentals/week-2/lecture-1";
+import Week2Lecture2 from "./pages/classes/introduction-to-fundamentals/week-2/lecture-2";
+import Week2Activity from "./pages/classes/introduction-to-fundamentals/week-2/activity";
+import Week3Lecture1 from "./pages/classes/introduction-to-fundamentals/week-3/lecture-1";
+import Week3Lecture2 from "./pages/classes/introduction-to-fundamentals/week-3/lecture-2";
+import Week3Activity from "./pages/classes/introduction-to-fundamentals/week-3/activity";
+import React from "react";
 
 const queryClient = new QueryClient();
 
@@ -233,32 +242,56 @@ const App = () => (
                 }
               />
 
-              <Route
-                path="/classes/introduction-to-fundamentals/week-1/lecture-1"
-                element={
-                  <ProtectedRoute>
-                    <Week1Lecture1 />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/classes/introduction-to-fundamentals/week-1/lecture-2"
-                element={
-                  <ProtectedRoute>
-                    <Week1Lecture2 />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/classes/introduction-to-fundamentals/week-1/activity"
-                element={
-                  <ProtectedRoute>
-                    <Week1Activity />
-                  </ProtectedRoute>
-                }
-              />
+              {/* Weeks 1–3 of Introduction to Fundamentals, lectures and activities */}
+              {[
+                {
+                  week: 1,
+                  lectures: [
+                    { path: "lecture-1", component: Week1Lecture1 },
+                    { path: "lecture-2", component: Week1Lecture2 },
+                  ],
+                  activity: { component: Week1Activity },
+                },
+                {
+                  week: 2,
+                  lectures: [
+                    { path: "lecture-1", component: Week2Lecture1 },
+                    { path: "lecture-2", component: Week2Lecture2 },
+                  ],
+                  activity: { component: Week2Activity },
+                },
+                {
+                  week: 3,
+                  lectures: [
+                    { path: "lecture-1", component: Week3Lecture1 },
+                    { path: "lecture-2", component: Week3Lecture2 },
+                  ],
+                  activity: { component: Week3Activity },
+                },
+              ].map(({ week, lectures, activity }) => (
+                <React.Fragment key={week}>
+                  {lectures.map(({ path, component: Component }) => (
+                    <Route
+                      key={`week${week}-${path}`}
+                      path={`/classes/introduction-to-fundamentals/week-${week}/${path}`}
+                      element={
+                        <ProtectedRoute>
+                          <Component />
+                        </ProtectedRoute>
+                      }
+                    />
+                  ))}
+                  <Route
+                    key={`week${week}-activity`}
+                    path={`/classes/introduction-to-fundamentals/week-${week}/activity`}
+                    element={
+                      <ProtectedRoute>
+                        <activity.component />
+                      </ProtectedRoute>
+                    }
+                  />
+                </React.Fragment>
+              ))}
 
               {/* Redirects from legacy /dashboard/${page} routes to new /${page} routes */}
               <Route path="/dashboard/applications" element={<Navigate to="/applications" replace />} />

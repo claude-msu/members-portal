@@ -625,7 +625,7 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
 export default function IntroductionToFundamentals() {
-    const [openWeeks, setOpenWeeks] = useState<Set<number>>(new Set([1]));
+    const [openWeeks, setOpenWeeks] = useState<Set<number>>(new Set());
 
     const toggleWeek = (n: number) => {
         setOpenWeeks((prev) => {
