@@ -55,7 +55,7 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'Linux & The Command Line',
                 description:
-                    'Stop clicking. Start typing. Learn to navigate the filesystem, manipulate files, manage processes, and install software entirely from the terminal.',
+                    'Before you can build anything serious, you need to feel at home in the terminal. Every server, every container, every cloud environment — it\'s all Linux underneath. By the end of this lecture you\'ll navigate, manipulate files, manage processes, and install real software without touching a mouse.',
                 duration: '90 min',
                 slug: 'week-1/lecture-1',
                 tags: ['ls', 'grep', 'chmod', 'apt', 'brew'],
@@ -65,7 +65,7 @@ const WEEKS: Week[] = [
                 label: 'Lecture 2',
                 title: 'Version Control with Git',
                 description:
-                    'Never lose work again. Master commits, branches, merges, and rebases. Learn how teams collaborate on code without stepping on each other.',
+                    'You\'re already comfortable in the terminal. Now let\'s make sure your work is never lost, always collaborative, and completely traceable. Git is the foundation of every professional software team on the planet — and after this lecture, you\'ll understand not just how to use it, but why it works the way it does.',
                 duration: '90 min',
                 slug: 'week-1/lecture-2',
                 tags: ['git init', 'git commit', 'git push', 'branching'],
@@ -75,7 +75,7 @@ const WEEKS: Week[] = [
                 label: 'Activity',
                 title: 'The Git + Linux Gauntlet',
                 description:
-                    'A guided challenge series that puts both skills to the test. No hand-holding — you have the knowledge, now use it.',
+                    'Two lectures down. Now you prove it. This activity strings together everything from Lecture 1 and Lecture 2 into a set of increasingly difficult challenges. There are no walkthroughs here — you have the knowledge, now apply it. Hints are available if you get stuck, but try without them first.',
                 duration: '90 min',
                 slug: 'week-1/activity',
                 tags: ['merge conflicts', 'rebase', 'squash', 'process management'],
@@ -92,9 +92,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'Package Managers & Linux Deep Dive',
+                title: 'Package Managers',
                 description:
-                    'From apt to brew to npm — learn how software is installed, managed, and versioned across different environments.',
+                    'Every language, every platform, every operating system has one thing in common: a package manager. Understanding how they work — not just the commands, but the model underneath — is what separates developers who can set up any environment from developers who can only follow tutorials.',
                 duration: '90 min',
                 slug: 'week-2/lecture-1',
                 tags: ['apt', 'npm', 'pip', 'yum', 'nginx'],
@@ -102,9 +102,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Docker Fundamentals',
+                title: 'Docker & Containerization',
                 description:
-                    'Images, containers, layers, and caching. Build your first Dockerfile and understand why every modern team ships with Docker.',
+                    '\'It works on my machine\' is the most expensive sentence in software. Docker solves this by packaging your application and everything it needs — runtime, libraries, config — into a single portable unit that runs identically everywhere. This lecture covers the concepts, the commands, and the Dockerfile.',
                 duration: '90 min',
                 slug: 'week-2/lecture-2',
                 tags: ['Dockerfile', 'docker run', 'image layers', 'volumes'],
@@ -112,9 +112,9 @@ const WEEKS: Week[] = [
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Containerize a Web App',
+                title: 'The Containerization Challenge',
                 description:
-                    'Take a small Node app and package it into a fully portable Docker container. Then extend it with docker-compose for multi-service setups.',
+                    'Two lectures down. Now you take a real application from zero to fully containerized. By the end of this session you\'ll have a Node.js app and a PostgreSQL database running together in Docker, communicating over a Compose network, with data that survives container restarts.',
                 duration: '90 min',
                 slug: 'week-2/activity',
                 tags: ['docker-compose', 'networking', 'environment vars'],
@@ -133,7 +133,7 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'React Components & Hooks',
                 description:
-                    'The mental model that makes React click. Components, props, state, and the hook system that powers modern UIs.',
+                    'React is the most widely used frontend library in the world, and for good reason — it gives you a clean model for building UIs out of reusable pieces. This lecture covers the mental model, components, props, state, and the hooks you\'ll use every single day.',
                 duration: '90 min',
                 slug: 'week-3/lecture-1',
                 tags: ['useState', 'useEffect', 'props', 'JSX'],
@@ -141,9 +141,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Tailwind CSS & State Management',
+                title: 'Tailwind CSS',
                 description:
-                    'Utility-first styling that scales. Build responsive layouts fast and learn to lift state up as your component trees grow.',
+                    'Traditional CSS requires you to name things, context-switch between files, and mentally map class names to their styles. Tailwind eliminates all of that — you style directly in your markup with utility classes that do exactly one thing. Once it clicks, you\'ll never want to write traditional CSS again.',
                 duration: '90 min',
                 slug: 'week-3/lecture-2',
                 tags: ['flex', 'grid', 'responsive', 'lifting state'],
@@ -153,7 +153,7 @@ const WEEKS: Week[] = [
                 label: 'Activity',
                 title: 'Build the Task Tracker',
                 description:
-                    'A full CRUD app with localStorage persistence, Tailwind design, and optional Framer Motion animations. The classic project, done right.',
+                    'This is the first real project build of the course — a complete Task Tracker from scratch with React, TypeScript, and Tailwind. Full CRUD, localStorage persistence, and optional Framer Motion. By the end you\'ll have something fully functional and ready to deploy.',
                 duration: '90 min',
                 slug: 'week-3/activity',
                 tags: ['CRUD', 'localStorage', 'Framer Motion'],
@@ -172,7 +172,7 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'Advanced React Patterns',
                 description:
-                    'Custom hooks, context, and component composition. The patterns that separate junior from senior React developers.',
+                    'You know the fundamentals. Now the patterns that separate junior React developers from seniors: Context for global state, useReducer for complex state logic, performance optimization with memo and useCallback, and React Router for multi-page apps.',
                 duration: '90 min',
                 slug: 'week-4/lecture-1',
                 tags: ['useContext', 'custom hooks', 'composition'],
@@ -180,9 +180,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Hosting & Deployment',
+                title: 'Deployment & CI/CD',
                 description:
-                    'Get your app on the internet in under 10 minutes. Vercel, Netlify, environment variables, and CI/CD basics.',
+                    'Writing code is half the job. Getting it to users reliably and repeatedly is the other half. This lecture covers how modern teams deploy software: environment variables, Vercel\'s deployment model, GitHub Actions for automated pipelines, and what CI/CD actually means in practice.',
                 duration: '90 min',
                 slug: 'week-4/lecture-2',
                 tags: ['Vercel', 'Netlify', 'env vars', 'CI/CD'],
@@ -190,9 +190,9 @@ const WEEKS: Week[] = [
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Deploy the Task Tracker',
+                title: 'Upgrade the Task Tracker',
                 description:
-                    'Take last week\'s Task Tracker and ship it live. Configure environment variables, set up a custom domain, and watch your build pipeline run.',
+                    'You built the Task Tracker last week. Now you apply everything from Week 4 to make it production-grade: refactor state to useReducer, add Context so any component can access tasks, set up a CI pipeline that blocks bad code, and ship it with a custom domain.',
                 duration: '90 min',
                 slug: 'week-4/activity',
                 tags: ['deployment', 'domains', 'build pipeline'],
@@ -209,9 +209,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'FastAPI & RESTful APIs',
+                title: 'FastAPI & Python Backends',
                 description:
-                    'Python\'s fastest web framework. Routes, query params, request bodies, Pydantic models, and error handling.',
+                    'Every app eventually needs a server. Not because localStorage isn\'t enough — it is, for a while — but because real apps need authentication, shared state between users, persistent storage, and business logic that can\'t run in the browser. FastAPI is the fastest path from zero to a production-ready Python API.',
                 duration: '90 min',
                 slug: 'week-5/lecture-1',
                 tags: ['FastAPI', 'routes', 'Pydantic', 'OpenAPI'],
@@ -219,9 +219,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'SQL & Database Design',
+                title: 'SQL & Databases',
                 description:
-                    'Relational databases from the ground up. SELECT, JOIN, GROUP BY, normalization, and wiring SQLAlchemy to FastAPI.',
+                    'Every serious application stores data somewhere. Relational databases have been the dominant storage technology for 50 years for good reason — they\'re consistent, queryable, and battle-tested. This lecture covers the SQL you\'ll actually use, how to connect a database to FastAPI with SQLAlchemy, and when to reach for PostgreSQL vs. SQLite.',
                 duration: '90 min',
                 slug: 'week-5/lecture-2',
                 tags: ['SELECT', 'JOIN', 'SQLAlchemy', 'PostgreSQL'],
@@ -229,9 +229,9 @@ const WEEKS: Week[] = [
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Build a Notes API',
+                title: 'Build the Notes API',
                 description:
-                    'A full CRUD REST API with user authentication, persistent storage, and auto-generated docs. Test every endpoint with curl.',
+                    'Two lectures, one project: a fully functional Notes API with user management, CRUD operations, search, and persistent SQLite storage — all documented and testable through FastAPI\'s interactive docs. This is your first real backend.',
                 duration: '90 min',
                 slug: 'week-5/activity',
                 tags: ['authentication', 'CRUD', 'curl', 'Postman'],
@@ -248,9 +248,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'C++ & OOP Foundations',
+                title: 'Arrays, Linked Lists, Stacks & Queues',
                 description:
-                    'Why C++ for DSA? The mental model of compiled languages, classes, and the four pillars of object-oriented design.',
+                    'Data structures are the vocabulary of algorithms. Before you can solve problems efficiently, you need to know which structure fits which problem — and understand why, not just what to type. This lecture covers the four foundational structures in C++, their tradeoffs, and the problems they\'re built for.',
                 duration: '90 min',
                 slug: 'week-6/lecture-1',
                 tags: ['classes', 'encapsulation', 'inheritance', 'polymorphism'],
@@ -258,9 +258,9 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Arrays, Linked Lists & Hash Maps',
+                title: 'Trees, Hash Maps & Object-Oriented Programming',
                 description:
-                    'The bread and butter of technical interviews. Implement each structure, understand their tradeoffs, and solve real LeetCode problems.',
+                    'Trees are the most important non-linear structure in computer science — they show up in databases, compilers, file systems, and the DOM. OOP in C++ is where you learn to design software, not just write functions. This lecture covers binary trees, BSTs, the four OOP principles, and how to apply them to build a real system.',
                 duration: '90 min',
                 slug: 'week-6/lecture-2',
                 tags: ['arrays', 'linked lists', 'hash maps', 'time complexity'],
@@ -268,9 +268,9 @@ const WEEKS: Week[] = [
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'LeetCode Grind Session',
+                title: 'Library Management System',
                 description:
-                    'Work through 2-3 problems per category from the NeetCode 150. Arrays & Hashing, Two Pointers, and Stack. Race the clock.',
+                    'You\'ll build a complete Library Management System in C++ from scratch — using every concept from both lectures: abstract base classes, inheritance, polymorphism through virtual methods, and STL containers for catalog and loan tracking. Then you\'ll close out with a curated set of interview problems.',
                 duration: '90 min',
                 slug: 'week-6/activity',
                 tags: ['NeetCode', 'arrays', 'two pointers', 'stack'],
@@ -617,7 +617,7 @@ export default function IntroductionToFundamentals() {
     const collapseAll = () => setOpenWeeks(new Set());
 
     return (
-        <div className="max-w-4xl mx-auto px-4 py-8 space-y-8">
+        <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
 
             {/* ── Header ── */}
             <motion.div
@@ -644,7 +644,7 @@ export default function IntroductionToFundamentals() {
                         <h1 className="text-2xl font-bold tracking-tight text-foreground">
                             Introduction to Fundamentals
                         </h1>
-                        <p className="mt-1.5 text-sm text-muted-foreground max-w-xl leading-relaxed">
+                        <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
                             An 18-session journey from zero to full-stack. Terminal fluency, version control,
                             containers, React, backend APIs, algorithms, and agile — everything
                             you need to contribute to real projects.
@@ -683,7 +683,7 @@ export default function IntroductionToFundamentals() {
             </div>
 
             {/* ── Week Folders ── */}
-            <div className="space-y-3">
+            <div className="space-y-3 !mt-3">
                 {WEEKS.map((week, i) => (
                     <WeekFolder
                         key={week.number}

@@ -24,7 +24,6 @@ export default function Week2Lecture1() {
                 title="Package Managers"
                 description="Every language, every platform, every operating system has one thing in common: a package manager. Understanding how they work — not just the commands, but the model underneath — is what separates developers who can set up any environment from developers who can only follow tutorials."
                 icon={<Package className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 WHAT IS A PACKAGE ────────────────────────────────────────── */}

@@ -24,7 +24,6 @@ export default function Week2Activity() {
                 title="The Containerization Challenge"
                 description="Two lectures down. Now you take a real application from zero to fully containerized. By the end of this session you'll have a Node.js app and a PostgreSQL database running together in Docker, communicating over a Compose network, with data that survives container restarts."
                 icon={<Container className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             <LectureCallout type="info">

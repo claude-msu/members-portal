@@ -149,7 +149,6 @@ export default function Week1Lecture2() {
                 title="Version Control with Git"
                 description="You're already comfortable in the terminal. Now let's make sure your work is never lost, always collaborative, and completely traceable. Git is the foundation of every professional software team on the planet — and after this lecture, you'll understand not just how to use it, but why it works the way it does."
                 icon={<GitBranch className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 THE PROBLEM GIT SOLVES ───────────────────────────────────── */}

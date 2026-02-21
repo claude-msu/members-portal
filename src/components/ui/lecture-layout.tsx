@@ -34,7 +34,7 @@ export const LectureLayout = ({ children }: LectureLayoutProps) => (
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="max-w-3xl mx-auto px-4 py-8"
+            className="max-w-5xl mx-auto px-4 py-8"
         >
             {children}
         </motion.div>

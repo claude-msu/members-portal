@@ -78,7 +78,6 @@ export default function Week4Lecture1() {
                 title="Advanced React Patterns"
                 description="You know the fundamentals. Now the patterns that separate junior React developers from seniors: Context for global state, useReducer for complex state logic, performance optimization with memo and useCallback, and React Router for multi-page apps."
                 icon={<Zap className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 CONTEXT ──────────────────────────────────────────────────── */}

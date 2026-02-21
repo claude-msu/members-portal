@@ -50,7 +50,6 @@ export default function Week5Activity() {
                 title="Build the Notes API"
                 description="Two lectures, one project: a fully functional Notes API with user management, CRUD operations, search, and persistent SQLite storage — all documented and testable through FastAPI's interactive docs. This is your first real backend."
                 icon={<FileText className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             <LectureCallout type="info">

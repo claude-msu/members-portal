@@ -9,7 +9,14 @@
  *   LectureSubHeading      — H3 for subsections within a section
  *   LectureP               — body paragraph in muted text
  *   LectureTerm            — bold inline term highlight
+ *   LectureTermWithTip     — term with optional hover tooltip for extra detail
  */
+
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 // ─── Section Heading ──────────────────────────────────────────────────────────
 
@@ -27,7 +34,7 @@ interface LectureSectionHeadingProps {
 }
 
 export const LectureSectionHeading = ({ number, title }: LectureSectionHeadingProps) => (
-    <div className="flex items-start gap-4 my-6">
+    <div className="flex items-start gap-4 mt-8 mb-4 first:mt-6">
         <span className="text-xs font-bold text-muted-foreground mt-1.5 w-6 shrink-0 text-right select-none">
             {number}
         </span>
@@ -46,7 +53,7 @@ export const LectureSectionHeading = ({ number, title }: LectureSectionHeadingPr
  *   <LectureSubHeading title="Opening a terminal" />
  */
 export const LectureSubHeading = ({ title }: { title: string }) => (
-    <h3 className="text-base font-semibold text-foreground mt-10 mb-3">{title}</h3>
+    <h3 className="text-base font-semibold text-foreground mt-6 mb-3">{title}</h3>
 );
 
 // ─── Paragraph ───────────────────────────────────────────────────────────────
@@ -75,4 +82,33 @@ export const LectureP = ({ children }: { children: React.ReactNode }) => (
  */
 export const LectureTerm = ({ children }: { children: string }) => (
     <span className="font-semibold text-foreground">{children}</span>
+);
+
+// ─── Term with tooltip ────────────────────────────────────────────────────────
+
+/**
+ * Inline bold term with optional hover tooltip for extra explanation.
+ * Use to keep body copy short and put detail on demand.
+ *
+ * Usage:
+ *   <LectureTermWithTip tip="A program that takes typed commands and passes them to the OS.">
+ *     shell
+ *   </LectureTermWithTip>
+ */
+interface LectureTermWithTipProps {
+    children: string;
+    tip: string;
+}
+
+export const LectureTermWithTip = ({ children, tip }: LectureTermWithTipProps) => (
+    <Tooltip delayDuration={150}>
+        <TooltipTrigger asChild>
+            <span className="font-semibold text-foreground cursor-help border-b border-dotted border-muted-foreground/50 hover:border-foreground/50 transition-colors">
+                {children}
+            </span>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="max-w-xs text-xs leading-relaxed">
+            {tip}
+        </TooltipContent>
+    </Tooltip>
 );

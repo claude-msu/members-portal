@@ -45,7 +45,6 @@ export default function Week3Lecture2() {
                 title="Tailwind CSS"
                 description="Traditional CSS requires you to name things, context-switch between files, and mentally map class names to their styles. Tailwind eliminates all of that — you style directly in your markup with utility classes that do exactly one thing. Once it clicks, you'll never want to write traditional CSS again."
                 icon={<Paintbrush className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 THE UTILITY CLASS MODEL ──────────────────────────────────── */}

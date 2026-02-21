@@ -68,7 +68,6 @@ export default function Week3Lecture1() {
                 title="React Components & Hooks"
                 description="React is the most widely used frontend library in the world, and for good reason — it gives you a clean model for building UIs out of reusable pieces. This lecture covers the mental model, components, props, state, and the hooks you'll use every single day."
                 icon={<Layers className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 THE REACT MENTAL MODEL ───────────────────────────────────── */}

@@ -23,7 +23,6 @@ export default function Week4Activity() {
                 title="Upgrade the Task Tracker"
                 description="You built the Task Tracker last week. Now you apply everything from Week 4 to make it production-grade: refactor state to useReducer, add Context so any component can access tasks, set up a CI pipeline that blocks bad code, and ship it with a custom domain."
                 icon={<Rocket className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             <LectureCallout type="info">

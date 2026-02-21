@@ -46,9 +46,8 @@ export default function Week3Activity() {
                 week={3}
                 session="Activity"
                 title="Build the Task Tracker"
-                description="This is the first real project build of the course — not exercises, but a complete working application. You'll build a Task Tracker from scratch using React, TypeScript, and Tailwind. By the end of this session it should be fully functional, polished, and deployed."
+                description="This is the first real project build of the course — a complete Task Tracker from scratch with React, TypeScript, and Tailwind. Full CRUD, localStorage persistence, and optional Framer Motion. By the end you'll have something fully functional and ready to deploy."
                 icon={<CheckSquare className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             <LectureCallout type="info">

@@ -65,7 +65,7 @@ function highlightCpp(raw: string): string {
     // Use unique markers with special characters that won't appear in code
     const MARKER_PREFIX = '\u0001';
     const MARKER_SUFFIX = '\u0002';
-    
+
     // Strings (after escaping so quotes are still literal " chars)
     const stringMarkers: string[] = [];
     s = s.replace(/"([^"]*)"/g, (match) => {
@@ -200,7 +200,6 @@ export default function Week6Lecture2() {
                 title="Trees, Hash Maps & Object-Oriented Programming"
                 description="Trees are the most important non-linear structure in computer science — they show up in databases, compilers, file systems, and the DOM. OOP in C++ is where you learn to design software, not just write functions. This lecture covers binary trees, BSTs, the four OOP principles, and how to apply them to build a real system."
                 icon={<Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 BINARY TREES ─────────────────────────────────────────────── */}

@@ -60,7 +60,6 @@ export default function Week6Activity() {
                 title="Library Management System"
                 description="You'll build a complete Library Management System in C++ from scratch — using every concept from both lectures: abstract base classes, inheritance, polymorphism through virtual methods, and STL containers for catalog and loan tracking. Then you'll close out with a curated set of interview problems."
                 icon={<Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             <LectureCallout type="info">

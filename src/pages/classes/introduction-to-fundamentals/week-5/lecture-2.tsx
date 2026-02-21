@@ -98,7 +98,6 @@ export default function Week5Lecture2() {
                 title="SQL & Databases"
                 description="Every serious application stores data somewhere. Relational databases have been the dominant storage technology for 50 years for good reason — they're consistent, queryable, and battle-tested. This lecture covers the SQL you'll actually use, how to connect a database to FastAPI with SQLAlchemy, and when to reach for PostgreSQL vs. SQLite."
                 icon={<Database className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 RELATIONAL DATABASES ─────────────────────────────────────── */}

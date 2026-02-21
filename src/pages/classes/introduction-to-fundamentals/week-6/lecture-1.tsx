@@ -198,7 +198,6 @@ export default function Week6Lecture1() {
                 title="Arrays, Linked Lists, Stacks & Queues"
                 description="Data structures are the vocabulary of algorithms. Before you can solve problems efficiently, you need to know which structure fits which problem — and understand why, not just what to type. This lecture covers the four foundational structures in C++, their tradeoffs, and the problems they're built for."
                 icon={<Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 WHY C++ ──────────────────────────────────────────────────── */}

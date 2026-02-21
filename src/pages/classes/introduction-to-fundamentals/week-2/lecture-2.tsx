@@ -65,7 +65,6 @@ export default function Week2Lecture2() {
                 title="Docker & Containerization"
                 description="'It works on my machine' is the most expensive sentence in software. Docker solves this by packaging your application and everything it needs — runtime, libraries, config — into a single portable unit that runs identically everywhere. This lecture covers the concepts, the commands, and the Dockerfile."
                 icon={<Container className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 THE PROBLEM ──────────────────────────────────────────────── */}

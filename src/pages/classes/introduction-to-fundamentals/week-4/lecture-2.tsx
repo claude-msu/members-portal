@@ -55,7 +55,6 @@ export default function Week4Lecture2() {
                 title="Deployment & CI/CD"
                 description="Writing code is half the job. Getting it to users reliably and repeatedly is the other half. This lecture covers how modern teams deploy software: environment variables, Vercel's deployment model, GitHub Actions for automated pipelines, and what CI/CD actually means in practice."
                 icon={<Rocket className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             {/* ── 01 THE BUILD STEP ───────────────────────────────────────────── */}

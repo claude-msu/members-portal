@@ -25,7 +25,6 @@ export default function Week1Activity() {
                 title="The Git + Linux Gauntlet"
                 description="Two lectures down. Now you prove it. This activity strings together everything from Lecture 1 and Lecture 2 into a set of increasingly difficult challenges. There are no walkthroughs here — you have the knowledge, now apply it. Hints are available if you get stuck, but try without them first."
                 icon={<Zap className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
-                onBack={() => navigate('/classes/introduction-to-fundamentals')}
             />
 
             <LectureCallout type="info">
