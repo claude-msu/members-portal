@@ -3,20 +3,20 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
-import Index from "./pages/Index";
+import Index from "./pages/common/Index";
 import Auth from "./pages/Auth";
-import NotFound from "./pages/NotFound";
+import NotFound from "./pages/common/NotFound";
 import DashboardLayout from "@/components/DashboardLayout";
-import Dashboard from "./pages/dashboard/Dashboard";
-import Applications from "./pages/dashboard/Applications";
-import Events from "./pages/dashboard/Events";
-import Classes from "./pages/dashboard/Classes";
-import Projects from "./pages/dashboard/Projects";
-import Members from "./pages/dashboard/Members";
+import Dashboard from "./pages/Dashboard";
+import Applications from "./pages/applications/Applications";
+import Events from "./pages/events/Events";
+import Classes from "./pages/classes/Classes";
+import Projects from "./pages/Projects";
+import Members from "./pages/Members";
 import Profile from "./pages/Profile";
-import Prospects from "./pages/dashboard/Prospects";
-import Checkin from "./pages/CheckIn";
-import ApplicationViewerPage from "@/pages/ApplicationViewer";
+import Prospects from "./pages/Prospects";
+import Checkin from "./pages/events/CheckIn";
+import ApplicationViewerPage from "@/pages/applications/ApplicationViewer";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useEffect } from "react";
@@ -71,7 +71,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   // Check if user is truly new (profile never manually updated after initial creation)
   // We check if updated_at equals created_at, which means they never saved their profile
   const isNewUser = profile?.created_at && profile?.updated_at &&
-                    profile.created_at === profile.updated_at;
+    profile.created_at === profile.updated_at;
   const isOnProfilePage = window.location.pathname === '/profile';
 
   if (isNewUser && !isOnProfilePage) {
@@ -94,7 +94,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
     // Clear redirect if we've reached the intended destination
     if (currentPath === storedRedirect ||
-        window.location.pathname === new URL(storedRedirect, window.location.origin).pathname) {
+      window.location.pathname === new URL(storedRedirect, window.location.origin).pathname) {
       sessionStorage.removeItem('redirectAfterLogin');
     }
   }
@@ -129,7 +129,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/applications"
+                path="/applications"
                 element={
                   <ProtectedRoute>
                     <DashboardLayout>
@@ -139,7 +139,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/events"
+                path="/events"
                 element={
                   <ProtectedRoute>
                     <DashboardLayout>
@@ -149,7 +149,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/classes"
+                path="/classes"
                 element={
                   <ProtectedRoute>
                     <DashboardLayout>
@@ -159,7 +159,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/projects"
+                path="/projects"
                 element={
                   <ProtectedRoute>
                     <DashboardLayout>
@@ -169,7 +169,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/members"
+                path="/members"
                 element={
                   <ProtectedRoute>
                     <DashboardLayout>
@@ -189,7 +189,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/dashboard/prospects"
+                path="/prospects"
                 element={
                   <ProtectedRoute>
                     <DashboardLayout>
@@ -201,7 +201,7 @@ const App = () => (
 
               {/* Check-in Route - Requires authentication to track attendance */}
               <Route
-                path="/checkin/:token"
+                path="/events/checkin/:token"
                 element={
                   <ProtectedRoute>
                     <Checkin />
@@ -218,6 +218,15 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+
+              {/* Redirects from legacy /dashboard/${page} routes to new /${page} routes */}
+              <Route path="/dashboard/applications" element={<Navigate to="/applications" replace />} />
+              <Route path="/dashboard/events" element={<Navigate to="/events" replace />} />
+              <Route path="/dashboard/classes" element={<Navigate to="/classes" replace />} />
+              <Route path="/dashboard/projects" element={<Navigate to="/projects" replace />} />
+              <Route path="/dashboard/members" element={<Navigate to="/members" replace />} />
+              <Route path="/dashboard/profile" element={<Navigate to="/profile" replace />} />
+              <Route path="/dashboard/prospects" element={<Navigate to="/prospects" replace />} />
 
               {/* 404 - Must be last */}
               <Route path="*" element={<NotFound />} />

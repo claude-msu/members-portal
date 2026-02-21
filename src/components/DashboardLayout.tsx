@@ -126,16 +126,16 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
 const getMenuItems = (isBoardOrAbove: boolean): MenuItem[] => {
   const baseItems: MenuItem[] = [
     { title: 'Dashboard', url: '/dashboard', icon: LayoutDashboard },
-    { title: 'Events', url: '/dashboard/events', icon: Calendar },
-    { title: 'Classes', url: '/dashboard/classes', icon: BookOpen },
-    { title: 'Projects', url: '/dashboard/projects', icon: FolderKanban },
-    { title: 'Applications', url: '/dashboard/applications', icon: FileText },
-    { title: 'Members', url: '/dashboard/members', icon: Users },
+    { title: 'Events', url: '/events', icon: Calendar },
+    { title: 'Classes', url: '/classes', icon: BookOpen },
+    { title: 'Projects', url: '/projects', icon: FolderKanban },
+    { title: 'Applications', url: '/applications', icon: FileText },
+    { title: 'Members', url: '/members', icon: Users },
   ];
 
   // Board and E-board get Prospects page
   if (isBoardOrAbove) {
-    baseItems.push({ title: 'Prospects', url: '/dashboard/prospects', icon: UserPlus });
+    baseItems.push({ title: 'Prospects', url: '/prospects', icon: UserPlus });
   }
 
   return baseItems;

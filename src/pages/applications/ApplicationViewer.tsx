@@ -78,7 +78,7 @@ const ApplicationViewerPage = () => {
                     description: 'Application not found.',
                     variant: 'destructive',
                 });
-                navigate('/dashboard/applications');
+                navigate('/applications');
                 return;
             }
 
@@ -131,7 +131,7 @@ const ApplicationViewerPage = () => {
                 description: 'Failed to load application.',
                 variant: 'destructive',
             });
-            navigate('/dashboard/applications');
+            navigate('/applications');
         } finally {
             setLoading(false);
         }
@@ -169,7 +169,7 @@ const ApplicationViewerPage = () => {
             // Refresh applications data and navigate back after showing success
             setTimeout(async () => {
                 await refreshApplications();
-                navigate('/dashboard/applications');
+                navigate('/applications');
             }, 3000);
         } catch (error) {
             toast({
@@ -206,7 +206,7 @@ const ApplicationViewerPage = () => {
             // Refresh applications data and navigate back after showing rejection
             setTimeout(async () => {
                 await refreshApplications();
-                navigate('/dashboard/applications');
+                navigate('/applications');
             }, 3000);
         } catch (error) {
             toast({
@@ -428,7 +428,7 @@ const ApplicationViewerPage = () => {
         return (
             <div className="min-h-screen bg-background">
                 <div className="max-w-7xl mx-auto px-6 py-8">
-                    <Button variant="ghost" onClick={() => navigate('/dashboard/applications')} className="mb-6">
+                    <Button variant="ghost" onClick={() => navigate('/applications')} className="mb-6">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Applications
                     </Button>
@@ -447,7 +447,7 @@ const ApplicationViewerPage = () => {
             <div className="min-h-screen bg-background flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-2">Application Not Found</h1>
-                    <Button onClick={() => navigate('/dashboard/applications')}>
+                    <Button onClick={() => navigate('/applications')}>
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Applications
                     </Button>
@@ -566,7 +566,7 @@ const ApplicationViewerPage = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="mb-8"
                     >
-                        <Button variant="ghost" onClick={() => navigate('/dashboard/applications')} className="mb-6 hover:bg-primary">
+                        <Button variant="ghost" onClick={() => navigate('/applications')} className="mb-6 hover:bg-primary">
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Back to Applications
                         </Button>
