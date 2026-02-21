@@ -309,7 +309,7 @@ function CountdownInline() {
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <div className="w-8 h-7 rounded-md bg-muted border border-border flex items-center justify-center cursor-default">
-                                <span className="text-xs font-black font-mono text-primary tabular-nums">
+                                <span className="text-sm font-black font-mono text-primary tabular-nums">
                                     {String(unit.value).padStart(2, '0')}
                                 </span>
                             </div>
