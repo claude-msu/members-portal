@@ -10,6 +10,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
+import { CppBlock } from '@/components/ui/cpp-block';
 
 // ── BST diagram ───────────────────────────────────────────────────────────────
 const BstDiagram = () => (
@@ -40,151 +41,6 @@ const BstDiagram = () => (
         <div className="mt-4 space-y-1 text-muted-foreground">
             <p>Search 6: start at 8 → go left (6 &lt; 8) → reach 3 → go right (6 &gt; 3) → found. <span className="text-emerald-500">O(log n)</span></p>
             <p>In-order traversal (left → root → right): 1, 3, 6, 8, 10, 14 — always sorted.</p>
-        </div>
-    </div>
-);
-
-// ── C++ code block ────────────────────────────────────────────────────────────
-const KEYWORD_COLOR = '#60a5fa'; // blue-400
-const STRING_COLOR = '#fbbf24'; // amber-400
-const TYPE_COLOR = '#34d399'; // emerald-400
-const FUNCTION_COLOR = '#a78bfa'; // purple-400
-const OPERATOR_COLOR = '#f472b6'; // pink-400
-const NUMBER_COLOR = '#d4a574'; // warm sand (numbers)
-const BRACKET_COLOR = '#94a3b8'; // slate-400
-const COMMENT_COLOR = '#71717a'; // zinc-500
-const DEFAULT_COLOR = '#d4d4d8'; // zinc-300
-
-function highlightCpp(raw: string): string {
-    // Escape HTML entities first so angle-brackets in templates don't break markup
-    let s = raw
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-    // Use unique markers with special characters that won't appear in code
-    const MARKER_PREFIX = '\u0001';
-    const MARKER_SUFFIX = '\u0002';
-
-    // Strings (after escaping so quotes are still literal " chars)
-    const stringMarkers: string[] = [];
-    s = s.replace(/"([^"]*)"/g, (match) => {
-        const marker = `${MARKER_PREFIX}STR${stringMarkers.length}${MARKER_SUFFIX}`;
-        stringMarkers.push(match);
-        return marker;
-    });
-
-    // Numbers (integers and floats)
-    const numberMarkers: string[] = [];
-    s = s.replace(/\b(\d+\.?\d*)\b/g, (match) => {
-        const marker = `${MARKER_PREFIX}NUM${numberMarkers.length}${MARKER_SUFFIX}`;
-        numberMarkers.push(match);
-        return marker;
-    });
-
-    // Keywords (expanded list)
-    const keywordMarkers: string[] = [];
-    s = s.replace(
-        /\b(int|void|bool|string|auto|class|struct|public|private|protected|return|if|else|while|for|new|delete|nullptr|true|false|const|size_t|template|typename|virtual|override|using|namespace|include|char|double|float|long|short|unsigned|signed|static|extern|inline|explicit|friend|operator|this|throw|try|catch|enum|typedef|union|volatile|mutable|register|goto|break|continue|switch|case|default|do|static_cast|dynamic_cast|const_cast|reinterpret_cast)\b/g,
-        (match) => {
-            const marker = `${MARKER_PREFIX}KW${keywordMarkers.length}${MARKER_SUFFIX}`;
-            keywordMarkers.push(match);
-            return marker;
-        }
-    );
-
-    // Preprocessor directives
-    s = s.replace(/^(\s*#\w+)/gm, (match) => {
-        const marker = `${MARKER_PREFIX}KW${keywordMarkers.length}${MARKER_SUFFIX}`;
-        keywordMarkers.push(match);
-        return marker;
-    });
-
-    // PascalCase identifiers followed by < ( {  → treat as type/class names
-    const typeMarkers: string[] = [];
-    s = s.replace(/\b([A-Z][A-Za-z0-9]+)\b(?=\s*[&lt;({])/g, (match) => {
-        const marker = `${MARKER_PREFIX}TYP${typeMarkers.length}${MARKER_SUFFIX}`;
-        typeMarkers.push(match);
-        return marker;
-    });
-
-    // Function names: camelCase/lowercase identifiers followed by (
-    const functionMarkers: string[] = [];
-    s = s.replace(/\b([a-z][a-zA-Z0-9_]*)\s*(?=\()/g, (match) => {
-        const marker = `${MARKER_PREFIX}FN${functionMarkers.length}${MARKER_SUFFIX}`;
-        functionMarkers.push(match.trim());
-        return marker;
-    });
-
-    // Member access operators (-> and .)
-    const operatorMarkers: string[] = [];
-    s = s.replace(/(->|\.)/g, (match) => {
-        const marker = `${MARKER_PREFIX}OP${operatorMarkers.length}${MARKER_SUFFIX}`;
-        operatorMarkers.push(match);
-        return marker;
-    });
-
-    // Other operators (avoid matching HTML entities)
-    s = s.replace(/([+\-*/%=<>!&|^~?:]+)/g, (match) => {
-        // Skip HTML entities
-        if (match.includes('&') || match.includes(';')) return match;
-        const marker = `${MARKER_PREFIX}OP${operatorMarkers.length}${MARKER_SUFFIX}`;
-        operatorMarkers.push(match);
-        return marker;
-    });
-
-    // Parentheses, brackets, braces
-    const bracketMarkers: string[] = [];
-    s = s.replace(/([(){}[\]]+)/g, (match) => {
-        const marker = `${MARKER_PREFIX}BR${bracketMarkers.length}${MARKER_SUFFIX}`;
-        bracketMarkers.push(match);
-        return marker;
-    });
-
-    // Restore all markers with proper spans (in reverse order to avoid conflicts)
-    bracketMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}BR${i}${MARKER_SUFFIX}`, `<span style="color:${BRACKET_COLOR}">${val}</span>`);
-    });
-    operatorMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}OP${i}${MARKER_SUFFIX}`, `<span style="color:${OPERATOR_COLOR}">${val}</span>`);
-    });
-    functionMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}FN${i}${MARKER_SUFFIX}`, `<span style="color:${FUNCTION_COLOR}">${val}</span>`);
-    });
-    typeMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}TYP${i}${MARKER_SUFFIX}`, `<span style="color:${TYPE_COLOR}">${val}</span>`);
-    });
-    keywordMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}KW${i}${MARKER_SUFFIX}`, `<span style="color:${KEYWORD_COLOR}">${val}</span>`);
-    });
-    numberMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}NUM${i}${MARKER_SUFFIX}`, `<span style="color:${NUMBER_COLOR}">${val}</span>`);
-    });
-    stringMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}STR${i}${MARKER_SUFFIX}`, `<span style="color:${STRING_COLOR}">${val}</span>`);
-    });
-
-    return s;
-}
-
-const CppBlock = ({ title, lines }: { title: string; lines: string[] }) => (
-    <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">{title}</div>
-        <div
-            className="bg-zinc-950 px-5 py-4 space-y-0.5"
-            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-        >
-            {lines.map((line, i) =>
-                line.trimStart().startsWith('//') ? (
-                    <p key={i} style={{ color: COMMENT_COLOR, lineHeight: '1.6', whiteSpace: 'pre' }}>{line}</p>
-                ) : (
-                    <p
-                        key={i}
-                        style={{ color: DEFAULT_COLOR, lineHeight: '1.6', whiteSpace: 'pre' }}
-                        dangerouslySetInnerHTML={{ __html: highlightCpp(line) }}
-                    />
-                )
-            )}
         </div>
     </div>
 );
@@ -502,7 +358,7 @@ export default function Week6Lecture2() {
                     { step: '06', title: 'Test and trace', desc: 'Walk through your code with the given example. Then test at least one edge case. State the final time and space complexity.' },
                 ].map((item) => (
                     <div key={item.step} className="flex items-start gap-4 p-4 border-b border-border last:border-b-0">
-                        <span className="text-2xl font-black text-primary/15 shrink-0 select-none">{item.step}</span>
+                        <span className="text-2xl font-black text-primary/70 shrink-0 select-none">{item.step}</span>
                         <div>
                             <p className="text-sm font-semibold text-foreground">{item.title}</p>
                             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>

@@ -10,182 +10,8 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-
-// ── Complexity table ──────────────────────────────────────────────────────────
-const ComplexityTable = () => (
-    <div className="my-6 rounded-xl border border-border overflow-hidden">
-        <div className="grid grid-cols-5 bg-muted/50 border-b border-border text-xs font-semibold text-muted-foreground">
-            {['Structure', 'Access', 'Search', 'Insert', 'Delete'].map(h => (
-                <div key={h} className="px-3 py-2.5">{h}</div>
-            ))}
-        </div>
-        {[
-            { name: 'Array', access: 'O(1)', search: 'O(n)', insert: 'O(n)', del: 'O(n)', color: 'text-blue-600 dark:text-blue-400' },
-            { name: 'Linked List', access: 'O(n)', search: 'O(n)', insert: 'O(1)*', del: 'O(1)*', color: 'text-emerald-600 dark:text-emerald-400' },
-            { name: 'Stack', access: 'O(n)', search: 'O(n)', insert: 'O(1)', del: 'O(1)', color: 'text-orange-600 dark:text-orange-400' },
-            { name: 'Queue', access: 'O(n)', search: 'O(n)', insert: 'O(1)', del: 'O(1)', color: 'text-purple-600 dark:text-purple-400' },
-            { name: 'Hash Map', access: '—', search: 'O(1)**', insert: 'O(1)**', del: 'O(1)**', color: 'text-rose-600 dark:text-rose-400' },
-        ].map(row => (
-            <div key={row.name} className="grid grid-cols-5 border-b border-border last:border-b-0 text-xs">
-                <div className={`px-3 py-2.5 font-semibold ${row.color}`}>{row.name}</div>
-                {[row.access, row.search, row.insert, row.del].map((v, i) => (
-                    <div key={i} className={`px-3 py-2.5 font-mono ${v === 'O(1)' || v === 'O(1)*' || v === 'O(1)**' ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>{v}</div>
-                ))}
-            </div>
-        ))}
-        <div className="px-3 py-2 text-xs text-muted-foreground bg-muted/20">
-            * at head with pointer &nbsp;|&nbsp; ** average case, O(n) worst case with hash collisions
-        </div>
-    </div>
-);
-
-// ── C++ code block ────────────────────────────────────────────────────────────
-// Syntax highlight by injecting inline styles — never Tailwind classes,
-// which get purged at build time when only present in dynamic strings.
-const KEYWORD_COLOR = '#60a5fa'; // blue-400
-const STRING_COLOR = '#fbbf24'; // amber-400
-const TYPE_COLOR = '#34d399'; // emerald-400
-const FUNCTION_COLOR = '#a78bfa'; // purple-400
-const OPERATOR_COLOR = '#f472b6'; // pink-400
-const NUMBER_COLOR = '#d4a574'; // warm sand (numbers)
-const BRACKET_COLOR = '#94a3b8'; // slate-400
-const COMMENT_COLOR = '#71717a'; // zinc-500
-const DEFAULT_COLOR = '#d4d4d8'; // zinc-300
-
-function highlightCpp(raw: string): string {
-    // Escape HTML entities first so angle-brackets in templates don't break markup
-    let s = raw
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-    // Use unique markers with special characters that won't appear in code
-    const MARKER_PREFIX = '\u0001';
-    const MARKER_SUFFIX = '\u0002';
-
-    // Strings (after escaping so quotes are still literal " chars)
-    const stringMarkers: string[] = [];
-    s = s.replace(/"([^"]*)"/g, (match) => {
-        const marker = `${MARKER_PREFIX}STR${stringMarkers.length}${MARKER_SUFFIX}`;
-        stringMarkers.push(match);
-        return marker;
-    });
-
-    // Numbers (integers and floats)
-    const numberMarkers: string[] = [];
-    s = s.replace(/\b(\d+\.?\d*)\b/g, (match) => {
-        const marker = `${MARKER_PREFIX}NUM${numberMarkers.length}${MARKER_SUFFIX}`;
-        numberMarkers.push(match);
-        return marker;
-    });
-
-    // Keywords (expanded list)
-    const keywordMarkers: string[] = [];
-    s = s.replace(
-        /\b(int|void|bool|string|auto|class|struct|public|private|protected|return|if|else|while|for|new|delete|nullptr|true|false|const|size_t|template|typename|virtual|override|using|namespace|include|char|double|float|long|short|unsigned|signed|static|extern|inline|explicit|friend|operator|this|throw|try|catch|enum|typedef|union|volatile|mutable|register|goto|break|continue|switch|case|default|do|static_cast|dynamic_cast|const_cast|reinterpret_cast)\b/g,
-        (match) => {
-            const marker = `${MARKER_PREFIX}KW${keywordMarkers.length}${MARKER_SUFFIX}`;
-            keywordMarkers.push(match);
-            return marker;
-        }
-    );
-
-    // Preprocessor directives
-    s = s.replace(/^(\s*#\w+)/gm, (match) => {
-        const marker = `${MARKER_PREFIX}KW${keywordMarkers.length}${MARKER_SUFFIX}`;
-        keywordMarkers.push(match);
-        return marker;
-    });
-
-    // PascalCase identifiers followed by < ( {  → treat as type/class names
-    const typeMarkers: string[] = [];
-    s = s.replace(/\b([A-Z][A-Za-z0-9]+)\b(?=\s*[&lt;({])/g, (match) => {
-        const marker = `${MARKER_PREFIX}TYP${typeMarkers.length}${MARKER_SUFFIX}`;
-        typeMarkers.push(match);
-        return marker;
-    });
-
-    // Function names: camelCase/lowercase identifiers followed by (
-    const functionMarkers: string[] = [];
-    s = s.replace(/\b([a-z][a-zA-Z0-9_]*)\s*(?=\()/g, (match) => {
-        const marker = `${MARKER_PREFIX}FN${functionMarkers.length}${MARKER_SUFFIX}`;
-        functionMarkers.push(match.trim());
-        return marker;
-    });
-
-    // Member access operators (-> and .)
-    const operatorMarkers: string[] = [];
-    s = s.replace(/(->|\.)/g, (match) => {
-        const marker = `${MARKER_PREFIX}OP${operatorMarkers.length}${MARKER_SUFFIX}`;
-        operatorMarkers.push(match);
-        return marker;
-    });
-
-    // Other operators (avoid matching HTML entities)
-    s = s.replace(/([+\-*/%=<>!&|^~?:]+)/g, (match) => {
-        // Skip HTML entities
-        if (match.includes('&') || match.includes(';')) return match;
-        const marker = `${MARKER_PREFIX}OP${operatorMarkers.length}${MARKER_SUFFIX}`;
-        operatorMarkers.push(match);
-        return marker;
-    });
-
-    // Parentheses, brackets, braces
-    const bracketMarkers: string[] = [];
-    s = s.replace(/([(){}[\]]+)/g, (match) => {
-        const marker = `${MARKER_PREFIX}BR${bracketMarkers.length}${MARKER_SUFFIX}`;
-        bracketMarkers.push(match);
-        return marker;
-    });
-
-    // Restore all markers with proper spans (in reverse order to avoid conflicts)
-    bracketMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}BR${i}${MARKER_SUFFIX}`, `<span style="color:${BRACKET_COLOR}">${val}</span>`);
-    });
-    operatorMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}OP${i}${MARKER_SUFFIX}`, `<span style="color:${OPERATOR_COLOR}">${val}</span>`);
-    });
-    functionMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}FN${i}${MARKER_SUFFIX}`, `<span style="color:${FUNCTION_COLOR}">${val}</span>`);
-    });
-    typeMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}TYP${i}${MARKER_SUFFIX}`, `<span style="color:${TYPE_COLOR}">${val}</span>`);
-    });
-    keywordMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}KW${i}${MARKER_SUFFIX}`, `<span style="color:${KEYWORD_COLOR}">${val}</span>`);
-    });
-    numberMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}NUM${i}${MARKER_SUFFIX}`, `<span style="color:${NUMBER_COLOR}">${val}</span>`);
-    });
-    stringMarkers.forEach((val, i) => {
-        s = s.replace(`${MARKER_PREFIX}STR${i}${MARKER_SUFFIX}`, `<span style="color:${STRING_COLOR}">${val}</span>`);
-    });
-
-    return s;
-}
-
-const CppBlock = ({ title, lines }: { title: string; lines: string[] }) => (
-    <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">{title}</div>
-        <div
-            className="bg-zinc-950 px-5 py-4 space-y-0.5"
-            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-        >
-            {lines.map((line, i) =>
-                line.trimStart().startsWith('//') ? (
-                    // Comments — plain span, no further highlighting needed
-                    <p key={i} style={{ color: COMMENT_COLOR, lineHeight: '1.6', whiteSpace: 'pre' }}>{line}</p>
-                ) : (
-                    <p
-                        key={i}
-                        style={{ color: DEFAULT_COLOR, lineHeight: '1.6', whiteSpace: 'pre' }}
-                        dangerouslySetInnerHTML={{ __html: highlightCpp(line) }}
-                    />
-                )
-            )}
-        </div>
-    </div>
-);
+import { CppBlock } from '@/components/ui/cpp-block';
+import { DataTable } from '@/components/ui/data-table';
 
 export default function Week6Lecture1() {
     const navigate = useNavigate();
@@ -502,7 +328,53 @@ export default function Week6Lecture1() {
                 ]}
             />
 
-            <ComplexityTable />
+            <DataTable
+                columns={[
+                    { key: 'name', label: 'Structure' },
+                    { key: 'access', label: 'Access' },
+                    { key: 'search', label: 'Search' },
+                    { key: 'insert', label: 'Insert' },
+                    { key: 'delete', label: 'Delete' },
+                ]}
+                rows={[
+                    {
+                        name: <span className="font-semibold text-blue-600 dark:text-blue-400">Array</span>,
+                        access: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)</span>,
+                        search: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        insert: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        delete: <span className="font-mono text-muted-foreground">O(n)</span>,
+                    },
+                    {
+                        name: <span className="font-semibold text-emerald-600 dark:text-emerald-400">Linked List</span>,
+                        access: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        search: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        insert: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)*</span>,
+                        delete: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)*</span>,
+                    },
+                    {
+                        name: <span className="font-semibold text-orange-600 dark:text-orange-400">Stack</span>,
+                        access: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        search: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        insert: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)</span>,
+                        delete: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)</span>,
+                    },
+                    {
+                        name: <span className="font-semibold text-purple-600 dark:text-purple-400">Queue</span>,
+                        access: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        search: <span className="font-mono text-muted-foreground">O(n)</span>,
+                        insert: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)</span>,
+                        delete: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)</span>,
+                    },
+                    {
+                        name: <span className="font-semibold text-rose-600 dark:text-rose-400">Hash Map</span>,
+                        access: <span className="font-mono text-muted-foreground">—</span>,
+                        search: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)**</span>,
+                        insert: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)**</span>,
+                        delete: <span className="font-mono text-emerald-600 dark:text-emerald-400">O(1)**</span>,
+                    },
+                ]}
+                footer={<span>* at head with pointer &nbsp;|&nbsp; ** average case, O(n) worst case with hash collisions</span>}
+            />
 
             {/* ── 08 C++ ESSENTIALS ───────────────────────────────────────────── */}
             <LectureSectionHeading number="08" title="C++ Essentials for DSA" />

@@ -19,7 +19,7 @@ import Checkin from "./pages/events/CheckIn";
 import ApplicationViewerPage from "@/pages/applications/ApplicationViewer";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 // Class imports
 import IntroductionToFundamentals from "./pages/classes/introduction-to-fundamentals";
@@ -32,7 +32,6 @@ import Week2Activity from "./pages/classes/introduction-to-fundamentals/week-2/a
 import Week3Lecture1 from "./pages/classes/introduction-to-fundamentals/week-3/lecture-1";
 import Week3Lecture2 from "./pages/classes/introduction-to-fundamentals/week-3/lecture-2";
 import Week3Activity from "./pages/classes/introduction-to-fundamentals/week-3/activity";
-import React from "react";
 import Week4Lecture1 from "./pages/classes/introduction-to-fundamentals/week-4/lecture-1";
 import Week4Lecture2 from "./pages/classes/introduction-to-fundamentals/week-4/lecture-2";
 import Week4Activity from "./pages/classes/introduction-to-fundamentals/week-4/activity";
@@ -42,6 +41,12 @@ import Week5Activity from "./pages/classes/introduction-to-fundamentals/week-5/a
 import Week6Lecture1 from "./pages/classes/introduction-to-fundamentals/week-6/lecture-1";
 import Week6Lecture2 from "./pages/classes/introduction-to-fundamentals/week-6/lecture-2";
 import Week6Activity from "./pages/classes/introduction-to-fundamentals/week-6/activity";
+import Week7Lecture1 from "./pages/classes/introduction-to-fundamentals/week-7/lecture-1";
+import Week7Lecture2 from "./pages/classes/introduction-to-fundamentals/week-7/lecture-2";
+import Week7Activity from "./pages/classes/introduction-to-fundamentals/week-7/activity";
+import Week8Lecture1 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-1";
+import Week8Lecture2 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-2";
+import Week8Activity from "./pages/classes/introduction-to-fundamentals/week-8/activity";
 
 const queryClient = new QueryClient();
 
@@ -300,6 +305,22 @@ const App = () => (
                     { path: "lecture-2", component: Week6Lecture2 },
                   ],
                   activity: { component: Week6Activity },
+                },
+                {
+                  week: 7,
+                  lectures: [
+                    { path: "lecture-1", component: Week7Lecture1 },
+                    { path: "lecture-2", component: Week7Lecture2 },
+                  ],
+                  activity: { component: Week7Activity },
+                },
+                {
+                  week: 8,
+                  lectures: [
+                    { path: "lecture-1", component: Week8Lecture1 },
+                    { path: "lecture-2", component: Week8Lecture2 },
+                  ],
+                  activity: { component: Week8Activity },
                 },
               ].map(({ week, lectures, activity }) => (
                 <React.Fragment key={week}>
