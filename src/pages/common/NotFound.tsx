@@ -24,7 +24,7 @@ const NotFound = () => {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex flex-col sm:flex-row gap-16 justify-center">
+          <div className="flex flex-col sm:flex-row gap-2 justify-center">
             <Button
               size="lg"
               onClick={() => navigate(-1)}
@@ -36,8 +36,8 @@ const NotFound = () => {
             </Button>
             <Button
               size="lg"
-              onClick={() => navigate('/')}
-              className="gap-2 bg-orange-600 hover:bg-orange-700"
+              onClick={() => navigate('/dashboard')}
+              variant="default"
             >
               Go Home
               <Home className="h-5 w-5" />
