@@ -417,7 +417,7 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
         dot: 'bg-pink-400',
     },
     brown: {
-        bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+        bg: 'bg-yellow-50 dark:bg-yellow-900/30',
         text: 'text-yellow-800 dark:text-yellow-300',
         border: 'border-yellow-300 dark:border-yellow-700',
         badge: 'bg-yellow-200 text-yellow-900 dark:bg-yellow-900/60 dark:text-yellow-200',
