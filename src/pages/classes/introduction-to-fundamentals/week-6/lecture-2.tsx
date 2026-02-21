@@ -58,59 +58,12 @@ export default function Week6Lecture2() {
                 icon={<Cpu className="h-4 w-4" />}
             />
 
-            {/* ── 01 POLYMORPHISM & THE FOUR OOP PRINCIPLES ───────────────────── */}
-            <LectureSectionHeading number="01" title="Polymorphism & the Four OOP Principles" />
+            {/* ── 01 POLYMORPHISM — FROM LECTURE 1 TO HERE ────────────────────── */}
+            <LectureSectionHeading number="01" title="Polymorphism — From Lecture 1 to Here" />
 
             <LectureP>
-                Object-Oriented Programming organizes software around objects — data bundled with the functions that operate on it. C++ has full OOP support. These four principles are the vocabulary of software design interviews and the foundation of every large codebase you'll work in.
+                Lecture 1 introduced the four OOP principles: encapsulation, inheritance, polymorphism, and abstraction. This lecture focuses on <strong className="text-foreground">polymorphism</strong> in C++ — the same interface (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getType()</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code>) working for different types (Book, DVD, Magazine). We'll use virtual and pure virtual methods to build abstract base classes, then survey the STL and a problem-solving framework for interviews.
             </LectureP>
-
-            <div className="my-6 space-y-4">
-                {[
-                    {
-                        principle: 'Encapsulation',
-                        color: 'text-blue-600 dark:text-blue-400',
-                        border: 'border-blue-200 dark:border-blue-800',
-                        bg: 'bg-blue-50 dark:bg-blue-950/20',
-                        def: 'Bundle data and methods together. Hide internal state — expose only what users of the class need to know.',
-                        why: 'Prevents external code from putting an object into an invalid state. You control all mutations.',
-                    },
-                    {
-                        principle: 'Inheritance',
-                        color: 'text-emerald-600 dark:text-emerald-400',
-                        border: 'border-emerald-200 dark:border-emerald-800',
-                        bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-                        def: 'A derived class automatically gets the data and methods of its base class and can extend or override them.',
-                        why: 'Eliminates code duplication for related types. A Dog and Cat share Animal behavior without copying it.',
-                    },
-                    {
-                        principle: 'Polymorphism',
-                        color: 'text-orange-600 dark:text-orange-400',
-                        border: 'border-orange-200 dark:border-orange-800',
-                        bg: 'bg-orange-50 dark:bg-orange-950/20',
-                        def: 'The same interface works for different underlying types. Call speak() on any Animal — each concrete type responds differently.',
-                        why: 'Write code that works generically on a base type, and it automatically works for any derived type — without rewriting.',
-                    },
-                    {
-                        principle: 'Abstraction',
-                        color: 'text-purple-600 dark:text-purple-400',
-                        border: 'border-purple-200 dark:border-purple-800',
-                        bg: 'bg-purple-50 dark:bg-purple-950/20',
-                        def: 'Expose what a class does, hide how it does it. Users of std::vector don\'t know about dynamic array resizing — and shouldn\'t need to.',
-                        why: 'Reduces cognitive load. You can use a hash map without understanding hash functions. Good APIs are abstract.',
-                    },
-                ].map((item) => (
-                    <div key={item.principle} className={`rounded-xl border ${item.border} overflow-hidden`}>
-                        <div className={`px-4 py-2.5 ${item.bg}`}>
-                            <p className={`text-xs font-black uppercase tracking-widest ${item.color}`}>{item.principle}</p>
-                            <p className="text-xs text-foreground mt-1">{item.def}</p>
-                        </div>
-                        <div className="px-4 py-2.5">
-                            <p className="text-xs text-muted-foreground leading-relaxed"><span className="font-semibold text-foreground">Why it matters:</span> {item.why}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
 
             {/* ── 02 OOP IN C++ — VIRTUAL & PURE VIRTUAL ──────────────────────── */}
             <LectureSectionHeading number="02" title="OOP in C++ — Virtual & Pure Virtual" />
@@ -193,6 +146,11 @@ export default function Week6Lecture2() {
                 Always declare destructors <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> in base classes that have virtual methods. Without it, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> will only call the base destructor — the derived class's destructor won't run, leaking memory.
             </LectureCallout>
 
+            <LectureSubHeading title="Abstract base classes" />
+            <LectureP>
+                A <LectureTerm>pure virtual</LectureTerm> method is declared with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">= 0</code> and has no implementation in the base class. A class with at least one pure virtual method is <strong className="text-foreground">abstract</strong> — you cannot instantiate it (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem item;</code> is illegal). You can only create concrete derived types (Book, DVD) and use them through pointers or references to the base. Abstract base classes define a contract: "any LibraryItem must implement getLoanDays()." That's the essence of interface-based design in C++.
+            </LectureP>
+
             {/* ── 03 STL CONTAINERS ───────────────────────────────────────────── */}
             <LectureSectionHeading number="03" title="STL Containers — Your Toolbox" />
 
@@ -220,11 +178,92 @@ export default function Week6Lecture2() {
                 ))}
             </div>
 
-            {/* ── 04 SYSTEM DESIGN & SOLVING PROBLEMS ────────────────────────── */}
-            <LectureSectionHeading number="04" title="System Design & a Framework for Solving Problems" />
+            <LectureP>
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"map<K,V>"}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"set<T>"}</code> are implemented as balanced binary search trees (typically red-black). Understanding a BST makes O(log n) and &quot;keys always sorted&quot; intuitive:
+            </LectureP>
+            <BstDiagram />
+
+            <LectureSubHeading title="STL in action — a quick example" />
+            <LectureP>
+                Real code leans on the STL for iteration, sorting, and lookups. Here's a typical pattern: fill a vector, sort it, and use a map for counts or caching.
+            </LectureP>
+            <CppBlock
+                title="vector, sort, map — common STL usage"
+                lines={[
+                    '#include <vector>',
+                    '#include <algorithm>',
+                    '#include <map>',
+                    '#include <string>',
+                    'using namespace std;',
+                    '',
+                    'int main() {',
+                    '    vector<int> nums = {3, 1, 4, 1, 5};',
+                    '    sort(nums.begin(), nums.end());   // in-place: 1, 1, 3, 4, 5',
+                    '',
+                    '    map<string, int> count;            // keys sorted lexicographically',
+                    '    for (const auto& s : {"apple", "banana", "apple"}) {',
+                    '        count[s]++;                    // count["apple"] == 2, count["banana"] == 1',
+                    '    }',
+                    '',
+                    '    // Range-for over map: pairs (key, value)',
+                    '    for (const auto& [key, val] : count)',
+                    '        cout << key << ": " << val << endl;',
+                    '',
+                    '    return 0;',
+                    '}',
+                ]}
+            />
+
+            <LectureSubHeading title="Iterators — what begin() and end() are" />
+            <LectureP>
+                STL containers expose <strong className="text-foreground">iterators</strong>: objects that let you refer to an element and move to the next. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">v.begin()</code> points to the first element; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">v.end()</code> points one past the last (so a loop <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> covers every element). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sort(nums.begin(), nums.end())</code> takes two iterators and sorts that range. Range-for (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">for (const auto&amp; x : v)</code>) is syntactic sugar: it uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> under the hood. Many <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;algorithm&gt;</code> functions take iterator pairs to work on a range.
+            </LectureP>
+
+            <LectureSubHeading title="&lt;algorithm&gt; — functions you'll use every day" />
+            <LectureP>
+                Include <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">#include &lt;algorithm&gt;</code> and use: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sort(begin, end)</code> — in-place sort; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">find(begin, end, value)</code> — returns iterator to first match or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end</code>; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">count(begin, end, value)</code> — number of occurrences; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">lower_bound(begin, end, value)</code> — first position where value could be inserted (binary search on sorted range); <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_element(begin, end)</code> / <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">max_element(begin, end)</code> — iterator to min/max. All take half-open ranges <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[begin, end)</code>.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                <strong className="text-foreground">set vs unordered_set:</strong> Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set</code> when you need keys in sorted order or range queries; use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_set</code> when you only need O(1) membership and don't care about order. Same idea for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">map</code> vs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code>.
+            </LectureCallout>
+
+            {/* ── 04 TIME & SPACE COMPLEXITY — WHAT BIG-O MEANS IN PRACTICE ──── */}
+            <LectureSectionHeading number="04" title="Time & Space Complexity — What Big-O Means in Practice" />
+
+            <LectureP>
+                Interviewers expect you to state and justify complexity. Here's the cheat sheet: <strong className="text-foreground">O(1)</strong> — constant (hash lookup, array index). <strong className="text-foreground">O(log n)</strong> — logarithmic (binary search, balanced tree ops; doubles in size add one step). <strong className="text-foreground">O(n)</strong> — linear (one pass over input). <strong className="text-foreground">O(n log n)</strong> — linearithmic (e.g. comparison sort). <strong className="text-foreground">O(n²)</strong> — quadratic (nested loops over the same data). <strong className="text-foreground">O(2ⁿ)</strong> or <strong className="text-foreground">O(n!)</strong> — exponential or factorial (naive recursion; usually a signal to optimize with DP or pruning). For space, same notation applies to extra memory (e.g. a hash map of n elements is O(n) space).
+            </LectureP>
+
+            <LectureCallout type="info">
+                In interviews, say &quot;O of n squared&quot; and state both time and space. If you use a hash map of size n, that's O(n) space. If you sort in place, that's O(1) extra space (ignoring the sort's own stack/log n for recursion).
+            </LectureCallout>
+
+            <LectureSubHeading title="Rough rule of thumb: n = 10⁵" />
+            <LectureP>
+                In contest or interview problems, n is often 10⁵ or 10⁶. A rule of thumb: O(n²) does about 10¹⁰ operations for n = 10⁵, which is usually too slow in C++; O(n log n) is around 2×10⁶, which is fine. So if your brute force is O(n²), look for a linear pass with a hash map, or sort and use two pointers, or another structure that gets you to O(n) or O(n log n).
+            </LectureP>
+
+            <LectureSubHeading title="Recursion in 60 seconds" />
+            <LectureP>
+                A recursive function has a <strong className="text-foreground">base case</strong> (when to stop) and a <strong className="text-foreground">recurrence</strong> (how the result depends on smaller inputs). Example: Fibonacci, tree traversal, backtracking. Danger: no base case → infinite recursion; overlapping subproblems without memoization → exponential time. Many tree and graph problems are naturally recursive (DFS); if the same subproblem is solved many times, add memoization or switch to DP.
+            </LectureP>
+
+            <LectureSubHeading title="Trees and graphs — the big picture" />
+            <LectureP>
+                A <strong className="text-foreground">tree</strong> is a connected acyclic graph; we'll implement one in the Week 6 activity (library catalog). Traversal: in-order (left, root, right) gives sorted order in a BST; pre-order and post-order for expression trees or structure. A <strong className="text-foreground">graph</strong> has nodes and edges; represent with adjacency list (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<vector<int>>"}</code> or map of neighbors). <strong className="text-foreground">BFS</strong> (queue) gives shortest path in unweighted graphs and level order; <strong className="text-foreground">DFS</strong> (stack or recursion) for cycle detection, topological sort, exploring connected components. You'll practice these in the activity and in Week 7.
+            </LectureP>
+
+            {/* ── 05 SYSTEM DESIGN & A FRAMEWORK FOR SOLVING PROBLEMS ─────────── */}
+            <LectureSectionHeading number="05" title="System Design & a Framework for Solving Problems" />
 
             <LectureP>
                 Technical interviews aren't just about knowing the right algorithm — they're about demonstrating a systematic thinking process. Here's the framework that works:
+            </LectureP>
+
+            <LectureSubHeading title="Classic DSA patterns" />
+            <LectureP>
+                Most problems reduce to a few patterns. <strong className="text-foreground">Two pointers</strong> — two indices moving in one or opposite directions; great for sorted arrays (pair with sum, remove duplicates). <strong className="text-foreground">Sliding window</strong> — a contiguous subarray of fixed or variable size; for "longest substring with at most k distinct" or "max sum of k consecutive." <strong className="text-foreground">Hash map for lookups</strong> — store seen values or counts to turn O(n²) into O(n) (Two Sum, anagrams). <strong className="text-foreground">Stack</strong> — last-in-first-out for matching (parentheses, valid BST), DFS, or undo. <strong className="text-foreground">Queue / BFS</strong> — level-order, shortest path in unweighted graph. <strong className="text-foreground">Binary search</strong> — not just on arrays; binary search on the answer when you have a monotonic condition. <strong className="text-foreground">Recursion + memo / DP</strong> — overlapping subproblems; define state, recurrence, base case. Spotting the pattern is half the battle.
             </LectureP>
 
             <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden">
@@ -245,6 +284,21 @@ export default function Week6Lecture2() {
                     </div>
                 ))}
             </div>
+
+            <LectureSubHeading title="Example: clarifying Two Sum" />
+            <LectureP>
+                &quot;Given an array of integers and a target, return indices of two numbers that add up to target.&quot; Before coding, clarify: Can the same element be used twice? (Usually no.) Is the array sorted? (If yes, two pointers; if no, hash map.) Are there multiple valid pairs? (Return any one.) What if there's no solution? (Return empty or throw.) Can there be duplicates? (Hash map still works — store index and overwrite or check before.) Stating these shows you think about edge cases and constraints.
+            </LectureP>
+
+            <LectureSubHeading title="Worked example: Valid Parentheses" />
+            <LectureP>
+                Problem: given a string of brackets <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">()[]{}</code>, determine if they're balanced. <strong className="text-foreground">(1) Understand:</strong> Only brackets; empty string is valid. <strong className="text-foreground">(2) Example:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"([])"</code> → push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">(</code>, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[</code>, see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">]</code> pop and match. <strong className="text-foreground">(3) Brute force:</strong> repeatedly find and remove matching pairs until string empty or unchanged — O(n²). <strong className="text-foreground">(4) Optimize:</strong> one pass with a stack — push opening brackets, on closing pop and check match; if stack empty when we need to pop, or non-empty at end, invalid. O(n) time, O(n) space. <strong className="text-foreground">(5) Code:</strong> loop over chars, switch on char, push/pop accordingly. <strong className="text-foreground">(6) Test:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">""</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"([)]"</code> (invalid), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"()[]{}"</code> (valid). This is the full framework in action.
+            </LectureP>
+
+            <LectureSubHeading title="Interview mindset" />
+            <LectureP>
+                <strong className="text-foreground">Talk out loud:</strong> Explain what you're thinking. &quot;I'll use a hash map to store what we've seen so we can look up the complement in O(1).&quot; <strong className="text-foreground">Start simple:</strong> Get a working brute force first; then optimize. <strong className="text-foreground">Test with your own example:</strong> Walk through your code with the sample input and an edge case (empty, single element, duplicates). <strong className="text-foreground">State complexity:</strong> Before and after optimizing, say time and space. Interviewers are evaluating how you think, not just whether you know the trick.
+            </LectureP>
 
             <LectureCallout type="info">
                 The NeetCode 150 is the gold standard problem set for interview prep. It covers every pattern you need: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Heap, Backtracking, Graphs, Dynamic Programming. Work through it category by category, not randomly — the patterns build on each other.
