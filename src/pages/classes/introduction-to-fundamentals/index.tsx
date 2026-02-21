@@ -7,7 +7,6 @@ import {
     GitBranch,
     Globe,
     Server,
-    Sparkles,
     Binary,
     Workflow,
     BookOpen,
@@ -49,7 +48,7 @@ const WEEKS: Week[] = [
         theme: 'The Terminal & Version Control',
         subtitle: 'Your new home base',
         icon: <GitBranch className="h-5 w-5" />,
-        color: 'teal',
+        color: 'brown',
         sessions: [
             {
                 type: 'lecture',
@@ -88,7 +87,7 @@ const WEEKS: Week[] = [
         theme: 'Containerization & Operating Systems',
         subtitle: 'Build once, run anywhere',
         icon: <Terminal className="h-5 w-5" />,
-        color: 'blue',
+        color: 'gray',
         sessions: [
             {
                 type: 'lecture',
@@ -205,7 +204,7 @@ const WEEKS: Week[] = [
         theme: 'Backend Design',
         subtitle: 'The other half of the stack',
         icon: <Server className="h-5 w-5" />,
-        color: 'green',
+        color: 'blue',
         sessions: [
             {
                 type: 'lecture',
@@ -241,45 +240,6 @@ const WEEKS: Week[] = [
     },
     {
         number: 6,
-        theme: 'Prompt Engineering',
-        subtitle: 'Talk to models, don\'t just use them',
-        icon: <Sparkles className="h-5 w-5" />,
-        color: 'yellow',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'LLM Fundamentals & Prompt Design',
-                description:
-                    'How language models actually work and why prompt structure matters. Role framing, output control, and chain-of-thought reasoning.',
-                duration: '90 min',
-                slug: 'week-6/lecture-1',
-                tags: ['chain-of-thought', 'role framing', 'zero-shot', 'few-shot'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Applied Prompting & API Integration',
-                description:
-                    'Build real things with the Claude API. Structured outputs, self-refinement loops, and classification at scale.',
-                duration: '90 min',
-                slug: 'week-6/lecture-2',
-                tags: ['Claude API', 'structured output', 'classification'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Prompt Engineering Challenges',
-                description:
-                    'A set of increasingly difficult tasks — summarization, classification, dialogue — where you design and iterate prompts to hit a target output.',
-                duration: '90 min',
-                slug: 'week-6/activity',
-                tags: ['prompt iteration', 'evaluation', 'few-shot examples'],
-            },
-        ],
-    },
-    {
-        number: 7,
         theme: 'Data Structures & Algorithms',
         subtitle: 'Think like an engineer',
         icon: <Binary className="h-5 w-5" />,
@@ -292,7 +252,7 @@ const WEEKS: Week[] = [
                 description:
                     'Why C++ for DSA? The mental model of compiled languages, classes, and the four pillars of object-oriented design.',
                 duration: '90 min',
-                slug: 'week-7/lecture-1',
+                slug: 'week-6/lecture-1',
                 tags: ['classes', 'encapsulation', 'inheritance', 'polymorphism'],
             },
             {
@@ -302,7 +262,7 @@ const WEEKS: Week[] = [
                 description:
                     'The bread and butter of technical interviews. Implement each structure, understand their tradeoffs, and solve real LeetCode problems.',
                 duration: '90 min',
-                slug: 'week-7/lecture-2',
+                slug: 'week-6/lecture-2',
                 tags: ['arrays', 'linked lists', 'hash maps', 'time complexity'],
             },
             {
@@ -312,13 +272,13 @@ const WEEKS: Week[] = [
                 description:
                     'Work through 2-3 problems per category from the NeetCode 150. Arrays & Hashing, Two Pointers, and Stack. Race the clock.',
                 duration: '90 min',
-                slug: 'week-7/activity',
+                slug: 'week-6/activity',
                 tags: ['NeetCode', 'arrays', 'two pointers', 'stack'],
             },
         ],
     },
     {
-        number: 8,
+        number: 7,
         theme: 'DSA Continued & OOP',
         subtitle: 'Go deeper',
         icon: <Binary className="h-5 w-5" />,
@@ -331,7 +291,7 @@ const WEEKS: Week[] = [
                 description:
                     'Hierarchical data structures and their traversal algorithms. BFS, DFS, and why the call stack is itself a stack.',
                 duration: '90 min',
-                slug: 'week-8/lecture-1',
+                slug: 'week-7/lecture-1',
                 tags: ['trees', 'BFS', 'DFS', 'stacks', 'queues'],
             },
             {
@@ -341,7 +301,7 @@ const WEEKS: Week[] = [
                 description:
                     'Apply every OOP principle to a real system. Design classes, define interfaces, and build something that can actually grow.',
                 duration: '90 min',
-                slug: 'week-8/lecture-2',
+                slug: 'week-7/lecture-2',
                 tags: ['inheritance', 'abstraction', 'interfaces', 'design patterns'],
             },
             {
@@ -351,17 +311,17 @@ const WEEKS: Week[] = [
                 description:
                     'Build a complete Library Management System in C++ using OOP design principles. Books, members, checkout flows — all in classes.',
                 duration: '90 min',
-                slug: 'week-8/activity',
+                slug: 'week-7/activity',
                 tags: ['C++ classes', 'OOP design', 'system design'],
             },
         ],
     },
     {
-        number: 9,
+        number: 8,
         theme: 'Agile Software Engineering',
         subtitle: 'How real teams ship',
         icon: <Workflow className="h-5 w-5" />,
-        color: 'teal',
+        color: 'green',
         sessions: [
             {
                 type: 'lecture',
@@ -370,7 +330,7 @@ const WEEKS: Week[] = [
                 description:
                     'The ceremonies, artifacts, and mindset behind agile teams. User stories, sprint planning, retrospectives, and backlogs.',
                 duration: '90 min',
-                slug: 'week-9/lecture-1',
+                slug: 'week-8/lecture-1',
                 tags: ['Scrum', 'Kanban', 'user stories', 'sprints'],
             },
             {
@@ -380,7 +340,7 @@ const WEEKS: Week[] = [
                 description:
                     'Automated pipelines, test-driven development, and the practices that keep large codebases healthy. Your last lecture — make it count.',
                 duration: '90 min',
-                slug: 'week-9/lecture-2',
+                slug: 'week-8/lecture-2',
                 tags: ['GitHub Actions', 'TDD', 'CI/CD', 'code review'],
             },
             {
@@ -390,7 +350,7 @@ const WEEKS: Week[] = [
                 description:
                     'Define epics, break them into stories, track them in GitHub Projects, and simulate a two-week sprint for your Task Tracker or Notes API.',
                 duration: '90 min',
-                slug: 'week-9/activity',
+                slug: 'week-8/activity',
                 tags: ['GitHub Projects', 'epics', 'burndown', 'retrospective'],
             },
         ],
@@ -448,6 +408,27 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
         border: 'border-teal-200 dark:border-teal-800',
         badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
         dot: 'bg-teal-400',
+    },
+    pink: {
+        bg: 'bg-pink-50 dark:bg-pink-950/20',
+        text: 'text-pink-600 dark:text-pink-400',
+        border: 'border-pink-200 dark:border-pink-800',
+        badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300',
+        dot: 'bg-pink-400',
+    },
+    brown: {
+        bg: 'bg-yellow-100 dark:bg-yellow-900/30',
+        text: 'text-yellow-800 dark:text-yellow-300',
+        border: 'border-yellow-300 dark:border-yellow-700',
+        badge: 'bg-yellow-200 text-yellow-900 dark:bg-yellow-900/60 dark:text-yellow-200',
+        dot: 'bg-yellow-700',
+    },
+    gray: {
+        bg: 'bg-gray-100 dark:bg-gray-900/30',
+        text: 'text-gray-700 dark:text-gray-300',
+        border: 'border-gray-400 dark:border-gray-700',
+        badge: 'bg-gray-100 text-gray-600 dark:bg-gray-800/60 dark:text-gray-200',
+        dot: 'bg-gray-400',
     },
 };
 
@@ -672,7 +653,7 @@ export default function IntroductionToFundamentals() {
                         </h1>
                         <p className="mt-1.5 text-sm text-muted-foreground max-w-xl leading-relaxed">
                             An 18-session journey from zero to full-stack. Terminal fluency, version control,
-                            containers, React, backend APIs, prompt engineering, algorithms, and agile — everything
+                            containers, React, backend APIs, algorithms, and agile — everything
                             you need to contribute to real projects.
                         </p>
                     </div>
@@ -680,7 +661,7 @@ export default function IntroductionToFundamentals() {
 
                 {/* Topic pills */}
                 <div className="flex flex-wrap gap-2 mt-4">
-                    {['Linux', 'Git', 'Docker', 'React', 'FastAPI', 'SQL', 'Prompt Engineering', 'C++ & DSA', 'Agile'].map((topic) => (
+                    {['Linux', 'Git', 'Docker', 'React', 'FastAPI', 'SQL', 'C++ & DSA', 'Agile'].map((topic) => (
                         <Badge key={topic} variant="secondary">
                             {topic}
                         </Badge>

@@ -33,6 +33,15 @@ import Week3Lecture1 from "./pages/classes/introduction-to-fundamentals/week-3/l
 import Week3Lecture2 from "./pages/classes/introduction-to-fundamentals/week-3/lecture-2";
 import Week3Activity from "./pages/classes/introduction-to-fundamentals/week-3/activity";
 import React from "react";
+import Week4Lecture1 from "./pages/classes/introduction-to-fundamentals/week-4/lecture-1";
+import Week4Lecture2 from "./pages/classes/introduction-to-fundamentals/week-4/lecture-2";
+import Week4Activity from "./pages/classes/introduction-to-fundamentals/week-4/activity";
+import Week5Lecture1 from "./pages/classes/introduction-to-fundamentals/week-5/lecture-1";
+import Week5Lecture2 from "./pages/classes/introduction-to-fundamentals/week-5/lecture-2";
+import Week5Activity from "./pages/classes/introduction-to-fundamentals/week-5/activity";
+import Week6Lecture1 from "./pages/classes/introduction-to-fundamentals/week-6/lecture-1";
+import Week6Lecture2 from "./pages/classes/introduction-to-fundamentals/week-6/lecture-2";
+import Week6Activity from "./pages/classes/introduction-to-fundamentals/week-6/activity";
 
 const queryClient = new QueryClient();
 
@@ -242,7 +251,7 @@ const App = () => (
                 }
               />
 
-              {/* Weeks 1–3 of Introduction to Fundamentals, lectures and activities */}
+              {/* Introduction to Fundamentals, lectures and activities */}
               {[
                 {
                   week: 1,
@@ -267,6 +276,30 @@ const App = () => (
                     { path: "lecture-2", component: Week3Lecture2 },
                   ],
                   activity: { component: Week3Activity },
+                },
+                {
+                  week: 4,
+                  lectures: [
+                    { path: "lecture-1", component: Week4Lecture1 },
+                    { path: "lecture-2", component: Week4Lecture2 },
+                  ],
+                  activity: { component: Week4Activity },
+                },
+                {
+                  week: 5,
+                  lectures: [
+                    { path: "lecture-1", component: Week5Lecture1 },
+                    { path: "lecture-2", component: Week5Lecture2 },
+                  ],
+                  activity: { component: Week5Activity },
+                },
+                {
+                  week: 6,
+                  lectures: [
+                    { path: "lecture-1", component: Week6Lecture1 },
+                    { path: "lecture-2", component: Week6Lecture2 },
+                  ],
+                  activity: { component: Week6Activity },
                 },
               ].map(({ week, lectures, activity }) => (
                 <React.Fragment key={week}>
