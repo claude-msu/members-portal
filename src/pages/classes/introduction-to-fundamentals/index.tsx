@@ -27,7 +27,7 @@ interface Session {
     title: string;
     description: string;
     duration: string;
-    slug: string; // e.g. "week-1/lecture-1"
+    slug: string;
     tags: string[];
 }
 
@@ -461,8 +461,8 @@ const SessionCard = ({ session, color }: SessionCardProps) => {
 
     return (
         <motion.button
-            whileHover={{ y: -2, scale: 1.005 }}
-            whileTap={{ scale: 0.998 }}
+            whileHover={{ scale: 1.01 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate(basePath)}
             className={`
         w-full text-left rounded-xl border p-4 transition-all duration-200 group
@@ -512,7 +512,7 @@ const SessionCard = ({ session, color }: SessionCardProps) => {
                 </div>
 
                 {/* Arrow */}
-                <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0 mt-1 group-hover:text-primary group-hover:translate-x-0.5 transition-all" />
+                <ChevronRight className={`h-4 w-4 ${c.text} shrink-0 mt-1 group-hover:translate-x-0.5 transition-all`} />
             </div>
         </motion.button>
     );
