@@ -507,14 +507,14 @@ const Projects = () => {
 
     const actions = [];
 
-    if (isBoardOrAbove) {
-      actions.push({
-        label: 'Edit Details',
-        onClick: () => modalState.open(project, project.id),
-        icon: <Edit className="h-4 w-4 mr-2" />,
-        variant: 'outline',
-      });
-    }
+    actions.push({
+      label: isBoardOrAbove ? 'Edit Details' : 'View Details',
+      onClick: () => modalState.open(project, project.id),
+      icon: isBoardOrAbove
+        ? <Edit className="h-4 w-4 mr-2" />
+        : <Eye className="h-4 w-4 mr-2" />,
+      variant: isBoardOrAbove ? 'outline' : 'default',
+    });
 
     // Only show GitHub button if project has started
     if (projectHasStarted) {
@@ -526,14 +526,6 @@ const Projects = () => {
       });
     }
 
-    if (!isBoardOrAbove) {
-      actions.push({
-        label: 'View Details',
-        onClick: () => modalState.open(project, project.id),
-        icon: <Eye className="h-4 w-4 mr-2" />,
-        variant: 'default',
-      });
-    }
 
     return (
       <ItemCard
