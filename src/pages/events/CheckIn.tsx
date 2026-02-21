@@ -131,7 +131,7 @@ const Checkin = () => {
                     )}
                     <Button
                         className="w-full"
-                        onClick={() => navigate('/dashboard')}
+                        onClick={() => navigate('/events')}
                     >
                         Go to Dashboard
                     </Button>
