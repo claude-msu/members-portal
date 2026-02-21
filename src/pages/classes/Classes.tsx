@@ -18,9 +18,10 @@ import { EditModal } from '@/components/modals/EditModal';
 import { MembersListModal } from '@/components/modals/MembersListModal';
 import { ItemCard } from '@/components/ItemCard';
 import SemesterSelector from '@/components/SemesterSelector';
-import { Plus, MapPin, Users, Edit, Calendar as CalendarIcon, Eye, Crown } from 'lucide-react';
+import { Plus, MapPin, Users, Edit, Calendar as CalendarIcon, Eye, Crown, BookOpen } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
+import { useNavigate } from 'react-router-dom';
 
 type Semester = Database['public']['Tables']['semesters']['Row'];
 
@@ -30,6 +31,7 @@ const Classes = () => {
   const { user } = useAuth();
   const { role, isBoardOrAbove, userClasses, classesLoading, refreshClasses } = useProfile();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const queryClient = useQueryClient();
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -455,8 +457,12 @@ const Classes = () => {
 
     if (!status) return null;
 
-    const badges = [];
+    // Check if class has started (semester start date is in the past)
+    const classHasStarted = cls.semesters?.start_date
+      ? new Date(cls.semesters.start_date) <= new Date()
+      : false;
 
+    const badges = [];
     if (isEnrolled && !isMobile) {
       badges.push(
         <Badge key="enrolled" variant="outline" className="shrink-0 whitespace-nowrap">
@@ -502,19 +508,29 @@ const Classes = () => {
 
     const actions = [];
 
-    if (isBoardOrAbove) {
+    actions.push({
+      label: isBoardOrAbove ? 'Edit Details' : 'View Details',
+      onClick: () => modalState.open(cls, cls.id),
+      icon: isBoardOrAbove
+        ? <Edit className="h-4 w-4 mr-2" />
+        : <Eye className="h-4 w-4 mr-2" />,
+      variant: isBoardOrAbove ? 'outline' : 'default',
+    });
+
+    // Only show class page button if class has started and not on mobile
+    if (classHasStarted && !isMobile) {
       actions.push({
-        label: 'Edit Details',
-        onClick: () => modalState.open(cls, cls.id),
-        icon: <Edit className="h-4 w-4 mr-2" />,
-        variant: 'outline' as const,
-      });
-    } else {
-      actions.push({
-        label: 'View Details',
-        onClick: () => modalState.open(cls, cls.id),
-        icon: <Eye className="h-4 w-4 mr-2" />,
-        variant: 'default' as const,
+        label: 'View Class Page',
+        onClick: () => {
+          const className = cls.name
+            .trim()
+            .replace(/\s+/g, '-')
+            .replace(/[^a-zA-Z0-9-]/g, '')
+            .toLowerCase();
+          navigate(`/classes/${className}`);
+        },
+        icon: <BookOpen className="h-4 w-4 mr-2" />,
+        variant: isBoardOrAbove ? 'default' : 'outline',
       });
     }
 

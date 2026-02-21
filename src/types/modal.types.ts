@@ -31,7 +31,7 @@ export type CardAction = {
   label: string;
   onClick: () => void;
   icon?: React.ReactNode;
-  variant?: 'default' | 'outline' | 'destructive' | 'secondary' | 'ghost';
+  variant?: 'default' | 'outline' | 'secondary' | 'ghost';
   disabled?: boolean;
   loading?: boolean;
 };

@@ -10,7 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github, Briefcase, BookOpen } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -247,34 +247,32 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
             <Separator />
             <div className="space-y-3">
               <p className="text-sm font-medium text-muted-foreground">Involvement</p>
-              <TooltipProvider delayDuration={200}>
-                <div className="flex flex-wrap gap-2">
-                  {involvementBadges.map((badge) => (
-                    <Tooltip key={badge.id}>
-                      <TooltipTrigger asChild>
-                        <span className="inline-block">
-                          <Badge
-                            variant="secondary"
-                            className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
-                          >
-                            {badge.type === 'project' ? (
-                              <Briefcase className="h-3 w-3" />
-                            ) : (
-                              <BookOpen className="h-3 w-3" />
-                            )}
-                            <span>
-                              {badge.role} {badge.semesterCode}
-                            </span>
-                          </Badge>
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent side="top" align="center" className="max-w-xs">
-                        <p className="text-sm">{badge.name}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </div>
-              </TooltipProvider>
+              <div className="flex flex-wrap gap-2">
+                {involvementBadges.map((badge) => (
+                  <Tooltip key={badge.id}>
+                    <TooltipTrigger asChild>
+                      <span className="inline-block">
+                        <Badge
+                          variant="secondary"
+                          className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
+                        >
+                          {badge.type === 'project' ? (
+                            <Briefcase className="h-3 w-3" />
+                          ) : (
+                            <BookOpen className="h-3 w-3" />
+                          )}
+                          <span>
+                            {badge.role} {badge.semesterCode}
+                          </span>
+                        </Badge>
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" align="center" className="max-w-xs">
+                      <p className="text-sm">{badge.name}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
             </div>
           </>
         )}

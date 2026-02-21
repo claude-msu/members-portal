@@ -164,7 +164,7 @@ function getEmailHtml(
         </div>
 
         <div style="text-align: center; margin: 35px 0;">
-          <a href="https://claudemsu.dev/dashboard/applications"
+          <a href="https://claudemsu.dev/applications"
              style="display: inline-block; background-color: rgb(223, 115, 83); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 500; font-size: 16px;">
             View Applications
           </a>

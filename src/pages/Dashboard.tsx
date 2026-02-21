@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
-import TextType from '@/components/ui/TextType';
+import TextType from '@/components/ui/text-type';
 
 // Dashboard uses types from ProfileContext and separate queries
 
@@ -251,7 +251,7 @@ export default function Dashboard() {
             bg="bg-green-500/10"
             value={adminStats.members}
             label={adminStats.members === 1 ? "Active Member" : "Active Members"}
-            link="/dashboard/members"
+            link="/members"
           />
           <StatItem
             icon={UserPlus}
@@ -259,7 +259,7 @@ export default function Dashboard() {
             bg="bg-primary/10"
             value={adminStats.prospects}
             label={adminStats.prospects === 1 ? "Prospect" : "Prospects"}
-            link="/dashboard/prospects"
+            link="/prospects"
           />
           <StatItem
             icon={Award}
@@ -267,7 +267,7 @@ export default function Dashboard() {
             bg="bg-blue-500/10"
             value={adminStats.board}
             label={adminStats.board === 1 ? "Board Member" : "Board Members"}
-            link="/dashboard/members"
+            link="/members"
           />
           <StatItem
             icon={Crown}
@@ -275,7 +275,7 @@ export default function Dashboard() {
             bg="bg-purple-500/10"
             value={adminStats.eBoard}
             label={adminStats.eBoard === 1 ? "E-Board Member" : "E-Board Members"}
-            link="/dashboard/members"
+            link="/members"
           />
         </div>
       );
@@ -305,7 +305,7 @@ export default function Dashboard() {
               ? (userProjects.inProgress.length === 1 ? "Active Project" : "Active Projects")
               : (userProjects.assigned.length === 1 ? "Assigned Project" : "Assigned Projects")
           }
-          link="/dashboard/projects"
+          link="/projects"
         />
         <StatItem
           icon={BookOpen}
@@ -321,7 +321,7 @@ export default function Dashboard() {
               ? (userClasses.inProgress.length === 1 ? "Active Class" : "Active Classes")
               : (userClasses.enrolled.length === 1 ? "Enrolled Class" : "Enrolled Classes")
           }
-          link="/dashboard/classes"
+          link="/classes"
         />
         <StatItem
           icon={Award}
@@ -366,7 +366,7 @@ export default function Dashboard() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/dashboard/events')}
+              onClick={() => navigate('/events')}
               className="hover:bg-primary/10 hover:text-primary"
             >
               View All <ArrowRight className="h-4 w-4 ml-1" />
@@ -384,7 +384,7 @@ export default function Dashboard() {
           ) : (
             <div className="space-y-3">
               {allEvents.map((event) => (
-                <Card key={event.id} className="w-full border bg-card hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => navigate(`/dashboard/events?id=${event.id}`)}>
+                <Card key={event.id} className="w-full border bg-card hover:bg-primary/5 transition-colors cursor-pointer" onClick={() => navigate(`/events?id=${event.id}`)}>
                   <CardHeader className="p-3 pb-0">
                     <div className="flex items-center justify-between gap-2">
                       <CardTitle className="text-lg font-semibold truncate">{event.name}</CardTitle>
@@ -416,7 +416,7 @@ export default function Dashboard() {
     const colorClass = isProject ? "text-blue-600 dark:text-blue-500" : "text-purple-600 dark:text-purple-500";
     const bgClass = isProject ? "bg-blue-500/10" : "bg-purple-500/10";
     const hoverBtnClass = isProject ? "hover:bg-blue-500/10 hover:text-blue-600" : "hover:bg-purple-500/10 hover:text-purple-600";
-    const link = isProject ? '/dashboard/projects' : '/dashboard/classes';
+    const link = isProject ? '/projects' : '/classes';
 
     // For board/e-board: show all projects/classes from dashboard query
     // For members: show their projects/classes from ProfileContext
