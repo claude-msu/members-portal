@@ -32,7 +32,7 @@ export const ActivityChallenge = ({
 }: ActivityChallengeProps) => (
     <div className="rounded-xl border border-border bg-card overflow-hidden my-8">
         <div className="flex items-start gap-4 p-5 border-b border-border bg-muted/30">
-            <span className="text-2xl font-black text-primary/30 leading-none select-none">
+            <span className="text-2xl font-black text-primary/70 leading-none select-none">
                 {number}
             </span>
             <div>
