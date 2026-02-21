@@ -409,13 +409,6 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
         badge: 'bg-teal-100 text-teal-700 dark:bg-teal-900/40 dark:text-teal-300',
         dot: 'bg-teal-400',
     },
-    pink: {
-        bg: 'bg-pink-50 dark:bg-pink-950/20',
-        text: 'text-pink-600 dark:text-pink-400',
-        border: 'border-pink-200 dark:border-pink-800',
-        badge: 'bg-pink-100 text-pink-700 dark:bg-pink-900/40 dark:text-pink-300',
-        dot: 'bg-pink-400',
-    },
     brown: {
         bg: 'bg-yellow-50 dark:bg-yellow-900/30',
         text: 'text-yellow-800 dark:text-yellow-300',
