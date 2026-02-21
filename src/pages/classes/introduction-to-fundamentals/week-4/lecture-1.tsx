@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Zap } from 'lucide-react';
+import { Server } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -75,9 +75,9 @@ export default function Week4Lecture1() {
             <LectureHeader
                 week={4}
                 session="Lecture 1"
-                title="Advanced React Patterns"
-                description="You know the fundamentals. Now the patterns that separate junior React developers from seniors: Context for global state, useReducer for complex state logic, performance optimization with memo and useCallback, and React Router for multi-page apps."
-                icon={<Zap className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="FastAPI & Python Backends"
+                description="Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API."
+                icon={<Server className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
             />
 
             {/* ── 01 CONTEXT ──────────────────────────────────────────────────── */}

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Cpu } from 'lucide-react';
+import { Binary } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -10,44 +10,8 @@ import { ActivityTask } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
-
-// ── Class hierarchy diagram ───────────────────────────────────────────────────
-const ClassDiagram = () => (
-    <div className="my-6 rounded-xl border border-border bg-muted/30 p-5 font-mono text-xs space-y-2">
-        <p className="text-muted-foreground text-xs mb-3">Target class hierarchy for the Library Management System</p>
-        <div className="flex flex-col items-center gap-2">
-            <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30 px-6 py-3 text-center">
-                <p className="text-blue-700 dark:text-blue-300 font-bold">LibraryItem</p>
-                <p className="text-muted-foreground text-xs mt-1">id, title, isCheckedOut</p>
-                <p className="text-muted-foreground text-xs">+ getType(), getLoanDays() [pure virtual]</p>
-                <p className="text-muted-foreground text-xs">+ checkout(), returnItem()</p>
-            </div>
-            <div className="flex justify-center gap-8 text-muted-foreground">
-                <span>↙</span><span>↓</span><span>↘</span>
-            </div>
-            <div className="flex gap-3 flex-wrap justify-center">
-                {[
-                    { name: 'Book', extra: 'author, pages\nloanDays: 21' },
-                    { name: 'DVD', extra: 'director, runtime\nloanDays: 7' },
-                    { name: 'Magazine', extra: 'issue, month\nloanDays: 3' },
-                ].map(item => (
-                    <div key={item.name} className="rounded-lg border border-border bg-card px-4 py-2.5 text-center min-w-[120px]">
-                        <p className="text-orange-600 dark:text-orange-400 font-bold">{item.name}</p>
-                        <p className="text-muted-foreground text-xs mt-1 whitespace-pre-line">{item.extra}</p>
-                    </div>
-                ))}
-            </div>
-            <div className="text-muted-foreground text-xs mt-1">↓</div>
-            <div className="rounded-lg border border-emerald-300 dark:border-emerald-700 bg-emerald-50 dark:bg-emerald-950/30 px-6 py-3 text-center">
-                <p className="text-emerald-700 dark:text-emerald-300 font-bold">Library</p>
-                <p className="text-muted-foreground text-xs mt-1">{"vector<LibraryItem*> catalog"}</p>
-                <p className="text-muted-foreground text-xs">{"unordered_map<string, string> loans"}</p>
-                <p className="text-muted-foreground text-xs">+ addItem(), search(), checkout(), returnItem()</p>
-            </div>
-        </div>
-    </div>
-);
 
 export default function Week7Activity() {
     const navigate = useNavigate();
@@ -57,185 +21,198 @@ export default function Week7Activity() {
             <LectureHeader
                 week={7}
                 session="Activity"
-                title="Library Management System"
-                description="You'll build a complete Library Management System in C++ from scratch — using every concept from both lectures: abstract base classes, inheritance, polymorphism through virtual methods, and STL containers for catalog and loan tracking. Then you'll close out with a curated set of interview problems."
-                icon={<Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="CLI Phonebook — Part 2"
+                description="Your OOP foundation from Week 6 is solid. Now add the data structures on top — a BST for alphabetically sorted lookups, a stack for undo, and an unordered_map for O(1) search."
+                icon={<Binary className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
             />
 
             <LectureCallout type="info">
-                Compile after every challenge: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall library.cpp -o library && ./library</code>. Don't write the whole system before checking if it compiles — fix errors as they appear.
+                Open your Week 6 phonebook project. Every challenge in this activity extends that codebase — do not start from scratch. Compile after every challenge: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall phonebook.cpp -o phonebook && ./phonebook</code>
             </LectureCallout>
 
-            {/* ── 01 BASE CLASS ───────────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="The Base Class" />
+            {/* ── 01 BST FOR ALPHABETICAL STORAGE ─────────────────────────────── */}
+            <LectureSectionHeading number="01" title="BST for Alphabetical Storage" />
 
             <LectureP>
-                The target architecture for the whole system:
+                Right now your contacts are stored in a vector — insertion order, not sorted order. Replace the storage layer with a BST so that listing all contacts always comes out alphabetically without sorting.
             </LectureP>
 
-            <ClassDiagram />
+            {/* BST diagram */}
+            <div className="my-6 rounded-xl border border-border bg-muted/30 p-5 space-y-3">
+                <p className="text-xs text-muted-foreground mb-4">BST structure showing how contacts are organized:</p>
+                <div className="flex justify-center">
+                    <div className="text-center">
+                        <div className="rounded-lg border border-border bg-card px-4 py-2 font-semibold text-sm">Johnson</div>
+                        <div className="flex justify-center gap-8 mt-3 text-muted-foreground">
+                            <span>↙</span>
+                            <span>↘</span>
+                        </div>
+                        <div className="flex justify-around mt-2 max-w-sm mx-auto">
+                            <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm">Davis</div>
+                            <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm">Martinez</div>
+                        </div>
+                        <div className="flex justify-around mt-2 max-w-sm mx-auto text-xs text-muted-foreground">
+                            <div>
+                                <div>↙</div>
+                                <div className="rounded-lg border border-border bg-card px-2 py-1 mt-1">Chen</div>
+                            </div>
+                            <div>
+                                <div>↘</div>
+                                <div className="rounded-lg border border-border bg-card px-2 py-1 mt-1">Wilson</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <ActivityChallenge
                 number="1.1"
-                title="Define LibraryItem"
-                description="The abstract base class all item types inherit from."
+                title="Define the BST Node"
+                description="Create the foundation for tree-based storage."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">library.cpp</code> with includes: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">iostream</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">algorithm</code></ActivityTask>
-                    <ActivityTask>Define <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class LibraryItem</code> with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">protected</code> fields: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string id</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string title</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bool isCheckedOut = false</code></ActivityTask>
-                    <ActivityTask>Add a constructor, public getters for all fields, and two pure virtual methods: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual string getType() const = 0</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual int getLoanDays() const = 0</code></ActivityTask>
-                    <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bool checkout()</code> (sets <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">isCheckedOut = true</code>, returns false if already checked out) and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void returnItem()</code> (sets it back to false) in the base class</ActivityTask>
-                    <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual ~LibraryItem() { }</code></ActivityTask>
+                    <ActivityTask>Add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* data</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* right</code>, a constructor that initializes all three</ActivityTask>
+                    <ActivityTask>Do not delete the Contact class — ContactNode wraps it</ActivityTask>
+                </div>
+            </ActivityChallenge>
+
+            <ActivityChallenge
+                number="1.2"
+                title="BST Insert"
+                description="Replace vector storage with recursive tree insertion."
+            >
+                <div className="mt-4 space-y-1">
+                    <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(ContactNode* node, Contact* contact)</code> recursive method to your PhoneBook class</ActivityTask>
+                    <ActivityTask>Compare by last name (case-insensitive)</ActivityTask>
+                    <ActivityTask>Replace your vector with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* root</code> initialized to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code></ActivityTask>
+                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code> method to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert</code></ActivityTask>
                 </div>
 
-                <ActivityHint label="pure virtual makes the class abstract">
-                    Any class with at least one pure virtual method (<code className="bg-muted px-1 rounded">= 0</code>) is abstract — you can't instantiate it directly with <code className="bg-muted px-1 rounded">new LibraryItem(...)</code>. You can only use it through pointers to derived types.
+                <ActivityHint label="recursive insert pattern">
+                    <code className="bg-muted px-1 rounded text-xs">Base case: if (node == nullptr) return new ContactNode(contact). Recursive: if (contact name &lt; node name) node-&gt;left = insert(node-&gt;left, contact). Else node-&gt;right = insert(node-&gt;right, contact).</code>
                 </ActivityHint>
             </ActivityChallenge>
 
-            {/* ── 02 DERIVED CLASSES ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Derived Item Types" />
+            <ActivityChallenge
+                number="1.3"
+                title="In-Order Traversal"
+                description="Print contacts in alphabetical order."
+            >
+                <div className="mt-4 space-y-1">
+                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inOrder(ContactNode* node)</code> — left, visit, right</ActivityTask>
+                    <ActivityTask>Call it from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">listAll()</code></ActivityTask>
+                    <ActivityTask>Verify that adding contacts in random order still prints them alphabetically</ActivityTask>
+                </div>
+
+                <LectureCallout type="info">
+                    <span title="Visits a BST in left → root → right order. For a BST sorted by key, this always produces keys in ascending sorted order — which is why it is the standard way to print a BST.">in-order traversal</span> is the standard way to print a BST in sorted order.
+                </LectureCallout>
+            </ActivityChallenge>
+
+            {/* ── 02 STACK-BASED UNDO ─────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Stack-Based Undo" />
+
+            <LectureP>
+                Every add and delete operation should be reversible. A stack is the right structure — last action undone.
+            </LectureP>
 
             <ActivityChallenge
                 number="2.1"
-                title="Book, DVD, Magazine"
-                description="Three concrete types that inherit LibraryItem and add their own fields."
+                title="Define the Action Stack"
+                description="Create a record of every change."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Book</code>: adds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string author</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int pages</code>. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getType()</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"Book"</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">21</code></ActivityTask>
-                    <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DVD</code>: adds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string director</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int runtimeMinutes</code>. Loan: 7 days</ActivityTask>
-                    <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Magazine</code>: adds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int issueNumber</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string month</code>. Loan: 3 days</ActivityTask>
-                    <ActivityTask>Add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual void display() const</code> to each that prints all fields (type-specific ones included)</ActivityTask>
-                    <ActivityTask>Test polymorphism: store a Book, DVD, and Magazine in a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<LibraryItem*>"}</code> and loop calling <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getType()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code> — verify each prints its own values</ActivityTask>
+                    <ActivityTask>Create an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string type</code> ("add" or "delete"), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact contactSnapshot</code> (a copy of the contact at time of action)</ActivityTask>
+                    <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stack&lt;Action&gt; history</code> to PhoneBook using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::stack</code></ActivityTask>
+                </div>
+            </ActivityChallenge>
+
+            <ActivityChallenge
+                number="2.2"
+                title="Push on Add and Delete"
+                description="Record every operation."
+            >
+                <div className="mt-4 space-y-1">
+                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>: after inserting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action{"{"}"add", *newContact{"}"}</code> onto history</ActivityTask>
+                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>: before deleting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action{"{"}"delete", *contactToDelete{"}"}</code> onto history</ActivityTask>
+                    <ActivityTask>Compile and verify the stack size grows as you add contacts</ActivityTask>
+                </div>
+            </ActivityChallenge>
+
+            <ActivityChallenge
+                number="2.3"
+                title="Implement Undo"
+                description="Reverse the most recent operation."
+            >
+                <div className="mt-4 space-y-1">
+                    <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void undo()</code> to PhoneBook</ActivityTask>
+                    <ActivityTask>If history is empty, print "Nothing to undo." and return</ActivityTask>
+                    <ActivityTask>Otherwise pop the top action</ActivityTask>
+                    <ActivityTask>If type == "add", delete the contact you just added</ActivityTask>
+                    <ActivityTask>If type == "delete", re-add the contact from the snapshot</ActivityTask>
+                    <ActivityTask>Add "undo" as a menu option in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code></ActivityTask>
                 </div>
 
-                <ActivityHint label="chaining to base constructor">
-                    <code className="bg-muted px-1 rounded">{"Book(string id, string title, string author, int pages)\n    : LibraryItem(id, title), author(author), pages(pages) {}"}</code>
-                </ActivityHint>
-                <ActivityHint label="always use override">
-                    Write <code className="bg-muted px-1 rounded">override</code> after every overriding method signature. The compiler will error if you mistype the base method name — a lifesaver.
+                <ActivityHint label="why a stack and not a queue">
+                    Undo is always the most recent action first. A stack's LIFO order matches this exactly. A queue would undo your oldest action first — the opposite of what you want.
                 </ActivityHint>
             </ActivityChallenge>
 
-            {/* ── 03 LIBRARY CLASS ────────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="The Library Class" />
+            {/* ── 03 HASH MAP FOR O(1) SEARCH ─────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Hash Map for O(1) Search" />
+
+            <LectureP>
+                BST search is O(log n). For a phonebook that might have thousands of contacts, you also want O(1) lookup by phone number.
+            </LectureP>
 
             <ActivityChallenge
                 number="3.1"
-                title="Catalog and Loan Tracking"
-                description="The central class that manages all items and active loans."
+                title="Add the Index"
+                description="Create a secondary index for phone number lookups."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class Library</code> with private: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<LibraryItem*> catalog"}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"unordered_map<string, string> loans"}</code> (item ID → patron name)</ActivityTask>
-                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void addItem(LibraryItem* item)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void listAll()</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem* findById(string id)</code> (returns <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code> if not found)</ActivityTask>
-                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bool checkout(string itemId, string patronName)</code> — find the item, verify it's available, call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'item->checkout()'}</code>, record the loan</ActivityTask>
-                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bool returnItem(string itemId)</code> — find it, call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'item->returnItem()'}</code>, erase from loans map</ActivityTask>
-                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<LibraryItem*> searchByTitle(string query)"}</code> — case-insensitive substring match</ActivityTask>
-                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void listLoans()</code> — print every active loan with patron name, item title, type, and loan duration</ActivityTask>
-                    <ActivityTask>Add a destructor that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code>s every pointer in the catalog</ActivityTask>
+                    <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map&lt;string, Contact*&gt; phoneIndex</code> to PhoneBook where the key is the phone number string</ActivityTask>
+                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>, also insert into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
+                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>, also erase from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
                 </div>
 
-                <ActivityHint label="case-insensitive search">
-                    <code className="bg-muted px-1 rounded">{"auto lower = [](string s) { transform(s.begin(), s.end(), s.begin(), ::tolower); return s; };\nif (lower(item->getTitle()).find(lower(query)) != string::npos) { ... }"}</code>
-                </ActivityHint>
+                <LectureCallout type="info">
+                    <span title="Constant time — the operation takes the same amount of time regardless of how many contacts are in the phonebook. Hash maps achieve this by computing a hash of the key and jumping directly to the bucket.">O(1) lookup</span> means instant access no matter how large your data gets.
+                </LectureCallout>
             </ActivityChallenge>
 
             <ActivityChallenge
                 number="3.2"
-                title="Interactive Menu"
-                description="Wire it all together with a main() that loops on user input."
+                title="Search by Phone Number"
+                description="Implement instant phone number lookups."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Write a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code> that pre-populates the library with 6+ items (mix of all three types) and loops on a menu</ActivityTask>
-                    <ActivityTask>Menu: (1) List all, (2) Search by title, (3) Checkout, (4) Return, (5) View loans, (0) Exit</ActivityTask>
-                    <ActivityTask>Test the full cycle: search → checkout → try again (fails) → return → checkout again (succeeds)</ActivityTask>
-                </div>
-
-                <ActivityHint label="cin with spaces for patron names">
-                    After reading a menu int with <code className="bg-muted px-1 rounded">{'cin >> choice'}</code>, call <code className="bg-muted px-1 rounded">cin.ignore()</code> before any <code className="bg-muted px-1 rounded">getline(cin, name)</code> calls — otherwise the leftover newline gets consumed immediately.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            {/* ── 04 DSA PROBLEMS ─────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="DSA Problem Set" />
-
-            <LectureP>
-                Solve each in its own <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.cpp</code> file. Write the time and space complexity as a comment at the top before you start coding.
-            </LectureP>
-
-            <ActivityChallenge
-                number="4.1"
-                title="Arrays & Hashing"
-                description="Three problems — target O(n) for all three."
-            >
-                <div className="mt-4 space-y-1">
-                    <ActivityTask><strong>Contains Duplicate</strong> — return true if any value appears more than once. Use an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_set</code></ActivityTask>
-                    <ActivityTask><strong>Best Time to Buy and Sell Stock</strong> — one pass: track the minimum price seen so far and the maximum profit achievable at each step</ActivityTask>
-                    <ActivityTask><strong>Two Sum</strong> — return indices of two numbers summing to target. Use an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code> mapping value → index</ActivityTask>
+                    <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* findByPhone(string number)</code> that checks <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
+                    <ActivityTask>If found, return the pointer</ActivityTask>
+                    <ActivityTask>If not, return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code></ActivityTask>
+                    <ActivityTask>Add "search by phone" as a menu option</ActivityTask>
+                    <ActivityTask>Print the full contact details if found, or "Not found." if not</ActivityTask>
                 </div>
             </ActivityChallenge>
 
             <ActivityChallenge
-                number="4.2"
-                title="Two Pointers & Sliding Window"
-                description="Two patterns that eliminate nested loops."
+                number="3.3"
+                title="Final Menu"
+                description="Put it all together."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask><strong>3Sum</strong> — find all unique triplets summing to zero. Sort first, then for each element use two pointers on the remainder. Skip duplicates to avoid repeated triplets in output</ActivityTask>
-                    <ActivityTask><strong>Longest Substring Without Repeating Characters</strong> — sliding window with an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_set</code>: expand right, shrink left when a duplicate enters the window</ActivityTask>
+                    <ActivityTask>Your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code> menu should now offer: 1) Add contact, 2) Delete contact, 3) List all (alphabetical), 4) Search by phone, 5) Undo last action, 6) Quit</ActivityTask>
+                    <ActivityTask>Compile the full program and run through all 6 options to verify everything works together</ActivityTask>
                 </div>
-
-                <ActivityHint label="3Sum two-pointer loop">
-                    Sort the array. Outer loop index <code className="bg-muted px-1 rounded">i</code> from 0 to n-3. Skip if <code className="bg-muted px-1 rounded">nums[i] == nums[i-1]</code> (duplicate outer). Inner: <code className="bg-muted px-1 rounded">left = i+1</code>, <code className="bg-muted px-1 rounded">right = n-1</code>. When triplet found, advance both pointers past duplicates.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="4.3"
-                title="Stack & Trees"
-                description="One stack problem, two tree problems."
-            >
-                <div className="mt-4 space-y-1">
-                    <ActivityTask><strong>Valid Parentheses</strong> — use a stack: push opening brackets, pop and match on closing brackets</ActivityTask>
-                    <ActivityTask><strong>Maximum Depth of Binary Tree</strong> — return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">1 + max(depth(left), depth(right))</code> recursively</ActivityTask>
-                    <ActivityTask><strong>Validate BST</strong> — pass min/max bounds down recursively; a node is invalid if its value falls outside the bounds its ancestors impose</ActivityTask>
-                </div>
-
-                <ActivityHint label="validate BST bounds">
-                    <code className="bg-muted px-1 rounded">{"bool validate(TreeNode* node, long minVal, long maxVal) {\n    if (!node) return true;\n    if (node->val <= minVal || node->val >= maxVal) return false;\n    return validate(node->left, minVal, node->val)\n        && validate(node->right, node->val, maxVal);\n}"}</code> — call with <code className="bg-muted px-1 rounded">validate(root, LONG_MIN, LONG_MAX)</code>.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            {/* ── BONUS ────────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Bonus Challenges" />
-
-            <ActivityChallenge
-                number="★"
-                title="Add Due Date Tracking"
-                description="Record when each loan is due and flag overdue items — no hints."
-            >
-                <LectureP>
-                    When a patron checks out an item, calculate a due date: today + <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code>. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"<ctime>"}</code> for the current date. Store due dates in the loans map. Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void listOverdue()</code> that prints any loans past their due date. Add it as menu option (6).
-                </LectureP>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="★"
-                title="Min Stack"
-                description="Design a stack that supports getMin() in O(1) using two stacks."
-            >
-                <LectureP>
-                    Implement a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">MinStack</code> class in a separate file with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void push(int val)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void pop()</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int top()</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int getMin()</code> — all O(1). The trick: maintain a second stack that tracks the minimum at each level of the main stack.
-                </LectureP>
             </ActivityChallenge>
 
             <LectureFooterNav
                 prev={{
-                    label: 'Trees, Hash Maps & OOP',
+                    label: 'Hash Maps, Complexity & Interview Patterns',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
                 }}
                 next={{
-                    label: 'Week 8 — Agile & Software Engineering',
+                    label: 'Scrum, Kanban & Sprint Cycles',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
                 }}
             />

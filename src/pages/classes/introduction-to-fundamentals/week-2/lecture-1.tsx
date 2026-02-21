@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Package } from 'lucide-react';
+import { GitBranch } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -21,9 +21,9 @@ export default function Week2Lecture1() {
             <LectureHeader
                 week={2}
                 session="Lecture 1"
-                title="Package Managers"
-                description="Every language, every platform, every operating system has one thing in common: a package manager. Understanding how they work — not just the commands, but the model underneath — is what separates developers who can set up any environment from developers who can only follow tutorials."
-                icon={<Package className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="VersiGit"
+                description="Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes."
+                icon={<GitBranch className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
 
             {/* ── 01 WHAT IS A PACKAGE ────────────────────────────────────────── */}

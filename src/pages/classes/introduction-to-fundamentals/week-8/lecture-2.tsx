@@ -22,8 +22,8 @@ export default function Week8Lecture2() {
                 week={8}
                 session="Lecture 2"
                 title="CI/CD, TDD & Engineering Culture"
-                description="Agile ceremonies are the meeting structure. CI/CD and TDD are the technical practices that make continuous delivery safe. And engineering culture is what determines whether any of it actually works. This is the final lecture — it's also the one most likely to affect your first six months at a real company."
-                icon={<Workflow className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                description="Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight."
+                icon={<Workflow className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
             />
 
             {/* ── 01 CI/CD ────────────────────────────────────────────────────── */}

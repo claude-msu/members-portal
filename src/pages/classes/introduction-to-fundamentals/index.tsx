@@ -5,8 +5,10 @@ import {
     ChevronDown,
     Terminal,
     GitBranch,
+    Package,
     Globe,
     Server,
+    Cpu,
     Binary,
     Workflow,
     BookOpen,
@@ -36,7 +38,7 @@ interface Week {
     theme: string;
     subtitle: string;
     icon: React.ReactNode;
-    color: string; // tailwind bg class for accent
+    color: string;
     sessions: Session[];
 }
 
@@ -45,9 +47,9 @@ interface Week {
 const WEEKS: Week[] = [
     {
         number: 1,
-        theme: 'The Terminal & Version Control',
+        theme: 'Linux & The Command Line',
         subtitle: 'Your new home base',
-        icon: <GitBranch className="h-5 w-5" />,
+        icon: <Terminal className="h-5 w-5" />,
         color: 'brown',
         sessions: [
             {
@@ -55,7 +57,7 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'Linux & The Command Line',
                 description:
-                    'Before you can build anything serious, you need to feel at home in the terminal. Every server, every container, every cloud environment — it\'s all Linux underneath. By the end of this lecture you\'ll navigate, manipulate files, manage processes, and install real software without touching a mouse.',
+                    'Every server, container, and cloud environment runs Linux underneath. Learn to navigate, manipulate files, manage processes, and install software without touching a mouse.',
                 duration: '90 min',
                 slug: 'week-1/lecture-1',
                 tags: ['ls', 'grep', 'chmod', 'apt', 'brew'],
@@ -63,67 +65,145 @@ const WEEKS: Week[] = [
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Version Control with Git',
+                title: 'Shell Scripting & Permissions',
                 description:
-                    'You\'re already comfortable in the terminal. Now let\'s make sure your work is never lost, always collaborative, and completely traceable. Git is the foundation of every professional software team on the planet — and after this lecture, you\'ll understand not just how to use it, but why it works the way it does.',
+                    'Automate repetitive tasks with bash scripts and understand the Unix permission model that controls who can read, write, and execute everything on the system.',
                 duration: '90 min',
                 slug: 'week-1/lecture-2',
-                tags: ['git init', 'git commit', 'git push', 'branching'],
+                tags: ['bash', 'chmod', 'chown', 'shebang', 'cron'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'The Git + Linux Gauntlet',
+                title: 'The Linux Gauntlet',
                 description:
-                    'Two lectures down. Now you prove it. This activity strings together everything from Lecture 1 and Lecture 2 into a set of increasingly difficult challenges. There are no walkthroughs here — you have the knowledge, now apply it. Hints are available if you get stuck, but try without them first.',
+                    'Navigate, manipulate, script, and automate — 90 minutes of terminal challenges that cover everything from Week 1. No walkthroughs, just commands and results.',
                 duration: '90 min',
                 slug: 'week-1/activity',
-                tags: ['merge conflicts', 'rebase', 'squash', 'process management'],
+                tags: ['filesystem', 'grep', 'bash scripts', 'permissions'],
             },
         ],
     },
     {
         number: 2,
-        theme: 'Containerization & Operating Systems',
-        subtitle: 'Build once, run anywhere',
-        icon: <Terminal className="h-5 w-5" />,
+        theme: 'Git & Agile Engineering',
+        subtitle: 'How real teams work',
+        icon: <GitBranch className="h-5 w-5" />,
         color: 'gray',
         sessions: [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'Package Managers',
+                title: 'VersiGit',
                 description:
-                    'Every language, every platform, every operating system has one thing in common: a package manager. Understanding how they work — not just the commands, but the model underneath — is what separates developers who can set up any environment from developers who can only follow tutorials.',
+                    'Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes.',
                 duration: '90 min',
                 slug: 'week-2/lecture-1',
-                tags: ['apt', 'npm', 'pip', 'yum', 'nginx'],
+                tags: ['git init', 'git commit', 'branching', 'merge conflicts'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'GitHub, Agile & Project Management',
+                description:
+                    'Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature.',
+                duration: '90 min',
+                slug: 'week-2/lecture-2',
+                tags: ['pull requests', 'GitHub Projects', 'issues', 'Scrum', 'Kanban'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Project Kickoff',
+                description:
+                    'Choose your project domain, scaffold your repo, create your GitHub Project board, write issues for Weeks 3–5, and open your first PR. Every deliverable from here ships through this board.',
+                duration: '90 min',
+                slug: 'week-2/activity',
+                tags: ['GitHub Projects', 'issues', 'pull requests', 'README'],
+            },
+        ],
+    },
+    {
+        number: 3,
+        theme: 'Containerization with Docker',
+        subtitle: 'Build once, run anywhere',
+        icon: <Package className="h-5 w-5" />,
+        color: 'gray',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'Package Managers & Environments',
+                description:
+                    'Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again.',
+                duration: '90 min',
+                slug: 'week-3/lecture-1',
+                tags: ['apt', 'npm', 'pip', 'venv', 'dependency resolution'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
                 title: 'Docker & Containerization',
                 description:
-                    '\'It works on my machine\' is the most expensive sentence in software. Docker solves this by packaging your application and everything it needs — runtime, libraries, config — into a single portable unit that runs identically everywhere. This lecture covers the concepts, the commands, and the Dockerfile.',
+                    '"It works on my machine" ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere.',
                 duration: '90 min',
-                slug: 'week-2/lecture-2',
+                slug: 'week-3/lecture-2',
                 tags: ['Dockerfile', 'docker run', 'image layers', 'volumes'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'The Containerization Challenge',
+                title: 'Containerize Your Backend Stub',
                 description:
-                    'Two lectures down. Now you take a real application from zero to fully containerized. By the end of this session you\'ll have a Node.js app and a PostgreSQL database running together in Docker, communicating over a Compose network, with data that survives container restarts.',
+                    'Write a Dockerfile for a provided Python stub, mount a volume to persist data between runs, and compare image sizes between base images. Your container is ready for Week 4.',
                 duration: '90 min',
-                slug: 'week-2/activity',
-                tags: ['docker-compose', 'networking', 'environment vars'],
+                slug: 'week-3/activity',
+                tags: ['Dockerfile', 'volumes', 'docker images', 'base images'],
             },
         ],
     },
     {
-        number: 3,
-        theme: 'Web Development',
+        number: 4,
+        theme: 'Backend Development',
+        subtitle: 'The engine under the hood',
+        icon: <Server className="h-5 w-5" />,
+        color: 'blue',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'FastAPI & Python Backends',
+                description:
+                    'Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API.',
+                duration: '90 min',
+                slug: 'week-4/lecture-1',
+                tags: ['FastAPI', 'Pydantic', 'REST', 'endpoints', 'docs'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Databases: SQL, SQLite & Redis',
+                description:
+                    'SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command.',
+                duration: '90 min',
+                slug: 'week-4/lecture-2',
+                tags: ['SQLite', 'SQL', 'Redis', 'caching', 'docker-compose'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Build Your Backend',
+                description:
+                    'Build the FastAPI backend for your chosen project domain — 3+ endpoints, SQLite storage, Redis caching layer, all running via Docker Compose. Deliverable ships as a PR.',
+                duration: '90 min',
+                slug: 'week-4/activity',
+                tags: ['FastAPI', 'SQLite', 'Redis', 'docker-compose', 'REST'],
+            },
+        ],
+    },
+    {
+        number: 5,
+        theme: 'Frontend Development',
         subtitle: 'Build interfaces people actually use',
         icon: <Globe className="h-5 w-5" />,
         color: 'purple',
@@ -133,153 +213,75 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'React Components & Hooks',
                 description:
-                    'React is the most widely used frontend library in the world, and for good reason — it gives you a clean model for building UIs out of reusable pieces. This lecture covers the mental model, components, props, state, and the hooks you\'ll use every single day.',
+                    'React is the most widely used frontend library in the world. Learn the mental model, components, props, state, and the hooks you will use every single day.',
                 duration: '90 min',
-                slug: 'week-3/lecture-1',
+                slug: 'week-5/lecture-1',
                 tags: ['useState', 'useEffect', 'props', 'JSX'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Tailwind CSS',
+                title: 'Tailwind CSS & Connecting to Your API',
                 description:
-                    'Traditional CSS requires you to name things, context-switch between files, and mentally map class names to their styles. Tailwind eliminates all of that — you style directly in your markup with utility classes that do exactly one thing. Once it clicks, you\'ll never want to write traditional CSS again.',
-                duration: '90 min',
-                slug: 'week-3/lecture-2',
-                tags: ['flex', 'grid', 'responsive', 'lifting state'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Build the Task Tracker',
-                description:
-                    'This is the first real project build of the course — a complete Task Tracker from scratch with React, TypeScript, and Tailwind. Full CRUD, localStorage persistence, and optional Framer Motion. By the end you\'ll have something fully functional and ready to deploy.',
-                duration: '90 min',
-                slug: 'week-3/activity',
-                tags: ['CRUD', 'localStorage', 'Framer Motion'],
-            },
-        ],
-    },
-    {
-        number: 4,
-        theme: 'Web Development — Continued',
-        subtitle: 'Ship it',
-        icon: <Globe className="h-5 w-5" />,
-        color: 'purple',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Advanced React Patterns',
-                description:
-                    'You know the fundamentals. Now the patterns that separate junior React developers from seniors: Context for global state, useReducer for complex state logic, performance optimization with memo and useCallback, and React Router for multi-page apps.',
-                duration: '90 min',
-                slug: 'week-4/lecture-1',
-                tags: ['useContext', 'custom hooks', 'composition'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Deployment & CI/CD',
-                description:
-                    'Writing code is half the job. Getting it to users reliably and repeatedly is the other half. This lecture covers how modern teams deploy software: environment variables, Vercel\'s deployment model, GitHub Actions for automated pipelines, and what CI/CD actually means in practice.',
-                duration: '90 min',
-                slug: 'week-4/lecture-2',
-                tags: ['Vercel', 'Netlify', 'env vars', 'CI/CD'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Upgrade the Task Tracker',
-                description:
-                    'You built the Task Tracker last week. Now you apply everything from Week 4 to make it production-grade: refactor state to useReducer, add Context so any component can access tasks, set up a CI pipeline that blocks bad code, and ship it with a custom domain.',
-                duration: '90 min',
-                slug: 'week-4/activity',
-                tags: ['deployment', 'domains', 'build pipeline'],
-            },
-        ],
-    },
-    {
-        number: 5,
-        theme: 'Backend Design',
-        subtitle: 'The other half of the stack',
-        icon: <Server className="h-5 w-5" />,
-        color: 'blue',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'FastAPI & Python Backends',
-                description:
-                    'Every app eventually needs a server. Not because localStorage isn\'t enough — it is, for a while — but because real apps need authentication, shared state between users, persistent storage, and business logic that can\'t run in the browser. FastAPI is the fastest path from zero to a production-ready Python API.',
-                duration: '90 min',
-                slug: 'week-5/lecture-1',
-                tags: ['FastAPI', 'routes', 'Pydantic', 'OpenAPI'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'SQL & Databases',
-                description:
-                    'Every serious application stores data somewhere. Relational databases have been the dominant storage technology for 50 years for good reason — they\'re consistent, queryable, and battle-tested. This lecture covers the SQL you\'ll actually use, how to connect a database to FastAPI with SQLAlchemy, and when to reach for PostgreSQL vs. SQLite.',
+                    'Style your UI with utility classes that do exactly one thing, then wire your React frontend to the FastAPI backend you built last week using fetch.',
                 duration: '90 min',
                 slug: 'week-5/lecture-2',
-                tags: ['SELECT', 'JOIN', 'SQLAlchemy', 'PostgreSQL'],
+                tags: ['Tailwind', 'flex', 'grid', 'fetch', 'useEffect'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Build the Notes API',
+                title: 'Build Your Frontend',
                 description:
-                    'Two lectures, one project: a fully functional Notes API with user management, CRUD operations, search, and persistent SQLite storage — all documented and testable through FastAPI\'s interactive docs. This is your first real backend.',
+                    'Build the React + Tailwind frontend for your project — 3+ views, real data flowing from your API, fully styled. By the end you have a live full-stack end to end.',
                 duration: '90 min',
                 slug: 'week-5/activity',
-                tags: ['authentication', 'CRUD', 'curl', 'Postman'],
+                tags: ['React', 'Tailwind', 'fetch', 'components', 'state'],
             },
         ],
     },
     {
         number: 6,
-        theme: 'Data Structures & Algorithms',
-        subtitle: 'Think like an engineer',
-        icon: <Binary className="h-5 w-5" />,
+        theme: 'C++ & Object-Oriented Programming',
+        subtitle: 'Design software, not just functions',
+        icon: <Cpu className="h-5 w-5" />,
         color: 'red',
         sessions: [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'Arrays, Linked Lists, Stacks & Queues',
+                title: 'Classes, Encapsulation & Inheritance',
                 description:
-                    'Data structures are the vocabulary of algorithms. Before you can solve problems efficiently, you need to know which structure fits which problem — and understand why, not just what to type. This lecture covers the four foundational structures in C++, their tradeoffs, and the problems they\'re built for.',
+                    'C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible.',
                 duration: '90 min',
                 slug: 'week-6/lecture-1',
-                tags: ['classes', 'encapsulation', 'inheritance', 'polymorphism'],
+                tags: ['classes', 'encapsulation', 'inheritance', 'virtual'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Trees, Hash Maps & Object-Oriented Programming',
+                title: 'Polymorphism, STL & System Design',
                 description:
-                    'Trees are the most important non-linear structure in computer science — they show up in databases, compilers, file systems, and the DOM. OOP in C++ is where you learn to design software, not just write functions. This lecture covers binary trees, BSTs, the four OOP principles, and how to apply them to build a real system.',
+                    'Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core.',
                 duration: '90 min',
                 slug: 'week-6/lecture-2',
-                tags: ['arrays', 'linked lists', 'hash maps', 'time complexity'],
+                tags: ['polymorphism', 'abstract classes', 'vector', 'unordered_map'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Library Management System',
+                title: 'CLI Phonebook — Part 1',
                 description:
-                    'You\'ll build a complete Library Management System in C++ from scratch — using every concept from both lectures: abstract base classes, inheritance, polymorphism through virtual methods, and STL containers for catalog and loan tracking. Then you\'ll close out with a curated set of interview problems.',
+                    'Build the OOP foundation of a CLI Phonebook in C++ — Contact class hierarchy, manager class, and a working add/list/delete interface.',
                 duration: '90 min',
                 slug: 'week-6/activity',
-                tags: ['NeetCode', 'arrays', 'two pointers', 'stack'],
+                tags: ['C++ classes', 'inheritance', 'STL', 'CLI'],
             },
         ],
     },
     {
         number: 7,
-        theme: 'DSA Continued & OOP',
+        theme: 'Data Structures & Algorithms',
         subtitle: 'Go deeper',
         icon: <Binary className="h-5 w-5" />,
         color: 'red',
@@ -289,37 +291,37 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'Trees, Stacks & Queues',
                 description:
-                    'Hierarchical data structures and their traversal algorithms. BFS, DFS, and why the call stack is itself a stack.',
+                    'Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take.',
                 duration: '90 min',
                 slug: 'week-7/lecture-1',
-                tags: ['trees', 'BFS', 'DFS', 'stacks', 'queues'],
+                tags: ['BST', 'in-order traversal', 'BFS', 'DFS', 'stacks', 'queues'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'OOP in Practice — C++ Project',
+                title: 'Hash Maps, Complexity & Interview Patterns',
                 description:
-                    'Apply every OOP principle to a real system. Design classes, define interfaces, and build something that can actually grow.',
+                    'Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers.',
                 duration: '90 min',
                 slug: 'week-7/lecture-2',
-                tags: ['inheritance', 'abstraction', 'interfaces', 'design patterns'],
+                tags: ['hash maps', 'Big-O', 'two pointers', 'sliding window'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Library Management System',
+                title: 'CLI Phonebook — Part 2',
                 description:
-                    'Build a complete Library Management System in C++ using OOP design principles. Books, members, checkout flows — all in classes.',
+                    'Extend your Week 6 Phonebook with a BST for alphabetically sorted storage, a stack-based undo system, and O(1) search via an unordered_map index.',
                 duration: '90 min',
                 slug: 'week-7/activity',
-                tags: ['C++ classes', 'OOP design', 'system design'],
+                tags: ['BST', 'in-order traversal', 'stack undo', 'unordered_map'],
             },
         ],
     },
     {
         number: 8,
-        theme: 'Agile Software Engineering',
-        subtitle: 'How real teams ship',
+        theme: 'Sprint Review & Showcase',
+        subtitle: 'Ship it and reflect',
         icon: <Workflow className="h-5 w-5" />,
         color: 'green',
         sessions: [
@@ -328,17 +330,17 @@ const WEEKS: Week[] = [
                 label: 'Lecture 1',
                 title: 'Scrum, Kanban & Sprint Cycles',
                 description:
-                    'The ceremonies, artifacts, and mindset behind agile teams. User stories, sprint planning, retrospectives, and backlogs.',
+                    'The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives.',
                 duration: '90 min',
                 slug: 'week-8/lecture-1',
-                tags: ['Scrum', 'Kanban', 'user stories', 'sprints'],
+                tags: ['Scrum', 'Kanban', 'user stories', 'sprints', 'retro'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
                 title: 'CI/CD, TDD & Engineering Culture',
                 description:
-                    'Automated pipelines, test-driven development, and the practices that keep large codebases healthy. Your last lecture — make it count.',
+                    'Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight.',
                 duration: '90 min',
                 slug: 'week-8/lecture-2',
                 tags: ['GitHub Actions', 'TDD', 'CI/CD', 'code review'],
@@ -346,12 +348,12 @@ const WEEKS: Week[] = [
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Sprint Simulation',
+                title: 'Sprint Simulation & Project Showcase',
                 description:
-                    'Define epics, break them into stories, track them in GitHub Projects, and simulate a two-week sprint for your Task Tracker or Notes API.',
+                    'Close out your GitHub Project board, present your full-stack app as a sprint review demo, retrospective, and walk through what you would build next.',
                 duration: '90 min',
                 slug: 'week-8/activity',
-                tags: ['GitHub Projects', 'epics', 'burndown', 'retrospective'],
+                tags: ['sprint review', 'demo', 'retrospective', 'GitHub Projects'],
             },
         ],
     },
@@ -655,7 +657,25 @@ export default function IntroductionToFundamentals() {
 
                 {/* Topic pills */}
                 <div className="flex flex-wrap gap-2 mt-4">
-                    {['Linux', 'Git', 'Docker', 'React', 'FastAPI', 'SQL', 'C++ & DSA', 'Agile'].map((topic) => (
+                    {[
+                        'Linux',
+                        'Git & Agile',
+                        'Docker',
+                        'FastAPI',
+                        'Redis',
+                        'React',
+                        'C++ & DSA',
+                        'Linux',
+                        'Git & Agile',
+                        'Docker',
+                        'FastAPI',
+                        'Redis',
+                        'React',
+                        'SQL',
+                        'C++ & DSA',
+                        'Sprint Review',
+                        'Project Management',
+                    ].map((topic) => (
                         <Badge key={topic} variant="secondary">
                             {topic}
                         </Badge>

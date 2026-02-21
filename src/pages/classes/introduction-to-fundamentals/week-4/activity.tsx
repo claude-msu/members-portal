@@ -1,8 +1,9 @@
 import { useNavigate } from 'react-router-dom';
-import { Rocket } from 'lucide-react';
+import { Server } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
@@ -10,6 +11,7 @@ import { ActivityTask } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
     LectureP,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week4Activity() {
@@ -20,194 +22,166 @@ export default function Week4Activity() {
             <LectureHeader
                 week={4}
                 session="Activity"
-                title="Upgrade the Task Tracker"
-                description="You built the Task Tracker last week. Now you apply everything from Week 4 to make it production-grade: refactor state to useReducer, add Context so any component can access tasks, set up a CI pipeline that blocks bad code, and ship it with a custom domain."
-                icon={<Rocket className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Build Your Backend"
+                description="The Dockerfile exists. Now fill it in — a real FastAPI backend with SQLite storage and Redis caching, all running via Docker Compose. By the end you have a documented API you can hand off to your frontend next week."
+                icon={<Server className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
             />
 
             <LectureCallout type="info">
-                Open your Task Tracker project from Week 3. All challenges in this activity are refactors and additions to that existing codebase — you're not starting from scratch.
+                You are building the backend for the domain you chose in Week 2. Use FastAPI's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page to verify everything as you go.
             </LectureCallout>
 
-            {/* ── 01 REFACTOR STATE TO USEREDUCER ─────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Refactor State to useReducer" />
+            {/* ── 01 PROJECT REQUIREMENTS ──────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="Project Requirements" />
 
             <LectureP>
-                Your current <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">App.tsx</code> has three separate handler functions for adding, toggling, and deleting tasks. Pull those into a single reducer and test it in isolation.
+                Before writing code, understand what you are shipping. Every backend this week must meet these requirements regardless of domain.
             </LectureP>
 
-            <ActivityChallenge
-                number="1.1"
-                title="Write the Reducer"
-                description="Extract all task state transitions into a pure taskReducer function."
-            >
-                <div className="mt-4 space-y-1">
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">src/features/tasks/taskReducer.ts</code></ActivityTask>
-                    <ActivityTask>Define an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action</code> discriminated union type covering <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ADD</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TOGGLE</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DELETE</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">CLEAR_DONE</code></ActivityTask>
-                    <ActivityTask>Write the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">taskReducer(state: Task[], action: Action): Task[]</code> function — each case returns a new array, never mutates</ActivityTask>
-                    <ActivityTask>Manually call the reducer in the file with a few test cases and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">console.assert</code> to verify the outputs are correct before touching any UI</ActivityTask>
-                </div>
+            <div className="my-4 space-y-2">
+                {[
+                    '3 or more REST endpoints (at minimum: create one resource, list all resources, get one resource by ID)',
+                    'SQLite database using SQLAlchemy for all persistent data',
+                    'At least one Redis-cached endpoint — a read that is expensive enough to be worth caching (e.g., aggregate, filtered list, recommendation computation)',
+                    'Docker Compose file that starts FastAPI + Redis with one command: docker compose up',
+                    'FastAPI /docs page fully documents all endpoints with correct schemas',
+                ].map((req, i) => (
+                    <div key={i} className="flex gap-3 rounded-lg border border-border bg-card p-3">
+                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 shrink-0">✓</span>
+                        <p className="text-sm text-foreground">{req}</p>
+                    </div>
+                ))}
+            </div>
 
-                <ActivityHint label="testing a pure function">
-                    A reducer is just a function — you can call it directly: <code className="bg-muted px-1 rounded">{"const next = taskReducer([], { type: 'ADD', title: 'Buy milk' })"}</code>. Then assert the result: <code className="bg-muted px-1 rounded">console.assert(next.length === 1)</code>. No React, no rendering, no setup needed.
-                </ActivityHint>
-            </ActivityChallenge>
+            <LectureCallout type="warning">
+                Redis is a cache, not your primary database. Every piece of data must live in SQLite first. Redis holds computed results that are expensive to recompute on every request. If Redis goes down, your app should still work.
+            </LectureCallout>
 
-            <ActivityChallenge
-                number="1.2"
-                title="Swap useState for useReducer in App"
-                description="Replace the three handler functions with a single dispatch call each."
-            >
-                <div className="mt-4 space-y-1">
-                    <ActivityTask>Replace the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">tasks</code> state and its three handlers with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const [tasks, dispatch] = useReducer(taskReducer, [])</code></ActivityTask>
-                    <ActivityTask>Update <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">AddTaskForm</code> to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dispatch{'({ type: \'ADD\', title })'}</code></ActivityTask>
-                    <ActivityTask>Update <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskCard</code>'s toggle and delete to dispatch the appropriate actions</ActivityTask>
-                    <ActivityTask>Update the "Clear completed" button to dispatch <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">CLEAR_DONE</code></ActivityTask>
-                    <ActivityTask>Confirm the app works identically to before — same behaviour, cleaner internals</ActivityTask>
-                </div>
-
-                <ActivityHint label="localStorage + useReducer">
-                    <code className="bg-muted px-1 rounded">useReducer</code> doesn't have a built-in persistence mechanism like your custom <code className="bg-muted px-1 rounded">useLocalStorage</code> hook did. You have two options: (1) wrap the dispatch in a custom function that also writes to localStorage, or (2) add a <code className="bg-muted px-1 rounded">useEffect</code> that writes <code className="bg-muted px-1 rounded">tasks</code> to localStorage whenever it changes, and read from localStorage for the initial state argument.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            {/* ── 02 ADD CONTEXT ──────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Add Context" />
-
-            <LectureP>
-                Right now everything flows through <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">App.tsx</code> via props. This works for a small app, but as you add more components it gets unwieldy. Move the task state and dispatch into a Context so any component can access them directly.
-            </LectureP>
+            {/* ── 02 SET UP DOCKER COMPOSE ────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Set Up Docker Compose" />
 
             <ActivityChallenge
                 number="2.1"
-                title="Create TaskContext"
-                description="Build a Provider that wraps the app and exposes tasks + dispatch."
+                title="Write docker-compose.yml"
+                description="Define FastAPI + Redis services that work together."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">src/features/tasks/TaskContext.tsx</code> with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskProvider</code> component and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useTasks()</code> custom hook</ActivityTask>
-                    <ActivityTask>Move <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useReducer</code> and the localStorage sync into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskProvider</code></ActivityTask>
-                    <ActivityTask>The context value should expose: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">tasks</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dispatch</code>, and the derived <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stats</code> object (total, done, pct)</ActivityTask>
-                    <ActivityTask>Wrap <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'<App />'}</code> in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'<TaskProvider>'}</code> in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.tsx</code></ActivityTask>
-                    <ActivityTask>Refactor <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">App.tsx</code> to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useTasks()</code> instead of managing state directly — remove all the prop threading</ActivityTask>
-                    <ActivityTask>Refactor the stats bar to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useTasks()</code> directly instead of receiving stats as props</ActivityTask>
+                    <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code></ActivityTask>
+                    <ActivityTask>Define an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">api</code> service: build from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code>, ports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">8000:8000</code>, depends_on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
+                    <ActivityTask>Define a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> service: image <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis:7-alpine</code>, no extra config needed</ActivityTask>
+                    <ActivityTask>Verify with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code></ActivityTask>
                 </div>
 
-                <ActivityHint label="useMemo for stats inside the Provider">
-                    Compute stats inside the Provider using <code className="bg-muted px-1 rounded">useMemo</code> so they only recalculate when <code className="bg-muted px-1 rounded">tasks</code> changes: <code className="bg-muted px-1 rounded">{"const stats = useMemo(() => ({ total: tasks.length, done: tasks.filter(t => t.done).length }), [tasks])"}</code>. Include it in the context value so any component can read it without recomputing.
-                </ActivityHint>
+                <TerminalBlock
+                    title="bash — backend"
+                    lines={[
+                        { cmd: 'docker compose up' },
+                    ]}
+                />
+
+                <LectureCallout type="info">
+                    <span title="Tells Docker Compose to start the redis service before the api service. Does not wait for Redis to be ready — just for the container to start. For production readiness checks, you would use healthchecks.">depends_on</span> ensures Redis starts first, but doesn't wait for it to be ready. Your code should handle the case where Redis is temporarily unavailable.
+                </LectureCallout>
             </ActivityChallenge>
 
-            {/* ── 03 PERFORMANCE ──────────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Optimize with memo and useCallback" />
+            {/* ── 03 BUILD YOUR ENDPOINTS ─────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Build Your Endpoints" />
 
             <ActivityChallenge
                 number="3.1"
-                title="Memoize TaskCard"
-                description="Prevent TaskCard from re-rendering when unrelated state changes."
+                title="Database Models"
+                description="Set up SQLAlchemy and define your data schema."
             >
-                <LectureP>
-                    Install React DevTools in your browser. Open the Profiler tab, record an interaction (toggle a task), and observe which components re-render. You'll see every TaskCard re-renders even when only one task changed.
-                </LectureP>
-
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Wrap <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskCard</code> in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">React.memo</code></ActivityTask>
-                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskList</code>, wrap the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">onToggle</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">onDelete</code> callbacks passed to each card in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useCallback</code></ActivityTask>
-                    <ActivityTask>Profile again — only the toggled card should re-render now</ActivityTask>
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">models.py</code> with your SQLAlchemy model(s) representing your chosen domain</ActivityTask>
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">database.py</code> with engine setup and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code> dependency</ActivityTask>
+                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> to create tables on startup</ActivityTask>
                 </div>
 
-                <ActivityHint label="why useCallback is needed alongside memo">
-                    <code className="bg-muted px-1 rounded">React.memo</code> does a shallow comparison of props. If <code className="bg-muted px-1 rounded">onToggle</code> is defined inline (e.g. <code className="bg-muted px-1 rounded">{"() => dispatch(..."}</code>), a new function is created every render, giving every card a new <code className="bg-muted px-1 rounded">onToggle</code> reference even though nothing changed. <code className="bg-muted px-1 rounded">useCallback</code> stabilizes the reference so <code className="bg-muted px-1 rounded">memo</code>'s comparison actually works.
+                <ActivityHint label="SQLAlchemy quickstart">
+                    <code className="bg-muted px-1 rounded text-xs">from sqlalchemy import create_engine; from sqlalchemy.orm import sessionmaker, declarative_base</code> — then define your Base class and models that inherit from it.
                 </ActivityHint>
             </ActivityChallenge>
 
-            {/* ── 04 CI PIPELINE ──────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Set Up CI with GitHub Actions" />
+            <ActivityChallenge
+                number="3.2"
+                title="Core Endpoints"
+                description="Implement your 3 required REST endpoints."
+            >
+                <div className="mt-4 space-y-1">
+                    <ActivityTask>Implement your 3 required endpoints. Each must use a Pydantic schema for request/response validation</ActivityTask>
+                    <ActivityTask>Test each one through <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> before moving on</ActivityTask>
+                </div>
+
+                <LectureCallout type="tip">
+                    Write one endpoint, test it in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code>, then write the next. Do not write all three and then test — you will not know which one is broken.
+                </LectureCallout>
+            </ActivityChallenge>
+
+            <ActivityChallenge
+                number="3.3"
+                title="Redis Caching Layer"
+                description="Add caching to your most expensive read operation."
+            >
+                <div className="mt-4 space-y-1">
+                    <ActivityTask>Connect to Redis using the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> Python package: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis.Redis(host='redis', port=6379)</code></ActivityTask>
+                    <ActivityTask>Pick the most read-heavy endpoint — the one that does the most computation or hits the most rows</ActivityTask>
+                    <ActivityTask>Cache its result in Redis with a 60-second TTL using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r.setex()</code></ActivityTask>
+                    <ActivityTask>On each request: check Redis first (cache hit), fall back to SQLite if not found (cache miss), then store the result in Redis</ActivityTask>
+                </div>
+
+                <div className="my-4 rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
+                    <p className="text-zinc-400 mb-2"># Cache hit/miss pattern:</p>
+                    <p className="text-blue-400">result = r.get(<span className="text-amber-400">'cache_key'</span>)</p>
+                    <p className="text-blue-400">if result:</p>
+                    <p className="text-zinc-400 pl-4">return json.loads(result)  <span className="text-gray-500"># cache hit</span></p>
+                    <p className="text-blue-400">else:</p>
+                    <p className="text-zinc-400 pl-4">result = compute_expensive_query()</p>
+                    <p className="text-zinc-400 pl-4">r.setex(<span className="text-amber-400">'cache_key'</span>, 60, json.dumps(result))</p>
+                    <p className="text-zinc-400 pl-4">return result  <span className="text-gray-500"># cache miss, but now cached</span></p>
+                </div>
+
+                <LectureCallout type="info">
+                    <span title="Time To Live — how long a cached value stays valid before Redis automatically deletes it. After 60 seconds the next request will recompute the value and re-cache it. Prevents serving stale data indefinitely.">TTL</span> is the expiration time. After 60 seconds the next request will recompute the value and re-cache it.
+                </LectureCallout>
+            </ActivityChallenge>
+
+            {/* ── 04 SHIP IT ──────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Ship It" />
 
             <ActivityChallenge
                 number="4.1"
-                title="Write the Workflow File"
-                description="Add a GitHub Actions CI pipeline that runs on every PR to main."
+                title="Verify and Document"
+                description="Finalize your API documentation."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/workflows/ci.yml</code> in your project</ActivityTask>
-                    <ActivityTask>Configure it to trigger on pushes to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> and all pull requests targeting <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
-                    <ActivityTask>Add a job that checks out the code, sets up Node 20 with npm caching, installs with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm ci</code>, runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npx tsc --noEmit</code>, and runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm run build</code></ActivityTask>
-                    <ActivityTask>Push the workflow file to a new branch and open a PR — watch the Actions tab as the pipeline runs</ActivityTask>
-                    <ActivityTask>Deliberately introduce a TypeScript error (assign a string to a number type somewhere) and push — confirm the pipeline fails on the type check step</ActivityTask>
-                    <ActivityTask>Fix the error, push again, and confirm the pipeline goes green</ActivityTask>
+                    <ActivityTask>Open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> and confirm all endpoints appear with correct schemas</ActivityTask>
+                    <ActivityTask>Test the cached endpoint twice in quick succession and confirm the second response is faster</ActivityTask>
+                    <ActivityTask>Write a short <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">API.md</code> in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder documenting each endpoint: method, path, what it does, example request/response</ActivityTask>
                 </div>
-
-                <ActivityHint label="workflow file structure">
-                    The file needs three top-level keys: <code className="bg-muted px-1 rounded">name</code> (display name), <code className="bg-muted px-1 rounded">on</code> (triggers), and <code className="bg-muted px-1 rounded">jobs</code> (what to run). Under <code className="bg-muted px-1 rounded">jobs</code>, define a job with <code className="bg-muted px-1 rounded">runs-on: ubuntu-latest</code> and a <code className="bg-muted px-1 rounded">steps</code> array. Each step is either a <code className="bg-muted px-1 rounded">uses</code> (a pre-built action) or a <code className="bg-muted px-1 rounded">run</code> (a shell command).
-                </ActivityHint>
             </ActivityChallenge>
 
             <ActivityChallenge
                 number="4.2"
-                title="Enable Branch Protection"
-                description="Make the CI pipeline actually enforce quality — it's useless if people can bypass it."
+                title="PR and Board Update"
+                description="Finalize and ship Issue #2."
             >
                 <div className="mt-4 space-y-1">
-                    <ActivityTask>Go to your repository on GitHub → Settings → Branches → Add rule for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
-                    <ActivityTask>Enable "Require a pull request before merging"</ActivityTask>
-                    <ActivityTask>Enable "Require status checks to pass before merging" and select your CI job</ActivityTask>
-                    <ActivityTask>Enable "Require branches to be up to date before merging"</ActivityTask>
-                    <ActivityTask>Try pushing directly to main — GitHub should reject it</ActivityTask>
+                    <ActivityTask>Commit everything</ActivityTask>
+                    <ActivityTask>Push</ActivityTask>
+                    <ActivityTask>Open a PR that closes Issue #2 from your GitHub Project board</ActivityTask>
+                    <ActivityTask>Move Issue #2 to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
+                    <ActivityTask>Your PR description should include: a screenshot of your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page, confirmation that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> works, and which endpoint is Redis-cached and why you chose it</ActivityTask>
                 </div>
-
-                <LectureCallout type="info">
-                    You'll need to be a repository admin to set branch protection rules. If you're using a personal repo you created, you already are. If you're working in a shared club repo, ask the President or Technical Chair to enable this.
-                </LectureCallout>
-            </ActivityChallenge>
-
-            {/* ── 05 DEPLOY ────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Deploy the Upgraded Version" />
-
-            <ActivityChallenge
-                number="5.1"
-                title="Merge and Watch Vercel Deploy"
-                description="See the full CI/CD loop in action end-to-end."
-            >
-                <div className="mt-4 space-y-1">
-                    <ActivityTask>Make sure all your changes from Parts 1–4 are committed and pushed on a feature branch</ActivityTask>
-                    <ActivityTask>Open a pull request targeting <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> — you should see the CI pipeline check appear on the PR</ActivityTask>
-                    <ActivityTask>Wait for CI to go green, then merge the PR</ActivityTask>
-                    <ActivityTask>Open Vercel and watch the deployment trigger automatically from the merge</ActivityTask>
-                    <ActivityTask>Visit your live URL and verify the upgraded app is running</ActivityTask>
-                    <ActivityTask>Open the Vercel dashboard and find the deployment log — read through what Vercel actually did during the build</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            {/* ── 06 BONUS ─────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Bonus Challenges" />
-
-            <ActivityChallenge
-                number="★"
-                title="Add React Router"
-                description="Split the app into multiple pages using React Router — no hints."
-            >
-                <LectureP>
-                    Install React Router v6. Create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/</code> (landing/stats page) and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/tasks</code> (the task list) route. Add a nav bar with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Link</code> components. Since tasks live in Context, both pages can read from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useTasks()</code> without prop changes. Verify the back button works and the URL updates correctly.
-                </LectureP>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="★"
-                title="Add Error Boundaries"
-                description="Wrap the app so that a crash in one section doesn't take down everything."
-            >
-                <LectureP>
-                    Install <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">react-error-boundary</code>. Wrap <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskList</code> and the stats bar in separate <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ErrorBoundary</code> components with a fallback UI. Then deliberately throw an error in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">TaskCard</code> and confirm only that section shows the fallback — not the whole page.
-                </LectureP>
             </ActivityChallenge>
 
             <LectureFooterNav
                 prev={{
-                    label: 'Deployment & CI/CD',
+                    label: 'Databases: SQL, SQLite & Redis',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-2'),
                 }}
                 next={{
-                    label: 'Week 5 — FastAPI & SQL',
+                    label: 'React Components & Hooks',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
                 }}
             />

@@ -22,8 +22,8 @@ export default function Week1Lecture1() {
                 week={1}
                 session="Lecture 1"
                 title="Linux & The Command Line"
-                description="Feel at home in the terminal: navigate, manipulate files, manage processes, and install software — no mouse required."
-                icon={<Terminal className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                description="Every server, container, and cloud environment runs Linux underneath. Learn to navigate, manipulate files, manage processes, and install software without touching a mouse."
+                icon={<Terminal className="h-4 w-4 text-yellow-800 dark:text-yellow-300" />}
             />
 
             {/* ── 01 WHAT IS THE TERMINAL ─────────────────────────────────────── */}

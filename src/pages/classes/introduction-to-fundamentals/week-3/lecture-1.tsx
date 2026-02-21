@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Layers } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -65,9 +65,9 @@ export default function Week3Lecture1() {
             <LectureHeader
                 week={3}
                 session="Lecture 1"
-                title="React Components & Hooks"
-                description="React is the most widely used frontend library in the world, and for good reason — it gives you a clean model for building UIs out of reusable pieces. This lecture covers the mental model, components, props, state, and the hooks you'll use every single day."
-                icon={<Layers className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Package Managers & Environments"
+                description="Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again."
+                icon={<Package className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
 
             {/* ── 01 THE REACT MENTAL MODEL ───────────────────────────────────── */}

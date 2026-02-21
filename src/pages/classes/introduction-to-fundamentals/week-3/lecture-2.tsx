@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Paintbrush } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -42,9 +42,9 @@ export default function Week3Lecture2() {
             <LectureHeader
                 week={3}
                 session="Lecture 2"
-                title="Tailwind CSS"
-                description="Traditional CSS requires you to name things, context-switch between files, and mentally map class names to their styles. Tailwind eliminates all of that — you style directly in your markup with utility classes that do exactly one thing. Once it clicks, you'll never want to write traditional CSS again."
-                icon={<Paintbrush className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Docker & Containerization"
+                description="'It works on my machine' ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere."
+                icon={<Package className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
 
             {/* ── 01 THE UTILITY CLASS MODEL ──────────────────────────────────── */}

@@ -73,9 +73,9 @@ export default function Week7Lecture1() {
             <LectureHeader
                 week={7}
                 session="Lecture 1"
-                title="Trees, BFS & DFS"
-                description="Last week introduced trees and traversal. This lecture goes deeper: BFS and DFS as general algorithms, not just tree operations. You'll see how the same two patterns — queue for BFS, stack/recursion for DFS — solve an enormous range of problems from shortest paths to cycle detection to connected components."
-                icon={<Binary className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Trees, Stacks & Queues"
+                description="Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take."
+                icon={<Binary className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
             />
 
             {/* ── 01 THE CALL STACK IS A STACK ────────────────────────────────── */}

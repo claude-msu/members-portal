@@ -20,13 +20,13 @@ export default function Week8Activity() {
             <LectureHeader
                 week={8}
                 session="Activity"
-                title="Sprint Simulation"
-                description="Everything you've built in this course — the Task Tracker, the Notes API, the Library System — now gets managed like a real engineering team would manage it. You'll define epics, break them into stories, track them in GitHub Projects, simulate a sprint, and run a retrospective. This is how it works in industry."
-                icon={<Workflow className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Sprint Simulation & Project Showcase"
+                description="Close out your GitHub Project board, demo your full-stack web app as a sprint review demo, retrospective, and walk through what you would build in the next sprint."
+                icon={<Workflow className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
             />
 
             <LectureCallout type="info">
-                Choose one of your projects from the course as your target: the Task Tracker (Week 3–4), the Notes API (Week 5), or the Library Management System (Week 6–7). All challenges below apply to whichever you pick. Work solo or pair with a classmate.
+                Your deliverable for this activity is your full-stack project from Weeks 2–5, not a previous standalone project. Make sure it is running before the session starts.
             </LectureCallout>
 
             {/* ── 01 SET UP GITHUB PROJECTS ────────────────────────────────────── */}

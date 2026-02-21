@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Container } from 'lucide-react';
+import { GitBranch } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -62,9 +62,9 @@ export default function Week2Lecture2() {
             <LectureHeader
                 week={2}
                 session="Lecture 2"
-                title="Docker & Containerization"
-                description="'It works on my machine' is the most expensive sentence in software. Docker solves this by packaging your application and everything it needs — runtime, libraries, config — into a single portable unit that runs identically everywhere. This lecture covers the concepts, the commands, and the Dockerfile."
-                icon={<Container className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="GitHub, Agile & Project Management"
+                description="Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature."
+                icon={<GitBranch className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
 
             {/* ── 01 THE PROBLEM ──────────────────────────────────────────────── */}

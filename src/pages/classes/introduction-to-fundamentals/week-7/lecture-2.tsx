@@ -69,9 +69,9 @@ export default function Week7Lecture2() {
             <LectureHeader
                 week={7}
                 session="Lecture 2"
-                title="OOP in Practice — C++ Project"
-                description="Knowing the four OOP principles is the easy part. Applying them to build a system that can actually grow — that's the hard part. This lecture is about design: how to think about a codebase before you write it, which patterns solve recurring problems, and how to keep complexity under control as a project scales."
-                icon={<Binary className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Hash Maps, Complexity & Interview Patterns"
+                description="Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers."
+                icon={<Binary className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
             />
 
             {/* ── 01 DESIGN BEFORE CODE ───────────────────────────────────────── */}

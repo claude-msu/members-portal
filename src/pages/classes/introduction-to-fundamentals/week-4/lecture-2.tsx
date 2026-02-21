@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Rocket } from 'lucide-react';
+import { Server } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -52,9 +52,9 @@ export default function Week4Lecture2() {
             <LectureHeader
                 week={4}
                 session="Lecture 2"
-                title="Deployment & CI/CD"
-                description="Writing code is half the job. Getting it to users reliably and repeatedly is the other half. This lecture covers how modern teams deploy software: environment variables, Vercel's deployment model, GitHub Actions for automated pipelines, and what CI/CD actually means in practice."
-                icon={<Rocket className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Databases: SQL, SQLite & Redis"
+                description="SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command."
+                icon={<Server className="h-4 w-4 text-blue-600 dark:text-blue-400" />}
             />
 
             {/* ── 01 THE BUILD STEP ───────────────────────────────────────────── */}

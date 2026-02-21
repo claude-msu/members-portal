@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Server } from 'lucide-react';
+import { Globe } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -73,9 +73,9 @@ export default function Week5Lecture1() {
             <LectureHeader
                 week={5}
                 session="Lecture 1"
-                title="FastAPI & Python Backends"
-                description="Every app eventually needs a server. Not because localStorage isn't enough — it is, for a while — but because real apps need authentication, shared state between users, persistent storage, and business logic that can't run in the browser. FastAPI is the fastest path from zero to a production-ready Python API."
-                icon={<Server className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="React Components & Hooks"
+                description="React is the most widely used frontend library in the world. Learn the mental model, components, props, state, and the hooks you will use every single day."
+                icon={<Globe className="h-4 w-4 text-violet-600 dark:text-violet-400" />}
             />
 
             {/* ── 01 HOW THE WEB WORKS ────────────────────────────────────────── */}

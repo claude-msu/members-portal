@@ -21,9 +21,9 @@ export default function Week6Lecture1() {
             <LectureHeader
                 week={6}
                 session="Lecture 1"
-                title="Arrays, Linked Lists, Stacks & Queues"
-                description="Data structures are the vocabulary of algorithms. Before you can solve problems efficiently, you need to know which structure fits which problem — and understand why, not just what to type. This lecture covers the four foundational structures in C++, their tradeoffs, and the problems they're built for."
-                icon={<Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Classes, Encapsulation & Inheritance"
+                description="C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible."
+                icon={<Cpu className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
             />
 
             {/* ── 01 WHY C++ ──────────────────────────────────────────────────── */}

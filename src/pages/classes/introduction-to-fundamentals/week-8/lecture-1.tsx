@@ -165,8 +165,8 @@ export default function Week8Lecture1() {
                 week={8}
                 session="Lecture 1"
                 title="Scrum, Kanban & Sprint Cycles"
-                description="Most software projects fail not because engineers can't code, but because teams built the wrong thing — or built the right thing too slowly to matter. Agile is the industry's response to that problem. Every engineering team you join will use some version of it, and your ability to participate fluently affects your impact from day one."
-                icon={<Workflow className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                description="The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives."
+                icon={<Workflow className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />}
             />
 
             {/* ── 01 WHY AGILE ────────────────────────────────────────────────── */}

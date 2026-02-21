@@ -53,9 +53,9 @@ export default function Week6Lecture2() {
             <LectureHeader
                 week={6}
                 session="Lecture 2"
-                title="Trees, Hash Maps & Object-Oriented Programming"
-                description="Trees are the most important non-linear structure in computer science — they show up in databases, compilers, file systems, and the DOM. OOP in C++ is where you learn to design software, not just write functions. This lecture covers binary trees, BSTs, the four OOP principles, and how to apply them to build a real system."
-                icon={<Cpu className="h-4 w-4 text-orange-600 dark:text-orange-400" />}
+                title="Polymorphism, STL & System Design"
+                description="Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core."
+                icon={<Cpu className="h-4 w-4 text-rose-600 dark:text-rose-400" />}
             />
 
             {/* ── 01 BINARY TREES ─────────────────────────────────────────────── */}
