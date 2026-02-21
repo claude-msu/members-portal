@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
-import TextType from '@/components/ui/TextType';
+import TextType from '@/components/ui/text-type';
 
 // Dashboard uses types from ProfileContext and separate queries
 

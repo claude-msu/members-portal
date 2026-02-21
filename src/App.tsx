@@ -20,6 +20,10 @@ import ApplicationViewerPage from "@/pages/applications/ApplicationViewer";
 import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { useEffect } from "react";
+import IntroductionToFundamentals from "./pages/classes/introduction-to-fundamentals";
+import Week1Lecture1 from "./pages/classes/introduction-to-fundamentals/week-1/lecture-1";
+import Week1Lecture2 from "./pages/classes/introduction-to-fundamentals/week-1/lecture-2";
+import Week1Activity from "./pages/classes/introduction-to-fundamentals/week-1/activity";
 
 const queryClient = new QueryClient();
 
@@ -215,6 +219,43 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <ApplicationViewerPage />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* Class resources */}
+              <Route
+                path="/classes/introduction-to-fundamentals"
+                element={
+                  <ProtectedRoute>
+                    <IntroductionToFundamentals />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/classes/introduction-to-fundamentals/week-1/lecture-1"
+                element={
+                  <ProtectedRoute>
+                    <Week1Lecture1 />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/classes/introduction-to-fundamentals/week-1/lecture-2"
+                element={
+                  <ProtectedRoute>
+                    <Week1Lecture2 />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/classes/introduction-to-fundamentals/week-1/activity"
+                element={
+                  <ProtectedRoute>
+                    <Week1Activity />
                   </ProtectedRoute>
                 }
               />
