@@ -517,8 +517,8 @@ const Classes = () => {
       variant: isBoardOrAbove ? 'outline' : 'default',
     });
 
-    // Only show class page button if class has started
-    if (classHasStarted) {
+    // Only show class page button if class has started and not on mobile
+    if (classHasStarted && !isMobile) {
       actions.push({
         label: 'View Class Page',
         onClick: () => {

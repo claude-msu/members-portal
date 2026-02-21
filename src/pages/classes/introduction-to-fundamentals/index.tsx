@@ -600,6 +600,7 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
 export default function IntroductionToFundamentals() {
     const [openWeeks, setOpenWeeks] = useState<Set<number>>(new Set());
+    const navigate = useNavigate();
 
     const toggleWeek = (n: number) => {
         setOpenWeeks((prev) => {
@@ -629,7 +630,7 @@ export default function IntroductionToFundamentals() {
                 <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-4">
                     <BookOpen className="h-3.5 w-3.5" />
                     <button
-                        onClick={() => window.location.href = '/classes'}
+                        onClick={() => navigate('/classes')}
                         className="flex items-center gap-1 hover:text-foreground transition-colors"
                         style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                     >
