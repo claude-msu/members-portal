@@ -274,6 +274,13 @@ verify_jwt = false
 [functions.process-start-automation]
 verify_jwt = false
 
+# =====================================================================
+# Edge Function: post-event-absentees
+# ---------------------------------------------------------------------
+# Disables JWT verification for this function at the gateway level.
+[functions.post-event-absentees]
+verify_jwt = false
+
 
 # =============================================================================
 # NOTES FOR PRODUCTION DEPLOYMENT
