@@ -234,6 +234,9 @@ export default function Week1Activity() {
                 <ActivityHint label="writing to README.md from the terminal">
                     Use <code className="bg-muted px-1 rounded">{'echo "some text" > README.md'}</code> to overwrite the file with new content. Use <code className="bg-muted px-1 rounded">{'echo "more text" >> README.md'}</code> (double arrow) to append without overwriting. On the branch, change the same line that you wrote on main.
                 </ActivityHint>
+                <ActivityHint label="opening the file in an editor">
+                    From the terminal: <code className="bg-muted px-1 rounded">nano README.md</code> or <code className="bg-muted px-1 rounded">vim README.md</code>. Week 1 Lecture 1 has a quick reference for both. You can also open the file in VS Code or Cursor from the file explorer.
+                </ActivityHint>
                 <ActivityHint label="what the conflict markers mean">
                     When Git shows a conflict, look for <code className="bg-muted px-1 rounded">{'<<<<<<< HEAD'}</code> — everything between that and <code className="bg-muted px-1 rounded">=======</code> is your version (on main). Everything between <code className="bg-muted px-1 rounded">=======</code> and <code className="bg-muted px-1 rounded">{'>>>>>>> fix/update-readme'}</code> is the incoming version. Delete all three marker lines and keep whatever you want the file to actually say.
                 </ActivityHint>

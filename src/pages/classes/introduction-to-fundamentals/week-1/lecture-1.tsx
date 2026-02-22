@@ -118,6 +118,32 @@ export default function Week1Lecture1() {
                 <LectureCmd tip="Creates an empty file (or updates its timestamp).">touch</LectureCmd> for files. <LectureCmd tip="Creates a directory. -p = create parent dirs as needed.">mkdir</LectureCmd> for folders. <LectureCmd tip="-p: create parent directories. Without it, mkdir fails if parents don't exist.">-p</LectureCmd> when nesting.
             </LectureP>
 
+            <LectureSubHeading title="Editing files" />
+            <LectureP>
+                When you need to add or change content in a file, use a text editor. From the terminal, the two you'll find on almost every Linux and macOS system are:
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'nano — type directly, Ctrl+O to save, Ctrl+X to quit (easiest)', cmd: 'nano notes.txt' },
+                    { comment: 'vim — press i to type, Esc then :wq and Enter to save and quit', cmd: 'vim notes.txt' },
+                ]}
+            />
+            <LectureP>
+                <strong className="text-foreground">nano</strong> is simpler: you type, then save and exit with the key combos shown at the bottom of the screen. <strong className="text-foreground">vim</strong> is powerful but modal — you switch between "normal" mode (commands) and "insert" mode (typing). If you use VS Code or Cursor, you can open a file with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">code filename</code> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cursor filename</code> if the editor's CLI is installed. In this course we use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">touch</code> when we only need an empty file; when a lesson says "use your editor" or "open in a text editor," use one of the options above.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">Vim quick reference:</strong>
+            </LectureP>
+            <ul className="list-disc pl-6 py-1.5 space-y-2 text-sm text-muted-foreground [&_code]:text-xs [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:border [&_code]:border-border">
+                <li><LectureCmd tip="Enter insert mode so you can type. You'll see -- INSERT -- at the bottom. Press Esc when done typing.">i</LectureCmd> — insert mode (type)</li>
+                <li><LectureCmd tip="Leave insert mode and return to command mode. You must be in command mode before typing : commands.">Esc</LectureCmd> — command mode</li>
+                <li><LectureCmd tip="Write (save) the file and quit. Type :wq then press Enter.">:wq</LectureCmd> — save and quit</li>
+                <li><LectureCmd tip="Quit without saving. Discards any changes. Use when you want to exit without keeping edits.">:q!</LectureCmd> — quit without saving</li>
+            </ul>
+            <LectureP>
+                If Git or another tool opens vim and you're stuck, press <LectureCmd tip="Leave insert mode.">Esc</LectureCmd> then type <LectureCmd tip="Save and quit.">:wq</LectureCmd> and Enter.
+            </LectureP>
+
             <LectureSubHeading title="Copying and moving" />
             <TerminalBlock
                 lines={[
@@ -324,6 +350,7 @@ export default function Week1Lecture1() {
                     { comment: 'confirm where you are', cmd: 'pwd' },
                     { comment: 'create a README', cmd: 'touch README.md' },
                     { comment: 'create a start script', cmd: 'touch start.sh' },
+                    { comment: 'edit start.sh in vim — i to type, Esc then :wq Enter to save and quit', cmd: 'vim start.sh' },
                     { comment: 'make it executable', cmd: 'chmod +x start.sh' },
                     { comment: 'verify the permissions look right', cmd: 'ls -la' },
                     { comment: 'update package list', cmd: 'sudo apt update' },
@@ -332,7 +359,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                Navigate, create structure, install, verify. First five minutes on a new server.
+                Navigate, create structure, edit with vim, install, verify. First five minutes on a new server.
             </LectureP>
             <LectureCallout type="tip">
                 <LectureCmd tip="Full manual for any command. man ls, man grep, man chmod. q to quit. When in doubt, man it out.">man</LectureCmd> — built-in docs for every Unix command.
