@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { AppRole } from '@/contexts/ProfileContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { motion } from 'framer-motion';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 
@@ -252,19 +253,29 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
                   <Tooltip key={badge.id}>
                     <TooltipTrigger asChild>
                       <span className="inline-block">
-                        <Badge
-                          variant="secondary"
-                          className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
+                        <motion.div
+                          initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+                          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                          exit={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
+                          transition={{
+                            duration: 0.42,
+                            ease: [0.32, 0.72, 0.45, 1],
+                          }}
                         >
-                          {badge.type === 'project' ? (
-                            <Briefcase className="h-3 w-3" />
-                          ) : (
-                            <BookOpen className="h-3 w-3" />
-                          )}
-                          <span>
-                            {badge.role} {badge.semesterCode}
-                          </span>
-                        </Badge>
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
+                          >
+                            {badge.type === 'project' ? (
+                              <Briefcase className="h-3 w-3" />
+                            ) : (
+                              <BookOpen className="h-3 w-3" />
+                            )}
+                            <span>
+                              {badge.role} {badge.semesterCode}
+                            </span>
+                          </Badge>
+                        </motion.div>
                       </span>
                     </TooltipTrigger>
                     <TooltipContent side="top" align="center" className="max-w-xs">

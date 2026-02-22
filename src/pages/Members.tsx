@@ -12,8 +12,7 @@ import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Search, Mail, Send } from 'lucide-react';
-import { JotFormModal } from '@/components/modals/JotFormModal';
+import { Search, Mail } from 'lucide-react';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -34,7 +33,6 @@ const Members = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
-  const [isJotFormOpen, setIsJotFormOpen] = useState(false);
 
   const memberId = searchParams.get('id');
 
@@ -267,15 +265,9 @@ const Members = () => {
         </div>
         <div className="flex items-center gap-3">
           {canManageActions && !isMobile && (
-            <>
-              <Button onClick={() => setIsJotFormOpen(true)} variant="default">
-                <Send className="h-4 w-4" />
-                Weekly Check-ins
-              </Button>
-              <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV">
-                <Mail className="h-4 w-4" />
-              </Button>
-            </>
+            <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV">
+              <Mail className="h-4 w-4" />
+            </Button>
           )}
           <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -334,13 +326,6 @@ const Members = () => {
           setSearchParams({});
         }}
         member={selectedMember}
-      />
-
-      <JotFormModal
-        open={isJotFormOpen}
-        onClose={() => {
-          setIsJotFormOpen(false);
-        }}
       />
     </div>
   );

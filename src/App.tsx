@@ -1,8 +1,14 @@
+import React, { useEffect } from "react";
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import { TooltipProvider } from "./components/ui/tooltip";
+import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
+import { ThemeProvider } from "./contexts/ThemeContext";
+
 import Index from "./pages/Index";
 import Auth from "./pages/common/Auth";
 import NotFound from "./pages/common/NotFound";
@@ -17,9 +23,6 @@ import Profile from "./pages/Profile";
 import Prospects from "./pages/Prospects";
 import Checkin from "./pages/events/CheckIn";
 import ApplicationViewerPage from "@/pages/applications/ApplicationViewer";
-import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import React, { useEffect } from "react";
 
 // Class imports
 import GuideToLeetCode from "./pages/classes/guide-to-leetcode";
@@ -48,7 +51,6 @@ import Week7Activity from "./pages/classes/introduction-to-fundamentals/week-7/a
 import Week8Lecture1 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-1";
 import Week8Lecture2 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-2";
 import Week8Activity from "./pages/classes/introduction-to-fundamentals/week-8/activity";
-import { TooltipProvider } from "./components/ui/tooltip";
 
 const queryClient = new QueryClient();
 

@@ -899,7 +899,8 @@ const Events = () => {
                     overflowY: 'scroll',
                     overflowX: 'hidden',
                     position: 'relative',
-                    WebkitOverflowScrolling: 'touch'
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'none',
                   }}
                   onWheel={(e) => {
                     e.stopPropagation();

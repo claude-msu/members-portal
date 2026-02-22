@@ -2,6 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent rubber-band overscroll on actual scroll containers */
+html,
+[style*="overflow"][style*="scroll"],
+[style*="overflow"][style*="auto"] {
+  overscroll-behavior: none;
+}
+
+.overflow-y-auto,
+.overflow-y-scroll,
+.overflow-auto,
+.overflow-scroll {
+  overscroll-behavior: none !important;
+}
+
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
 All colors MUST be HSL.
 */
@@ -98,6 +112,7 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
 
   /* Hide scrollbars across the website EXCEPT for elements with .show-scrollbar class */
   *:not(.show-scrollbar) {

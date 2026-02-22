@@ -1,10 +1,5 @@
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
+import * as DialogPrimitive from '@radix-ui/react-dialog';
+import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,12 +18,14 @@ import {
 } from '@/components/ui/command';
 import { X, Plus } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { MembershipInfo, Profile } from '@/types/modal.types';
+import ProfileViewer from '@/components/modals/ProfileViewer';
+import type { AppRole } from '@/contexts/ProfileContext';
 
 interface MembersListModalProps {
     open: boolean;
@@ -76,6 +73,7 @@ export const MembersListModal = ({
     const [locallyRemovedIds, setLocallyRemovedIds] = useState<Set<string>>(new Set());
     const [locallyAddedMembers, setLocallyAddedMembers] = useState<MembershipInfo[]>([]);
     const [memberRoles, setMemberRoles] = useState<Record<string, string>>({});
+    const [selectedMember, setSelectedMember] = useState<MembershipInfo | null>(null);
 
     const displayMembers = useMemo(
         () => [
@@ -93,6 +91,7 @@ export const MembersListModal = ({
         if (!open) {
             setLocallyRemovedIds(new Set());
             setLocallyAddedMembers([]);
+            setSelectedMember(null);
         }
     }, [open]);
 
@@ -253,141 +252,206 @@ export const MembersListModal = ({
         }
     };
 
+    const profileViewerMember = selectedMember
+        ? { ...selectedMember.profile, role: (selectedMember.profile as { role?: AppRole }).role ?? ('member' as AppRole) }
+        : null;
+
     return (
-        <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className={`max-w-lg mx-auto rounded-lg ${isMobile ? 'w-[90vw] px-2' : 'w-[90vw]'}`}>
+        <DialogPrimitive.Root open={open} onOpenChange={onClose}>
+            <DialogPrimitive.Portal>
+                <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
 
+                {/* Positioning wrapper: centers both modals as a group */}
+                <div className="fixed inset-0 z-50 flex items-center justify-center gap-5 pointer-events-none p-4">
 
-                <DialogHeader>
-                    <DialogTitle>{title}</DialogTitle>
-                    <DialogDescription>{displaySubtitle}</DialogDescription>
-                </DialogHeader>
+                    {/* Modal 1: Members List */}
+                    <DialogPrimitive.Content
+                        className={cn(
+                            'pointer-events-auto relative flex max-h-[85vh] w-[90vw] max-w-lg flex-col gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200',
+                            'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
+                            isMobile && 'px-4',
+                        )}
+                        onInteractOutside={(e) => {
+                            const target = e.target as HTMLElement;
+                            if (target.closest('[data-profile-modal]')) {
+                                e.preventDefault();
+                            }
+                        }}
+                    >
+                        <div className="flex flex-col space-y-1.5 text-left">
+                            <DialogPrimitive.Title className="text-lg font-semibold leading-none tracking-tight">
+                                {title}
+                            </DialogPrimitive.Title>
+                            <DialogPrimitive.Description asChild>
+                                <div className="text-sm text-muted-foreground">{displaySubtitle}</div>
+                            </DialogPrimitive.Description>
+                        </div>
 
-                {showRemoveButton && (
-                    <div className="hidden md:block pb-3 border-b">
-                        <Popover open={addMemberOpen} onOpenChange={setAddMemberOpen}>
-                            <PopoverTrigger asChild>
-                                <Button
-                                    variant="default"
-                                    className="w-full"
-                                    disabled={availableMembers.length === 0}
-                                >
-                                    <Plus className="h-4 w-4 mr-2" />
-                                    Add Member
-                                    {availableMembers.length === 0 && ' (All members added)'}
-                                </Button>
-                            </PopoverTrigger>
-                            <PopoverContent
-                                className="w-96 p-0"
-                                align="center"
-                                onOpenAutoFocus={e => e.preventDefault()}
-                            >
-                                <div
-                                    className="p-1"
-                                    style={{
-                                        height: '300px',
-                                        overflowY: 'scroll',
-                                        overflowX: 'hidden',
-                                        WebkitOverflowScrolling: 'touch',
-                                    }}
-                                    onWheel={e => e.stopPropagation()}
-                                    onTouchMove={e => e.stopPropagation()}
-                                >
-                                    <Command>
-                                        <CommandInput placeholder="Search members..." />
-                                        <CommandList>
-                                            <CommandEmpty>No members found.</CommandEmpty>
-                                            <CommandGroup>
-                                                {availableMembers.map((profile) => (
-                                                    <CommandItem
-                                                        key={profile.id}
-                                                        value={`${profile.full_name || ''} ${profile.email}`}
-                                                        onSelect={() => {
-                                                            handleAddMember(
-                                                                profile.id,
-                                                                profile.full_name || profile.email,
-                                                                profile
-                                                            );
-                                                        }}
-                                                        disabled={addingMemberId === profile.id}
-                                                    >
-                                                        <div className="flex flex-col">
-                                                            <span>{profile.full_name || 'No name'}</span>
-                                                            <span className="text-xs">{profile.email}</span>
-                                                        </div>
-                                                    </CommandItem>
-                                                ))}
-                                            </CommandGroup>
-                                        </CommandList>
-                                    </Command>
-                                </div>
-                            </PopoverContent>
-                        </Popover>
-                    </div>
-                )}
-
-                <div className="space-y-3 max-h-[60vh] overflow-y-auto">
-                    {displayMembers.map((member) => (
-                        <div
-                            key={member.id}
-                            className="flex items-center gap-3 p-3 rounded-lg border bg-card"
-                        >
-                            <Avatar className="h-10 w-10">
-                                <AvatarImage src={member.profile.profile_picture_url || undefined} />
-                                <AvatarFallback>
-                                    {member.profile.full_name
-                                        ? getInitials(member.profile.full_name)
-                                        : member.profile.email.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                            </Avatar>
-
-                            <div className="flex-1 min-w-0">
-                                <p className="font-medium truncate">
-                                    {member.profile.full_name || 'No name'}
-                                </p>
-                                <p className="text-sm text-muted-foreground truncate">
-                                    {member.profile.email}
-                                </p>
+                        {showRemoveButton && (
+                            <div className="hidden md:block pb-3 border-b">
+                                <Popover open={addMemberOpen} onOpenChange={setAddMemberOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant="default"
+                                            className="w-full"
+                                            disabled={availableMembers.length === 0}
+                                        >
+                                            <Plus className="h-4 w-4 mr-2" />
+                                            Add Member
+                                            {availableMembers.length === 0 && ' (All members added)'}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent
+                                        className="w-96 p-0"
+                                        align="center"
+                                        onOpenAutoFocus={e => {
+                                            e.preventDefault();
+                                            const input = (e.target as HTMLElement)
+                                                .closest('[data-radix-popper-content-wrapper]')
+                                                ?.querySelector<HTMLInputElement>('[cmdk-input]');
+                                            input?.focus();
+                                        }}
+                                    >
+                                        <div
+                                            className="p-1"
+                                            style={{
+                                                height: '300px',
+                                                overflowY: 'scroll',
+                                                overflowX: 'hidden',
+                                                WebkitOverflowScrolling: 'touch',
+                                                overscrollBehavior: 'none',
+                                            }}
+                                            onWheel={e => e.stopPropagation()}
+                                            onTouchMove={e => e.stopPropagation()}
+                                        >
+                                            <Command>
+                                                <CommandInput placeholder="Search members..." />
+                                                <CommandList>
+                                                    <CommandEmpty>No members found.</CommandEmpty>
+                                                    <CommandGroup>
+                                                        {availableMembers.map((profile) => (
+                                                            <CommandItem
+                                                                key={profile.id}
+                                                                value={`${profile.full_name || ''} ${profile.email}`}
+                                                                onSelect={() => {
+                                                                    handleAddMember(
+                                                                        profile.id,
+                                                                        profile.full_name || profile.email,
+                                                                        profile
+                                                                    );
+                                                                }}
+                                                                disabled={addingMemberId === profile.id}
+                                                            >
+                                                                <div className="flex flex-col">
+                                                                    <span>{profile.full_name || 'No name'}</span>
+                                                                    <span className="text-xs">{profile.email}</span>
+                                                                </div>
+                                                            </CommandItem>
+                                                        ))}
+                                                    </CommandGroup>
+                                                </CommandList>
+                                            </Command>
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
+                        )}
 
-                            <motion.div
-                                animate={{ scale: 1, opacity: 1 }}
-                                whileTap={{ scale: 0.93, opacity: 0.7 }}
-                                className="cursor-pointer"
-                                onClick={() =>
-                                    isBoardOrAbove &&
-                                    handleRoleChange(member.id, memberRoles[member.id] || member.role)
-                                }
-                            >
-                                <Badge
-                                    variant={getRoleVariant(memberRoles[member.id] || member.role)}
-                                    className="capitalize"
+                        <div className="space-y-3 max-h-[60vh] overflow-y-auto">
+                            {displayMembers.map((member) => (
+                                <div
+                                    key={member.id}
+                                    className={cn(
+                                        'flex items-center gap-3 p-3 rounded-lg border bg-card transition-colors',
+                                        !isMobile && 'cursor-pointer hover:bg-muted/50',
+                                    )}
+                                    onClick={() => !isMobile && setSelectedMember(member)}
                                 >
-                                    {memberRoles[member.id] || member.role}
-                                </Badge>
-                            </motion.div>
+                                    <Avatar className="h-10 w-10 flex-shrink-0">
+                                        <AvatarImage src={member.profile.profile_picture_url || undefined} />
+                                        <AvatarFallback>
+                                            {member.profile.full_name
+                                                ? getInitials(member.profile.full_name)
+                                                : member.profile.email.charAt(0).toUpperCase()}
+                                        </AvatarFallback>
+                                    </Avatar>
 
-                            {showRemoveButton && (
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    className="hidden md:flex h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
-                                    onClick={() => handleRemoveMember(member.id)}
-                                    disabled={removingMemberId === member.id}
-                                >
-                                    <X className="h-4 w-4" />
-                                </Button>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="truncate font-medium">
+                                            {member.profile.full_name || 'No name'}
+                                        </p>
+                                        <p className="truncate text-sm text-muted-foreground">
+                                            {member.profile.email}
+                                        </p>
+                                    </div>
+
+                                    <motion.div
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        whileTap={{ scale: 0.93, opacity: 0.7 }}
+                                        className="cursor-pointer flex-shrink-0"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (isBoardOrAbove) {
+                                                handleRoleChange(member.id, memberRoles[member.id] || member.role);
+                                            }
+                                        }}
+                                    >
+                                        <Badge
+                                            variant={getRoleVariant(memberRoles[member.id] || member.role)}
+                                            className="capitalize"
+                                        >
+                                            {memberRoles[member.id] || member.role}
+                                        </Badge>
+                                    </motion.div>
+
+                                    {showRemoveButton && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="hidden h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive md:flex"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleRemoveMember(member.id);
+                                            }}
+                                            disabled={removingMemberId === member.id}
+                                        >
+                                            <X className="h-4 w-4" />
+                                        </Button>
+                                    )}
+                                </div>
+                            ))}
+
+                            {displayMembers.length === 0 && (
+                                <div className="py-8 text-center text-muted-foreground">
+                                    No members yet
+                                </div>
                             )}
                         </div>
-                    ))}
+                    </DialogPrimitive.Content>
 
-                    {displayMembers.length === 0 && (
-                        <div className="text-center text-muted-foreground py-8">
-                            No members yet
-                        </div>
-                    )}
+                    {/* Modal 2: Profile Viewer (separate, detached) */}
+                    <AnimatePresence mode="wait">
+                        {selectedMember && profileViewerMember && (
+                            <motion.div
+                                key={selectedMember.id}
+                                initial={{ opacity: 0, x: 24 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: 24 }}
+                                transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
+                                data-profile-modal
+                                className="pointer-events-auto relative flex max-h-[85vh] w-[28rem] flex-col rounded-lg border bg-background shadow-lg overflow-hidden"
+                            >
+                                <ProfileViewer
+                                    member={profileViewerMember}
+                                    embedded
+                                    className="border-0 shadow-none"
+                                />
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                 </div>
-            </DialogContent>
-        </Dialog>
+            </DialogPrimitive.Portal>
+        </DialogPrimitive.Root>
     );
 };
