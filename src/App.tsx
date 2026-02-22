@@ -139,7 +139,7 @@ const App = () => (
     <BrowserRouter>
       <AuthProvider>
         <ProfileProvider>
-          <TooltipProvider>
+          <TooltipProvider delayDuration={150} skipDelayDuration={100}>
             <ThemeProvider>
               <PostAuthRedirectHandler />
               <Routes>
