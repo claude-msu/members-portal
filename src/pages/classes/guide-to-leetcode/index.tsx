@@ -32,7 +32,7 @@ const getNextSunday = () => {
     const daysUntilSunday = (7 - day) % 7 === 0 ? 7 : (7 - day) % 7;
     const next = new Date(now);
     next.setDate(now.getDate() + daysUntilSunday);
-    next.setHours(0, 0, 0, 0);
+    next.setHours(9, 0, 0, 0);
     return next;
 };
 
