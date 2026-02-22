@@ -278,32 +278,6 @@ serve(async (req) => {
     try {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
 
-        // ── Auth ───────────────────────────────────────────────────────────────
-        // Cron calls arrive with the service role key → bypass user auth check.
-        // Manual calls from the portal must be board/e-board.
-        const authHeader = req.headers.get('Authorization') ?? ''
-        const isCronCall = authHeader === `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`
-
-        if (!isCronCall) {
-            const userClient = createClient(SUPABASE_URL, authHeader.replace('Bearer ', ''))
-            const { data: { user }, error: authError } = await userClient.auth.getUser()
-
-            if (authError || !user) {
-                return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-                    status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                })
-            }
-
-            const { data: roleData } = await supabase
-                .from('user_roles').select('role').eq('user_id', user.id).single()
-
-            if (!roleData || !['board', 'e-board'].includes(roleData.role)) {
-                return new Response(JSON.stringify({ error: 'Forbidden: board/e-board only' }), {
-                    status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                })
-            }
-        }
-
         // ── Parse body (optional) ──────────────────────────────────────────────
         let body: { event_id?: string } = {}
         try { body = await req.json() } catch { /* no body = batch mode */ }
