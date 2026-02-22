@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { useProfile } from '@/contexts/ProfileContext';
@@ -72,6 +72,15 @@ const Events = () => {
   const [inviteProspects, setInviteProspects] = useState(false);
   const [calendarOpen, setCalendarOpen] = useState(false);
   const [timePickerOpen, setTimePickerOpen] = useState(false);
+
+  const timeScrollRef = useCallback((node: HTMLDivElement | null) => {
+    if (node && eventTime) {
+      const selected = node.querySelector('[data-selected="true"]');
+      if (selected) {
+        selected.scrollIntoView({ block: 'center' });
+      }
+    }
+  }, [eventTime]);
 
   // Recurring event state
   const [isRecurring, setIsRecurring] = useState(false);
@@ -893,6 +902,7 @@ const Events = () => {
                 onOpenAutoFocus={(e) => e.preventDefault()}
               >
                 <div
+                  ref={timeScrollRef}
                   className="p-1"
                   style={{
                     height: '300px',
@@ -912,11 +922,14 @@ const Events = () => {
                   {TIME_OPTIONS.map((option) => (
                     <Button
                       key={option.value}
+                      data-selected={eventTime === option.value}
                       variant={eventTime === option.value ? 'default' : 'ghost'}
-                      className={
-                        `w-full justify-start font-normal border-2-background mb-1` +
-                        (eventTime !== option.value && ' hover:bg-background hover:text-primary')
-                      }
+                      className={cn(
+                        'w-full justify-start font-normal mb-1',
+                        eventTime === option.value
+                          ? 'pointer-events-none'
+                          : 'hover:bg-background hover:text-primary'
+                      )}
                       onClick={() => {
                         setEventTime(option.value);
                         setTimePickerOpen(false);
