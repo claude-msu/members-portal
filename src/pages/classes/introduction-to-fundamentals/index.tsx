@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ChevronDown,
@@ -601,9 +601,28 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
+const VALID_WEEK_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
+
+function getWeekFromSearchParams(searchParams: URLSearchParams): number | null {
+    const s = searchParams.get('s');
+    const n = s ? parseInt(s, 10) : NaN;
+    return Number.isInteger(n) && VALID_WEEK_NUMBERS.includes(n) ? n : null;
+}
+
 export default function IntroductionToFundamentals() {
-    const [openWeeks, setOpenWeeks] = useState<Set<number>>(new Set());
+    const [searchParams] = useSearchParams();
+    const weekFromUrl = getWeekFromSearchParams(searchParams);
+    const [openWeeks, setOpenWeeks] = useState<Set<number>>(() =>
+        weekFromUrl !== null ? new Set([weekFromUrl]) : new Set()
+    );
     const navigate = useNavigate();
+
+    // When URL ?s= changes (e.g. breadcrumb link), expand that week
+    useEffect(() => {
+        if (weekFromUrl !== null) {
+            setOpenWeeks((prev) => new Set(prev).add(weekFromUrl));
+        }
+    }, [weekFromUrl]);
 
     const toggleWeek = (n: number) => {
         setOpenWeeks((prev) => {

@@ -65,11 +65,18 @@ export const LectureHeader = ({
                 <button
                     onClick={() => navigate('/classes/introduction-to-fundamentals')}
                     className="flex items-center gap-1 hover:text-foreground transition-colors"
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
                 >
                     Introduction to Fundamentals
                 </button>
                 <ChevronRight className="h-3 w-3" />
-                <span>Week {week}</span>
+                <button
+                    onClick={() => navigate(`/classes/introduction-to-fundamentals?s=${week}`)}
+                    className="flex items-center gap-1 hover:text-foreground transition-colors"
+                    style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+                >
+                    Week {week}
+                </button>
                 <ChevronRight className="h-3 w-3" />
                 <span className="text-foreground font-medium">{session}</span>
             </motion.div>
