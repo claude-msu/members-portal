@@ -263,7 +263,7 @@ function QuestionCard({ question, index, onClick }: { question: Question; index:
                                 </span>
                             </div>
                             <h4 className="font-semibold text-foreground leading-snug mb-0.5 group-hover:text-primary/90 transition-colors">{question.title}</h4>
-                            <p className="text-xs text-muted-foreground">Click to view full problem statement</p>
+                            <p className="text-xs text-muted-foreground font-mono">{question.complexity}</p>
                         </div>
                     </div>
                     <ChevronRight className="shrink-0 h-5 w-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-all mt-1" />
@@ -309,11 +309,11 @@ function ProblemModal({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex items-center gap-2 mt-2.5">
+                    <div className="flex flex-wrap items-center gap-4 mt-2.5">
                         <span className={`inline-flex text-xs font-semibold px-2.5 py-0.5 rounded-full border ${diff.className}`}>
                             {diff.label}
                         </span>
-                        <span className="text-xs text-muted-foreground">LeetCode Premium</span>
+                        <span className="text-xs text-muted-foreground font-mono">{question.complexity}</span>
                     </div>
                 </div>
 
@@ -408,10 +408,50 @@ export default function GuideToLeetCode() {
                     <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
                         Five hand-picked LeetCode Premium problems drop every Sunday. Solve them before Thursday's coworking session — that's when we peer review, share solutions, and learn new techniques together.
                     </p>
+
+                    <div className="mt-6 rounded-xl border border-border bg-muted/20 px-4 py-4 sm:px-5">
+                        <h2 className="text-base font-bold tracking-tight text-foreground">
+                            Required Submission for Every Problem
+                        </h2>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                            Bring all four required elements to the weekly coworking session.
+                        </p>
+                        <ol className="mt-3 space-y-3 text-sm text-foreground">
+                            <li>
+                                <span className="font-semibold">1. Plan (before coding):</span>
+                                <ul className="ml-4 mt-1 list-disc space-y-0.5 text-muted-foreground">
+                                    <li>Pattern name</li>
+                                    <li>Invariant</li>
+                                    <li>Target time and space complexity</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <span className="font-semibold">2. Implementation:</span>
+                                <ul className="ml-4 mt-1 list-disc space-y-0.5 text-muted-foreground">
+                                    <li>Clean code</li>
+                                    <li>Only minimal comments for non obvious logic</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <span className="font-semibold">3. Postmortem:</span>
+                                <ul className="ml-4 mt-1 list-disc space-y-0.5 text-muted-foreground">
+                                    <li>First point of failure</li>
+                                    <li>What earlier signal indicated the correct pattern</li>
+                                    <li>One future rule written as: Next time I will _____</li>
+                                </ul>
+                            </li>
+                            <li>
+                                <span className="font-semibold">4. Flashcard:</span>
+                                <span className="ml-1 text-muted-foreground">1 to 3 bullets capturing the key takeaway in under 10 seconds of reading.</span>
+                            </li>
+                        </ol>
+                        <p className="mt-2 text-sm text-muted-foreground italic">
+                            This forces reasoning to be explicit and prevents passive solving.
+                        </p>
+                    </div>
                 </div>
             </motion.div>
 
-            {/* Week 1 — structured description (concept sheet card) */}
             <motion.section
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -450,8 +490,6 @@ export default function GuideToLeetCode() {
                                 </div>
                             ))}
                         </div>
-                        <p className="text-xs font-semibold text-foreground mt-4 mb-1">Complexity Target</p>
-                        <p className="text-sm text-muted-foreground leading-snug">{displayWeek.complexityTarget}</p>
                     </div>
                 </div>
             </motion.section>

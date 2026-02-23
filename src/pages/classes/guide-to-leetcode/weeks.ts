@@ -4,12 +4,14 @@
  * @property id - Unique identifier for the question.
  * @property title - The title of the question.
  * @property difficulty - The difficulty level ('easy', 'medium', or 'hard').
+ * @property complexity - Target time and space complexity for the intended solution.
  * @property content - Markdown description and details of the question.
  */
 export interface Question {
     id: number;
     title: string;
     difficulty: 'easy' | 'medium' | 'hard';
+    complexity: string;
     content: string;
 }
 
@@ -43,7 +45,6 @@ export interface ConceptSheetSection {
  * @property goal - The main objective for the week.
  * @property rules - The list of rules/guidelines for the week.
  * @property conceptSheets - Array of concept sheet sections (reference, cues, invariants, etc.).
- * @property complexityTarget - Target complexity for optimized solutions this week.
  * @property questions - Array of coding questions for the week (see Question type).
  */
 export interface WeekConfig {
@@ -53,7 +54,6 @@ export interface WeekConfig {
     goal: string;
     rules: string[];
     conceptSheets: ConceptSheetSection[];
-    complexityTarget: string;
     questions: Question[];
 }
 
@@ -99,12 +99,12 @@ const WEEK1: WeekConfig = {
             ],
         },
     ],
-    complexityTarget: 'Most of these should be: Time: O(n), Space: O(n) or O(1). If you wrote O(n²), you missed the pattern.',
     questions: [
         {
             id: 1,
             title: 'Maximum Average Subarray I',
             difficulty: 'easy',
+            complexity: 'O(n) time, O(1) space — one pass',
             content: `## Problem
 
 You are given an integer array \`nums\` consisting of \`n\` elements, and an integer \`k\`.
@@ -139,6 +139,7 @@ Output: 5.00000
             id: 2,
             title: 'Contains Duplicate II',
             difficulty: 'easy',
+            complexity: 'O(n) time, O(n) space — one pass',
             content: `## Problem
 
 Given an integer array \`nums\` and an integer \`k\`, return \`true\` if there are two **distinct indices** \`i\` and \`j\` in the array such that \`nums[i] == nums[j]\` and \`abs(i - j) <= k\`.
@@ -176,6 +177,7 @@ Output: false
             id: 3,
             title: 'Find All Anagrams in a String',
             difficulty: 'easy',
+            complexity: 'O(n) time, O(1) or O(p) space',
             content: `## Problem
 
 Given two strings \`s\` and \`p\`, return an array of all the start indices of \`p\`'s anagrams in \`s\`. You may return the answer in **any order**.
@@ -211,6 +213,7 @@ Output: [0,1,2]
             id: 4,
             title: 'Longest Substring Without Repeating Characters',
             difficulty: 'easy',
+            complexity: 'O(n) time, O(min(n, charset)) space',
             content: `## Problem
 
 Given a string \`s\`, find the length of the **longest substring** without repeating characters.
@@ -250,6 +253,7 @@ Explanation: The answer is "wke", with the length of 3.
             id: 5,
             title: 'Minimum Size Subarray Sum',
             difficulty: 'easy',
+            complexity: 'O(n) time, O(1) space',
             content: `## Problem
 
 Given an array of positive integers \`nums\` and a positive integer \`target\`, return the **minimal length** of a subarray whose sum is greater than or equal to \`target\`. If there is no such subarray, return \`0\` instead.
