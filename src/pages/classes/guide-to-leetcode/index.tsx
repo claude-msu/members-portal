@@ -7,7 +7,6 @@ import {
     BookOpen,
     Trophy,
     FileText,
-    Code2,
     Timer
 } from 'lucide-react';
 import {
@@ -249,20 +248,16 @@ function QuestionCard({ question, index, onClick }: { question: Question; index:
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-primary/[0.06] to-transparent pointer-events-none" />
                 <div className="flex items-start justify-between gap-3 relative">
                     <div className="flex items-start gap-3 min-w-0 flex-1">
-                        <span className="shrink-0 w-9 h-9 rounded-xl bg-muted border border-border flex items-center justify-center text-sm font-bold text-foreground group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:text-primary transition-all duration-200 mt-0.5">
+                        <span className="shrink-0 w-9 h-9 rounded-xl bg-muted border border-border flex items-center justify-center text-sm font-bold text-foreground group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:text-primary transition-all duration-200 self-center">
                             {index + 1}
                         </span>
                         <div className="min-w-0 flex-1">
                             <div className="flex items-center gap-2 mb-1.5">
-                                <span className="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-md bg-muted/80 text-muted-foreground">
-                                    <Code2 className="h-3 w-3" />
-                                    Problem {index + 1}
-                                </span>
+                                <h4 className="font-semibold text-foreground leading-snug mb-0.5 group-hover:text-primary/90 transition-colors">{question.title}</h4>
                                 <span className={`inline-flex text-[11px] font-semibold px-2 py-0.5 rounded-md border ${diff.className}`}>
                                     {diff.label}
                                 </span>
                             </div>
-                            <h4 className="font-semibold text-foreground leading-snug mb-0.5 group-hover:text-primary/90 transition-colors">{question.title}</h4>
                             <p className="text-xs text-muted-foreground font-mono">{question.complexity}</p>
                         </div>
                     </div>
@@ -537,7 +532,7 @@ export default function GuideToLeetCode() {
                 transition={{ delay: 0.5 }}
                 className="text-xs text-muted-foreground text-center pb-4 pt-2 border-t border-border/60"
             >
-                Questions sourced from LeetCode Premium · New batch every Sunday · Attendance tracked at Thursday coworking
+                Questions sourced from LeetCode Premium · New batch every Sunday
             </motion.p>
 
             {/* ── Modal ── */}
