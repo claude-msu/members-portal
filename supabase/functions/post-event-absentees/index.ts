@@ -221,9 +221,19 @@ function buildMessage(event: EventRow, absentees: Absentee[], totalAttended: num
                 type: 'section',
                 text: {
                     type: 'mrkdwn',
-                    text: absentees.slice(i, i + 20).map(a => `• ${formatMention(a)}`).join('\n'),
+                    text: absentees.slice(i, i + 20).map(a => `- ${formatMention(a)}`).join('\n'),
                 },
             })
+        }
+        const absenteeEmails = absentees.map(a => a.email).filter(Boolean).join(', ');
+        if (absenteeEmails.length > 0) {
+            blocks.push({
+                type: 'section',
+                text: {
+                    type: 'mrkdwn',
+                    text: `*Emails for quick contact:*\n\`${absenteeEmails}\``,
+                },
+            });
         }
         blocks.push({
             type: 'context',
