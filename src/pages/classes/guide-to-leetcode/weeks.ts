@@ -107,7 +107,8 @@ const WEEK1: WeekConfig = {
             title: 'Two Sum',
             difficulty: 'easy',
             complexity: 'O(n) time, O(n) space',
-            content: `## Problem
+            content: `
+## Problem
 
 Given an array of integers \`nums\` and an integer \`target\`, return **indices** of the two numbers such that they add up to \`target\`.
 
@@ -188,7 +189,8 @@ Output: true
             title: 'Valid Anagram',
             difficulty: 'easy',
             complexity: 'O(n) time, O(1) or O(n) space',
-            content: `## Problem
+            content: `
+## Problem
 
 Given two strings \`s\` and \`t\`, return \`true\` if \`t\` is an anagram of \`s\`, and \`false\` otherwise.
 
@@ -221,7 +223,8 @@ Output: false
             title: 'Remove Duplicates from Sorted Array',
             difficulty: 'easy',
             complexity: 'O(n) time, O(1) space',
-            content: `## Problem
+            content: `
+## Problem
 
 Given an integer array \`nums\` **sorted in non-decreasing order**, remove the duplicates **in-place** such that each unique element appears only once. The **relative order** of the elements should be kept the same.
 
@@ -258,7 +261,8 @@ Output: 5, nums = [0,1,2,3,4,_,_,_,_,_]
             title: 'Squares of a Sorted Array',
             difficulty: 'easy',
             complexity: 'O(n) time, O(n) space',
-            content: `## Problem
+            content: `
+## Problem
 
 Given an integer array \`nums\` **sorted in non-decreasing order**, return **an array of the squares of each number** sorted in non-decreasing order.
 
