@@ -347,7 +347,7 @@ function ProblemModal({
                             </button>
                         </div>
                         <p className="text-xs text-muted-foreground">
-                            Bring your solution to Thursday's coworking
+                            Bring your solution to Thursday's Coworking
                         </p>
                     </div>
                 </div>
@@ -411,7 +411,7 @@ export default function GuideToLeetCode() {
                         Guide to LeetCode
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                        Five hand-picked LeetCode Premium problems drop every Sunday. Solve them before Thursday's coworking session — that's when we peer review, share solutions, and learn new techniques together.
+                        Five hand-picked LeetCode Premium problems drop every Sunday. Solve them before Thursday's Coworking Session — that's when we peer review, share solutions, and learn new techniques together.
                     </p>
 
                     <div className="mt-6 rounded-xl border border-border bg-muted/20 px-4 py-4 sm:px-5">
@@ -419,7 +419,7 @@ export default function GuideToLeetCode() {
                             Required Submission for Every Problem
                         </h2>
                         <p className="mt-1 text-sm text-muted-foreground">
-                            Bring all four required elements to the weekly coworking session.
+                            Bring all four required elements to the weekly Coworking Session.
                         </p>
                         <ol className="mt-3 space-y-3 text-sm text-foreground">
                             <li>

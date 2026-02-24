@@ -29,7 +29,7 @@ export default function Week1Activity() {
             />
 
             <LectureCallout type="info">
-                This is a <LectureTerm>coworking session activity</LectureTerm> — designed to fill 90 minutes of independent work. Work at your own pace. The challenges get harder as you go. If you finish early, there's a bonus challenge at the end.
+                This is a <LectureTerm>Coworking Session activity</LectureTerm> — designed to fill 90 minutes of independent work. Work at your own pace. The challenges get harder as you go. If you finish early, there's a bonus challenge at the end.
             </LectureCallout>
 
             {/* ── 01 LINUX FUNDAMENTALS ───────────────────────────────────────── */}
