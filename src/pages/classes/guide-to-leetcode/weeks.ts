@@ -6,6 +6,7 @@
  * @property difficulty - The difficulty level ('easy', 'medium', or 'hard').
  * @property complexity - Target time and space complexity for the intended solution.
  * @property content - Markdown description and details of the question.
+ * @property optional - When true, an "Optional" badge is shown next to the difficulty badge.
  */
 export interface Question {
     id: number;
@@ -13,6 +14,7 @@ export interface Question {
     difficulty: 'easy' | 'medium' | 'hard';
     complexity: string;
     content: string;
+    optional?: boolean;
 }
 
 /**
@@ -287,8 +289,10 @@ Output: [4,9,9,49,121]
             id: 6,
             title: '3Sum',
             difficulty: 'medium',
+            optional: true,
             complexity: 'O(n^2) time, O(1) space (excluding output)',
-            content: `## Problem
+            content: `
+## Problem
 
 Given an integer array \`nums\`, return **all the triplets** \`[nums[i], nums[j], nums[k]]\` such that \`i != j\`, \`i != k\`, and \`j != k\`, and \`nums[i] + nums[j] + nums[k] == 0\`.
 
@@ -326,8 +330,10 @@ Output: [[0,0,0]]
             id: 7,
             title: 'Container With Most Water',
             difficulty: 'medium',
+            optional: true,
             complexity: 'O(n) time, O(1) space',
-            content: `## Problem
+            content: `
+## Problem
 
 You are given an integer array \`height\` of length \`n\`. There are \`n\` vertical lines drawn such that the two endpoints of the \`i\`-th line are at \`(i, 0)\` and \`(i, height[i])\`.
 

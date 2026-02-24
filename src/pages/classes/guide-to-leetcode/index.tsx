@@ -252,11 +252,16 @@ function QuestionCard({ question, index, onClick }: { question: Question; index:
                             {index + 1}
                         </span>
                         <div className="min-w-0 flex-1">
-                            <div className="flex items-center gap-2 mb-1.5">
+                            <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                 <h4 className="font-semibold text-foreground leading-snug mb-0.5 group-hover:text-primary/90 transition-colors">{question.title}</h4>
                                 <span className={`inline-flex text-[11px] font-semibold px-2 py-0.5 rounded-md border ${diff.className}`}>
                                     {diff.label}
                                 </span>
+                                {question.optional && (
+                                    <Badge variant="default" className="text-[11px] font-semibold px-2 py-0.5 rounded-md border border-border">
+                                        Optional
+                                    </Badge>
+                                )}
                             </div>
                             <p className="text-xs text-muted-foreground font-mono">{question.complexity}</p>
                         </div>
@@ -304,10 +309,15 @@ function ProblemModal({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="flex flex-wrap items-center gap-4 mt-2.5">
+                    <div className="flex flex-wrap items-center gap-3 mt-2.5">
                         <span className={`inline-flex text-xs font-semibold px-2.5 py-0.5 rounded-full border ${diff.className}`}>
                             {diff.label}
                         </span>
+                        {question.optional && (
+                            <Badge variant="default" className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-border">
+                                Optional
+                            </Badge>
+                        )}
                         <span className="text-xs text-muted-foreground font-mono">{question.complexity}</span>
                     </div>
                 </div>
