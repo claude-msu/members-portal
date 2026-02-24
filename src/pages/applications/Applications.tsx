@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight, Folder, FolderOpen, User, Shield } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ApplicationCreateModal } from '@/components/modals/ApplicationCreateModal';
@@ -13,12 +13,26 @@ import type { Database } from '@/integrations/supabase/database.types';
 
 type Application = Database['public']['Tables']['applications']['Row'];
 
-const Applications = () => {
+const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCreateModal?: boolean }) => {
   const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const location = useLocation();
   const queryClient = useQueryClient();
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const openFromRoute = location.pathname === '/applications/new';
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(openCreateModalProp || openFromRoute);
+
+  // Sync modal open state when landing on /applications/new (e.g. from MemberResourceGate)
+  useEffect(() => {
+    if (openFromRoute) setIsCreateModalOpen(true);
+  }, [openFromRoute]);
+
+  const handleCloseCreateModal = () => {
+    setIsCreateModalOpen(false);
+    if (location.pathname === '/applications/new') {
+      navigate('/applications', { replace: true });
+    }
+  };
   const [myApplicationsCollapsed, setMyApplicationsCollapsed] = useState(false);
   const [myPendingCollapsed, setMyPendingCollapsed] = useState(false);
   const [myReviewedCollapsed, setMyReviewedCollapsed] = useState(true);
@@ -276,9 +290,9 @@ const Applications = () => {
 
       <ApplicationCreateModal
         open={isCreateModalOpen}
-        onClose={() => setIsCreateModalOpen(false)}
+        onClose={handleCloseCreateModal}
         onSuccess={() => {
-          setIsCreateModalOpen(false);
+          handleCloseCreateModal();
           refreshApplications();
           // Invalidate the applications query to refresh the UI
           queryClient.invalidateQueries({ queryKey: ['user-applications'] });

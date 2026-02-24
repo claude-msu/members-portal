@@ -12,6 +12,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Index from "./pages/Index";
 import Auth from "./pages/common/Auth";
 import NotFound from "./pages/common/NotFound";
+import MemberResourceGate from "./pages/common/MemberResource";
 import DashboardLayout from "@/components/DashboardLayout";
 import Dashboard from "./pages/Dashboard";
 import Applications from "./pages/applications/Applications";
@@ -76,9 +77,9 @@ const PostAuthRedirectHandler = () => {
 };
 
 // Protected Route wrapper component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+const ProtectedRoute = ({ children, isMember = false }: { children: React.ReactNode; isMember?: boolean }) => {
   const { user, loading: authLoading, profile } = useAuth();
-  const { loading: profileLoading } = useProfile();
+  const { loading: profileLoading, role } = useProfile();
 
   // Show loading spinner while auth is initializing
   if (authLoading || profileLoading) {
@@ -116,6 +117,12 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     }
 
     return <Navigate to="/profile" replace />;
+  }
+
+  // Member-only route but user is a prospect: show gate and CTA to apply
+  if (isMember && role === 'prospect') {
+    sessionStorage.removeItem('redirectAfterLogin');
+    return <MemberResourceGate />;
   }
 
   // Successfully on protected route - clear redirect if we've reached the destination
@@ -166,6 +173,16 @@ const App = () => (
                     <ProtectedRoute>
                       <DashboardLayout>
                         <Applications />
+                      </DashboardLayout>
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/applications/new"
+                  element={
+                    <ProtectedRoute>
+                      <DashboardLayout>
+                        <Applications openCreateModal />
                       </DashboardLayout>
                     </ProtectedRoute>
                   }
@@ -255,7 +272,7 @@ const App = () => (
                 <Route
                   path="/classes/introduction-to-fundamentals"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute isMember>
                       <IntroductionToFundamentals />
                     </ProtectedRoute>
                   }
@@ -334,7 +351,7 @@ const App = () => (
                         key={`week${week}-${path}`}
                         path={`/classes/introduction-to-fundamentals/week-${week}/${path}`}
                         element={
-                          <ProtectedRoute>
+                          <ProtectedRoute isMember>
                             <Component />
                           </ProtectedRoute>
                         }
@@ -344,7 +361,7 @@ const App = () => (
                       key={`week${week}-activity`}
                       path={`/classes/introduction-to-fundamentals/week-${week}/activity`}
                       element={
-                        <ProtectedRoute>
+                        <ProtectedRoute isMember>
                           <activity.component />
                         </ProtectedRoute>
                       }
@@ -356,7 +373,7 @@ const App = () => (
                 <Route
                   path="/classes/guide-to-leetcode"
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute isMember>
                       <GuideToLeetCode />
                     </ProtectedRoute>
                   }
@@ -371,8 +388,9 @@ const App = () => (
                 <Route path="/dashboard/profile" element={<Navigate to="/profile" replace />} />
                 <Route path="/dashboard/prospects" element={<Navigate to="/prospects" replace />} />
 
-                {/* 404 - Must be last */}
-                <Route path="*" element={<NotFound />} />
+                {/* 404 - dedicated page, catch-all redirects here */}
+                <Route path="/404" element={<NotFound />} />
+                <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
             </ThemeProvider>
           </TooltipProvider>
