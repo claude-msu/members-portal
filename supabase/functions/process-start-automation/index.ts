@@ -723,9 +723,10 @@ serve(async (req) => {
       .from('projects')
       .select(`
         id, name, github_project_id, slack_channel_id,
-        semesters!inner(code, start_date)
+        semesters!inner(code, start_date, end_date)
       `)
-      .lte('semesters.start_date', now)
+      .gte('semesters.start_date', now)
+      .lte('semesters.end_date', now)
 
     if (projectsError) throw projectsError
 
@@ -733,9 +734,10 @@ serve(async (req) => {
       .from('classes')
       .select(`
         id, name, slack_channel_id,
-        semesters!inner(code, start_date)
+        semesters!inner(code, start_date, end_date)
       `)
-      .lte('semesters.start_date', now)
+      .gte('semesters.start_date', now)
+      .lte('semesters.end_date', now)
 
     if (classesError) throw classesError
 
