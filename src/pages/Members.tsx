@@ -9,6 +9,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { PersonCard } from '@/components/PersonCard';
 import ProfileViewer from '@/components/modals/ProfileViewer';
 import { JotFormModal } from '@/components/modals/JotFormModal';
+import { FamilyTree } from '@/components/FamilyTree';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -67,7 +68,6 @@ const Members = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
 
-  // Re-check coworking window every minute so the button enables/disables without refresh
   const [withinCoworkingWindow, setWithinCoworkingWindow] = useState(isWithinCoworkingWindow);
   useEffect(() => {
     const tick = () => setWithinCoworkingWindow(isWithinCoworkingWindow());
@@ -81,7 +81,6 @@ const Members = () => {
     fetchMembers();
   }, []);
 
-  // Restore selected member from URL parameter
   useEffect(() => {
     if (memberId && !selectedMember && members.length > 0) {
       const member = members.find(m => m.id === memberId);
@@ -89,7 +88,6 @@ const Members = () => {
         setSelectedMember(member);
         setIsProfileModalOpen(true);
       } else {
-        // Member not found or user doesn't have access
         toast({
           title: 'Member Not Found',
           description: 'The requested member could not be found.',
@@ -99,7 +97,7 @@ const Members = () => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memberId, members, selectedMember]); // setSearchParams and toast are stable
+  }, [memberId, members, selectedMember]);
 
   const fetchMembers = async () => {
     const { data: profilesData, error: profilesError } = await supabase
@@ -136,19 +134,10 @@ const Members = () => {
       .eq('user_id', memberId);
 
     if (error) {
-      toast({
-        title: 'Error',
-        description: error.message,
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
     } else {
-      toast({
-        title: 'Success',
-        description: 'Member role updated successfully',
-      });
+      toast({ title: 'Success', description: 'Member role updated successfully' });
       fetchMembers();
-
-      // Invalidate ProfileContext queries since role changes affect what data users can see
       queryClient.invalidateQueries({ queryKey: ['user-role'] });
       queryClient.invalidateQueries({ queryKey: ['user-events'] });
       queryClient.invalidateQueries({ queryKey: ['user-projects'] });
@@ -159,53 +148,26 @@ const Members = () => {
 
   const handleKickMember = async (memberId: string, memberName: string) => {
     try {
-      const { error } = await supabase.rpc('delete_profile', {
-        target_user_id: memberId,
-      });
-
+      const { error } = await supabase.rpc('delete_profile', { target_user_id: memberId });
       if (error) throw error;
-
-      toast({
-        title: 'Member Kicked',
-        description: `${memberName} has been kicked from the club`,
-      });
+      toast({ title: 'Member Kicked', description: `${memberName} has been kicked from the club` });
       fetchMembers();
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to kick member',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to kick member', variant: 'destructive' });
     }
   };
 
   const handleBanMember = async (memberId: string, memberName: string) => {
     try {
-      const { data, error } = await supabase.rpc('ban_user_by_id', {
-        target_user_id: memberId,
-      });
-
+      const { data, error } = await supabase.rpc('ban_user_by_id', { target_user_id: memberId });
       if (error) throw error;
-
       const success = typeof data === 'object' && data !== null && 'success' in data ? (data).success : data;
       const banError = typeof data === 'object' && data !== null && 'error' in data ? (data).error : undefined;
-
-      if (!success) {
-        throw new Error(typeof banError === 'string' ? banError : 'Failed to ban member');
-      }
-
-      toast({
-        title: 'Member Banned',
-        description: `${memberName} has been permanently banned`,
-        variant: 'destructive',
-      });
+      if (!success) throw new Error(typeof banError === 'string' ? banError : 'Failed to ban member');
+      toast({ title: 'Member Banned', description: `${memberName} has been permanently banned`, variant: 'destructive' });
       fetchMembers();
     } catch (error) {
-      toast({
-        title: 'Error',
-        description: error instanceof Error ? error.message : 'Failed to ban member',
-        variant: 'destructive',
-      });
+      toast({ title: 'Error', description: error instanceof Error ? error.message : 'Failed to ban member', variant: 'destructive' });
     }
   };
 
@@ -216,37 +178,22 @@ const Members = () => {
   };
 
   const copyEmailsCsv = () => {
-    const emails = processedMembers
-      .map(m => m.email)
-      .filter((e): e is string => Boolean(e));
+    const emails = processedMembers.map(m => m.email).filter((e): e is string => Boolean(e));
     if (emails.length === 0) {
-      toast({
-        title: 'No emails',
-        description: 'No emails to copy for the current filter.',
-        variant: 'destructive',
-      });
+      toast({ title: 'No emails', description: 'No emails to copy for the current filter.', variant: 'destructive' });
       return;
     }
-    const escapeCsv = (s: string) =>
-      /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    const csv = emails.map(escapeCsv).join(',');
-    void navigator.clipboard.writeText(csv).then(() => {
-      toast({
-        title: 'Copied',
-        description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV`,
-      });
+    const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
+      toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV` });
     });
   };
 
-  // Only e-board can change roles; board and e-board can kick/ban
   const canManageRoles = role === 'e-board';
   const canManageActions = role === 'board' || role === 'e-board';
 
-  // Sort and filter members
   const processedMembers = useMemo(() => {
     let filteredMembers = members;
-
-    // Apply search filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filteredMembers = members.filter(member =>
@@ -259,23 +206,14 @@ const Members = () => {
         member.linkedin_username?.toLowerCase().includes(query)
       );
     }
-
-    // Sort members by role, then by name/email
-    const rolePriority = (role: string | null) => {
-      if (role === 'e-board') return 1;
-      if (role === 'board') return 2;
-      if (role === 'member') return 3;
-      return 4;
-    };
-
+    const rolePriority = (r: string | null) => r === 'e-board' ? 1 : r === 'board' ? 2 : r === 'member' ? 3 : 4;
     return [...filteredMembers].sort((a, b) => {
       const roleDiff = rolePriority(a.role) - rolePriority(b.role);
-      if (roleDiff !== 0) return roleDiff;
-
-      // Otherwise alphabetical
-      return (a.full_name || a.email).localeCompare(b.full_name || b.email);
+      return roleDiff !== 0 ? roleDiff : (a.full_name || a.email).localeCompare(b.full_name || b.email);
     });
   }, [members, searchQuery]);
+
+  // ── Loading ───────────────────────────────────────────────────────────────
 
   if (loading) {
     return (
@@ -293,71 +231,149 @@ const Members = () => {
     );
   }
 
-  return (
-    <div className="p-6 w-full h-full overflow-y-auto">
-      <div className="flex justify-between items-center gap-4">
-        <div className="flex-1">
-          <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Members</h1>
-          <p className="text-muted-foreground">
-            {isMobile
-              ? `${members.length} ${members.length === 1 ? 'member' : 'members'}`
-              : `${members.length} club ${members.length === 1 ? 'member' : 'members'}`}
-          </p>
-        </div>
-        <div className="flex items-center gap-3">
-          {!isMobile && role !== 'prospect' && (
-            withinCoworkingWindow ? (
-              <Button
-                variant="default"
-                onClick={() => setIsJotFormModalOpen(true)}
-                className="gap-2"
-              >
-                <Sparkles className="h-4 w-4" />
-                Claude Pro
-              </Button>
-            ) : (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Button
-                      variant="default"
-                      disabled
-                      className="gap-2"
-                    >
-                      <Sparkles className="h-4 w-4" />
-                      Claude Pro
-                    </Button>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Come to our weekly Coworking Session to check in!</p>
-                </TooltipContent>
-              </Tooltip>
-            )
-          )}
-          {canManageActions && !isMobile && (
-            <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV">
-              <Mail className="h-4 w-4" />
-            </Button>
-          )}
-          <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
+
+  // ── Render ────────────────────────────────────────────────────────────────
+
+  // Mobile: original scrollable grid layout, no FamilyTree
+  if (isMobile) {
+    return (
+      <div className="p-6 w-full h-full overflow-y-auto">
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex-1">
+            <h1 className="text-2xl font-bold">Members</h1>
+            <p className="text-muted-foreground">
+              {members.length} {members.length === 1 ? 'member' : 'members'}
+            </p>
+          </div>
+          <div className="relative w-40">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
-              placeholder={isMobile ? "Search" : "Search members..."}
+              placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="pl-9"
             />
           </div>
         </div>
+
+        <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] mt-6">
+          {processedMembers.map(member => (
+            <div key={member.id} className="min-w-0 max-w-[500px] w-full">
+              <PersonCard
+                person={member}
+                onViewProfile={handleViewProfile}
+                onRoleChange={handleRoleChange}
+                onKick={handleKickMember}
+                onBan={handleBanMember}
+                canManage={canManageActions}
+                canChangeRoles={canManageRoles}
+                isMobile={isMobile}
+                currentUserId={user?.id}
+                currentUserRole={role}
+                type="member"
+              />
+            </div>
+          ))}
+        </div>
+
+        {members.length === 0 ? (
+          <Card className="mt-6">
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">No members found.</p>
+            </CardContent>
+          </Card>
+        ) : processedMembers.length === 0 ? (
+          <Card className="mt-6">
+            <CardContent className="pt-6">
+              <p className="text-center text-muted-foreground">No members match your search criteria.</p>
+            </CardContent>
+          </Card>
+        ) : null}
+
+        <ProfileViewer
+          open={isProfileModalOpen}
+          onClose={() => {
+            setIsProfileModalOpen(false);
+            setSelectedMember(null);
+            setSearchParams({});
+          }}
+          member={selectedMember}
+        />
+        <JotFormModal open={isJotFormModalOpen} onClose={() => setIsJotFormModalOpen(false)} />
+      </div>
+    );
+  }
+
+  // Desktop: flex-column fixed-height so FamilyTree manages its own scroll
+  return (
+    <div className="flex flex-col w-full h-full overflow-hidden p-6">
+
+      {/* Header */}
+      <div className="flex-shrink-0">
+        <div className="flex justify-between items-center gap-4">
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold">Members</h1>
+            <p className="text-muted-foreground">
+              {members.length} club {members.length === 1 ? 'member' : 'members'}
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            {role !== 'prospect' && (
+              withinCoworkingWindow ? (
+                <Button variant="default" onClick={() => setIsJotFormModalOpen(true)} className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  Claude Pro
+                </Button>
+              ) : (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span>
+                      <Button variant="default" disabled className="gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        Claude Pro
+                      </Button>
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Come to our weekly Coworking Session to check in!</p>
+                  </TooltipContent>
+                </Tooltip>
+              )
+            )}
+            {canManageActions && (
+              <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV">
+                <Mail className="h-4 w-4" />
+              </Button>
+            )}
+            <div className="relative w-64">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search members..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] mt-6">
-        {processedMembers.map(member => (
-          <div key={member.id} className="min-w-0 max-w-[500px] w-full">
-            <PersonCard
-              person={member}
+      {/* Body — FamilyTree fills remaining height, with page margins and rounded container */}
+      <div className="flex-1 flex flex-col min-h-0 mt-6">
+        {members.length === 0 ? (
+          <div className="flex-1 flex items-center justify-center">
+            <Card className="rounded-xl">
+              <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">No members found.</p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="flex-1 min-h-0 rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+            <FamilyTree
+              members={processedMembers}
               onViewProfile={handleViewProfile}
               onRoleChange={handleRoleChange}
               onKick={handleKickMember}
@@ -367,27 +383,10 @@ const Members = () => {
               isMobile={isMobile}
               currentUserId={user?.id}
               currentUserRole={role}
-              type="member"
             />
           </div>
-        ))}
+        )}
       </div>
-
-      {members.length === 0 ? (
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">No members found.</p>
-          </CardContent>
-        </Card>
-      ) : processedMembers.length === 0 ? (
-        <Card className="mt-6">
-          <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">
-              No members match your search criteria.
-            </p>
-          </CardContent>
-        </Card>
-      ) : null}
 
       <ProfileViewer
         open={isProfileModalOpen}
@@ -398,10 +397,7 @@ const Members = () => {
         }}
         member={selectedMember}
       />
-      <JotFormModal
-        open={isJotFormModalOpen}
-        onClose={() => setIsJotFormModalOpen(false)}
-      />
+      <JotFormModal open={isJotFormModalOpen} onClose={() => setIsJotFormModalOpen(false)} />
     </div>
   );
 };
