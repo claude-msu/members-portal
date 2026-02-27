@@ -55,7 +55,7 @@ interface MemberWithRole extends Profile {
 
 const Members = () => {
   const { toast } = useToast();
-  const { role: userRole } = useProfile();
+  const { role } = useProfile();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -239,8 +239,8 @@ const Members = () => {
   };
 
   // Only e-board can change roles; board and e-board can kick/ban
-  const canManageRoles = userRole === 'e-board';
-  const canManageActions = userRole === 'board' || userRole === 'e-board';
+  const canManageRoles = role === 'e-board';
+  const canManageActions = role === 'board' || role === 'e-board';
 
   // Sort and filter members
   const processedMembers = useMemo(() => {
@@ -305,7 +305,7 @@ const Members = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {!isMobile && (
+          {!isMobile && role !== 'prospect' && (
             withinCoworkingWindow ? (
               <Button
                 variant="default"
@@ -366,7 +366,7 @@ const Members = () => {
               canChangeRoles={canManageRoles}
               isMobile={isMobile}
               currentUserId={user?.id}
-              currentUserRole={userRole}
+              currentUserRole={role}
               type="member"
             />
           </div>
