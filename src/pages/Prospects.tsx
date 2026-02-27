@@ -272,7 +272,7 @@ const Prospects = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {canManageProspects && (
+          {!isMobile && canManageProspects && (
             <Button size="icon" onClick={copyEmailsCsv} title="Copy filtered emails as CSV">
               <Mail className="h-4 w-4" />
             </Button>
