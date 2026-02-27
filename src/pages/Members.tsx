@@ -8,11 +8,43 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PersonCard } from '@/components/PersonCard';
 import ProfileViewer from '@/components/modals/ProfileViewer';
+import { JotFormModal } from '@/components/modals/JotFormModal';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Search, Mail } from 'lucide-react';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { Search, Mail, Sparkles } from 'lucide-react';
+
+/** True if current time is 7:00pm–8:30pm EST on a Thursday. */
+function isWithinCoworkingWindow(): boolean {
+  const now = new Date();
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/New_York',
+    weekday: 'long',
+    hour: 'numeric',
+    minute: 'numeric',
+    hour12: false,
+  });
+  const parts = formatter.formatToParts(now);
+  let weekday = '';
+  let hour = 0;
+  let minute = 0;
+  for (const p of parts) {
+    if (p.type === 'weekday') weekday = p.value;
+    if (p.type === 'hour') hour = parseInt(p.value, 10);
+    if (p.type === 'minute') minute = parseInt(p.value, 10);
+  }
+  if (weekday !== 'Thursday') return false;
+  if (hour < 19) return false;
+  if (hour > 20) return false;
+  if (hour === 20 && minute >= 30) return false;
+  return true;
+}
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -31,8 +63,17 @@ const Members = () => {
   const [loading, setLoading] = useState(true);
   const [selectedMember, setSelectedMember] = useState<MemberWithRole | null>(null);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isJotFormModalOpen, setIsJotFormModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
+
+  // Re-check coworking window every minute so the button enables/disables without refresh
+  const [withinCoworkingWindow, setWithinCoworkingWindow] = useState(isWithinCoworkingWindow);
+  useEffect(() => {
+    const tick = () => setWithinCoworkingWindow(isWithinCoworkingWindow());
+    const id = setInterval(tick, 60 * 1000);
+    return () => clearInterval(id);
+  }, []);
 
   const memberId = searchParams.get('id');
 
@@ -264,6 +305,36 @@ const Members = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          {!isMobile && (
+            withinCoworkingWindow ? (
+              <Button
+                variant="default"
+                onClick={() => setIsJotFormModalOpen(true)}
+                className="gap-2"
+              >
+                <Sparkles className="h-4 w-4" />
+                Claude Pro
+              </Button>
+            ) : (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    <Button
+                      variant="default"
+                      disabled
+                      className="gap-2"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      Claude Pro
+                    </Button>
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Come to our weekly Coworking Session to check in!</p>
+                </TooltipContent>
+              </Tooltip>
+            )
+          )}
           {canManageActions && !isMobile && (
             <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV">
               <Mail className="h-4 w-4" />
@@ -326,6 +397,10 @@ const Members = () => {
           setSearchParams({});
         }}
         member={selectedMember}
+      />
+      <JotFormModal
+        open={isJotFormModalOpen}
+        onClose={() => setIsJotFormModalOpen(false)}
       />
     </div>
   );
