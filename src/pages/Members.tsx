@@ -28,7 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Search, Mail, Sparkles, Users, Crown, Award } from 'lucide-react';
+import { Search, Mail, Users, Crown } from 'lucide-react';
 
 /** True if current time is 7:00pm–8:30pm EST on a Thursday. */
 function isWithinCoworkingWindow(): boolean {
@@ -401,7 +401,7 @@ const Members = () => {
             {role !== 'prospect' && (
               withinCoworkingWindow ? (
                 <Button variant="default" onClick={() => setIsJotFormModalOpen(true)} className="gap-2">
-                  <Sparkles className="h-4 w-4" />
+                  <img src="/claude-logo-transparent.png" alt="" className="h-4 w-4 object-contain shrink-0 [filter:brightness(0)_invert(1)]" aria-hidden />
                   Claude Pro
                 </Button>
               ) : (
@@ -409,7 +409,7 @@ const Members = () => {
                   <TooltipTrigger asChild>
                     <span>
                       <Button variant="default" disabled className="gap-2">
-                        <Sparkles className="h-4 w-4" />
+                        <img src="/claude-logo-transparent.png" alt="" className="h-4 w-4 object-contain shrink-0 [filter:brightness(0)_invert(1)]" aria-hidden />
                         Claude Pro
                       </Button>
                     </span>
