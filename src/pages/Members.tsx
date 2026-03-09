@@ -252,7 +252,8 @@ const Members = () => {
   const hasRelationships = relationships.length > 0;
   const activeFamily: Family | null = families[activeFamilyIdx] ?? families[0] ?? null;
 
-  useEffect(() => { setActiveFamilyIdx(0); setFamilyKey(k => k + 1); }, [families.length]);
+  // Reset to first family when list changes; don't bump familyKey so we avoid double fade on initial load
+  useEffect(() => { setActiveFamilyIdx(0); }, [families.length]);
 
   const scrollToMember = useCallback((memberId: string) => {
     const el = directoryRef.current?.querySelector(`[data-member-id="${memberId}"]`);
@@ -396,7 +397,7 @@ const Members = () => {
               {members.length} club {members.length === 1 ? 'member' : 'members'}
             </p>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
             {role !== 'prospect' && (
               withinCoworkingWindow ? (
                 <Button variant="default" onClick={() => setIsJotFormModalOpen(true)} className="gap-2">
@@ -420,11 +421,11 @@ const Members = () => {
               )
             )}
             {canManageActions && (
-              <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV">
+              <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV" className="shrink-0">
                 <Mail className="h-4 w-4" />
               </Button>
             )}
-            <div className="relative w-64">
+            <div className="relative w-40 sm:w-52 lg:w-64 shrink-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 type="text"
@@ -451,12 +452,12 @@ const Members = () => {
         ) : (
           <div
             ref={containerRef}
-            className="flex-1 min-h-0 rounded-xl border border-border bg-card overflow-hidden shadow-sm flex"
+            className="flex-1 min-h-0 rounded-xl border border-border bg-card overflow-hidden shadow-sm flex flex-col lg:flex-row"
             tabIndex={-1}
             style={{ outline: 'none' }}
           >
-            {/* LEFT: canvas */}
-            <div className="w-1/2 h-full flex-shrink-0">
+            {/* LEFT / TOP: canvas (full width stacked on medium, 2/3 on large+) */}
+            <div className="w-full lg:w-2/3 h-[45vh] min-h-[280px] lg:h-full lg:min-h-0 flex-shrink-0">
               <FamilyTree
                 family={activeFamily}
                 families={families}
@@ -471,11 +472,11 @@ const Members = () => {
               />
             </div>
 
-            {/* RIGHT: family directory */}
+            {/* RIGHT / BOTTOM: family directory (full width below tree on medium, 1/3 on large+) */}
             <AnimatePresence mode="wait">
               <motion.div
                 key={familyKey}
-                className="w-1/2 h-full border-l border-border bg-card flex flex-col flex-shrink-0"
+                className="w-full lg:w-1/3 flex-1 lg:flex-initial min-h-0 lg:min-w-[280px] border-t lg:border-t-0 lg:border-l border-border bg-card flex flex-col flex-shrink-0"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -523,7 +524,7 @@ const Members = () => {
                 {/* Scrollable member list */}
                 <div
                   ref={directoryRef}
-                  className="flex-1 overflow-y-auto p-4 grid grid-cols-[repeat(auto-fit,minmax(300px,1fr))] gap-3 content-start"
+                  className="flex-1 overflow-y-auto p-4 grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3 content-start"
                 >
                   <AnimatePresence mode="popLayout">
                     {activeFamily?.members.map((member, i) => (

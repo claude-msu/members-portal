@@ -1,10 +1,12 @@
-import {
+import React, {
     useRef,
     useState,
     useEffect,
     useCallback,
     useMemo,
     useLayoutEffect,
+    createContext,
+    useContext,
 } from 'react';
 import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { Html, Line } from '@react-three/drei';
@@ -112,6 +114,20 @@ const STYLES = `
     }
     .ft-canvas-bg {
       background: linear-gradient(165deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.6) 50%, hsl(var(--background)) 100%);
+      /* Node sizes: 1200px and below use small; above 1200 scale up */
+      --ft-node-root: 44px;
+      --ft-node-child: 30px;
+      --ft-font-root: 0.75rem;
+      --ft-font-child: 0.625rem;
+    }
+    @media (min-width: 1200px) {
+      .ft-canvas-bg { --ft-node-root: 52px; --ft-node-child: 36px; --ft-font-root: 0.875rem; --ft-font-child: 0.6875rem; }
+    }
+    @media (min-width: 1280px) {
+      .ft-canvas-bg { --ft-node-root: 64px; --ft-node-child: 44px; --ft-font-root: 1rem; --ft-font-child: 0.8125rem; }
+    }
+    @media (min-width: 1536px) {
+      .ft-canvas-bg { --ft-node-root: 76px; --ft-node-child: 52px; --ft-font-root: 1.125rem; --ft-font-child: 0.9375rem; }
     }
     .dark .ft-canvas-bg {
       background: linear-gradient(165deg, hsl(220 18% 14%) 0%, hsl(220 18% 10%) 50%, hsl(220 18% 7%) 100%);
@@ -125,6 +141,18 @@ function injectStyles() {
     const el = document.createElement('style');
     el.textContent = STYLES;
     document.head.appendChild(el);
+}
+
+// Context for passing refs from FamilyTree into Canvas (for pan/zoom and CSS var)
+interface FamilyTreeControlsContextValue {
+    containerRef: React.RefObject<HTMLDivElement | null>;
+    targetZoomRef: React.MutableRefObject<number>;
+    zoomFactorRef: React.MutableRefObject<number>;
+    dragDeltaRef: React.MutableRefObject<{ x: number; y: number }>;
+}
+const FamilyTreeControlsContext = createContext<FamilyTreeControlsContextValue | null>(null);
+function useFamilyTreeControls() {
+    return useContext(FamilyTreeControlsContext);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -199,6 +227,7 @@ function TreeNodeCard({
     onEnter,
     onLeave,
     onNodeClick,
+    onNodePointerDown,
 }: {
     node: FamilyNode;
     position: NodePosition;
@@ -207,6 +236,7 @@ function TreeNodeCard({
     onEnter: () => void;
     onLeave: () => void;
     onNodeClick: () => void;
+    onNodePointerDown?: () => void;
 }) {
     const { member } = node;
     const initials = (member.full_name ?? member.email ?? '?')
@@ -223,19 +253,28 @@ function TreeNodeCard({
                 ? 'border-[1.5px] border-blue-500 shadow shadow-blue-500/15'
                 : 'border-[1.5px] border-border bg-card shadow-sm hover:border-muted-foreground/60';
 
-    const sizeClass = isRoot ? 'w-10 h-10 text-sm' : 'w-7 h-7 text-[10px]';
+    const sizeStyle = {
+        width: `calc(var(${isRoot ? '--ft-node-root' : '--ft-node-child'}, ${isRoot ? 52 : 36}px) / var(--ft-zoom, 1))`,
+        height: `calc(var(${isRoot ? '--ft-node-root' : '--ft-node-child'}, ${isRoot ? 52 : 36}px) / var(--ft-zoom, 1))`,
+        fontSize: `calc(var(${isRoot ? '--ft-font-root' : '--ft-font-child'}, ${isRoot ? '0.875rem' : '0.6875rem'}) / var(--ft-zoom, 1))`,
+    };
     const displayName = member.full_name ?? member.email ?? 'Unknown';
 
     return (
         <Html position={[position.x, position.y, 0]} center zIndexRange={[10, 0]}>
             <div
+                data-family-tree-node
                 className={`flex flex-col items-center cursor-pointer select-none transition-transform duration-200 ${isHovered ? 'scale-110' : 'scale-100'}`}
                 onMouseEnter={onEnter}
                 onMouseLeave={onLeave}
+                onPointerDown={onNodePointerDown}
                 onClick={onNodeClick}
                 title={displayName}
             >
-                <div className={`${sizeClass} rounded-full overflow-hidden flex items-center justify-center font-semibold bg-muted box-content ${borderClass}`}>
+                <div
+                    style={sizeStyle}
+                    className={`rounded-full overflow-hidden flex items-center justify-center font-semibold bg-muted box-content ${borderClass}`}
+                >
                     {member.profile_picture_url
                         ? <img src={member.profile_picture_url} alt="" className="w-full h-full object-cover" />
                         : <span className="text-muted-foreground">{initials}</span>}
@@ -245,18 +284,22 @@ function TreeNodeCard({
     );
 }
 
+const LERP = 0.12;
+
 function AutoCamera({
     positions,
     paddingScale = 1.3,
-    zoomFactorRef,
 }: {
     positions: Map<string, NodePosition>;
     paddingScale?: number;
-    zoomFactorRef: React.MutableRefObject<number>;
 }) {
     const { camera, size } = useThree();
+    const controls = useFamilyTreeControls();
     const centerRef = useRef({ x: 0, y: 0 });
     const baseDistRef = useRef(50);
+    const targetPanRef = useRef({ x: 0, y: 0 });
+    const currentPanRef = useRef({ x: 0, y: 0 });
+
     useLayoutEffect(() => {
         if (!positions.size) return;
         let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
@@ -265,8 +308,10 @@ function AutoCamera({
             minY = Math.min(minY, p.y); maxY = Math.max(maxY, p.y);
         });
         centerRef.current = { x: (minX + maxX) / 2, y: (minY + maxY) / 2 };
-        const spanX = Math.max(maxX - minX + 8, 4);
-        const spanY = Math.max(Math.abs(maxY - minY) + 8, 4);
+        // Tight fit: minimal padding around content bounds (content-based autofit per family)
+        const padding = 4;
+        const spanX = Math.max(maxX - minX + padding, 4);
+        const spanY = Math.max(maxY - minY + padding, 4);
         const aspect = size.width / size.height;
         const fovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180;
         baseDistRef.current =
@@ -274,12 +319,43 @@ function AutoCamera({
                 (spanY / 2) / Math.tan(fovRad / 2),
                 (spanX / 2) / (Math.tan(fovRad / 2) * aspect),
             ) * paddingScale;
+        targetPanRef.current = { x: 0, y: 0 };
+        currentPanRef.current = { x: 0, y: 0 };
     }, [positions, camera, size, paddingScale]);
+
     useFrame(() => {
+        if (!controls) return;
+        const { zoomFactorRef, targetZoomRef, dragDeltaRef, containerRef } = controls;
         const { x: cx, y: cy } = centerRef.current;
+
+        // Apply drag delta (pixels) to pan: convert to world units
+        const dx = dragDeltaRef.current.x;
+        const dy = dragDeltaRef.current.y;
+        if (dx !== 0 || dy !== 0) {
+            const d = Math.min(baseDistRef.current * zoomFactorRef.current, 200);
+            const fovRad = ((camera as THREE.PerspectiveCamera).fov * Math.PI) / 180;
+            const worldPerPixelY = (2 * d * Math.tan(fovRad / 2)) / size.height;
+            const worldPerPixelX = (2 * d * Math.tan(fovRad / 2)) / size.width;
+            targetPanRef.current.x -= dx * worldPerPixelX;
+            targetPanRef.current.y += dy * worldPerPixelY;
+            dragDeltaRef.current.x = 0;
+            dragDeltaRef.current.y = 0;
+        }
+
+        // Smooth lerp zoom and pan
+        zoomFactorRef.current = THREE.MathUtils.lerp(zoomFactorRef.current, targetZoomRef.current, LERP);
+        currentPanRef.current.x = THREE.MathUtils.lerp(currentPanRef.current.x, targetPanRef.current.x, LERP);
+        currentPanRef.current.y = THREE.MathUtils.lerp(currentPanRef.current.y, targetPanRef.current.y, LERP);
+
         const dist = Math.min(baseDistRef.current * zoomFactorRef.current, 200);
-        camera.position.set(cx, cy, dist);
-        camera.lookAt(cx, cy, 0);
+        const px = cx + currentPanRef.current.x;
+        const py = cy + currentPanRef.current.y;
+        camera.position.set(px, py, dist);
+        camera.lookAt(px, py, 0);
+
+        if (containerRef.current) {
+            containerRef.current.style.setProperty('--ft-zoom', String(zoomFactorRef.current));
+        }
     });
     return null;
 }
@@ -290,14 +366,14 @@ function FamilyScene({
     hoveredId,
     onHover,
     onNodeClick,
-    zoomFactorRef,
+    onNodePointerDown,
 }: {
     family: Family;
     currentUserId: string;
     hoveredId: string | null;
     onHover: (id: string | null) => void;
     onNodeClick: (memberId: string) => void;
-    zoomFactorRef: React.MutableRefObject<number>;
+    onNodePointerDown?: () => void;
 }) {
     const positions = useMemo(() => {
         const m = new Map<string, NodePosition>();
@@ -308,11 +384,12 @@ function FamilyScene({
     const allNodes = useMemo(() => collectNodes(family.tree), [family]);
     const allEdges = useMemo(() => collectEdges(family.tree), [family]);
     const hasChildren = family.tree.littles.length > 0;
-    const paddingScale = hasChildren ? 1.3 : 2.5;
+    // Tighter autofit: scale so this family's content fills the view (small trees get slightly more padding)
+    const paddingScale = hasChildren ? 1.12 : 1.6;
 
     return (
         <>
-            <AutoCamera positions={positions} paddingScale={paddingScale} zoomFactorRef={zoomFactorRef} />
+            <AutoCamera positions={positions} paddingScale={paddingScale} />
             <ambientLight intensity={0.5} />
             <pointLight position={[0, 0, 10]} intensity={0.6} color="#ffffff" />
             {allEdges.map(([bigId, littleId]) => {
@@ -331,6 +408,7 @@ function FamilyScene({
                         onEnter={() => onHover(node.member.id)}
                         onLeave={() => onHover(null)}
                         onNodeClick={() => onNodeClick(node.member.id)}
+                        onNodePointerDown={onNodePointerDown}
                     />
                 ) : null;
             })}
@@ -355,6 +433,10 @@ export interface FamilyTreeProps {
     canManage: boolean;
 }
 
+const ZOOM_MIN = 0.2;
+const ZOOM_MAX = 4;
+const DRAG_THRESHOLD = 4;
+
 export function FamilyTree({
     family,
     families,
@@ -369,32 +451,94 @@ export function FamilyTree({
 }: FamilyTreeProps) {
     useEffect(() => { injectStyles(); }, []);
 
-    const [zoomFactor, setZoomFactor] = useState(1);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const targetZoomRef = useRef(1);
     const zoomFactorRef = useRef(1);
+    const dragDeltaRef = useRef({ x: 0, y: 0 });
+    const isDraggingRef = useRef(false);
+    const hasDraggedRef = useRef(false);
+
+    useEffect(() => {
+        targetZoomRef.current = 1;
+        zoomFactorRef.current = 1;
+    }, [activeFamilyIdx]);
+
     const setZoom = useCallback((fn: (prev: number) => number) => {
-        setZoomFactor(prev => {
-            const next = fn(prev);
-            zoomFactorRef.current = next;
-            return next;
-        });
+        const next = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, fn(targetZoomRef.current)));
+        targetZoomRef.current = next;
     }, []);
 
-    void zoomFactor;
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const onWheel = (e: WheelEvent) => {
+            e.preventDefault();
+            const scale = 1 + e.deltaY * 0.002;
+            targetZoomRef.current = Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, targetZoomRef.current * scale));
+        };
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, []);
+
+    const onPointerDown = useCallback((e: React.PointerEvent) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('[data-no-pan]') || target.closest('[data-family-tree-node]')) return;
+        isDraggingRef.current = true;
+        hasDraggedRef.current = false;
+        containerRef.current?.setPointerCapture(e.pointerId);
+    }, []);
+
+    const onPointerMove = useCallback((e: React.PointerEvent) => {
+        if (!isDraggingRef.current) return;
+        if (Math.abs(e.movementX) + Math.abs(e.movementY) > DRAG_THRESHOLD) hasDraggedRef.current = true;
+        dragDeltaRef.current.x += e.movementX;
+        dragDeltaRef.current.y += e.movementY;
+    }, []);
+
+    const onPointerUp = useCallback((e: React.PointerEvent) => {
+        isDraggingRef.current = false;
+        containerRef.current?.releasePointerCapture(e.pointerId);
+    }, []);
+
+    const handleNodePointerDown = useCallback(() => {
+        hasDraggedRef.current = false;
+    }, []);
+
+    const handleNodeClick = useCallback((memberId: string) => {
+        if (!hasDraggedRef.current) onNodeClick(memberId);
+    }, [onNodeClick]);
+
+    const controlsContextValue = useMemo<FamilyTreeControlsContextValue>(() => ({
+        containerRef,
+        targetZoomRef,
+        zoomFactorRef,
+        dragDeltaRef,
+    }), []);
 
     return (
-        <div className="relative w-full h-full ft-canvas-bg overflow-hidden">
+        <div
+            ref={containerRef}
+            className="relative w-full h-full ft-canvas-bg overflow-hidden cursor-grab active:cursor-grabbing"
+            onPointerDown={onPointerDown}
+            onPointerMove={onPointerMove}
+            onPointerUp={onPointerUp}
+            onPointerLeave={onPointerUp}
+            style={{ touchAction: 'none' }}
+        >
             {/* Canvas */}
             {family && (
                 <Canvas camera={{ fov: 50, near: 0.1, far: 1000 }} style={{ background: 'transparent' }}>
-                    <FamilyScene
-                        key={activeFamilyIdx}
-                        family={family}
-                        currentUserId={currentUserId}
-                        hoveredId={hoveredId}
-                        onHover={onHover}
-                        onNodeClick={onNodeClick}
-                        zoomFactorRef={zoomFactorRef}
-                    />
+                    <FamilyTreeControlsContext.Provider value={controlsContextValue}>
+                        <FamilyScene
+                            key={activeFamilyIdx}
+                            family={family}
+                            currentUserId={currentUserId}
+                            hoveredId={hoveredId}
+                            onHover={onHover}
+                            onNodeClick={handleNodeClick}
+                            onNodePointerDown={handleNodePointerDown}
+                        />
+                    </FamilyTreeControlsContext.Provider>
                 </Canvas>
             )}
 
@@ -417,7 +561,7 @@ export function FamilyTree({
             <div className="absolute inset-0 z-10 pointer-events-none">
                 {/* Nav dots */}
                 {hasRelationships && families.length > 1 && (
-                    <div className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-2.5 pointer-events-auto">
+                    <div data-no-pan className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-2.5 pointer-events-auto">
                         {families.map((f, i) => (
                             <button
                                 key={f.root.id}
@@ -435,7 +579,7 @@ export function FamilyTree({
                 )}
 
                 {/* Zoom rocker */}
-                <div className="absolute top-3 right-3 flex flex-col rounded-lg border border-border bg-card/95 shadow-sm overflow-hidden pointer-events-auto">
+                <div data-no-pan className="absolute top-3 right-3 flex flex-col rounded-lg border border-border bg-card/95 shadow-sm overflow-hidden pointer-events-auto">
                     <button
                         type="button"
                         onClick={() => setZoom(f => Math.max(f / 1.25, 0.4))}
