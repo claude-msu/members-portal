@@ -28,7 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Search, Mail, Users, Crown } from 'lucide-react';
+import { Search, Mail, Users, Home, Trophy } from 'lucide-react';
 
 /** True if current time is 7:00pm–8:30pm EST on a Thursday. */
 function isWithinCoworkingWindow(): boolean {
@@ -56,7 +56,7 @@ function isWithinCoworkingWindow(): boolean {
   return true;
 }
 
-const TRANSITION_MS = 650;
+const TRANSITION_MS = 100;
 
 const Members = () => {
   const { toast } = useToast();
@@ -83,7 +83,6 @@ const Members = () => {
 
   // ── Family state (desktop only) ────────────────────────────────────────────
   const [activeFamilyIdx, setActiveFamilyIdx] = useState(0);
-  const [familyKey, setFamilyKey] = useState(0);
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [isTransitioning, setIsTransitioning] = useState(false);
   const directoryRef = useRef<HTMLDivElement>(null);
@@ -244,16 +243,33 @@ const Members = () => {
     });
   }, [members, searchQuery]);
 
-  // ── Families (desktop) ─────────────────────────────────────────────────────
-  const families = useMemo(
-    () => buildFamilies(processedMembers, relationships),
-    [processedMembers, relationships],
+  const processedIds = useMemo(() => new Set(processedMembers.map(m => m.id)), [processedMembers]);
+
+  // ── Families (desktop): build from full member list so structure is always correct ──
+  const familiesFull = useMemo(
+    () => buildFamilies(members, relationships),
+    [members, relationships],
   );
+  const displayFamilies = useMemo(() => {
+    if (!searchQuery.trim()) return familiesFull;
+    return familiesFull.filter(f => f.members.some(m => processedIds.has(m.id)));
+  }, [familiesFull, searchQuery, processedIds]);
   const hasRelationships = relationships.length > 0;
-  const activeFamily: Family | null = families[activeFamilyIdx] ?? families[0] ?? null;
+  const activeFamily: Family | null = displayFamilies[activeFamilyIdx] ?? displayFamilies[0] ?? null;
+  const activeFamilyDirectoryMembers = useMemo(() => {
+    if (!activeFamily) return [];
+    if (!searchQuery.trim()) return activeFamily.members;
+    return activeFamily.members.filter(m => processedIds.has(m.id));
+  }, [activeFamily, searchQuery, processedIds]);
+  const activeFamilyTotalPoints = useMemo(
+    () => activeFamilyDirectoryMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
+    [activeFamilyDirectoryMembers],
+  );
 
   // Reset to first family when list changes; don't bump familyKey so we avoid double fade on initial load
-  useEffect(() => { setActiveFamilyIdx(0); }, [families.length]);
+  useEffect(() => {
+    setActiveFamilyIdx(i => (i >= displayFamilies.length ? 0 : i));
+  }, [displayFamilies.length]);
 
   const scrollToMember = useCallback((memberId: string) => {
     const el = directoryRef.current?.querySelector(`[data-member-id="${memberId}"]`);
@@ -262,16 +278,15 @@ const Members = () => {
 
   const switchFamily = useCallback((nextIdx: number) => {
     if (isTransRef.current) return;
-    if (nextIdx < 0 || nextIdx >= families.length) return;
+    if (nextIdx < 0 || nextIdx >= displayFamilies.length) return;
     if (nextIdx === activeIdxRef.current) return;
     setIsTransitioning(true); isTransRef.current = true;
     setActiveFamilyIdx(nextIdx);
-    setTimeout(() => { setFamilyKey(k => k + 1); }, 100);
     setTimeout(() => {
       setIsTransitioning(false); isTransRef.current = false;
       if (directoryRef.current) directoryRef.current.scrollTop = 0;
     }, TRANSITION_MS);
-  }, [families.length]);
+  }, [displayFamilies.length]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -460,7 +475,7 @@ const Members = () => {
             <div className="w-full lg:w-2/3 h-[45vh] min-h-[280px] lg:h-full lg:min-h-0 flex-shrink-0">
               <FamilyTree
                 family={activeFamily}
-                families={families}
+                families={displayFamilies}
                 activeFamilyIdx={activeFamilyIdx}
                 onSwitchFamily={switchFamily}
                 currentUserId={user?.id ?? ''}
@@ -472,16 +487,13 @@ const Members = () => {
               />
             </div>
 
-            {/* RIGHT / BOTTOM: family directory (full width below tree on medium, 1/3 on large+) */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={familyKey}
-                className="w-full lg:w-1/3 flex-1 lg:flex-initial min-h-0 lg:min-w-[280px] border-t lg:border-t-0 lg:border-l border-border bg-card flex flex-col flex-shrink-0"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-              >
+            {/* RIGHT / BOTTOM: family directory (full width below tree on medium, 1/3 on large+) — no key so content updates in place and we avoid double fade on family switch */}
+            <motion.div
+              className="w-full lg:w-1/3 flex-1 lg:flex-initial min-h-0 lg:min-w-[280px] border-t lg:border-t-0 lg:border-l border-border bg-card flex flex-col flex-shrink-0"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
                 {/* Family header */}
                 <div className="flex-shrink-0 p-3 border-b border-border bg-muted/30">
                   <div className="flex items-center justify-between gap-3">
@@ -498,10 +510,15 @@ const Members = () => {
                           <span className="text-sm font-semibold text-foreground truncate">
                             {hasRelationships ? `${activeFamily?.root.full_name}'s Family` : 'All Members'}
                           </span>
-                          <Crown className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                          <Home className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                         </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {activeFamily?.members.length ?? 0} member{activeFamily?.members.length !== 1 ? 's' : ''}
+                        <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
+                          <span>{activeFamilyDirectoryMembers.length} member{activeFamilyDirectoryMembers.length !== 1 ? 's' : ''}</span>
+                          <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
+                          <span className="inline-flex items-center gap-1">
+                            <Trophy className="h-3 w-3" />
+                            {activeFamilyTotalPoints}
+                          </span>
                         </p>
                       </div>
                     </div>
@@ -526,16 +543,15 @@ const Members = () => {
                   ref={directoryRef}
                   className="flex-1 overflow-y-auto p-4 grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3 content-start"
                 >
-                  <AnimatePresence mode="popLayout">
-                    {activeFamily?.members.map((member, i) => (
+                  <AnimatePresence mode="wait">
+                    {activeFamilyDirectoryMembers.map((member, i) => (
                       <motion.div
                         key={member.id}
                         data-member-id={member.id}
-                        layout
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                        transition={{ duration: 0.25, delay: i * 0.03, ease: [0.22, 1, 0.36, 1] }}
+                        exit={{ opacity: 0, y: -8, transition: { duration: 0.1 } }}
+                        transition={{ duration: 0.2, delay: i * 0.012, ease: [0.22, 1, 0.36, 1] }}
                         className={`min-w-0 ${hoveredId === member.id ? 'ring-2 ring-primary/30 ring-offset-2 ring-offset-card rounded-lg' : ''}`}
                       >
                         <PersonCard
@@ -555,8 +571,7 @@ const Members = () => {
                     ))}
                   </AnimatePresence>
                 </div>
-              </motion.div>
-            </AnimatePresence>
+            </motion.div>
           </div>
         )}
       </div>

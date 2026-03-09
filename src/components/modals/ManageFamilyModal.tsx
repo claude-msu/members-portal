@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as DialogPrimitive from '@radix-ui/react-dialog';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,8 +20,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Check, ChevronsUpDown, Trash2, Link2, Loader2 } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
+
+interface LastLinkOp {
+    createdIds: string[];
+    deleted: { big_id: string; little_id: string }[];
+}
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -170,6 +180,11 @@ function ConnectionArrow() {
 
 // ─── Main modal ────────────────────────────────────────────────────────────
 
+function displayName(member: { full_name: string | null; email: string | null } | undefined) {
+    if (!member) return '?';
+    return member.full_name?.split(' ')[0] ?? member.email ?? '?';
+}
+
 export function ManageFamilyModal({ open, onClose, members }: Props) {
     const { toast } = useToast();
     const queryClient = useQueryClient();
@@ -178,6 +193,8 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
     const [littleId, setLittleId] = useState<string | null>(null);
     const [linking, setLinking] = useState(false);
     const [deletingId, setDeletingId] = useState<string | null>(null);
+    const [newConnectionIds, setNewConnectionIds] = useState<string[]>([]);
+    const [lastLinkOp, setLastLinkOp] = useState<LastLinkOp | null>(null);
 
     const { data: relationships = [], isLoading } = useQuery<FamilyRelationship[]>({
         queryKey: ['family-relationships'],
@@ -192,8 +209,53 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
     });
 
     const memberMap = new Map(members.map(m => [m.id, m]));
-    const existingLittleIds = new Set(relationships.map(r => r.little_id));
-    const availableLittles = members.filter(m => !existingLittleIds.has(m.id));
+    const littleIds = new Set(relationships.map(r => r.little_id));
+    const familyRootIds = new Set(relationships.map(r => r.big_id).filter(id => !littleIds.has(id)));
+    const availableLittles = members.filter(m => m.id !== bigId);
+    const existingRelByLittle = new Map(relationships.map(r => [r.little_id, r]));
+
+    useEffect(() => {
+        if (open) {
+            setNewConnectionIds([]);
+            setLastLinkOp(null);
+        }
+    }, [open]);
+
+    useEffect(() => {
+        if (!open) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (!(e.ctrlKey || e.metaKey) || e.key !== 'z' || !lastLinkOp) return;
+            e.preventDefault();
+            const op = lastLinkOp;
+            setLastLinkOp(null);
+            (async () => {
+                try {
+                    if (op.createdIds.length > 0) {
+                        await supabase
+                            .from('family_relationships')
+                            .delete()
+                            .in('id', op.createdIds);
+                    }
+                    for (const row of op.deleted) {
+                        await supabase
+                            .from('family_relationships')
+                            .insert({ big_id: row.big_id, little_id: row.little_id });
+                    }
+                    setNewConnectionIds(prev => prev.filter(id => !op.createdIds.includes(id)));
+                    await queryClient.invalidateQueries({ queryKey: ['family-relationships'] });
+                    toast({ title: 'Changes reverted', description: 'Last link action was undone.' });
+                } catch (err) {
+                    toast({
+                        title: 'Error',
+                        description: err instanceof Error ? err.message : 'Failed to undo.',
+                        variant: 'destructive',
+                    });
+                }
+            })();
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [open, lastLinkOp, queryClient, toast]);
 
     async function handleLink() {
         if (!bigId || !littleId) return;
@@ -201,13 +263,57 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
             toast({ title: 'Invalid', description: 'A member cannot be their own big.', variant: 'destructive' });
             return;
         }
+        const oldRel = existingRelByLittle.get(littleId);
+        if (oldRel && familyRootIds.has(bigId)) {
+            toast({
+                title: 'Cannot add family root',
+                description: 'Cannot add a family root as big to someone who already has a big. Remove that family lead\'s connection first.',
+                variant: 'destructive',
+            });
+            return;
+        }
         setLinking(true);
         try {
-            const { error } = await supabase
-                .from('family_relationships')
-                .insert({ big_id: bigId, little_id: littleId });
-            if (error) throw error;
-            toast({ title: 'Linked', description: 'Big/little connection created.' });
+            let createdIds: string[] = [];
+            let deleted: { big_id: string; little_id: string }[] = [];
+            const linksForToast: string[] = [];
+
+            if (oldRel) {
+                const { error: delError } = await supabase
+                    .from('family_relationships')
+                    .delete()
+                    .eq('id', oldRel.id);
+                if (delError) throw delError;
+                deleted = [{ big_id: oldRel.big_id, little_id: oldRel.little_id }];
+                const bigName = displayName(memberMap.get(oldRel.big_id));
+                const newBigName = displayName(memberMap.get(bigId));
+                const littleName = displayName(memberMap.get(littleId));
+                const { data: inserted, error: insError } = await supabase
+                    .from('family_relationships')
+                    .insert([
+                        { big_id: oldRel.big_id, little_id: bigId },
+                        { big_id: bigId, little_id: littleId },
+                    ])
+                    .select('id');
+                if (insError) throw insError;
+                createdIds = (inserted ?? []).map(r => r.id);
+                linksForToast.push(`${bigName} → ${newBigName}`, `${newBigName} → ${littleName}`);
+            } else {
+                const { data: inserted, error } = await supabase
+                    .from('family_relationships')
+                    .insert({ big_id: bigId, little_id: littleId })
+                    .select('id');
+                if (error) throw error;
+                const row = inserted?.[0];
+                if (row) createdIds = [row.id];
+                const bigName = displayName(memberMap.get(bigId));
+                const littleName = displayName(memberMap.get(littleId));
+                linksForToast.push(`${bigName} → ${littleName}`);
+            }
+
+            setNewConnectionIds(prev => [...prev, ...createdIds]);
+            setLastLinkOp({ createdIds, deleted });
+            toast({ title: 'Linked', description: linksForToast.join(', ') });
             setBigId(null);
             setLittleId(null);
             await queryClient.invalidateQueries({ queryKey: ['family-relationships'] });
@@ -230,6 +336,7 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                 .delete()
                 .eq('id', relId);
             if (error) throw error;
+            setNewConnectionIds(prev => prev.filter(id => id !== relId));
             toast({ title: 'Unlinked', description: 'Connection removed.' });
             await queryClient.invalidateQueries({ queryKey: ['family-relationships'] });
         } catch (err) {
@@ -243,7 +350,27 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
         }
     }
 
-    const canLink = !!bigId && !!littleId && bigId !== littleId && !linking;
+    const linkAlreadyExists = bigId && littleId && relationships.some(
+        r => r.big_id === bigId && r.little_id === littleId
+    );
+    const linkInverseExists = bigId && littleId && relationships.some(
+        r => r.big_id === littleId && r.little_id === bigId
+    );
+    const canLink = !!bigId && !!littleId && bigId !== littleId && !linking && !linkAlreadyExists && !linkInverseExists;
+    const littleAlreadyHasBig = littleId ? existingRelByLittle.has(littleId) : false;
+    const linkDisabledReason =
+        !bigId ? 'Select a big'
+            : !littleId ? 'Select a little'
+                : bigId === littleId ? "Can't link a member to themselves"
+                    : linkAlreadyExists ? 'This link already exists'
+                        : linkInverseExists ? 'This pair is already linked (other direction)'
+                            : littleAlreadyHasBig && familyRootIds.has(bigId)
+                                ? "Can't add a family root as big here. Remove their link first."
+                                : linking ? 'Linking...'
+                                    : null;
+
+    const newConnections = relationships.filter(r => newConnectionIds.includes(r.id));
+    const existingConnections = relationships.filter(r => !newConnectionIds.includes(r.id));
 
     return (
         <DialogPrimitive.Root open={open} onOpenChange={v => { if (!v) onClose(); }}>
@@ -296,18 +423,106 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                                 />
                             </div>
                         </div>
-                        <Button
-                            onClick={handleLink}
-                            disabled={!canLink}
-                            className="w-full gap-2"
-                        >
-                            {linking
-                                ? <Loader2 className="h-4 w-4 animate-spin" />
-                                : <Link2 className="h-4 w-4" />
-                            }
-                            Link
-                        </Button>
+                        {linkDisabledReason ? (
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <span className="inline-block w-full">
+                                        <Button
+                                            onClick={handleLink}
+                                            disabled={!canLink}
+                                            className="w-full gap-2"
+                                        >
+                                            {linking
+                                                ? <Loader2 className="h-4 w-4 animate-spin" />
+                                                : <Link2 className="h-4 w-4" />
+                                            }
+                                            Link
+                                        </Button>
+                                    </span>
+                                </TooltipTrigger>
+                                <TooltipContent
+                                    side="top"
+                                    className="z-[100] max-w-[min(20rem,90vw)]"
+                                >
+                                    {linkDisabledReason}
+                                </TooltipContent>
+                            </Tooltip>
+                        ) : (
+                            <Button
+                                onClick={handleLink}
+                                disabled={!canLink}
+                                className="w-full gap-2"
+                            >
+                                {linking
+                                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                                    : <Link2 className="h-4 w-4" />
+                                }
+                                Link
+                            </Button>
+                        )}
                     </div>
+
+                    {/* ── New connections (this session) ── */}
+                    {newConnectionIds.length > 0 && (
+                        <div className="space-y-2">
+                            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                                New Connections
+                                <span className="ml-1.5 normal-case font-normal">
+                                    ({newConnections.length})
+                                </span>
+                            </p>
+                            <div className="space-y-1 max-h-40 overflow-y-auto">
+                                {newConnections.map(rel => {
+                                    const big = memberMap.get(rel.big_id);
+                                    const little = memberMap.get(rel.little_id);
+                                    if (!big || !little) return null;
+                                    return (
+                                        <div
+                                            key={rel.id}
+                                            className="flex items-center gap-4 p-3 rounded-lg border bg-card hover:bg-card/60 transition-colors group"
+                                        >
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <Avatar className="h-8 w-8 shrink-0">
+                                                    <AvatarImage src={big.profile_picture_url ?? undefined} />
+                                                    <AvatarFallback className="text-xs bg-muted text-muted-foreground font-medium">
+                                                        {getInitials(big.full_name ?? big.email ?? '?')}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <span className="text-sm font-medium whitespace-nowrap">
+                                                    {big.full_name?.split(' ')[0] ?? big.email}
+                                                </span>
+                                            </div>
+                                            <ConnectionArrow />
+                                            <div className="flex items-center gap-2 shrink-0">
+                                                <Avatar className="h-8 w-8 shrink-0">
+                                                    <AvatarImage src={little.profile_picture_url ?? undefined} />
+                                                    <AvatarFallback className="text-xs bg-muted text-muted-foreground font-medium">
+                                                        {getInitials(little.full_name ?? little.email ?? '?')}
+                                                    </AvatarFallback>
+                                                </Avatar>
+                                                <span className="text-sm text-muted-foreground whitespace-nowrap">
+                                                    {little.full_name?.split(' ')[0] ?? little.email}
+                                                </span>
+                                            </div>
+                                            <Button
+                                                size="icon"
+                                                variant="ghost"
+                                                className="h-8 w-8 shrink-0 ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                                                onClick={() => handleUnlink(rel.id)}
+                                                disabled={deletingId === rel.id}
+                                                title="Remove connection"
+                                            >
+                                                {deletingId === rel.id
+                                                    ? <Loader2 className="h-4 w-4 animate-spin" />
+                                                    : <Trash2 className="h-4 w-4" />
+                                                }
+                                            </Button>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     <Separator />
 
@@ -315,9 +530,9 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                     <div className="space-y-2">
                         <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                             Existing Connections
-                            {relationships.length > 0 && (
+                            {existingConnections.length > 0 && (
                                 <span className="ml-1.5 normal-case font-normal">
-                                    ({relationships.length})
+                                    ({existingConnections.length})
                                 </span>
                             )}
                         </p>
@@ -326,13 +541,13 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                             <div className="flex items-center justify-center py-8">
                                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                             </div>
-                        ) : relationships.length === 0 ? (
+                        ) : existingConnections.length === 0 ? (
                             <p className="text-sm text-muted-foreground text-center py-6">
                                 No connections yet.
                             </p>
                         ) : (
                             <div className="space-y-1 max-h-60 overflow-y-auto">
-                                {relationships.map(rel => {
+                                {existingConnections.map(rel => {
                                     const big = memberMap.get(rel.big_id);
                                     const little = memberMap.get(rel.little_id);
                                     if (!big || !little) return null;
