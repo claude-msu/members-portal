@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export const interfaceAttributes = {
   variants: {
     default: "bg-primary border-2 border-primary text-primary-foreground hover:bg-cream hover:text-primary",
-    secondary: "border-2 border-primary hover:bg-primary text-primary hover:text-cream",
+    secondary: "border-2 border-primary hover:bg-primary text-primary hover:text-white",
 
     green: "bg-green-600 border-2 border-green-600 text-white hover:bg-cream hover:text-green-600",
     red: "bg-background border-2 border-destructive text-destructive hover:bg-destructive hover:text-cream",
