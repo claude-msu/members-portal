@@ -311,7 +311,7 @@ All colors MUST be HSL.
       /* 10) Base – soft gray gradient so the band and sparkles pop */
       linear-gradient(105deg, #e2e8f0 0%, #f1f5f9 30%, #cbd5e1 50%, #f1f5f9 70%, #e2e8f0 100%);
     background-position: 0% 0%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-    background-size: 250% 250%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    background-size: 250% 250%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -319,234 +319,89 @@ All colors MUST be HSL.
     filter: drop-shadow(0 0 0.04em rgba(255, 255, 255, 0.25));
   }
 
-  /* Map: inverse – diagonal shimmer + dark twinkles (dark on light) */
-  @keyframes starry-shimmer-dark {
-    0% {
-      background-position: 100% 100%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.95) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.3) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.5) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.85) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.7) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.9) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    12.5% {
-      background-position: 87.5% 87.5%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.9) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.85) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.35) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.7) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.15) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.55) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    25% {
-      background-position: 75% 75%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.8) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.2) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.9) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.3) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.75) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.45) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.85) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.1) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    37.5% {
-      background-position: 62.5% 62.5%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.2) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.75) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.9) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.8) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.55) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.65) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    50% {
-      background-position: 50% 50%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.9) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.5) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.15) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.95) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.7) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.45) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    62.5% {
-      background-position: 37.5% 37.5%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.85) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.7) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.2) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.55) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.95) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.3) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.8) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    75% {
-      background-position: 25% 25%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.65) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.35) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.85) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.95) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.15) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.45) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.9) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    87.5% {
-      background-position: 12.5% 12.5%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.25) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.65) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.5) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.75) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.9) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.2) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.95) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.55) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-    100% {
-      background-position: 0% 0%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-      background-image: linear-gradient(
-          308deg,
-          transparent 0%,
-          transparent 36%,
-          rgba(15, 23, 42, 0.6) 42%,
-          rgba(15, 23, 42, 0.95) 50%,
-          rgba(15, 23, 42, 0.6) 58%,
-          transparent 64%,
-          transparent 100%
-        ),
-        radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.95) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.3) 0%, transparent 70%),
-        radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.6) 0%, transparent 70%),
-        radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.5) 0%, transparent 70%),
-        radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.85) 0%, transparent 70%),
-        radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.4) 0%, transparent 70%),
-        radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.7) 0%, transparent 70%),
-        radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.9) 0%, transparent 70%),
-        linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
-    }
-  }
-
+  /* Map: dark on light – inverse diagonal shine + dark sparkles */
   .text-starry-dark {
-    background-image: linear-gradient(
+    background-image:
+      /* 1) Diagonal shine band – opposite angle, moves other way */
+      linear-gradient(
         308deg,
         transparent 0%,
-        transparent 36%,
-        rgba(15, 23, 42, 0.6) 42%,
-        rgba(15, 23, 42, 0.95) 50%,
-        rgba(15, 23, 42, 0.6) 58%,
-        transparent 64%,
+        transparent 28%,
+        rgba(15, 23, 42, 0.5) 35%,
+        rgba(15, 23, 42, 1) 50%,
+        rgba(15, 23, 42, 0.5) 65%,
+        transparent 72%,
         transparent 100%
       ),
-      radial-gradient(ellipse 0.12em 0.12em at 12% 22%, rgba(15, 23, 42, 0.95) 0%, transparent 70%),
-      radial-gradient(ellipse 0.1em 0.1em at 48% 8%, rgba(30, 41, 59, 0.3) 0%, transparent 70%),
-      radial-gradient(ellipse 0.14em 0.14em at 78% 38%, rgba(15, 23, 42, 0.6) 0%, transparent 70%),
-      radial-gradient(ellipse 0.08em 0.08em at 28% 62%, rgba(30, 41, 59, 0.5) 0%, transparent 70%),
-      radial-gradient(ellipse 0.11em 0.11em at 62% 72%, rgba(15, 23, 42, 0.85) 0%, transparent 70%),
-      radial-gradient(ellipse 0.09em 0.09em at 88% 18%, rgba(30, 41, 59, 0.4) 0%, transparent 70%),
-      radial-gradient(ellipse 0.13em 0.13em at 18% 88%, rgba(15, 23, 42, 0.7) 0%, transparent 70%),
-      radial-gradient(ellipse 0.1em 0.1em at 52% 48%, rgba(30, 41, 59, 0.9) 0%, transparent 70%),
-      linear-gradient(95deg, #0f172a 0%, #1e293b 22%, #334155 48%, #1e293b 72%, #475569 100%);
+      radial-gradient(circle 0.2em at 10% 25%, rgba(15, 23, 42, 1) 0%, transparent 65%),
+      radial-gradient(circle 0.18em at 45% 10%, rgba(30, 41, 59, 0.95) 0%, transparent 65%),
+      radial-gradient(circle 0.22em at 75% 35%, rgba(15, 23, 42, 1) 0%, transparent 65%),
+      radial-gradient(circle 0.16em at 25% 65%, rgba(30, 41, 59, 0.9) 0%, transparent 65%),
+      radial-gradient(circle 0.2em at 60% 70%, rgba(15, 23, 42, 1) 0%, transparent 65%),
+      radial-gradient(circle 0.18em at 85% 15%, rgba(30, 41, 59, 0.95) 0%, transparent 65%),
+      radial-gradient(circle 0.2em at 15% 82%, rgba(15, 23, 42, 0.9) 0%, transparent 65%),
+      radial-gradient(circle 0.18em at 50% 50%, rgba(15, 23, 42, 1) 0%, transparent 65%),
+      linear-gradient(105deg, #0f172a 0%, #1e293b 30%, #334155 50%, #1e293b 70%, #0f172a 100%);
     background-position: 100% 100%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
-    background-size: 300% 300%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+    background-size: 250% 250%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: starry-shimmer-dark 6s linear infinite;
-    filter: drop-shadow(0 0 0.02em rgba(15, 23, 42, 0.2));
+    animation: starry-shine-dark 4s linear infinite;
+    filter: drop-shadow(0 0 0.04em rgba(15, 23, 42, 0.15));
   }
+}
+
+/* Starry hero/map text – outside @layer so it always wins cascade */
+@keyframes starry-shine-light {
+  0% { background-position: 0% 0%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 100% 100%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+}
+@keyframes starry-shine-dark {
+  0% { background-position: 100% 100%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+  100% { background-position: 0% 0%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; }
+}
+
+h1.text-starry-light,
+.text-starry-light {
+  background-image:
+    linear-gradient(128deg, transparent 0%, transparent 28%, rgba(255,255,255,0.5) 35%, rgba(255,255,255,1) 50%, rgba(255,255,255,0.5) 65%, transparent 72%, transparent 100%),
+    radial-gradient(circle 0.2em at 10% 25%, rgba(255,255,255,1) 0%, transparent 65%),
+    radial-gradient(circle 0.18em at 45% 10%, rgba(255,255,255,0.95) 0%, transparent 65%),
+    radial-gradient(circle 0.22em at 75% 35%, rgba(255,255,255,1) 0%, transparent 65%),
+    radial-gradient(circle 0.16em at 25% 65%, rgba(255,255,255,0.9) 0%, transparent 65%),
+    radial-gradient(circle 0.2em at 60% 70%, rgba(255,255,255,1) 0%, transparent 65%),
+    radial-gradient(circle 0.18em at 85% 15%, rgba(255,255,255,0.95) 0%, transparent 65%),
+    radial-gradient(circle 0.2em at 15% 82%, rgba(255,255,255,0.9) 0%, transparent 65%),
+    radial-gradient(circle 0.18em at 50% 50%, rgba(255,255,255,1) 0%, transparent 65%),
+    linear-gradient(105deg, #e2e8f0 0%, #f1f5f9 30%, #cbd5e1 50%, #f1f5f9 70%, #e2e8f0 100%);
+  background-position: 0% 0%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-size: 250% 250%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  animation: starry-shine-light 4s linear infinite;
+  filter: drop-shadow(0 0 0.04em rgba(255,255,255,0.25));
+}
+
+h2.text-starry-dark,
+.text-starry-dark {
+  background-image:
+    linear-gradient(308deg, transparent 0%, transparent 28%, rgba(15,23,42,0.5) 35%, rgba(15,23,42,1) 50%, rgba(15,23,42,0.5) 65%, transparent 72%, transparent 100%),
+    radial-gradient(circle 0.2em at 10% 25%, rgba(15,23,42,1) 0%, transparent 65%),
+    radial-gradient(circle 0.18em at 45% 10%, rgba(30,41,59,0.95) 0%, transparent 65%),
+    radial-gradient(circle 0.22em at 75% 35%, rgba(15,23,42,1) 0%, transparent 65%),
+    radial-gradient(circle 0.16em at 25% 65%, rgba(30,41,59,0.9) 0%, transparent 65%),
+    radial-gradient(circle 0.2em at 60% 70%, rgba(15,23,42,1) 0%, transparent 65%),
+    radial-gradient(circle 0.18em at 85% 15%, rgba(30,41,59,0.95) 0%, transparent 65%),
+    radial-gradient(circle 0.2em at 15% 82%, rgba(15,23,42,0.9) 0%, transparent 65%),
+    radial-gradient(circle 0.18em at 50% 50%, rgba(15,23,42,1) 0%, transparent 65%),
+    linear-gradient(105deg, #0f172a 0%, #1e293b 30%, #334155 50%, #1e293b 70%, #0f172a 100%);
+  background-position: 100% 100%, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0, 0 0;
+  background-size: 250% 250%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent !important;
+  animation: starry-shine-dark 4s linear infinite;
+  filter: drop-shadow(0 0 0.04em rgba(15,23,42,0.15));
 }
