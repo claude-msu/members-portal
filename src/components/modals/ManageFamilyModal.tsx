@@ -25,7 +25,7 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Check, ChevronsUpDown, Trash2, Link2, Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Link2, Loader2, Link2Off } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 
 interface LastLinkOp {
@@ -514,7 +514,7 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                                             >
                                                 {deletingId === rel.id
                                                     ? <Loader2 className="h-4 w-4 animate-spin" />
-                                                    : <Trash2 className="h-4 w-4" />
+                                                    : <Link2Off className="h-4 w-4" />
                                                 }
                                             </Button>
                                         </div>
@@ -595,7 +595,7 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                                             >
                                                 {deletingId === rel.id
                                                     ? <Loader2 className="h-4 w-4 animate-spin" />
-                                                    : <Trash2 className="h-4 w-4" />
+                                                    : <Link2Off className="h-4 w-4" />
                                                 }
                                             </Button>
                                         </div>
