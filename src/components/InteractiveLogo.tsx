@@ -64,7 +64,7 @@ const InteractiveLogo = ({ dark }: InteractiveLogoProps) => {
           <img
             src="/claude-logo.png"
             alt="Claude Logo"
-            className={`relative w-full h-full object-contain transition-all duration-300 group-hover:drop-shadow-[0_0_30px_rgba(251,146,60,0.5)] ${dark ? "drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]" : "drop-shadow-2xl"}`}
+            className={`relative w-full h-full object-contain transition-all duration-300 group-hover:drop-shadow-[0_0_30px_rgba(300,122,14,0.8)] ${dark ? "drop-shadow-[0_8px_32px_rgba(0,0,0,0.6)]" : "drop-shadow-2xl"}`}
           />
 
           {/* Click hint - appears after 3s or on hover (hover shows it earlier) */}

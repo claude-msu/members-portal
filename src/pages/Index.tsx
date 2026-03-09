@@ -85,7 +85,7 @@ const Index = () => {
                 variants={fadeInUp}
                 className={isMobile ? "space-y-6" : "space-y-10"}
               >
-                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent leading-tight`}>
+                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black text-starry-light leading-tight`}>
                   Claude Builder Club
                 </h1>
                 <div className="flex items-center justify-center gap-3">
@@ -136,7 +136,7 @@ const Index = () => {
               className="max-w-6xl mx-auto"
             >
               <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
-                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
+                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black text-starry-dark`}>
                   A network like no other
                 </h2>
               </motion.div>
