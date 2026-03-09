@@ -250,6 +250,14 @@ const Members = () => {
     () => buildFamilies(members, relationships),
     [members, relationships],
   );
+  const inFamilyIds = useMemo(
+    () => new Set(familiesFull.flatMap(f => f.members.map(m => m.id))),
+    [familiesFull],
+  );
+  const orphanProcessedMembers = useMemo(
+    () => (searchQuery.trim() ? processedMembers.filter(m => !inFamilyIds.has(m.id)) : []),
+    [processedMembers, searchQuery, inFamilyIds],
+  );
   const displayFamilies = useMemo(() => {
     if (!searchQuery.trim()) return familiesFull;
     return familiesFull.filter(f => f.members.some(m => processedIds.has(m.id)));
@@ -570,6 +578,37 @@ const Members = () => {
                       </motion.div>
                     ))}
                   </AnimatePresence>
+                  {orphanProcessedMembers.length > 0 && (
+                    <>
+                      <div className="col-span-full text-xs font-medium text-muted-foreground mt-2 mb-1">
+                        No family
+                      </div>
+                      {orphanProcessedMembers.map((member, i) => (
+                        <motion.div
+                          key={member.id}
+                          data-member-id={member.id}
+                          initial={{ opacity: 0, y: 12 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2, delay: i * 0.012, ease: [0.22, 1, 0.36, 1] }}
+                          className={`min-w-0 ${hoveredId === member.id ? 'ring-2 ring-primary/30 ring-offset-2 ring-offset-card rounded-lg' : ''}`}
+                        >
+                          <PersonCard
+                            person={member}
+                            onViewProfile={handleViewProfile}
+                            onRoleChange={handleRoleChange}
+                            onKick={handleKickMember}
+                            onBan={handleBanMember}
+                            canManage={canManageActions}
+                            canChangeRoles={canManageRoles}
+                            isMobile={isMobile}
+                            currentUserId={user?.id}
+                            currentUserRole={role}
+                            type="member"
+                          />
+                        </motion.div>
+                      ))}
+                    </>
+                  )}
                 </div>
             </motion.div>
           </div>

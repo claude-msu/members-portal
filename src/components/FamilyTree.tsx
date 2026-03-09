@@ -114,20 +114,20 @@ const STYLES = `
     }
     .ft-canvas-bg {
       background: linear-gradient(165deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.6) 50%, hsl(var(--background)) 100%);
-      /* Node sizes: 1200px and below use small; above 1200 scale up */
-      --ft-node-root: 44px;
-      --ft-node-child: 30px;
-      --ft-font-root: 0.75rem;
-      --ft-font-child: 0.625rem;
+      /* Node sizes by depth: base = level 1 (kept as-is); root = base + step; each level steps down by --ft-node-step */
+      --ft-node-base: 30px;
+      --ft-node-step: 14px;
+      --ft-font-base: 0.625rem;
+      --ft-font-step: 0.0625rem;
     }
     @media (min-width: 1200px) {
-      .ft-canvas-bg { --ft-node-root: 52px; --ft-node-child: 36px; --ft-font-root: 0.875rem; --ft-font-child: 0.6875rem; }
+      .ft-canvas-bg { --ft-node-base: 36px; --ft-node-step: 16px; --ft-font-base: 0.6875rem; --ft-font-step: 0.075rem; }
     }
     @media (min-width: 1280px) {
-      .ft-canvas-bg { --ft-node-root: 64px; --ft-node-child: 44px; --ft-font-root: 1rem; --ft-font-child: 0.8125rem; }
+      .ft-canvas-bg { --ft-node-base: 44px; --ft-node-step: 20px; --ft-font-base: 0.8125rem; --ft-font-step: 0.1rem; }
     }
     @media (min-width: 1536px) {
-      .ft-canvas-bg { --ft-node-root: 76px; --ft-node-child: 52px; --ft-font-root: 1.125rem; --ft-font-child: 0.9375rem; }
+      .ft-canvas-bg { --ft-node-base: 52px; --ft-node-step: 24px; --ft-font-base: 0.9375rem; --ft-font-step: 0.125rem; }
     }
     .dark .ft-canvas-bg {
       background: linear-gradient(165deg, hsl(220 18% 14%) 0%, hsl(220 18% 10%) 50%, hsl(220 18% 7%) 100%);
@@ -243,7 +243,7 @@ function TreeNodeCard({
         .split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     const isEBoard = member.role === 'e-board';
     const isBoard = member.role === 'board';
-    const isRoot = node.depth === 0;
+    const depth = node.depth;
 
     const borderClass = isCurrentUser
         ? 'ft-aqua-pulse border-[1.5px] border-primary shadow shadow-primary/20'
@@ -253,10 +253,12 @@ function TreeNodeCard({
                 ? 'border-[1.5px] border-blue-500 shadow shadow-blue-500/15'
                 : 'border-[1.5px] border-border bg-card shadow-sm hover:border-muted-foreground/60';
 
+    /* Size steps down by level: root = base+step, level 1 = base, level 2 = base-step, etc.; min 18px */
     const sizeStyle = {
-        width: `calc(var(${isRoot ? '--ft-node-root' : '--ft-node-child'}, ${isRoot ? 52 : 36}px) / var(--ft-zoom, 1))`,
-        height: `calc(var(${isRoot ? '--ft-node-root' : '--ft-node-child'}, ${isRoot ? 52 : 36}px) / var(--ft-zoom, 1))`,
-        fontSize: `calc(var(${isRoot ? '--ft-font-root' : '--ft-font-child'}, ${isRoot ? '0.875rem' : '0.6875rem'}) / var(--ft-zoom, 1))`,
+        ['--ft-depth' as string]: depth,
+        width: 'max(18px, calc((var(--ft-node-base) + var(--ft-node-step) * (1 - var(--ft-depth))) / var(--ft-zoom, 1)))',
+        height: 'max(18px, calc((var(--ft-node-base) + var(--ft-node-step) * (1 - var(--ft-depth))) / var(--ft-zoom, 1)))',
+        fontSize: 'max(0.5rem, calc((var(--ft-font-base) + var(--ft-font-step) * (1 - var(--ft-depth))) / var(--ft-zoom, 1)))',
     };
     const displayName = member.full_name ?? member.email ?? 'Unknown';
 
