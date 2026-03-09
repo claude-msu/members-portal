@@ -246,45 +246,49 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
         {!isMobile && involvementBadges.length > 0 && (
           <>
             <Separator />
-            <div className="space-y-3">
-              <p className="text-sm font-medium text-muted-foreground">Involvement</p>
-              <div className="flex flex-wrap gap-2">
-                {involvementBadges.map((badge) => (
-                  <Tooltip key={badge.id}>
-                    <TooltipTrigger asChild>
-                      <span className="inline-block">
-                        <motion.div
-                          initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-                          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-                          exit={{ opacity: 0, y: 6, filter: 'blur(6px)' }}
-                          transition={{
-                            duration: 0.42,
-                            ease: [0.32, 0.72, 0.45, 1],
-                          }}
-                        >
-                          <Badge
-                            variant="secondary"
-                            className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
-                          >
-                            {badge.type === 'project' ? (
-                              <Briefcase className="h-3 w-3" />
-                            ) : (
-                              <BookOpen className="h-3 w-3" />
-                            )}
-                            <span>
-                              {badge.role} {badge.semesterCode}
-                            </span>
-                          </Badge>
-                        </motion.div>
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" align="center" className="max-w-xs">
-                      <p className="text-sm">{badge.name}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
-              </div>
-            </div>
+            <motion.div
+              className="relative rounded-md overflow-hidden"
+              initial={{ height: 0 }}
+              animate={{ height: 'auto' }}
+              transition={{ duration: 0.35, ease: 'easeInOut' }}
+            >
+              <motion.div
+                className="relative"
+                initial={{ y: -24 }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.45, ease: 'easeInOut', delay: 0.04 }}
+              >
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-muted-foreground">Involvement</p>
+                  <div className="flex flex-wrap gap-2">
+                    {involvementBadges.map((badge) => (
+                      <Tooltip key={badge.id}>
+                        <TooltipTrigger asChild>
+                          <span className="inline-block">
+                            <Badge
+                              variant="secondary"
+                              className="cursor-pointer flex items-center gap-1.5 px-2.5 py-1 hover:bg-secondary/80 transition-colors"
+                            >
+                              {badge.type === 'project' ? (
+                                <Briefcase className="h-3 w-3" />
+                              ) : (
+                                <BookOpen className="h-3 w-3" />
+                              )}
+                              <span>
+                                {badge.role} {badge.semesterCode}
+                              </span>
+                            </Badge>
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent side="top" align="center" className="max-w-xs">
+                          <p className="text-sm">{badge.name}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
           </>
         )}
       </div>

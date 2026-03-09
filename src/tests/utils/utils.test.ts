@@ -64,7 +64,7 @@ describe('utils', () => {
       expect(secondaryClasses).toContain('border-primary');
       expect(secondaryClasses).toContain('hover:bg-primary');
       expect(secondaryClasses).toContain('text-primary');
-      expect(secondaryClasses).toContain('hover:text-cream');
+      expect(secondaryClasses).toContain('hover:text-white');
 
       expect(greenClasses).toContain('bg-green-600');
       expect(greenClasses).toContain('border-green-600');

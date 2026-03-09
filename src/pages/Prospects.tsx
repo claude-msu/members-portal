@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent } from '@/components/ui/card';
@@ -272,7 +273,7 @@ const Prospects = () => {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {canManageProspects && (
+          {!isMobile && canManageProspects && (
             <Button size="icon" onClick={copyEmailsCsv} title="Copy filtered emails as CSV">
               <Mail className="h-4 w-4" />
             </Button>
@@ -306,8 +307,36 @@ const Prospects = () => {
         </Card>
       ) : (
         <div className="grid gap-4 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] mt-6">
-          {processedProspects.map(prospect => (
-            <div key={prospect.id} className="min-w-0 max-w-[500px] w-full">
+          {processedProspects.map((prospect, i) => {
+            /** The initial animation delay for the first prospect card. */
+            const initialDelay = 0.05;
+            /** The base value used for staggering the delay between prospect card animations. */
+            const staggerBase = 0.045;
+            /** The decay factor applied to stagger intervals; closer to 1 equals less decay per card. */
+            const staggerDecay = 0.82;
+            /**
+             * The staggered delay between prospect card animations.
+             * Calculated as a decaying geometric series
+             */
+            const stagger = staggerBase * (1 - Math.pow(staggerDecay, i)) / (1 - staggerDecay);
+
+            /**
+             * The total delay to apply to this prospect card's entrance animation.
+             * Starts with initialDelay, then adds the computed stagger.
+             */
+            const delay = initialDelay + stagger;
+            return (
+            <motion.div
+              key={prospect.id}
+              className="min-w-0 max-w-[500px] w-full"
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.28,
+                delay,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
               <PersonCard
                 person={prospect}
                 onViewProfile={handleViewProfile}
@@ -319,8 +348,9 @@ const Prospects = () => {
                 currentUserRole={userRole}
                 type="prospect"
               />
-            </div>
-          ))}
+            </motion.div>
+            );
+          })}
         </div>
       )}
 

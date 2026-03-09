@@ -565,6 +565,11 @@ const Auth = () => {
           description: 'Logged in successfully!',
         });
 
+        toast({
+          title: "Check out the new Members page",
+          onClick: () => navigate("/members"),
+        });
+
         // Navigate - don't clear redirectAfterLogin here, let ProtectedRoute handle it
         // The useEffect above will handle the navigation when user state updates
       } else {
@@ -940,8 +945,20 @@ const Auth = () => {
                 />
               </div>
 
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-2">
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => {
+                    setPassword(e.target.value);
+                    setBanError(null); // Clear ban error when user types
+                  }}
+                  minLength={6}
+                  placeholder="Enter your password"
+                  className="order-2"
+                />
+                <div className="flex order-1 items-center justify-between">
                   <Label htmlFor="password" required>Password</Label>
                   {isLogin && (
                     <Button
@@ -954,17 +971,6 @@ const Auth = () => {
                     </Button>
                   )}
                 </div>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => {
-                    setPassword(e.target.value);
-                    setBanError(null); // Clear ban error when user types
-                  }}
-                  minLength={6}
-                  placeholder="Enter your password"
-                />
               </div>
 
               <Button type="submit" className={`w-full ${isMobile ? 'h-11' : ''}`} disabled={loading}>

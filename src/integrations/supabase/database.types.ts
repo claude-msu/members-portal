@@ -321,6 +321,39 @@ export type Database = {
         }
         Relationships: []
       }
+      family_relationships: {
+        Row: {
+          id: string
+          big_id: string
+          little_id: string
+        }
+        Insert: {
+          id?: string
+          big_id: string
+          little_id: string
+        }
+        Update: {
+          id?: string
+          big_id?: string
+          little_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "family_relationships_big_id_fkey"
+            columns: ["big_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "family_relationships_little_id_fkey"
+            columns: ["little_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           class_year: string | null
@@ -510,6 +543,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_all_family_roots: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          full_name: string | null
+          profile_picture_url: string | null
+          email: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          family_size: number
+        }[]
+      }
+      get_family_tree: {
+        Args: { _root_id: string }
+        Returns: {
+          id: string
+          big_id: string | null
+          depth: number
+          full_name: string | null
+          profile_picture_url: string | null
+          email: string | null
+          class_year: string | null
+          linkedin_url: string | null
+          points: number
+          role: Database["public"]["Enums"]["app_role"]
+        }[]
+      }
       ban_user_by_id: { Args: { target_user_id: string }; Returns: Json }
       checkin_member: { Args: { p_token: string }; Returns: Json }
       delete_event: { Args: { target_event_id: string }; Returns: Json }

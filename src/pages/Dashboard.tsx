@@ -12,7 +12,7 @@ import {
   FolderKanban,
   BookOpen,
   ArrowRight,
-  UserPlus,
+  FileText,
   Crown,
   Users,
   Award,
@@ -27,7 +27,6 @@ import TextType from '@/components/ui/text-type';
 
 type AdminStats = {
   members: number;
-  prospects: number;
   board: number;
   eBoard: number;
 };
@@ -54,7 +53,7 @@ const getStatus = (
 // Dashboard data is now sourced from ProfileContext and separate admin queries
 
 export default function Dashboard() {
-  const { role, loading, isEBoard, isBoardOrAbove, userProjects, userClasses, userEvents } = useProfile();
+  const { role, loading, isEBoard, isBoardOrAbove, userProjects, userClasses, userEvents, userApplications } = useProfile();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -67,7 +66,6 @@ export default function Dashboard() {
 
       return {
         members: rolesRes?.filter(r => r.role !== 'prospect').length || 0,
-        prospects: rolesRes?.filter(r => r.role === 'prospect').length || 0,
         board: rolesRes?.filter(r => r.role === 'board').length || 0,
         eBoard: rolesRes?.filter(r => r.role === 'e-board').length || 0,
       };
@@ -254,12 +252,12 @@ export default function Dashboard() {
             link="/members"
           />
           <StatItem
-            icon={UserPlus}
+            icon={FileText}
             color="text-primary dark:text-primary/80"
             bg="bg-primary/10"
-            value={adminStats.prospects}
-            label={adminStats.prospects === 1 ? "Prospect" : "Prospects"}
-            link="/prospects"
+            value={userApplications?.review.pending.length ?? 0}
+            label={(userApplications?.review.pending.length ?? 0) === 1 ? "Pending Application" : "Pending Applications"}
+            link="/applications"
           />
           <StatItem
             icon={Award}
