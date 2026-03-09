@@ -499,19 +499,6 @@ export default function GuideToLeetCode() {
                 </div>
             </motion.section>
 
-            {/* Topic pills */}
-            <div className="flex flex-wrap gap-2">
-                {[
-                    'Sliding Window', 'Two Pointers', 'Hash Maps',
-                    'Binary Search', 'Dynamic Programming', 'Graphs',
-                    'Trees', 'Recursion', 'Backtracking',
-                ].map((topic) => (
-                    <Badge key={topic} variant="secondary" className="border border-border/80 font-medium px-3 py-1">
-                        {topic}
-                    </Badge>
-                ))}
-            </div>
-
             {/* ── Problems section ── */}
             <div className="space-y-4">
                 <div className="flex items-center justify-between flex-wrap gap-2">

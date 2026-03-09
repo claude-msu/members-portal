@@ -375,8 +375,183 @@ Output: 1
 };
 
 
+const WEEK2: WeekConfig = {
+    number: 2,
+    theme: 'Two Pointers & Sliding Window',
+    title: 'Week 2 — Two Pointers & Sliding Window',
+    goal: 'Move pointers with purpose, never by accident.',
+    rules: [
+        'Two pointers only work when you can justify why each pointer moves.',
+        'Sliding window = grow right greedily, shrink left only when the window breaks.',
+        'A problem only counts if you submit all 4 artifacts.',
+        'No artifacts = no credit.',
+    ],
+    conceptSheets: [
+        {
+            title: 'Core Patterns',
+            items: [
+                'Two pointers — converging (left from start, right from end)',
+                'Two pointers — same direction (slow writer, fast reader)',
+                'Sliding window — variable size (expand right, shrink left on violation)',
+                'Prefix tracking — running min/max to avoid inner loops',
+            ],
+        },
+        {
+            title: 'Recognition Cues',
+            items: [
+                '"palindrome / reads the same" → two pointers from both ends',
+                '"sorted array, find pair summing to target" → converging two pointers',
+                '"buy low sell high, single transaction" → running minimum scan',
+                '"longest subarray with property X" → dynamic sliding window',
+            ],
+        },
+        {
+            title: 'Invariants',
+            items: [
+                'Converging pointers: move the side that cannot improve the answer',
+                'Sorted two-pointer: sum too small → move left right; sum too large → move right left',
+                'Sliding window: window always satisfies the condition before recording an answer',
+            ],
+        },
+    ],
+    questions: [
+        {
+            id: 1,
+            title: 'Valid Palindrome',
+            difficulty: 'easy',
+            complexity: 'O(n) time, O(1) space',
+            content: `
+## Problem
+
+A phrase is a **palindrome** if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Alphanumeric characters include letters and numbers.
+
+Given a string \`s\`, return \`true\` if it is a palindrome, or \`false\` otherwise.
+
+---
+
+**Example 1:**
+\`\`\`
+Input: s = "A man, a plan, a canal: Panama"
+Output: true
+Explanation: "amanaplanacanalpanama" is a palindrome.
+\`\`\`
+
+**Example 2:**
+\`\`\`
+Input: s = "race a car"
+Output: false
+Explanation: "raceacar" is not a palindrome.
+\`\`\`
+
+**Example 3:**
+\`\`\`
+Input: s = " "
+Output: true
+Explanation: s is an empty string "" after removing non-alphanumeric characters.
+Since an empty string reads the same forward and backward, it is a palindrome.
+\`\`\`
+
+---
+
+## Constraints
+
+- \`1 <= s.length <= 2 * 10^5\`
+- \`s\` consists only of printable ASCII characters.
+`,
+        },
+        {
+            id: 2,
+            title: 'Two Sum II (Input Array Is Sorted)',
+            difficulty: 'medium',
+            complexity: 'O(n) time, O(1) space',
+            content: `
+## Problem
+
+Given a **1-indexed** array of integers \`numbers\` that is already **sorted in non-decreasing order**, find two numbers such that they add up to a specific \`target\` number. Let these two numbers be \`numbers[index1]\` and \`numbers[index2]\` where \`1 <= index1 < index2 <= numbers.length\`.
+
+Return the indices of the two numbers, \`index1\` and \`index2\`, **added by one** as an integer array \`[index1, index2]\` of length 2.
+
+The tests are generated such that there is **exactly one solution**. You may not use the same element twice.
+
+Your solution must use only **constant extra space**.
+
+---
+
+**Example 1:**
+\`\`\`
+Input: numbers = [2,7,11,15], target = 9
+Output: [1,2]
+Explanation: The sum of 2 and 7 is 9. Therefore, index1 = 1, index2 = 2.
+\`\`\`
+
+**Example 2:**
+\`\`\`
+Input: numbers = [2,3,4], target = 6
+Output: [1,3]
+\`\`\`
+
+**Example 3:**
+\`\`\`
+Input: numbers = [-1,0], target = -1
+Output: [1,2]
+\`\`\`
+
+---
+
+## Constraints
+
+- \`2 <= numbers.length <= 3 * 10^4\`
+- \`-1000 <= numbers[i] <= 1000\`
+- \`numbers\` is sorted in non-decreasing order.
+- \`-1000 <= target <= 1000\`
+- The tests are generated such that there is **exactly one solution**.
+`,
+        },
+        {
+            id: 3,
+            title: 'Best Time to Buy and Sell Stock',
+            difficulty: 'easy',
+            complexity: 'O(n) time, O(1) space',
+            content: `
+## Problem
+
+You are given an array \`prices\` where \`prices[i]\` is the price of a given stock on the \`i\`-th day.
+
+You want to **maximize your profit** by choosing a **single day** to buy one stock and choosing a **different day in the future** to sell that stock.
+
+Return the **maximum profit** you can achieve from this transaction. If you cannot achieve any profit, return \`0\`.
+
+---
+
+**Example 1:**
+\`\`\`
+Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6 - 1 = 5.
+Note: Buying on day 2 and selling on day 1 is not allowed because you must buy before you sell.
+\`\`\`
+
+**Example 2:**
+\`\`\`
+Input: prices = [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transactions are done and the max profit = 0.
+\`\`\`
+
+---
+
+## Constraints
+
+- \`1 <= prices.length <= 10^5\`
+- \`0 <= prices[i] <= 10^4\`
+`,
+        },
+    ],
+};
+
+
 /** Current week. Update every Sunday: set to the week that just went live. */
 export const CURRENT: WeekConfig = WEEK1;
 
 /** Next drop's week. Shown in upper half of countdown and when timer resets. Null = fallback to CURRENT. */
-export const QUEUED: WeekConfig | null = null;
+export const QUEUED: WeekConfig | null = WEEK2;
