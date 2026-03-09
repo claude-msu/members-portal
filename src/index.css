@@ -96,6 +96,12 @@ All colors MUST be HSL.
     --sidebar-border: 24 15% 20%;
     --sidebar-ring: 25 95% 53%;
   }
+  .maplibregl-popup-content {
+    @apply bg-transparent! shadow-none! p-0! rounded-none!;
+  }
+  .maplibregl-popup-tip {
+    @apply hidden!;
+  }
 }
 
 @layer base {
@@ -106,7 +112,6 @@ All colors MUST be HSL.
   body {
     @apply bg-page text-foreground;
   }
-
 
   /* Hide scrollbars across the website EXCEPT for elements with .show-scrollbar class */
   *:not(.show-scrollbar) {

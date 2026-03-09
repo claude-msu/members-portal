@@ -1,13 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Instagram, Linkedin, Code, GraduationCap, Sparkles, Trophy, Rocket, Users } from "lucide-react";
+import { Instagram, Linkedin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import InteractiveLogo from "@/components/InteractiveLogo";
+import NetworkMap from "@/components/NetworkMap";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -45,22 +43,22 @@ const Index = () => {
 
   return (
     <div className="min-h-screen relative">
-      {/* BLOB CANVAS - Desktop only */}
+      {/* BLOB CANVAS - Desktop only (dark hero) */}
       {!isMobile && (
         <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50"></div>
-          <div className="absolute inset-0 opacity-30">
-            <div className="absolute top-20 left-20 w-72 h-72 bg-primary/30 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-            <div className="absolute top-40 right-20 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-            <div className="absolute bottom-20 left-40 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
+          <div className="absolute inset-0 opacity-40">
+            <div className="absolute top-20 left-20 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-blob" />
+            <div className="absolute top-40 right-20 w-80 h-80 bg-orange-500/15 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
+            <div className="absolute bottom-20 left-40 w-80 h-80 bg-amber-500/10 rounded-full filter blur-3xl animate-blob animation-delay-4000" />
           </div>
         </div>
       )}
 
-      {/* Mobile background - simple gradient */}
+      {/* Mobile background - dark hero */}
       {isMobile && (
         <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-cream via-white to-blue-50"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
         </div>
       )}
 
@@ -72,8 +70,8 @@ const Index = () => {
 
       {/* Content */}
       <div className="relative" style={{ zIndex: 10 }}>
-        {/* Hero Section */}
-        <section ref={heroRef} className={`relative min-h-screen flex items-center justify-center overflow-hidden ${isMobile ? 'bg-cream' : ''}`}>
+        {/* Hero Section - dark */}
+        <section ref={heroRef} className={`relative min-h-screen flex items-center justify-center overflow-hidden ${isMobile ? 'bg-gray-950' : ''}`}>
           <div className={`relative z-10 container mx-auto px-4 ${isMobile ? 'py-6' : 'py-20'}`}>
             <motion.div
               initial="hidden"
@@ -81,18 +79,18 @@ const Index = () => {
               variants={fadeInUp}
               className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-10'}`}
             >
-              <InteractiveLogo />
+              <InteractiveLogo dark />
 
               <motion.div
                 variants={fadeInUp}
                 className={isMobile ? "space-y-6" : "space-y-10"}
               >
-                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black bg-gradient-to-r from-primary via-primary/90 to-primary bg-clip-text text-transparent leading-tight`}>
+                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black bg-gradient-to-r from-white via-gray-100 to-gray-300 bg-clip-text text-transparent leading-tight`}>
                   Claude Builder Club
                 </h1>
                 <div className="flex items-center justify-center gap-3">
                   <img src="/msu-logo.png" alt="MSU" className={`${isMobile ? 'h-8 w-8' : 'h-10 w-10'}`} />
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-green-800`}>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-green-400`}>
                     Michigan State University
                   </p>
                 </div>
@@ -100,11 +98,9 @@ const Index = () => {
 
               <motion.p
                 variants={fadeInUp}
-                className={`${isMobile ? 'text-base' : 'text-xl md:text-2xl'} text-muted-foreground max-w-3xl mx-auto leading-relaxed`}
+                className={`${isMobile ? 'text-base' : 'text-xl md:text-2xl'} text-gray-400 max-w-3xl mx-auto leading-relaxed`}
               >
-                We're a community of ambitious builders, innovators, and learners who are passionate about leveraging AI
-                to create real-world impact. From professional client work to cutting-edge research, we're pushing the
-                boundaries of what's possible with technology.
+              A club like no other. Internships, research, mentorship—we don't just talk. We get you there.
               </motion.p>
 
               <motion.div
@@ -113,8 +109,8 @@ const Index = () => {
                 transition={{ delay: 1 }}
                 className={`${isMobile ? 'pt-6' : 'pt-12'}`}
               >
-                <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
-                  <span className="text-sm font-medium text-gray-600">Scroll to explore</span>
+                <div className="inline-flex flex-col items-center gap-2 text-gray-500">
+                  <span className="text-sm font-medium">Scroll to explore</span>
                   <motion.div
                     animate={{ y: [0, 10, 0] }}
                     transition={{ repeat: Infinity, duration: 1.5 }}
@@ -129,210 +125,99 @@ const Index = () => {
           </div>
         </section>
 
-        {/* What We Do Section */}
-        <section className="relative py-32 bg-cream">
+        {/* Our network ranges far - Map section */}
+        <section className="relative py-32 bg-gradient-to-br from-orange-50/30 via-cream to-orange-50/30">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
-              className="max-w-7xl mx-auto"
+              className="max-w-6xl mx-auto"
             >
-              <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-12' : 'mb-20'}`}>
-                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
-                  What We Do
+              <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
+                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
+                  A network like no other
                 </h2>
-                <p className={`${isMobile ? 'text-lg' : 'text-xl'} text-gray-600 max-w-2xl mx-auto`}>
-                  Four pillars that define our commitment to excellence
-                </p>
               </motion.div>
-
-              <div className="grid md:grid-cols-2 gap-8">
-                <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-gray-200 hover:border-orange-600 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-600/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
-                      {isMobile ? (
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Code className="h-6 w-6 text-white" />
-                          </div>
-                          <h3 className="text-2xl text-black font-bold">Innovative Projects</h3>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Code className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-3xl text-black font-bold">Innovative Projects</h3>
-                        </>
-                      )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
-                        Partner with companies far and wide to give students real-world experience. Build and deploy
-                        production-grade applications, work with actual clients, and create solutions that matter.
-                        From startups to established firms, our members gain invaluable hands-on experience building
-                        software that ships.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
-                      {isMobile ? (
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <GraduationCap className="h-6 w-6 text-white" />
-                          </div>
-                          <h3 className="text-2xl text-black font-bold">Education Pipeline</h3>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <GraduationCap className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-3xl text-black font-bold">Education Pipeline</h3>
-                        </>
-                      )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
-                        Learn from industry experts and seasoned professionals. Master system design, conquer LeetCode,
-                        and prepare for top-tier internships at FAANG and beyond. Our comprehensive curriculum covers
-                        everything from technical interviews to real-world engineering practices, setting you up for
-                        success in the competitive tech landscape.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-gray-200 hover:border-purple-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
-                      {isMobile ? (
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Sparkles className="h-6 w-6 text-white" />
-                          </div>
-                          <h3 className="text-2xl text-black font-bold">AI Support</h3>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Sparkles className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-3xl text-black font-bold">AI Development Support</h3>
-                        </>
-                      )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
-                        Kickstart your AI journey with $50 in Claude API credits for every member. Experiment with
-                        cutting-edge language models, build intelligent applications, and bring your AI ideas to life
-                        without financial barriers. We believe in removing obstacles so you can focus on innovation
-                        and creativity.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-
-                <motion.div variants={fadeInUp}>
-                  <Card className="relative h-full border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-2xl group overflow-hidden bg-white">
-                    <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
-                    <CardContent className={`relative ${isMobile ? 'p-6 space-y-4' : 'p-8 space-y-6'}`}>
-                      {isMobile ? (
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Trophy className="h-6 w-6 text-white" />
-                          </div>
-                          <h3 className="text-2xl text-black font-bold">The Devvys</h3>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-green-600 rounded-2xl flex items-center justify-center shadow-lg">
-                            <Trophy className="h-8 w-8 text-white" />
-                          </div>
-                          <h3 className="text-3xl text-black font-bold">The Devvys</h3>
-                        </>
-                      )}
-                      <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
-                        Our annual project showcase where innovation takes center stage. Present your personal projects,
-                        hackathon wins, or client work in front of recruiters, professors, and the MSU community.
-                        Compete for recognition, network with industry leaders, and celebrate the incredible work
-                        our members create throughout the year.
-                      </p>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              </div>
+              <motion.div variants={fadeInUp} className="w-full">
+                <NetworkMap />
+              </motion.div>
             </motion.div>
           </div>
         </section>
 
-        {/* Vision Section */}
-        <section className="relative py-32 pt-0 bg-gradient-to-br from-orange-50/20 via-cream to-orange-50/20">
+        {/* Big/Little - foundation */}
+        <section className="relative py-24 md:py-32 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+          {/* Large decorative "3" - centered, bigger on mobile */}
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
+            <span className="block text-[90vw] md:text-[min(40vw,32rem)] font-black text-white select-none leading-[0.85] translate-y-[-3%]" style={{ opacity: 0.08 }} aria-hidden>
+              3
+            </span>
+          </div>
+          {/* Diagonal stripes */}
+          <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "repeating-linear-gradient(-45deg, transparent, transparent 12px, white 12px, white 14px)" }} />
+          <div className="container mx-auto px-4 relative">
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={staggerContainer}
+              className="max-w-4xl mx-auto"
+            >
+              <motion.div
+                variants={fadeInUp}
+                className="relative rounded-2xl border border-white/10 bg-white/5 backdrop-blur-sm py-12 md:py-16 px-8 md:px-12 shadow-2xl"
+              >
+                <div className="absolute left-0 top-8 bottom-8 w-0.5 bg-gradient-to-b from-transparent via-primary/60 to-transparent rounded-full" />
+                <div className="pl-8 md:pl-10">
+                  <motion.p variants={fadeInUp} className="text-xs font-semibold uppercase tracking-widest text-primary/90 mb-4">
+                    Big / Little
+                  </motion.p>
+                  <motion.h2 variants={fadeInUp} className={`${isMobile ? 'text-3xl' : 'text-4xl md:text-5xl'} font-black text-white mb-6 leading-tight`}>
+                    Three families.<br /><span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">One foundation.</span>
+                  </motion.h2>
+                  <motion.p variants={fadeInUp} className="text-lg md:text-xl text-gray-300 leading-relaxed max-w-2xl">
+                    Our big/little system isn't a side perk—it's the foundation of the club. Three families, each with mentors who actually care. You're not a number here. We're the club that goes all in for our members. We call it commitment.
+                  </motion.p>
+                </div>
+              </motion.div>
+            </motion.div>
+          </div>
+        </section>
+
+        {/* Internships & research - arrow diagram */}
+        <section className="relative py-24 md:py-32 bg-cream overflow-hidden">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-100px" }}
-              variants={fadeInUp}
-              className="max-w-5xl mx-auto"
+              viewport={{ once: true, margin: "-80px" }}
+              variants={staggerContainer}
+              className="max-w-4xl mx-auto"
             >
-              <div className={`text-center ${isMobile ? 'mb-12' : 'mb-16'}`}>
-                <div className={`inline-flex items-center justify-center bg-gradient-to-br from-primary to-primary/80 rounded-full mb-8 shadow-2xl ${isMobile ? 'w-16 h-16' : 'w-20 h-20'}`}>
-                  <Rocket className={`${isMobile ? 'h-8 w-8' : 'h-10 w-10'} text-white`} />
-                </div>
-                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} text-black font-black mb-8`}>Our Vision</h2>
-                <div className="space-y-8 text-left">
-                  <div className={`bg-white border-2 border-gray-200 rounded-2xl shadow-lg ${isMobile ? 'p-6' : 'p-8'}`}>
-                    <div className={`flex items-start gap-6 ${isMobile ? 'gap-4' : 'gap-6'}`}>
-                      <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                        <Rocket className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} text-primary`} />
-                      </div>
-                      <div>
-                        <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} text-black font-bold mb-3`}>Send Students to the World</h3>
-                        <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
-                          We're building a fund to send hand-picked students to premier hackathons and tech conferences
-                          across the country. Experience MLH events, attend cutting-edge AI conferences, and represent
-                          MSU on the national stage. Your talent deserves a global platform.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={`bg-white border-2 border-gray-200 rounded-2xl shadow-lg ${isMobile ? 'p-6' : 'p-8'}`}>
-                    <div className={`flex items-start gap-6 ${isMobile ? 'gap-4' : 'gap-6'}`}>
-                      <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-blue-500/10 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                        <Users className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} text-blue-600`} />
-                      </div>
-                      <div>
-                        <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} text-black font-bold mb-3`}>Host Internal Hackathons</h3>
-                        <p className={`${isMobile ? 'text-base' : 'text-lg'} text-gray-600 leading-relaxed`}>
-                          Create a culture of rapid prototyping and innovation right here at MSU. Our internal hackathons
-                          bring together the brightest minds to solve real problems, experiment with new technologies,
-                          and build the future—all in an intense, collaborative, and fun environment.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className={`bg-gradient-to-r from-primary to-primary/80 rounded-2xl shadow-2xl text-white ${isMobile ? 'p-6' : 'p-8'}`}>
-                    <div className={`flex items-start gap-6 ${isMobile ? 'gap-4' : 'gap-6'}`}>
-                      <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0`}>
-                        <Sparkles className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} text-white`} />
-                      </div>
-                      <div>
-                        <h3 className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold mb-3`}>Build the Future Together</h3>
-                        <p className={`${isMobile ? 'text-base' : 'text-lg'} leading-relaxed opacity-95`}>
-                          This is just the beginning. We're creating an ecosystem where students don't just learn
-                          about technology—they shape it. Join us in building something extraordinary.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <motion.h2 variants={fadeInUp} className={`${isMobile ? 'text-3xl' : 'text-4xl md:text-5xl'} font-black text-gray-900 text-center mb-16 md:mb-20`}>
+                We get you there
+              </motion.h2>
+              {/* Diagram: You → Classes → Projects → Research → Internships */}
+              <motion.div variants={fadeInUp} className="relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2 flex-wrap md:flex-nowrap w-full">
+                <div className="rounded-full bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-800 shrink-0 shadow-sm">You</div>
+                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <div className="md:hidden text-primary" aria-hidden>↓</div>
+                <div className="rounded-full bg-primary/15 border-2 border-primary/40 px-4 py-2.5 text-sm font-bold text-gray-900 shrink-0">Classes</div>
+                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <div className="md:hidden text-primary" aria-hidden>↓</div>
+                <div className="rounded-full bg-primary/15 border-2 border-primary/40 px-4 py-2.5 text-sm font-bold text-gray-900 shrink-0">Projects</div>
+                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <div className="md:hidden text-primary" aria-hidden>↓</div>
+                <div className="rounded-full bg-primary/15 border-2 border-primary/40 px-4 py-2.5 text-sm font-bold text-gray-900 shrink-0">Research</div>
+                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <div className="md:hidden text-primary" aria-hidden>↓</div>
+                <div className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shrink-0 shadow-lg ring-2 ring-primary/30">Internships</div>
+              </motion.div>
+              <motion.p variants={fadeInUp} className="text-center text-lg md:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto mt-14">
+                We built the pipeline; you go through it. Resume workshops. Mock interviews. LeetCode prep. We don't just pass you the ball—we give you an alley-oop.
+              </motion.p>
             </motion.div>
           </div>
         </section>
@@ -357,7 +242,7 @@ const Index = () => {
                 Spread the Joy of CS
               </h2>
               <p className={`${isMobile ? 'text-lg' : 'text-xl md:text-2xl'} opacity-95 max-w-2xl mx-auto leading-relaxed`}>
-                Join a community where innovation meets opportunity, and passion drives progress.
+                Join the club that goes all in. Three families, real prep, and a network like no other.
               </p>
 
               <div className={`flex items-center justify-center gap-6 pt-8 ${isMobile ? 'flex-col' : 'flex-row'}`}>
@@ -398,7 +283,7 @@ const Index = () => {
               <img src="/claude-logo-transparent.png" alt="Claude Logo" className="h-8 w-8" />
               <span className="text-lg text-black font-bold">Claude Builder Club @ MSU</span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-1 text-sm text-muted-foreground mb-2">
+            <div className="flex flex-wrap items-center justify-center gap-1 text-sm text-gray-600 mb-2">
               <span>
                 Claude Builder Club. Spreading the joy of CS, one project at a time.
               </span>
@@ -422,8 +307,6 @@ const Index = () => {
           </div>
         </footer>
       </div>
-      <Analytics />
-      <SpeedInsights />
     </div>
   );
 };
