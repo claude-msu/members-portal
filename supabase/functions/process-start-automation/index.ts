@@ -725,8 +725,8 @@ serve(async (req) => {
         id, name, github_project_id, slack_channel_id,
         semesters!inner(code, start_date, end_date)
       `)
-      .gte('semesters.start_date', now)
-      .lte('semesters.end_date', now)
+      .lte('semesters.start_date', now)
+      .gte('semesters.end_date', now)
 
     if (projectsError) throw projectsError
 
@@ -736,8 +736,8 @@ serve(async (req) => {
         id, name, slack_channel_id,
         semesters!inner(code, start_date, end_date)
       `)
-      .gte('semesters.start_date', now)
-      .lte('semesters.end_date', now)
+      .lte('semesters.start_date', now)
+      .gte('semesters.end_date', now)
 
     if (classesError) throw classesError
 

@@ -107,7 +107,7 @@ END $$;
 -- ============================================================================
 -- STEP 4: process-start-automation — daily at 9:00 AM UTC
 --
--- Checks for projects/classes whose semester start_date is current:
+-- Checks for projects/classes whose semester is current:
 --   - GitHub team creation
 --   - Slack channel creation
 --   - Member sync for both

@@ -274,7 +274,7 @@ const Members = () => {
   // When searching, directory shows all matching members (same regardless of selected family)
   const directoryMembers = useMemo(() => {
     if (searchQuery.trim()) return processedMembers;
-    return activeFamilyDirectoryMembers;
+  return activeFamilyDirectoryMembers;
   }, [searchQuery, processedMembers, activeFamilyDirectoryMembers]);
   const directoryTotalPoints = useMemo(
     () => directoryMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
