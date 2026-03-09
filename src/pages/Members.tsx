@@ -273,6 +273,16 @@ const Members = () => {
     () => activeFamilyDirectoryMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
     [activeFamilyDirectoryMembers],
   );
+  const isOrphanOnlyView = activeFamily === null && orphanProcessedMembers.length > 0;
+  const searchTopMemberId = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const first = activeFamilyDirectoryMembers[0] ?? orphanProcessedMembers[0];
+    return first?.id ?? null;
+  }, [searchQuery, activeFamilyDirectoryMembers, orphanProcessedMembers]);
+  const orphanTotalPoints = useMemo(
+    () => orphanProcessedMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
+    [orphanProcessedMembers],
+  );
 
   // Reset to first family when list changes; don't bump familyKey so we avoid double fade on initial load
   useEffect(() => {
@@ -492,6 +502,7 @@ const Members = () => {
                 onNodeClick={scrollToMember}
                 hasRelationships={hasRelationships}
                 canManage={canManageActions}
+                searchTopMemberId={searchTopMemberId}
               />
             </div>
 
@@ -508,24 +519,44 @@ const Members = () => {
                     {/* Left: avatar + name */}
                     <div className="flex items-center gap-3 min-w-0">
                       <Avatar className="h-10 w-10 border-2 border-border shrink-0">
-                        <AvatarImage src={activeFamily?.root.profile_picture_url ?? undefined} />
+                        <AvatarImage src={isOrphanOnlyView ? orphanProcessedMembers[0]?.profile_picture_url : activeFamily?.root.profile_picture_url} />
                         <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
-                          {(activeFamily?.root.full_name ?? '').split(' ').map(n => n[0]).join('').slice(0, 2)}
+                          {isOrphanOnlyView
+                            ? (orphanProcessedMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
+                            : (activeFamily?.root.full_name ?? '').split(' ').map(n => n[0]).join('').slice(0, 2)}
                         </AvatarFallback>
                       </Avatar>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-sm font-semibold text-foreground truncate">
-                            {hasRelationships ? `${activeFamily?.root.full_name}'s Family` : 'All Members'}
+                            {isOrphanOnlyView
+                              ? 'Orphans'
+                              : activeFamily
+                                ? hasRelationships
+                                  ? `${activeFamily.root.full_name}'s Family`
+                                  : 'All Members'
+                                : 'No results'}
                           </span>
-                          <Home className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                          {isOrphanOnlyView ? (
+                            <span className="relative inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center" title="No family">
+                              <Home className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                              <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                <span className="w-[130%] h-px bg-muted-foreground rotate-45" aria-hidden />
+                              </span>
+                            </span>
+                          ) : (
+                            <Home className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                          )}
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
-                          <span>{activeFamilyDirectoryMembers.length} member{activeFamilyDirectoryMembers.length !== 1 ? 's' : ''}</span>
+                          <span>
+                            {isOrphanOnlyView ? orphanProcessedMembers.length : activeFamilyDirectoryMembers.length} member
+                            {(isOrphanOnlyView ? orphanProcessedMembers.length : activeFamilyDirectoryMembers.length) !== 1 ? 's' : ''}
+                          </span>
                           <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
                           <span className="inline-flex items-center gap-1">
                             <Trophy className="h-3 w-3" />
-                            {activeFamilyTotalPoints}
+                            {isOrphanOnlyView ? orphanTotalPoints : activeFamilyTotalPoints}
                           </span>
                         </p>
                       </div>
@@ -560,7 +591,31 @@ const Members = () => {
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -8, transition: { duration: 0.1 } }}
                         transition={{ duration: 0.2, delay: i * 0.012, ease: [0.22, 1, 0.36, 1] }}
-                        className={`min-w-0 ${hoveredId === member.id ? 'ring-2 ring-primary/30 ring-offset-2 ring-offset-card rounded-lg' : ''}`}
+                        className={`min-w-0 rounded-lg border-2 transition-colors ${hoveredId === member.id ? 'border-primary' : 'border-transparent'}`}
+                      >
+                        <PersonCard
+                          person={member}
+                          onViewProfile={handleViewProfile}
+                          onRoleChange={handleRoleChange}
+                          onKick={handleKickMember}
+                          onBan={handleBanMember}
+                          canManage={canManageActions}
+                          canChangeRoles={canManageRoles}
+                          isMobile={isMobile}
+                          currentUserId={user?.id}
+                          currentUserRole={role}
+                          type="member"
+                        />
+                      </motion.div>
+                    ))}
+                    {orphanProcessedMembers.map((member, i) => (
+                      <motion.div
+                        key={member.id}
+                        data-member-id={member.id}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2, delay: (activeFamilyDirectoryMembers.length + i) * 0.012, ease: [0.22, 1, 0.36, 1] }}
+                        className={`min-w-0 rounded-lg border-2 transition-colors ${hoveredId === member.id ? 'border-primary' : 'border-transparent'}`}
                       >
                         <PersonCard
                           person={member}
@@ -578,37 +633,6 @@ const Members = () => {
                       </motion.div>
                     ))}
                   </AnimatePresence>
-                  {orphanProcessedMembers.length > 0 && (
-                    <>
-                      <div className="col-span-full text-xs font-medium text-muted-foreground mt-2 mb-1">
-                        No family
-                      </div>
-                      {orphanProcessedMembers.map((member, i) => (
-                        <motion.div
-                          key={member.id}
-                          data-member-id={member.id}
-                          initial={{ opacity: 0, y: 12 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.2, delay: i * 0.012, ease: [0.22, 1, 0.36, 1] }}
-                          className={`min-w-0 ${hoveredId === member.id ? 'ring-2 ring-primary/30 ring-offset-2 ring-offset-card rounded-lg' : ''}`}
-                        >
-                          <PersonCard
-                            person={member}
-                            onViewProfile={handleViewProfile}
-                            onRoleChange={handleRoleChange}
-                            onKick={handleKickMember}
-                            onBan={handleBanMember}
-                            canManage={canManageActions}
-                            canChangeRoles={canManageRoles}
-                            isMobile={isMobile}
-                            currentUserId={user?.id}
-                            currentUserRole={role}
-                            type="member"
-                          />
-                        </motion.div>
-                      ))}
-                    </>
-                  )}
                 </div>
             </motion.div>
           </div>

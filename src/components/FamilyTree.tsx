@@ -105,12 +105,19 @@ export function buildFamilies(
 
 const STYLES = `
     @keyframes ft-aqua-pulse {
-      0%, 100% { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.5), 0 4px 12px hsl(var(--primary) / 0.15); }
-      50%      { box-shadow: 0 0 0 2px hsl(var(--primary) / 0.8), 0 6px 20px hsl(var(--primary) / 0.25); }
+      0%, 100% { box-shadow: 0 4px 16px hsl(var(--primary) / 0.35); }
+      50%      { box-shadow: 0 8px 24px hsl(var(--primary) / 0.5); }
     }
     .ft-aqua-pulse {
       animation: ft-aqua-pulse 2s ease-in-out infinite;
       border-color: hsl(var(--primary)) !important;
+    }
+    @keyframes ft-search-top-glow {
+      0%, 100% { box-shadow: 0 0 14px hsl(var(--primary) / 0.75), 0 0 28px hsl(var(--primary) / 0.55), 0 0 44px hsl(var(--primary) / 0.4); }
+      50%      { box-shadow: 0 0 20px hsl(var(--primary) / 0.9), 0 0 40px hsl(var(--primary) / 0.7), 0 0 64px hsl(var(--primary) / 0.5); }
+    }
+    .ft-search-top-node {
+      animation: ft-search-top-glow 2.2s ease-in-out infinite;
     }
     .ft-canvas-bg {
       background: linear-gradient(165deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.6) 50%, hsl(var(--background)) 100%);
@@ -224,6 +231,7 @@ function TreeNodeCard({
     position,
     isCurrentUser,
     isHovered,
+    isSearchTop,
     onEnter,
     onLeave,
     onNodeClick,
@@ -233,6 +241,7 @@ function TreeNodeCard({
     position: NodePosition;
     isCurrentUser: boolean;
     isHovered: boolean;
+    isSearchTop?: boolean;
     onEnter: () => void;
     onLeave: () => void;
     onNodeClick: () => void;
@@ -245,13 +254,14 @@ function TreeNodeCard({
     const isBoard = member.role === 'board';
     const depth = node.depth;
 
-    const borderClass = isCurrentUser
-        ? 'ft-aqua-pulse border-[1.5px] border-primary shadow shadow-primary/20'
-        : isEBoard
-            ? 'border-[1.5px] border-amber-500 shadow shadow-amber-500/15'
-            : isBoard
-                ? 'border-[1.5px] border-blue-500 shadow shadow-blue-500/15'
-                : 'border-[1.5px] border-border bg-card shadow-sm hover:border-muted-foreground/60';
+    const borderClass =
+        isCurrentUser
+            ? 'ft-aqua-pulse border-[1.5px] border-primary shadow shadow-primary/20'
+            : isEBoard
+                ? 'border-[1.5px] border-amber-500 shadow shadow-amber-500/15'
+                : isBoard
+                    ? 'border-[1.5px] border-blue-500 shadow shadow-blue-500/15'
+                    : 'border-[1.5px] border-border bg-card shadow-sm hover:border-muted-foreground/60';
 
     /* Size steps down by level: root = base+step, level 1 = base, level 2 = base-step, etc.; min 18px */
     const sizeStyle = {
@@ -275,7 +285,7 @@ function TreeNodeCard({
             >
                 <div
                     style={sizeStyle}
-                    className={`rounded-full overflow-hidden flex items-center justify-center font-semibold bg-muted box-content ${borderClass}`}
+                    className={`rounded-full overflow-hidden flex items-center justify-center font-semibold bg-muted box-content ${borderClass} ${isSearchTop ? 'ft-search-top-node' : ''}`}
                 >
                     {member.profile_picture_url
                         ? <img src={member.profile_picture_url} alt="" className="w-full h-full object-cover" />
@@ -366,6 +376,7 @@ function FamilyScene({
     family,
     currentUserId,
     hoveredId,
+    searchTopMemberId,
     onHover,
     onNodeClick,
     onNodePointerDown,
@@ -373,6 +384,7 @@ function FamilyScene({
     family: Family;
     currentUserId: string;
     hoveredId: string | null;
+    searchTopMemberId: string | null;
     onHover: (id: string | null) => void;
     onNodeClick: (memberId: string) => void;
     onNodePointerDown?: () => void;
@@ -407,6 +419,7 @@ function FamilyScene({
                         position={pos}
                         isCurrentUser={node.member.id === currentUserId}
                         isHovered={hoveredId === node.member.id}
+                        isSearchTop={searchTopMemberId === node.member.id}
                         onEnter={() => onHover(node.member.id)}
                         onLeave={() => onHover(null)}
                         onNodeClick={() => onNodeClick(node.member.id)}
@@ -433,6 +446,8 @@ export interface FamilyTreeProps {
     onNodeClick: (memberId: string) => void;
     hasRelationships: boolean;
     canManage: boolean;
+    /** When searching, the member id of the #1 result — its node gets a primary highlight */
+    searchTopMemberId?: string | null;
 }
 
 const ZOOM_MIN = 0.2;
@@ -450,6 +465,7 @@ export function FamilyTree({
     onNodeClick,
     hasRelationships,
     canManage,
+    searchTopMemberId = null,
 }: FamilyTreeProps) {
     useEffect(() => { injectStyles(); }, []);
 
@@ -536,6 +552,7 @@ export function FamilyTree({
                             family={family}
                             currentUserId={currentUserId}
                             hoveredId={hoveredId}
+                            searchTopMemberId={searchTopMemberId}
                             onHover={onHover}
                             onNodeClick={handleNodeClick}
                             onNodePointerDown={handleNodePointerDown}
