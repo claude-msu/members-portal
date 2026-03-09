@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -392,6 +394,8 @@ const App = () => (
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
+              <Analytics />
+              <SpeedInsights />
             </ThemeProvider>
           </TooltipProvider>
         </ProfileProvider>
