@@ -371,7 +371,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className={`flex overflow-y-auto p-4 flex flex-col justify-flex-start ${isMobile ? 'p-4' : 'p-2'}`}>
+        <CardContent className={`flex overflow-y-auto p-4 flex-col justify-flex-start ${isMobile ? 'p-4' : 'p-2'}`}>
           {isLoading ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading...</div>
           ) : allEvents.length === 0 ? (
@@ -459,7 +459,7 @@ export default function Dashboard() {
             </Button>
           </div>
         </CardHeader>
-        <CardContent className="flex overflow-y-auto p-4 flex flex-col justify-flex-start">
+        <CardContent className="flex overflow-y-auto p-4 flex-col justify-flex-start">
           {isLoading ? (
             <div className="flex h-full items-center justify-center text-sm text-muted-foreground">Loading...</div>
           ) : items.length === 0 ? (
