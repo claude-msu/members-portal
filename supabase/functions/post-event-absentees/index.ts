@@ -13,6 +13,14 @@ const SLACK_BOT_TOKEN = Deno.env.get('SLACK_BOT_TOKEN')!
 // Override via: supabase secrets set SLACK_ADMIN_CHANNEL_NAME=your-channel
 const SLACK_ADMIN_CHANNEL_NAME = Deno.env.get('SLACK_ADMIN_CHANNEL_NAME') ?? 'admin-board'
 
+// Same timestamp format as process-start-automation (Postgres-friendly).
+function toPgTimestamp(d: Date): string {
+    return d.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '+00')
+}
+
+// Club is in EST; "yesterday" = previous calendar day in America/New_York.
+const CLUB_TIMEZONE = 'America/New_York'
+
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -112,6 +120,44 @@ function formatMention(a: Absentee): string {
     return a.slack_user_id
         ? `<@${a.slack_user_id}>`
         : `*${a.full_name}* (${a.email} — no Slack linked)`
+}
+
+// ============================================================================
+// YESTERDAY RANGE (for batch mode)
+// "Yesterday" = previous calendar day in EST (America/New_York), matching
+// process-start-automation's time-based behavior. We query a 48h window then
+// filter to events whose event_date falls on that day in EST.
+// ============================================================================
+
+function getYesterdayRange(): { rangeStart: string; rangeEnd: string; yesterdayLabel: string } {
+    const now = new Date()
+    const fmt = new Intl.DateTimeFormat('en-CA', {
+        timeZone: CLUB_TIMEZONE,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    })
+    const todayInTZ = fmt.format(now) // "YYYY-MM-DD"
+    const [y, m, d] = todayInTZ.split('-').map(Number)
+    const yesterdayDate = new Date(Date.UTC(y, m - 1, d - 1))
+    const yesterdayLabel = yesterdayDate.toISOString().slice(0, 10)
+    const rangeStart = toPgTimestamp(new Date(now.getTime() - 48 * 60 * 60 * 1000))
+    const rangeEnd = toPgTimestamp(new Date(now.getTime() + 60 * 60 * 1000))
+    return { rangeStart, rangeEnd, yesterdayLabel }
+}
+
+function filterEventsToYesterdayInTimezone(events: EventRow[], yesterdayDateStr: string): EventRow[] {
+    const fmt = new Intl.DateTimeFormat('en-CA', {
+        timeZone: CLUB_TIMEZONE,
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+    })
+    return events.filter((e) => {
+        const d = new Date(e.event_date)
+        const dateStr = fmt.format(d)
+        return dateStr === yesterdayDateStr
+    })
 }
 
 // ============================================================================
@@ -317,29 +363,33 @@ serve(async (req) => {
             })
         }
 
-        // ── BATCH MODE: cron — all events from yesterday (UTC) ─────────────────
-        const today = new Date()
-        today.setUTCHours(0, 0, 0, 0)
-        const yesterday = new Date(today)
-        yesterday.setUTCDate(today.getUTCDate() - 1)
+        // ── BATCH MODE: cron — all events from yesterday (EST) ────────────────
+        const { rangeStart, rangeEnd, yesterdayLabel } = getYesterdayRange()
+        console.log(`Batch mode: querying events in range [${rangeStart}, ${rangeEnd}) (yesterday in EST: ${yesterdayLabel})`)
 
         const { data: events, error: eventsError } = await supabase
             .from('events')
             .select('id, name, event_date, rsvp_required, allowed_roles')
-            .gte('event_date', yesterday.toISOString())
-            .lt('event_date', today.toISOString())
+            .gte('event_date', rangeStart)
+            .lt('event_date', rangeEnd)
 
         if (eventsError) throw new Error(`Failed to query yesterday's events: ${eventsError.message}`)
 
-        if (!events?.length) {
+        const filteredEvents = filterEventsToYesterdayInTimezone(events ?? [], yesterdayLabel)
+
+        if (!filteredEvents.length) {
             return new Response(
-                JSON.stringify({ processed: [], message: 'No events yesterday.' }),
+                JSON.stringify({
+                    processed: [],
+                    message: 'No events yesterday.',
+                    debug: { rangeStart, rangeEnd, queriedCount: (events ?? []).length },
+                }),
                 { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
             )
         }
 
         const results = await Promise.all(
-            events.map(event => processEvent(supabase, event, adminChannelId))
+            filteredEvents.map((event) => processEvent(supabase, event, adminChannelId))
         )
 
         const failCount = results.filter(r => r.status === 'error').length
