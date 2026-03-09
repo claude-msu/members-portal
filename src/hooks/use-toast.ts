@@ -10,6 +10,8 @@ type ToasterToast = ToastProps & {
   title?: React.ReactNode;
   description?: React.ReactNode;
   action?: ToastActionElement;
+  /** When set, the toast content area is clickable and invokes this callback. */
+  onClick?: () => void;
 };
 
 type ActionType = {
