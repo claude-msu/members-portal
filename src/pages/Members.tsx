@@ -523,57 +523,94 @@ const Members = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
-              {/* Family / search header */}
-              <div className="flex-shrink-0 p-3 border-b border-border bg-muted/30">
+              {/* Family / search header — fade when switching between search and family view */}
+              <div className="flex-shrink-0 p-3 border-b border-border bg-muted/30 overflow-hidden">
                 <div className="flex items-center justify-between gap-3">
-                  {/* Left: avatar + name */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <Avatar className="h-10 w-10 border-2 border-border shrink-0">
-                      <AvatarImage src={searchQuery.trim() ? directoryMembers[0]?.profile_picture_url : (isOrphanOnlyView ? orphanProcessedMembers[0]?.profile_picture_url : activeFamily?.root.profile_picture_url)} />
-                      <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
-                        {searchQuery.trim()
-                          ? (directoryMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
-                          : isOrphanOnlyView
-                            ? (orphanProcessedMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
-                            : (activeFamily?.root.full_name ?? '').split(' ').map(n => n[0]).join('').slice(0, 2)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-foreground truncate">
-                          {searchQuery.trim()
-                            ? 'Search results'
-                            : isOrphanOnlyView
-                              ? 'Orphans'
-                              : activeFamily
-                                ? hasRelationships
-                                  ? `${activeFamily.root.full_name}'s Family`
-                                  : 'All Members'
-                                : 'No results'}
-                        </span>
-                        {searchQuery.trim() ? null : isOrphanOnlyView ? (
-                          <span className="relative inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center" title="No family">
-                            <Home className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-                            <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              <span className="w-[130%] h-px bg-muted-foreground rotate-45" aria-hidden />
-                            </span>
+                  <div className="flex items-center gap-3 min-w-0 flex-1">
+                    <AnimatePresence mode="wait" initial={false}>
+                      {searchQuery.trim() ? (
+                        <motion.div
+                          key="search-header"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="flex items-center gap-3 min-w-0 flex-1"
+                        >
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-border bg-muted/50 text-muted-foreground">
+                            <Search className="h-5 w-5" />
                           </span>
-                        ) : (
-                          <Home className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
-                        <span>
-                          {directoryMembers.length} member
-                          {directoryMembers.length !== 1 ? 's' : ''}
-                        </span>
-                        <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
-                        <span className="inline-flex items-center gap-1">
-                          <Trophy className="h-3 w-3" />
-                          {directoryTotalPoints}
-                        </span>
-                      </p>
-                    </div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-foreground truncate">Search results</span>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
+                              <span>
+                                {directoryMembers.length} result
+                                {directoryMembers.length !== 1 ? 's' : ''}
+                              </span>
+                              <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
+                              <span className="inline-flex items-center gap-1">
+                                <Users className="h-3 w-3" />
+                                {displayFamilies.length} {displayFamilies.length === 1 ? 'family' : 'families'}
+                              </span>
+                            </p>
+                          </div>
+                        </motion.div>
+                      ) : (
+                        <motion.div
+                          key="family-header"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.15 }}
+                          className="flex items-center gap-3 min-w-0 flex-1"
+                        >
+                          <Avatar className="h-10 w-10 border-2 border-border shrink-0">
+                            <AvatarImage src={isOrphanOnlyView ? orphanProcessedMembers[0]?.profile_picture_url : activeFamily?.root.profile_picture_url} />
+                            <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
+                              {isOrphanOnlyView
+                                ? (orphanProcessedMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
+                                : (activeFamily?.root.full_name ?? '').split(' ').map(n => n[0]).join('').slice(0, 2)}
+                            </AvatarFallback>
+                          </Avatar>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-semibold text-foreground truncate">
+                                {isOrphanOnlyView
+                                  ? 'Orphans'
+                                  : activeFamily
+                                    ? hasRelationships
+                                      ? `${activeFamily.root.full_name}'s Family`
+                                      : 'All Members'
+                                    : 'No results'}
+                              </span>
+                              {isOrphanOnlyView ? (
+                                <span className="relative inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center" title="No family">
+                                  <Home className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                                  <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                                    <span className="w-[130%] h-px bg-muted-foreground rotate-45" aria-hidden />
+                                  </span>
+                                </span>
+                              ) : (
+                                <Home className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                              )}
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
+                              <span>
+                                {directoryMembers.length} member
+                                {directoryMembers.length !== 1 ? 's' : ''}
+                              </span>
+                              <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
+                              <span className="inline-flex items-center gap-1">
+                                <Trophy className="h-3 w-3" />
+                                {directoryTotalPoints}
+                              </span>
+                            </p>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
 
                   {/* Right: manage links button (board+ only) */}
