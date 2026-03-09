@@ -53,7 +53,7 @@ function DesktopZoomToBounds() {
 
 export default function NetworkMap() {
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden border border-gray-700 bg-gray-900 ring-2 ring-primary/20 shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_4px_6px_-1px_rgba(0,0,0,0.2),0_12px_24px_-4px_rgba(0,0,0,0.3),0_24px_48px_-8px_rgba(0,0,0,0.4),0_48px_96px_-32px_rgba(0,0,0,0.5),0_96px_192px_-32px_rgba(0,0,0,0.5)]">
+    <div className="relative w-full rounded-2xl overflow-hidden bg-gray-900 shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_4px_6px_-1px_rgba(0,0,0,0.2),0_12px_24px_-4px_rgba(0,0,0,0.3),0_24px_48px_-8px_rgba(0,0,0,0.4),0_48px_96px_-32px_rgba(0,0,0,0.5),0_96px_192px_-32px_rgba(0,0,0,0.5)]">
       <Map
           theme="dark"
           viewport={{
