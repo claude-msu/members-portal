@@ -10,14 +10,14 @@ import { PersonCard } from '@/components/PersonCard';
 import ProfileViewer from '@/components/modals/ProfileViewer';
 import { JotFormModal } from '@/components/modals/JotFormModal';
 import { ManageFamilyModal } from '@/components/modals/ManageFamilyModal';
+import { FamilyTree } from '@/components/FamilyTree';
 import {
-  FamilyTree,
   buildFamilies,
   type Family,
   type FamilyRelationship,
   type MemberWithRole,
   type AppRole,
-} from '@/components/FamilyTree';
+} from '@/types/modal.types';
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
