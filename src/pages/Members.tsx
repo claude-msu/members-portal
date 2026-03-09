@@ -89,6 +89,7 @@ const Members = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const isTransRef = useRef(false);
   const activeIdxRef = useRef(0);
+  const hasInitializedFamilySelection = useRef(false);
   activeIdxRef.current = activeFamilyIdx;
   isTransRef.current = isTransitioning;
 
@@ -269,20 +270,29 @@ const Members = () => {
     if (!searchQuery.trim()) return activeFamily.members;
     return activeFamily.members.filter(m => processedIds.has(m.id));
   }, [activeFamily, searchQuery, processedIds]);
-  const activeFamilyTotalPoints = useMemo(
-    () => activeFamilyDirectoryMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
-    [activeFamilyDirectoryMembers],
-  );
   const isOrphanOnlyView = activeFamily === null && orphanProcessedMembers.length > 0;
+  // When searching, directory shows all matching members (same regardless of selected family)
+  const directoryMembers = useMemo(() => {
+    if (searchQuery.trim()) return processedMembers;
+    return activeFamilyDirectoryMembers;
+  }, [searchQuery, processedMembers, activeFamilyDirectoryMembers]);
+  const directoryTotalPoints = useMemo(
+    () => directoryMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
+    [directoryMembers],
+  );
   const searchTopMemberId = useMemo(() => {
     if (!searchQuery.trim()) return null;
-    const first = activeFamilyDirectoryMembers[0] ?? orphanProcessedMembers[0];
+    const first = processedMembers[0];
     return first?.id ?? null;
-  }, [searchQuery, activeFamilyDirectoryMembers, orphanProcessedMembers]);
-  const orphanTotalPoints = useMemo(
-    () => orphanProcessedMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
-    [orphanProcessedMembers],
-  );
+  }, [searchQuery, processedMembers]);
+
+  // On first load, select the family the current user belongs to
+  useEffect(() => {
+    if (!user?.id || hasInitializedFamilySelection.current || familiesFull.length === 0) return;
+    hasInitializedFamilySelection.current = true;
+    const idx = familiesFull.findIndex(f => f.members.some(m => m.id === user.id));
+    if (idx >= 0) setActiveFamilyIdx(idx);
+  }, [user?.id, familiesFull]);
 
   // Reset to first family when list changes; don't bump familyKey so we avoid double fade on initial load
   useEffect(() => {
@@ -513,127 +523,131 @@ const Members = () => {
               animate={{ opacity: 1 }}
               transition={{ duration: 0.2 }}
             >
-                {/* Family header */}
-                <div className="flex-shrink-0 p-3 border-b border-border bg-muted/30">
-                  <div className="flex items-center justify-between gap-3">
-                    {/* Left: avatar + name */}
-                    <div className="flex items-center gap-3 min-w-0">
-                      <Avatar className="h-10 w-10 border-2 border-border shrink-0">
-                        <AvatarImage src={isOrphanOnlyView ? orphanProcessedMembers[0]?.profile_picture_url : activeFamily?.root.profile_picture_url} />
-                        <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
-                          {isOrphanOnlyView
+              {/* Family / search header */}
+              <div className="flex-shrink-0 p-3 border-b border-border bg-muted/30">
+                <div className="flex items-center justify-between gap-3">
+                  {/* Left: avatar + name */}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="h-10 w-10 border-2 border-border shrink-0">
+                      <AvatarImage src={searchQuery.trim() ? directoryMembers[0]?.profile_picture_url : (isOrphanOnlyView ? orphanProcessedMembers[0]?.profile_picture_url : activeFamily?.root.profile_picture_url)} />
+                      <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
+                        {searchQuery.trim()
+                          ? (directoryMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
+                          : isOrphanOnlyView
                             ? (orphanProcessedMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
                             : (activeFamily?.root.full_name ?? '').split(' ').map(n => n[0]).join('').slice(0, 2)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-semibold text-foreground truncate">
-                            {isOrphanOnlyView
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground truncate">
+                          {searchQuery.trim()
+                            ? 'Search results'
+                            : isOrphanOnlyView
                               ? 'Orphans'
                               : activeFamily
                                 ? hasRelationships
                                   ? `${activeFamily.root.full_name}'s Family`
                                   : 'All Members'
                                 : 'No results'}
-                          </span>
-                          {isOrphanOnlyView ? (
-                            <span className="relative inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center" title="No family">
-                              <Home className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-                              <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                                <span className="w-[130%] h-px bg-muted-foreground rotate-45" aria-hidden />
-                              </span>
+                        </span>
+                        {searchQuery.trim() ? null : isOrphanOnlyView ? (
+                          <span className="relative inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center" title="No family">
+                            <Home className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+                            <span className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              <span className="w-[130%] h-px bg-muted-foreground rotate-45" aria-hidden />
                             </span>
-                          ) : (
-                            <Home className="h-3.5 w-3.5 text-amber-600 shrink-0" />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
-                          <span>
-                            {isOrphanOnlyView ? orphanProcessedMembers.length : activeFamilyDirectoryMembers.length} member
-                            {(isOrphanOnlyView ? orphanProcessedMembers.length : activeFamilyDirectoryMembers.length) !== 1 ? 's' : ''}
                           </span>
-                          <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
-                          <span className="inline-flex items-center gap-1">
-                            <Trophy className="h-3 w-3" />
-                            {isOrphanOnlyView ? orphanTotalPoints : activeFamilyTotalPoints}
-                          </span>
-                        </p>
+                        ) : (
+                          <Home className="h-3.5 w-3.5 text-amber-600 shrink-0" />
+                        )}
                       </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-3">
+                        <span>
+                          {directoryMembers.length} member
+                          {directoryMembers.length !== 1 ? 's' : ''}
+                        </span>
+                        <span className="inline-block w-1 h-1 rounded-full bg-muted-foreground/70 shrink-0" aria-hidden />
+                        <span className="inline-flex items-center gap-1">
+                          <Trophy className="h-3 w-3" />
+                          {directoryTotalPoints}
+                        </span>
+                      </p>
                     </div>
-
-                    {/* Right: manage links button (board+ only) */}
-                    {canManageActions && (
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 shrink-0 text-muted-foreground"
-                        onClick={() => setIsManageFamilyOpen(true)}
-                        title="Manage big/little links"
-                      >
-                        <Users className="h-4 w-4" />
-                      </Button>
-                    )}
                   </div>
-                </div>
 
-                {/* Scrollable member list */}
-                <div
-                  ref={directoryRef}
-                  className="flex-1 overflow-y-auto p-4 grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3 content-start"
-                >
-                  <AnimatePresence mode="wait">
-                    {activeFamilyDirectoryMembers.map((member, i) => (
-                      <motion.div
-                        key={member.id}
-                        data-member-id={member.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8, transition: { duration: 0.1 } }}
-                        transition={{ duration: 0.2, delay: i * 0.012, ease: [0.22, 1, 0.36, 1] }}
-                        className={`min-w-0 rounded-lg border-2 transition-colors ${hoveredId === member.id ? 'border-primary' : 'border-transparent'}`}
-                      >
-                        <PersonCard
-                          person={member}
-                          onViewProfile={handleViewProfile}
-                          onRoleChange={handleRoleChange}
-                          onKick={handleKickMember}
-                          onBan={handleBanMember}
-                          canManage={canManageActions}
-                          canChangeRoles={canManageRoles}
-                          isMobile={isMobile}
-                          currentUserId={user?.id}
-                          currentUserRole={role}
-                          type="member"
-                        />
-                      </motion.div>
-                    ))}
-                    {orphanProcessedMembers.map((member, i) => (
-                      <motion.div
-                        key={member.id}
-                        data-member-id={member.id}
-                        initial={{ opacity: 0, y: 12 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2, delay: (activeFamilyDirectoryMembers.length + i) * 0.012, ease: [0.22, 1, 0.36, 1] }}
-                        className={`min-w-0 rounded-lg border-2 transition-colors ${hoveredId === member.id ? 'border-primary' : 'border-transparent'}`}
-                      >
-                        <PersonCard
-                          person={member}
-                          onViewProfile={handleViewProfile}
-                          onRoleChange={handleRoleChange}
-                          onKick={handleKickMember}
-                          onBan={handleBanMember}
-                          canManage={canManageActions}
-                          canChangeRoles={canManageRoles}
-                          isMobile={isMobile}
-                          currentUserId={user?.id}
-                          currentUserRole={role}
-                          type="member"
-                        />
-                      </motion.div>
-                    ))}
-                  </AnimatePresence>
+                  {/* Right: manage links button (board+ only) */}
+                  {canManageActions && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="h-8 w-8 shrink-0 text-muted-foreground"
+                      onClick={() => setIsManageFamilyOpen(true)}
+                      title="Manage big/little links"
+                    >
+                      <Users className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
+              </div>
+
+              {/* Scrollable member list: when searching shows all matches; otherwise active family + orphans */}
+              <div
+                ref={directoryRef}
+                className="flex-1 overflow-y-auto p-4 grid grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3 content-start"
+              >
+                <AnimatePresence mode="wait">
+                  {directoryMembers.map((member, i) => (
+                    <motion.div
+                      key={member.id}
+                      data-member-id={member.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8, transition: { duration: 0.1 } }}
+                      transition={{ duration: 0.2, delay: i * 0.012, ease: [0.22, 1, 0.36, 1] }}
+                      className={`min-w-0 rounded-lg border-2 transition-colors ${hoveredId === member.id ? 'border-primary' : 'border-transparent'}`}
+                    >
+                      <PersonCard
+                        person={member}
+                        onViewProfile={handleViewProfile}
+                        onRoleChange={handleRoleChange}
+                        onKick={handleKickMember}
+                        onBan={handleBanMember}
+                        canManage={canManageActions}
+                        canChangeRoles={canManageRoles}
+                        isMobile={isMobile}
+                        currentUserId={user?.id}
+                        currentUserRole={role}
+                        type="member"
+                      />
+                    </motion.div>
+                  ))}
+                  {!searchQuery.trim() && orphanProcessedMembers.map((member, i) => (
+                    <motion.div
+                      key={member.id}
+                      data-member-id={member.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2, delay: (directoryMembers.length + i) * 0.012, ease: [0.22, 1, 0.36, 1] }}
+                      className={`min-w-0 rounded-lg border-2 transition-colors ${hoveredId === member.id ? 'border-primary' : 'border-transparent'}`}
+                    >
+                      <PersonCard
+                        person={member}
+                        onViewProfile={handleViewProfile}
+                        onRoleChange={handleRoleChange}
+                        onKick={handleKickMember}
+                        onBan={handleBanMember}
+                        canManage={canManageActions}
+                        canChangeRoles={canManageRoles}
+                        isMobile={isMobile}
+                        currentUserId={user?.id}
+                        currentUserRole={role}
+                        type="member"
+                      />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
             </motion.div>
           </div>
         )}
