@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Instagram, Linkedin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRef } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import InteractiveLogo from "@/components/InteractiveLogo";
@@ -11,15 +11,6 @@ const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const heroRef = useRef<HTMLDivElement>(null);
-
-  // Scroll-based fade - track the hero section specifically
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"]
-  });
-
-  // Perfect fade from 0 to 1 as user scrolls past hero
-  const fadeOpacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 0, 0.5, 1]);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 60 },
@@ -42,36 +33,19 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen relative">
-      {/* BLOB CANVAS - Desktop only (dark hero) */}
-      {!isMobile && (
-        <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
-          <div className="absolute inset-0 opacity-40">
-            <div className="absolute top-20 left-20 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-blob" />
-            <div className="absolute top-40 right-20 w-80 h-80 bg-orange-500/15 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
-            <div className="absolute bottom-20 left-40 w-80 h-80 bg-amber-500/10 rounded-full filter blur-3xl animate-blob animation-delay-4000" />
-          </div>
-        </div>
-      )}
-
-      {/* Mobile background - dark hero */}
-      {isMobile && (
-        <div className="fixed top-0 left-0 right-0 h-screen pointer-events-none" style={{ zIndex: 0 }}>
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950" />
-        </div>
-      )}
-
-      {/* SCROLL-BASED FADE OVERLAY */}
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-[200vh] bg-cream pointer-events-none"
-        style={{ opacity: fadeOpacity, zIndex: 1 }}
-      />
-
+    <div className="min-h-screen relative bg-background">
       {/* Content */}
-      <div className="relative" style={{ zIndex: 10 }}>
-        {/* Hero Section - dark */}
-        <section ref={heroRef} className={`relative min-h-screen flex items-center justify-center overflow-hidden ${isMobile ? 'bg-gray-950' : ''}`}>
+      <div className="relative">
+        {/* Hero Section - light */}
+        <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-secondary to-background">
+          {/* Blob canvas - desktop only */}
+          {!isMobile && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
+              <div className="absolute top-20 left-20 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-blob" />
+              <div className="absolute top-40 right-20 w-80 h-80 bg-orange-500/15 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
+              <div className="absolute bottom-20 left-40 w-80 h-80 bg-amber-500/10 rounded-full filter blur-3xl animate-blob animation-delay-4000" />
+            </div>
+          )}
           <div className={`relative z-10 container mx-auto px-4 ${isMobile ? 'py-6' : 'py-20'}`}>
             <motion.div
               initial="hidden"
@@ -79,18 +53,18 @@ const Index = () => {
               variants={fadeInUp}
               className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-10'}`}
             >
-              <InteractiveLogo dark />
+              <InteractiveLogo />
 
               <motion.div
                 variants={fadeInUp}
                 className={isMobile ? "space-y-6" : "space-y-10"}
               >
-                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black text-starry-light leading-tight`}>
+                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black text-primary leading-tight`}>
                   Claude Builder Club
                 </h1>
                 <div className="flex items-center justify-center gap-3">
                   <img src="/msu-logo.png" alt="MSU" className={`${isMobile ? 'h-8 w-8' : 'h-10 w-10'}`} />
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-green-400`}>
+                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-green-600`}>
                     Michigan State University
                   </p>
                 </div>
@@ -98,7 +72,7 @@ const Index = () => {
 
               <motion.p
                 variants={fadeInUp}
-                className={`${isMobile ? 'text-base' : 'text-xl md:text-2xl'} text-gray-400 max-w-3xl mx-auto leading-relaxed`}
+                className={`${isMobile ? 'text-base' : 'text-xl md:text-2xl'} text-muted-foreground max-w-3xl mx-auto leading-relaxed`}
               >
               A club like no other. Internships, research, mentorship—we don't just talk. We get you there.
               </motion.p>
@@ -109,7 +83,7 @@ const Index = () => {
                 transition={{ delay: 1 }}
                 className={`${isMobile ? 'pt-6' : 'pt-12'}`}
               >
-                <div className="inline-flex flex-col items-center gap-2 text-gray-500">
+                <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
                   <span className="text-sm font-medium">Scroll to explore</span>
                   <motion.div
                     animate={{ y: [0, 10, 0] }}
@@ -136,7 +110,7 @@ const Index = () => {
               className="max-w-6xl mx-auto"
             >
               <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
-                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black text-starry-dark`}>
+                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
                   A network like no other
                 </h2>
               </motion.div>

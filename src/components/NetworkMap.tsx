@@ -34,7 +34,7 @@ const ROUTES: [number, number][][] = LOCATIONS.filter((l) => !l.isHome).map(
   ]
 );
 
-const ROUTE_COLOR = "#6b7280"; // gray-500
+const ROUTE_COLOR = "#cbd5e1"; // very faint gray (slate-300)
 
 const DESKTOP_ZOOM = 3;
 const MOBILE_ZOOM = 1.8;
@@ -53,9 +53,12 @@ function DesktopZoomToBounds() {
 
 export default function NetworkMap() {
   return (
-    <div className="relative w-full rounded-2xl overflow-hidden bg-gray-900 shadow-[0_0_0_1px_rgba(0,0,0,0.2),0_4px_6px_-1px_rgba(0,0,0,0.2),0_12px_24px_-4px_rgba(0,0,0,0.3),0_24px_48px_-8px_rgba(0,0,0,0.4),0_48px_96px_-32px_rgba(0,0,0,0.5),0_96px_192px_-32px_rgba(0,0,0,0.5)]">
+    <div className="relative w-full rounded-3xl overflow-hidden border border-border/80 bg-background shadow-xl shadow-black/5 ring-1 ring-black/[0.04]">
       <Map
-          theme="dark"
+          theme="light"
+          styles={{
+            light: "https://basemaps.cartocdn.com/gl/positron-gl-style/style.json",
+          }}
           viewport={{
             center: CENTER,
             zoom: MOBILE_ZOOM,
@@ -71,8 +74,9 @@ export default function NetworkMap() {
               key={i}
               coordinates={coords}
               color={ROUTE_COLOR}
-              width={2}
-              opacity={0.7}
+              width={3.5}
+              opacity={0.5}
+              dashArray={[3, 3]}
             />
           ))}
           {LOCATIONS.map((loc) => (
@@ -84,8 +88,8 @@ export default function NetworkMap() {
               <MarkerContent
                 className={`pointer-events-none ${
                   loc.isHome
-                    ? "h-5 w-5 rounded-full border-2 border-gray-400 bg-gray-500 shadow-md"
-                    : "h-3 w-3 rounded-full border border-gray-200 bg-white shadow-[0_0_12px_rgba(255,255,255,0.9),0_0_24px_rgba(255,255,255,0.5)]"
+                    ? "h-5 w-5 rounded-full bg-gray-600 border-2 border-gray-400 shadow-md"
+                    : "h-2.5 w-2.5 rounded-full bg-primary shadow-[0_0_0_2px_rgba(224,124,74,0.45),0_0_6px_4px_rgba(224,124,74,0.3),0_0_12px_8px_rgba(224,124,74,0.15)]"
                 }`}
               >
                 {/* Explicit child prevents default blue dot from rendering */}
