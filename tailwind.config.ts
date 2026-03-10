@@ -3,9 +3,6 @@ import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
   darkMode: ["class"],
-  safelist: [
-    { pattern: /^text-starry-(light|dark)$/ },
-  ],
   content: [
     "./src/**/*.{ts,tsx,css}",
     "./pages/**/*.{ts,tsx}",
