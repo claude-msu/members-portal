@@ -1123,6 +1123,8 @@ function MapRoute({
     map.setPaintProperty(layerId, "line-width", width);
     map.setPaintProperty(layerId, "line-opacity", opacity);
     if (dashArray) {
+      map.setLayoutProperty(layerId, "line-cap", "round");
+      map.setLayoutProperty(layerId, "line-join", "round");
       map.setPaintProperty(layerId, "line-dasharray", dashArray);
     }
   }, [isLoaded, map, layerId, color, width, opacity, dashArray]);

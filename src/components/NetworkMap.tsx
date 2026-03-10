@@ -21,7 +21,6 @@ const LOCATIONS = [
   { name: "Austin", longitude: -97.7431, latitude: 30.2672, isHome: false },
   { name: "Seattle", longitude: -122.3321, latitude: 47.6062, isHome: false },
   { name: "San Francisco", longitude: -122.4194, latitude: 37.7749, isHome: false },
-  { name: "Palo Alto", longitude: -122.143, latitude: 37.4419, isHome: false },
   { name: "Mountain View", longitude: -122.0838, latitude: 37.3861, isHome: false },
   { name: "Los Angeles", longitude: -118.2437, latitude: 34.0522, isHome: false },
   { name: "San Diego", longitude: -117.1611, latitude: 32.7157, isHome: false },
@@ -76,7 +75,7 @@ export default function NetworkMap() {
               color={ROUTE_COLOR}
               width={3.5}
               opacity={0.5}
-              dashArray={[3, 3]}
+              dashArray={[2, 2]}
             />
           ))}
           {LOCATIONS.map((loc) => (
