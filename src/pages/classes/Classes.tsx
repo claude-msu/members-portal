@@ -18,7 +18,7 @@ import { EditModal } from '@/components/modals/EditModal';
 import { MembersListModal } from '@/components/modals/MembersListModal';
 import { ItemCard } from '@/components/ItemCard';
 import SemesterSelector from '@/components/SemesterSelector';
-import { Plus, MapPin, Users, Edit, Calendar as CalendarIcon, Eye, Crown, BookOpen } from 'lucide-react';
+import { Plus, MapPin, Users, Edit, Calendar as CalendarIcon, Eye, Crown, BookOpen, Mail } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
 import { useNavigate } from 'react-router-dom';
@@ -516,6 +516,29 @@ const Classes = () => {
         : <Eye className="h-4 w-4 mr-2" />,
       variant: isBoardOrAbove ? 'outline' : 'default',
     });
+
+    if (isBoardOrAbove) {
+      const copyClassEmailsCsv = () => {
+        const emails = (cls.members ?? [])
+          .map(m => m.profile?.email)
+          .filter((e): e is string => Boolean(e));
+        if (emails.length === 0) {
+          toast({ title: 'No emails', description: 'No member emails to copy for this class.', variant: 'destructive' });
+          return;
+        }
+        const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
+          toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV` });
+        });
+      };
+      actions.push({
+        label: 'Copy member emails as CSV',
+        onClick: copyClassEmailsCsv,
+        icon: <Mail className="h-4 w-4" />,
+        variant: 'default',
+        size: 'icon',
+      });
+    }
 
     // Only show class page button if class has started and not on mobile
     if (classHasStarted && !isMobile) {

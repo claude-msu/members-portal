@@ -22,7 +22,7 @@ import {
 import { DetailModal } from '@/components/modals/DetailModal';
 import { EditModal } from '@/components/modals/EditModal';
 import { ItemCard } from '@/components/ItemCard';
-import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X, CheckCircle } from 'lucide-react';
+import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X, CheckCircle, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 import QRCodeLib from 'qrcode';
@@ -737,6 +737,71 @@ const Events = () => {
         onClick: () => modalState.open(event, event.id),
         icon: <Edit className="h-4 w-4 mr-2" />,
         variant: 'outline' as const,
+      });
+
+      const copyEventEmailsCsv = async () => {
+        const emailSet = new Set<string>();
+        if (event.rsvp_required) {
+          const { data: attendance } = await supabase
+            .from('event_attendance')
+            .select('user_id')
+            .eq('event_id', event.id)
+            .not('rsvped_at', 'is', null);
+          const userIds = [...new Set((attendance ?? []).map(a => a.user_id))];
+          if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('email')
+              .in('id', userIds)
+              .or('is_banned.is.null,is_banned.eq.false');
+            (profiles ?? []).forEach(p => emailSet.add(p.email));
+          }
+        } else {
+          const { data: roleRows } = await supabase
+            .from('user_roles')
+            .select('user_id')
+            .in('role', event.allowed_roles);
+          const userIds = [...new Set((roleRows ?? []).map(r => r.user_id))];
+          if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('email')
+              .in('id', userIds)
+              .or('is_banned.is.null,is_banned.eq.false');
+            (profiles ?? []).forEach(p => emailSet.add(p.email));
+          }
+        }
+        if (event.allowed_roles.includes('prospect')) {
+          const { data: prospectRoles } = await supabase
+            .from('user_roles')
+            .select('user_id')
+            .eq('role', 'prospect');
+          const prospectIds = [...new Set((prospectRoles ?? []).map(r => r.user_id))];
+          if (prospectIds.length > 0) {
+            const { data: profiles } = await supabase
+              .from('profiles')
+              .select('email')
+              .in('id', prospectIds)
+              .or('is_banned.is.null,is_banned.eq.false');
+            (profiles ?? []).forEach(p => emailSet.add(p.email));
+          }
+        }
+        const emails = [...emailSet];
+        if (emails.length === 0) {
+          toast({ title: 'No emails', description: 'No invited member emails to copy for this event.', variant: 'destructive' });
+          return;
+        }
+        const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+        void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
+          toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV` });
+        });
+      };
+      actions.push({
+        label: 'Copy invited emails as CSV',
+        onClick: () => void copyEventEmailsCsv(),
+        icon: <Mail className="h-4 w-4" />,
+        variant: 'default' as const,
+        size: 'icon',
       });
 
       actions.push({

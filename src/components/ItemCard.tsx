@@ -39,18 +39,41 @@ export const ItemCard = ({
     const displayedMembers = members?.data.slice(0, maxDisplay) || [];
     const remainingCount = (members?.data.length || 0) - maxDisplay;
 
+    const iconActions = actions?.filter(a => a.size === 'icon') ?? [];
+    const mainActions = actions?.filter(a => a.size !== 'icon') ?? [];
+
     return (
         <Card className={`flex flex-col h-full w-full ${className}`}>
             <CardHeader className="pb-0">
                 <div className="flex items-center justify-between gap-4">
-                    <CardTitle className="text-lg flex-1">{title}</CardTitle>
-                    {badges && badges.length > 0 && (
-                        <div className="flex flex-row gap-3 items-center">
-                            {badges.map((badge, index) => (
-                                <div key={index}>{badge}</div>
-                            ))}
+                    <CardTitle className="text-lg flex-1 min-w-0">{title}</CardTitle>
+                    {(badges?.length ?? 0) > 0 || iconActions.length > 0 ? (
+                        <div className="flex flex-row items-center gap-3 shrink-0">
+                            {badges && badges.length > 0 && (
+                                <>
+                                    {badges.map((badge, index) => (
+                                        <div key={index}>{badge}</div>
+                                    ))}
+                                </>
+                            )}
+                            {iconActions.length > 0 && (
+                                <>
+                                    {iconActions.map((action, index) => (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            onClick={action.onClick}
+                                            disabled={action.disabled || action.loading}
+                                            title={action.label}
+                                            className="inline-flex items-center justify-center h-8 w-8 rounded-md text-muted-foreground hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 transition-colors duration-150 [&_svg]:h-4 [&_svg]:w-4"
+                                        >
+                                            {action.icon}
+                                        </button>
+                                    ))}
+                                </>
+                            )}
                         </div>
-                    )}
+                    ) : null}
                 </div>
             </CardHeader>
 
@@ -118,10 +141,10 @@ export const ItemCard = ({
                     </div>
                 )}
 
-                {/* Actions */}
-                {actions && actions.length > 0 && (
-                    <div className="space-y-2 mt-4">
-                        {actions.map((action, index) => (
+                {/* Actions: main actions only (icon actions are in header) */}
+                {mainActions.length > 0 && (
+                    <div className="flex flex-col gap-2 mt-4">
+                        {mainActions.map((action, index) => (
                             <Button
                                 key={index}
                                 className="w-full"

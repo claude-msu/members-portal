@@ -34,6 +34,8 @@ export type CardAction = {
   variant?: 'default' | 'outline' | 'secondary' | 'ghost';
   disabled?: boolean;
   loading?: boolean;
+  /** When 'icon', renders as icon-only button (e.g. for copy emails). */
+  size?: 'default' | 'icon';
 };
 
 // Detail section for detail modals
