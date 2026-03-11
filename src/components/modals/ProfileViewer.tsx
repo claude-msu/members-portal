@@ -11,7 +11,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
-import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github, Briefcase, BookOpen } from 'lucide-react';
+import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github, Briefcase, BookOpen, Copy, Check } from 'lucide-react';
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/database.types';
@@ -43,7 +43,27 @@ interface InvolvementBadge {
 
 const ProfileViewer = ({ open = false, onClose, member, embedded = false, className = '' }: ProfileViewerProps) => {
   const [involvementBadges, setInvolvementBadges] = useState<InvolvementBadge[]>([]);
+  const [emailCopied, setEmailCopied] = useState(false);
   const isMobile = useIsMobile();
+
+  const copyEmail = useCallback(async () => {
+    if (!member?.email) return;
+    try {
+      await navigator.clipboard.writeText(member.email);
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 2000);
+    } catch {
+      // fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = member.email;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      setEmailCopied(true);
+      setTimeout(() => setEmailCopied(false), 2000);
+    }
+  }, [member?.email]);
 
 
   const fetchInvolvement = useCallback(async () => {
@@ -177,10 +197,27 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
       <div className="space-y-4">
         <div className="space-y-2">
           <p className="text-sm font-medium text-muted-foreground">Email</p>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-muted-foreground" />
+          <button
+            type="button"
+            className="flex items-center gap-2 rounded-[0.3rem] sm:rounded-[0.375rem] px-1 py-0.5 -ml-1 hover:bg-muted/60 transition-colors cursor-pointer group w-fit"
+            onClick={copyEmail}
+          >
+            <span className="relative inline-flex shrink-0 items-center justify-center text-muted-foreground">
+              {emailCopied ? (
+                <Check className="h-4 w-4 text-green-600" />
+              ) : (
+                <span className="inline-flex items-center justify-center h-4 w-4 transition-colors duration-400">
+                  <Mail
+                    className="absolute inset-0 h-4 w-4 transition-opacity duration-400 pointer-events-none group-hover:opacity-0 group-hover:aria-hidden:true"
+                  />
+                  <Copy
+                    className="absolute inset-0 h-4 w-4 transition-opacity duration-400 pointer-events-none opacity-0 group-hover:opacity-100 group-hover:aria-hidden:false"
+                  />
+                </span>
+              )}
+            </span>
             <p className="text-sm">{member.email}</p>
-          </div>
+          </button>
         </div>
 
         {member.class_year && (
