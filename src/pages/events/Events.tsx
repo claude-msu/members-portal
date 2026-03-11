@@ -559,12 +559,7 @@ const Events = () => {
       if (qrError) throw qrError;
 
       toast({ title: 'Success', description: 'QR code generated successfully!' });
-      if (isMobile) {
-        // On mobile, navigate to the URL instead of opening in new tab
-        window.location.href = publicUrl;
-      } else {
-        window.open(publicUrl, '_blank');
-      }
+      window.open(publicUrl, '_blank');
     } catch (error) {
       toast({
         title: 'Error',
@@ -823,13 +818,15 @@ const Events = () => {
         size: 'icon',
       });
 
-      actions.push({
-        label: generatingQR === event.id ? 'Generating...' : (isMobile ? 'QR Code' : 'Generate QR Code'),
-        onClick: () => handleGenerateQR(event),
-        icon: <QrCode className="h-4 w-4 mr-2" />,
-        variant: 'default' as const,
-        loading: generatingQR === event.id,
-      });
+      if (!isMobile) {
+        actions.push({
+          label: generatingQR === event.id ? 'Generating...' : 'Generate QR Code',
+          onClick: () => handleGenerateQR(event),
+          icon: <QrCode className="h-4 w-4 mr-2" />,
+          variant: 'default' as const,
+          loading: generatingQR === event.id,
+        });
+      }
     }
 
     else {
