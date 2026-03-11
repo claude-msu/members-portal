@@ -18,9 +18,6 @@ function toPgTimestamp(d: Date): string {
     return d.toISOString().replace('T', ' ').replace(/\.\d{3}Z$/, '+00')
 }
 
-// Club is in EST; "yesterday" = previous calendar day in America/New_York.
-const CLUB_TIMEZONE = 'America/New_York'
-
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -123,41 +120,15 @@ function formatMention(a: Absentee): string {
 }
 
 // ============================================================================
-// YESTERDAY RANGE (for batch mode)
-// "Yesterday" = previous calendar day in EST (America/New_York), matching
-// process-start-automation's time-based behavior. We query a 48h window then
-// filter to events whose event_date falls on that day in EST.
+// EVENT TIME WINDOW
+// We only care about events in the last 24 hours (event_date between now-24h and now).
 // ============================================================================
 
-function getYesterdayRange(): { rangeStart: string; rangeEnd: string; yesterdayLabel: string } {
+function getLast24HoursRange(): { rangeStart: string; rangeEnd: string } {
     const now = new Date()
-    const fmt = new Intl.DateTimeFormat('en-CA', {
-        timeZone: CLUB_TIMEZONE,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    })
-    const todayInTZ = fmt.format(now) // "YYYY-MM-DD"
-    const [y, m, d] = todayInTZ.split('-').map(Number)
-    const yesterdayDate = new Date(Date.UTC(y, m - 1, d - 1))
-    const yesterdayLabel = yesterdayDate.toISOString().slice(0, 10)
-    const rangeStart = toPgTimestamp(new Date(now.getTime() - 48 * 60 * 60 * 1000))
-    const rangeEnd = toPgTimestamp(new Date(now.getTime() + 60 * 60 * 1000))
-    return { rangeStart, rangeEnd, yesterdayLabel }
-}
-
-function filterEventsToYesterdayInTimezone(events: EventRow[], yesterdayDateStr: string): EventRow[] {
-    const fmt = new Intl.DateTimeFormat('en-CA', {
-        timeZone: CLUB_TIMEZONE,
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-    })
-    return events.filter((e) => {
-        const d = new Date(e.event_date)
-        const dateStr = fmt.format(d)
-        return dateStr === yesterdayDateStr
-    })
+    const rangeStart = toPgTimestamp(new Date(now.getTime() - 24 * 60 * 60 * 1000))
+    const rangeEnd = toPgTimestamp(now)
+    return { rangeStart, rangeEnd }
 }
 
 // ============================================================================
@@ -191,12 +162,28 @@ async function getGeneralAbsentees(
     eventId: string,
     allowedRoles: string[]
 ): Promise<Absentee[]> {
-    const { data: eligible, error: eligibleError } = await supabase
+    // user_roles.user_id references auth.users, not profiles — no direct FK, so two queries.
+    const { data: eligibleRows, error: eligibleError } = await supabase
         .from('user_roles')
-        .select('user_id, profiles!inner(full_name, email, slack_user_id)')
+        .select('user_id')
         .in('role', allowedRoles)
 
     if (eligibleError) throw new Error(`Eligible users query failed: ${eligibleError.message}`)
+
+    const eligibleIds = (eligibleRows ?? []).map((r) => r.user_id)
+    if (eligibleIds.length === 0) return []
+
+    const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, email, slack_user_id')
+        .in('id', eligibleIds)
+
+    if (profilesError) throw new Error(`Profiles query failed: ${profilesError.message}`)
+
+    type ProfileSlice = { full_name: string; email: string; slack_user_id: string | null }
+    const profileByUserId = new Map<string, ProfileSlice>(
+        (profilesData ?? []).map((p) => [p.id, { full_name: p.full_name, email: p.email, slack_user_id: p.slack_user_id }])
+    )
 
     const { data: attended, error: attendedError } = await supabase
         .from('event_attendance')
@@ -208,14 +195,14 @@ async function getGeneralAbsentees(
 
     const attendedIds = new Set((attended ?? []).map((a) => a.user_id))
 
-    return (eligible ?? [])
-        .filter((row) => !attendedIds.has(row.user_id))
-        .map((row) => ({
-            user_id: row.user_id,
-            full_name: row.profiles.full_name,
-            email: row.profiles.email,
-            slack_user_id: row.profiles.slack_user_id,
-        }))
+    return eligibleIds
+        .filter((user_id) => !attendedIds.has(user_id))
+        .map((user_id) => {
+            const p = profileByUserId.get(user_id)
+            if (!p) return null
+            return { user_id, full_name: p.full_name, email: p.email, slack_user_id: p.slack_user_id }
+        })
+        .filter((a): a is Absentee => a !== null)
 }
 
 // ============================================================================
@@ -294,15 +281,17 @@ function buildMessage(event: EventRow, absentees: Absentee[], totalAttended: num
 }
 
 // ============================================================================
-// PROCESS SINGLE EVENT
-// Soft-fail wrapper — errors become { status: 'error' } entries in batch results.
+// PROCESS ONE EVENT
+// Gets absentees, builds Slack message, posts. Soft-fail: returns status so we can continue with others.
 // ============================================================================
+
+type ProcessedEvent = { type: 'event'; name: string; status: 'success' | 'error'; errors?: string[] }
 
 async function processEvent(
     supabase: ReturnType<typeof createClient>,
     event: EventRow,
     adminChannelId: string
-): Promise<{ event_id: string; event_name: string; status: 'success' | 'error'; error?: string }> {
+): Promise<ProcessedEvent> {
     try {
         const absentees = event.rsvp_required
             ? await getRsvpAbsentees(supabase, event.id)
@@ -317,10 +306,10 @@ async function processEvent(
         const { fallbackText, blocks } = buildMessage(event, absentees, attendedCount ?? 0)
         await postSlackMessage(adminChannelId, fallbackText, blocks)
 
-        return { event_id: event.id, event_name: event.name, status: 'success' }
+        return { type: 'event', name: event.name, status: 'success' }
     } catch (err) {
         console.warn(`Absentee report failed for "${event.name}": ${err.message}`)
-        return { event_id: event.id, event_name: event.name, status: 'error', error: err.message }
+        return { type: 'event', name: event.name, status: 'error', errors: [err.message] }
     }
 }
 
@@ -333,80 +322,37 @@ serve(async (req) => {
 
     try {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-
-        // ── Parse body (optional) ──────────────────────────────────────────────
-        let body: { event_id?: string } = {}
-        try { body = await req.json() } catch { /* no body = batch mode */ }
-
-        // ── Resolve admin channel — hard failure if not found ──────────────────
         const adminChannelId = await lookupChannelIdByName(SLACK_ADMIN_CHANNEL_NAME)
 
-        // ── SINGLE MODE: explicit event_id from portal ─────────────────────────
-        if (body.event_id) {
-            const { data: event, error: eventError } = await supabase
-                .from('events')
-                .select('id, name, event_date, rsvp_required, allowed_roles')
-                .eq('id', body.event_id)
-                .single()
-
-            if (eventError || !event) {
-                return new Response(
-                    JSON.stringify({ error: `Event not found: ${eventError?.message ?? 'unknown'}` }),
-                    { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-                )
-            }
-
-            const result = await processEvent(supabase, event, adminChannelId)
-            return new Response(JSON.stringify(result), {
-                status: result.status === 'success' ? 200 : 500,
-                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-            })
-        }
-
-        // ── BATCH MODE: cron — all events from yesterday (EST) ────────────────
-        const { rangeStart, rangeEnd, yesterdayLabel } = getYesterdayRange()
-        console.log(`Batch mode: querying events in range [${rangeStart}, ${rangeEnd}) (yesterday in EST: ${yesterdayLabel})`)
-
+        const { rangeStart, rangeEnd } = getLast24HoursRange()
         const { data: events, error: eventsError } = await supabase
             .from('events')
             .select('id, name, event_date, rsvp_required, allowed_roles')
             .gte('event_date', rangeStart)
-            .lt('event_date', rangeEnd)
+            .lte('event_date', rangeEnd)
 
-        if (eventsError) throw new Error(`Failed to query yesterday's events: ${eventsError.message}`)
+        if (eventsError) throw new Error(`Failed to query events: ${eventsError.message}`)
 
-        const filteredEvents = filterEventsToYesterdayInTimezone(events ?? [], yesterdayLabel)
-
-        if (!filteredEvents.length) {
-            return new Response(
-                JSON.stringify({
-                    processed: [],
-                    message: 'No events yesterday.',
-                    debug: { rangeStart, rangeEnd, queriedCount: (events ?? []).length },
-                }),
-                { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-            )
+        const eventList = events ?? []
+        const results: ProcessedEvent[] = []
+        for (const event of eventList) {
+            const result = await processEvent(supabase, event, adminChannelId)
+            results.push(result)
         }
 
-        const results = await Promise.all(
-            filteredEvents.map((event) => processEvent(supabase, event, adminChannelId))
-        )
-
-        const failCount = results.filter(r => r.status === 'error').length
+        const failCount = results.filter((r) => r.status === 'error').length
         if (failCount > 0) {
-            console.warn(`Batch absentee report: ${failCount}/${results.length} events failed — see individual errors in response`)
+            console.warn(`post-event-absentees: ${failCount}/${results.length} events failed`)
         }
 
-        return new Response(
-            JSON.stringify({ processed: results }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
-
+        return new Response(JSON.stringify({ processed: results }), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
     } catch (err) {
-        // Only unrecoverable errors reach here: auth failures, DB down, channel not found
         console.error(`post-event-absentees: ${err.message}`)
         return new Response(JSON.stringify({ error: err.message }), {
-            status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 500,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
     }
 })

@@ -123,6 +123,7 @@ SELECT cron.schedule(
       'Content-Type',  'application/json',
       'Authorization', internal.service_role_bearer()
     )
+    timeout_milliseconds := 30000
   ) AS request_id;
   $$
 );
