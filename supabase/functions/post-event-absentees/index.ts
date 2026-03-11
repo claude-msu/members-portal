@@ -319,13 +319,13 @@ function buildMessage(event: EventRow, absentees: Absentee[], totalAttended: num
                 },
             })
         }
-        const absenteeEmails = absentees.map(a => a.email).filter(Boolean).join(', ');
-        if (absenteeEmails.length > 0) {
+        const absenteeEmailsCsv = absentees.map(a => a.email).filter(Boolean).join(',');
+        if (absenteeEmailsCsv.length > 0) {
             blocks.push({
                 type: 'section',
                 text: {
                     type: 'mrkdwn',
-                    text: `*Emails for quick contact:*\n\`${absenteeEmails}\``,
+                    text: `*Emails for quick contact (copy as CSV):*\n\`\`\`\n${absenteeEmailsCsv}\n\`\`\``,
                 },
             });
         }
