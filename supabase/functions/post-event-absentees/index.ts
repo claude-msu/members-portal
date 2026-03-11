@@ -108,6 +108,67 @@ async function postSlackMessage(channelId: string, text: string, blocks?: object
 }
 
 // ============================================================================
+// SLACK — USER LOOKUP & PROFILE SAVE
+// Same pattern as process-start-automation: lookup by email, then persist to profiles.
+// ============================================================================
+
+async function lookupSlackUserId(email: string): Promise<string | null> {
+    try {
+        const res = await fetch(
+            `https://slack.com/api/users.lookupByEmail?email=${encodeURIComponent(email)}`,
+            { headers: { Authorization: `Bearer ${SLACK_BOT_TOKEN}` } }
+        )
+        const data = await res.json()
+        if (data.ok && data.user?.id) return data.user.id
+    } catch (e) {
+        console.warn(`Slack lookup failed for ${email}:`, e)
+    }
+    return null
+}
+
+async function saveSlackUserId(
+    supabase: ReturnType<typeof createClient>,
+    email: string,
+    slackUserId: string
+): Promise<void> {
+    try {
+        await supabase
+            .from('profiles')
+            .update({ slack_user_id: slackUserId })
+            .eq('email', email)
+            .is('slack_user_id', null)
+    } catch (e) {
+        console.warn(`Failed to save Slack ID for ${email}:`, e)
+    }
+}
+
+/** Fills in slack_user_id for absentees who don't have it: lookup by email and save to profiles. */
+async function enrichAbsenteesWithSlackIds(
+    supabase: ReturnType<typeof createClient>,
+    absentees: Absentee[]
+): Promise<Absentee[]> {
+    const enriched: Absentee[] = []
+    for (const a of absentees) {
+        if (a.slack_user_id) {
+            enriched.push(a)
+            continue
+        }
+        if (!a.email) {
+            enriched.push(a)
+            continue
+        }
+        const slackId = await lookupSlackUserId(a.email)
+        if (slackId) {
+            await saveSlackUserId(supabase, a.email, slackId)
+            enriched.push({ ...a, slack_user_id: slackId })
+        } else {
+            enriched.push(a)
+        }
+    }
+    return enriched
+}
+
+// ============================================================================
 // SLACK — MENTION FORMATTING
 // <@USLACKID> is clickable in any channel even without membership.
 // Falls back to name + email for users who haven't linked Slack.
@@ -219,12 +280,12 @@ function buildMessage(event: EventRow, absentees: Absentee[], totalAttended: num
         ? `RSVPed but didn't attend (${absentees.length})`
         : `Didn't attend (${absentees.length} of ${totalAttended + absentees.length} eligible)`
 
-    const fallbackText = `📋 Absentee Report: ${event.name} — ${absentees.length} absent`
+    const fallbackText = `📋 Attendance Report: ${event.name} — ${absentees.length} absent`
 
     const blocks: object[] = [
         {
             type: 'header',
-            text: { type: 'plain_text', text: `📋 Absentee Report: ${event.name}`, emoji: true },
+            text: { type: 'plain_text', text: `📋 Attendance Report: ${event.name}`, emoji: true },
         },
         {
             type: 'section',
@@ -293,9 +354,11 @@ async function processEvent(
     adminChannelId: string
 ): Promise<ProcessedEvent> {
     try {
-        const absentees = event.rsvp_required
+        let absentees = event.rsvp_required
             ? await getRsvpAbsentees(supabase, event.id)
             : await getGeneralAbsentees(supabase, event.id, event.allowed_roles)
+
+        absentees = await enrichAbsenteesWithSlackIds(supabase, absentees)
 
         const { count: attendedCount } = await supabase
             .from('event_attendance')
@@ -308,7 +371,7 @@ async function processEvent(
 
         return { type: 'event', name: event.name, status: 'success' }
     } catch (err) {
-        console.warn(`Absentee report failed for "${event.name}": ${err.message}`)
+        console.warn(`Attendance report failed for "${event.name}": ${err.message}`)
         return { type: 'event', name: event.name, status: 'error', errors: [err.message] }
     }
 }
