@@ -177,7 +177,7 @@ async function enrichAbsenteesWithSlackIds(
 function formatMention(a: Absentee): string {
     return a.slack_user_id
         ? `<@${a.slack_user_id}>`
-        : `*${a.full_name}* (${a.email} — no Slack linked)`
+        : `*${a.full_name}* (${a.email})`
 }
 
 // ============================================================================
@@ -325,7 +325,7 @@ function buildMessage(event: EventRow, absentees: Absentee[], totalAttended: num
                 type: 'section',
                 text: {
                     type: 'mrkdwn',
-                    text: `*Emails for quick contact (copy as CSV):*\n\`\`\`\n${absenteeEmailsCsv}\n\`\`\``,
+                    text: `*Emails for quick contact:*\n\`\`\`\n${absenteeEmailsCsv}\n\`\`\``,
                 },
             });
         }
