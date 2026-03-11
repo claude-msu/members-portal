@@ -24,8 +24,7 @@ coverage/
 storybook-static/
 
 # Local env files
-.env
-.env.*.local
+*.env*
 !.env.example
 
 # Misc

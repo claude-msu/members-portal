@@ -71,7 +71,6 @@ The Members Portal is the central hub for all Claude Builder Club operations at 
    ```env
    VITE_SUPABASE_URL=http://localhost:54321
    VITE_SUPABASE_ANON_KEY=<your-local-anon-key>
-   VITE_APP_URL=http://localhost:8080
    ```
 
 5. **Start the development server**

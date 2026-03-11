@@ -25,7 +25,7 @@ import { ItemCard } from '@/components/ItemCard';
 import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X, CheckCircle, Mail } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import QRCodeLib from 'qrcode';
+import QrCodeWithLogo from 'qrcode-with-logos';
 import type { Database } from '@/integrations/supabase/database.types';
 
 type AppRole = Database['public']['Enums']['app_role'];
@@ -493,7 +493,6 @@ const Events = () => {
 
       if (existingQR?.qr_code_url) {
         if (isMobile) {
-          // On mobile, navigate to the URL instead of opening in new tab
           window.location.href = existingQR.qr_code_url;
         } else {
           window.open(existingQR.qr_code_url, '_blank');
@@ -503,16 +502,36 @@ const Events = () => {
       }
 
       const token = crypto.randomUUID();
-      // Use environment variable for base URL, fallback to current origin for development
-      const baseUrl = import.meta.env.VITE_APP_URL || window.location.origin;
+      const baseUrl = window.location.origin;
       const qrUrl = `${baseUrl}/events/checkin/${token}`;
 
-      const qrCodeDataUrl = await QRCodeLib.toDataURL(qrUrl, {
-        width: 512,
-        margin: 2,
-        color: { dark: '#000000', light: '#FFFFFF' },
+      const primaryHex = '#e07a5f';
+      const size = 512;
+      const qr = new QrCodeWithLogo({
+        content: qrUrl,
+        width: size,
+        logo: {
+          src: '/claude-logo-transparent.png',
+          borderRadius: 10,
+          borderWidth: 12,
+          bgColor: '#ffffff',
+        },
+        dotsOptions: {
+          type: 'dot',
+          color: primaryHex,
+        },
+        cornersOptions: {
+          type: 'rounded',
+          color: primaryHex,
+        },
+        nodeQrCodeOptions: {
+          margin: 4,
+          errorCorrectionLevel: 'H',
+          color: { dark: primaryHex, light: '#FFFFFF' },
+        },
       });
-
+      const canvas = await qr.getCanvas();
+      const qrCodeDataUrl = canvas.toDataURL('image/png');
       const response = await fetch(qrCodeDataUrl);
       const blob = await response.blob();
 
