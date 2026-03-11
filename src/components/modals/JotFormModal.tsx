@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog';
 import { useAuth } from '@/contexts/AuthContext';
 
-const JOTFORM_FORM_ID = '253566966596075';
+const JOTFORM_FORM_ID = import.meta.env.VITE_JOTFORM_FORM_ID;
 const JOTFORM_EMBED_BASE = 'https://form.jotform.com';
 const CAMPUS_NAME = 'Michigan State University';
 
