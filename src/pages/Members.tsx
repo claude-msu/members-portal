@@ -21,14 +21,13 @@ import {
 import { useProfile } from '@/contexts/ProfileContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { Search, Mail, Users, Home, Trophy } from 'lucide-react';
+import { Search, Mail, Users, Home, Trophy, UserX } from 'lucide-react';
 
 /** True if current time is 7:00pm–8:30pm EST on a Thursday. */
 function isWithinCoworkingWindow(): boolean {
@@ -208,18 +207,6 @@ const Members = () => {
     setSearchParams({ id: member.id });
   };
 
-  const copyEmailsCsv = () => {
-    const emails = processedMembers.map(m => m.email).filter((e): e is string => Boolean(e));
-    if (emails.length === 0) {
-      toast({ title: 'No emails', description: 'No emails to copy for the current filter.', variant: 'destructive' });
-      return;
-    }
-    const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-    void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
-      toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV` });
-    });
-  };
-
   const canManageRoles = role === 'e-board';
   const canManageActions = role === 'board' || role === 'e-board';
 
@@ -255,31 +242,63 @@ const Members = () => {
     () => new Set(familiesFull.flatMap(f => f.members.map(m => m.id))),
     [familiesFull],
   );
+  /** Members not in any family (for dedicated Orphans view) */
+  const orphansFull = useMemo(
+    () => members.filter(m => !inFamilyIds.has(m.id)),
+    [members, inFamilyIds],
+  );
   const orphanProcessedMembers = useMemo(
     () => (searchQuery.trim() ? processedMembers.filter(m => !inFamilyIds.has(m.id)) : []),
     [processedMembers, searchQuery, inFamilyIds],
   );
+  /** Orphans to display: all when not searching, else filtered by search; sorted like directory */
+  const displayOrphans = useMemo(() => {
+    const list = searchQuery.trim()
+      ? orphansFull.filter(m => processedIds.has(m.id))
+      : [...orphansFull];
+    const rolePriority = (r: string | null) => r === 'e-board' ? 1 : r === 'board' ? 2 : r === 'member' ? 3 : 4;
+    return list.sort((a, b) => {
+      const roleDiff = rolePriority(a.role) - rolePriority(b.role);
+      return roleDiff !== 0 ? roleDiff : (a.full_name || a.email || '').localeCompare(b.full_name || b.email || '');
+    });
+  }, [orphansFull, searchQuery, processedIds]);
   const displayFamilies = useMemo(() => {
     if (!searchQuery.trim()) return familiesFull;
     return familiesFull.filter(f => f.members.some(m => processedIds.has(m.id)));
   }, [familiesFull, searchQuery, processedIds]);
   const hasRelationships = relationships.length > 0;
-  const activeFamily: Family | null = displayFamilies[activeFamilyIdx] ?? displayFamilies[0] ?? null;
+  const totalViewCount = displayFamilies.length + (displayOrphans.length > 0 ? 1 : 0);
+  const isOrphansView = activeFamilyIdx === displayFamilies.length && displayOrphans.length > 0;
+  const activeFamily: Family | null = isOrphansView ? null : (displayFamilies[activeFamilyIdx] ?? displayFamilies[0] ?? null);
   const activeFamilyDirectoryMembers = useMemo(() => {
+    if (isOrphansView) return displayOrphans;
     if (!activeFamily) return [];
     if (!searchQuery.trim()) return activeFamily.members;
     return activeFamily.members.filter(m => processedIds.has(m.id));
-  }, [activeFamily, searchQuery, processedIds]);
-  const isOrphanOnlyView = activeFamily === null && orphanProcessedMembers.length > 0;
+  }, [activeFamily, searchQuery, processedIds, isOrphansView, displayOrphans]);
+  const isOrphanOnlyView = isOrphansView;
   // When searching, directory shows all matching members (same regardless of selected family)
   const directoryMembers = useMemo(() => {
     if (searchQuery.trim()) return processedMembers;
-  return activeFamilyDirectoryMembers;
+    return activeFamilyDirectoryMembers;
   }, [searchQuery, processedMembers, activeFamilyDirectoryMembers]);
   const directoryTotalPoints = useMemo(
     () => directoryMembers.reduce((sum, m) => sum + (m.points ?? 0), 0),
     [directoryMembers],
   );
+
+  const copyFamilyEmailsCsv = useCallback(() => {
+    const emails = directoryMembers.map(m => m.email).filter((e): e is string => Boolean(e));
+    if (emails.length === 0) {
+      toast({ title: 'No emails', description: 'No emails to copy for this family.', variant: 'destructive' });
+      return;
+    }
+    const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
+      toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard` });
+    });
+  }, [directoryMembers, toast]);
+
   const searchTopMemberId = useMemo(() => {
     if (!searchQuery.trim()) return null;
     const first = processedMembers[0];
@@ -294,10 +313,10 @@ const Members = () => {
     if (idx >= 0) setActiveFamilyIdx(idx);
   }, [user?.id, familiesFull]);
 
-  // Reset to first family when list changes; don't bump familyKey so we avoid double fade on initial load
+  // Reset index when view count shrinks (e.g. search filters out orphans)
   useEffect(() => {
-    setActiveFamilyIdx(i => (i >= displayFamilies.length ? 0 : i));
-  }, [displayFamilies.length]);
+    setActiveFamilyIdx(i => (i >= totalViewCount ? 0 : i));
+  }, [totalViewCount]);
 
   const scrollToMember = useCallback((memberId: string) => {
     const el = directoryRef.current?.querySelector(`[data-member-id="${memberId}"]`);
@@ -306,7 +325,7 @@ const Members = () => {
 
   const switchFamily = useCallback((nextIdx: number) => {
     if (isTransRef.current) return;
-    if (nextIdx < 0 || nextIdx >= displayFamilies.length) return;
+    if (nextIdx < 0 || nextIdx >= totalViewCount) return;
     if (nextIdx === activeIdxRef.current) return;
     setIsTransitioning(true); isTransRef.current = true;
     setActiveFamilyIdx(nextIdx);
@@ -314,7 +333,7 @@ const Members = () => {
       setIsTransitioning(false); isTransRef.current = false;
       if (directoryRef.current) directoryRef.current.scrollTop = 0;
     }, TRANSITION_MS);
-  }, [displayFamilies.length]);
+  }, [totalViewCount]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -440,7 +459,7 @@ const Members = () => {
               {members.length} club {members.length === 1 ? 'member' : 'members'}
             </p>
           </div>
-          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+          <div className="flex items-center gap-3 flex-shrink-0">
             {role !== 'prospect' && (
               withinCoworkingWindow ? (
                 <Button variant="default" onClick={() => setIsJotFormModalOpen(true)} className="gap-2">
@@ -462,11 +481,6 @@ const Members = () => {
                   </TooltipContent>
                 </Tooltip>
               )
-            )}
-            {canManageActions && (
-              <Button size="icon" onClick={copyEmailsCsv} variant="default" title="Copy filtered emails as CSV" className="shrink-0">
-                <Mail className="h-4 w-4" />
-              </Button>
             )}
             <div className="relative w-40 sm:w-52 lg:w-64 shrink-0">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -503,6 +517,7 @@ const Members = () => {
             <div className="w-full lg:w-2/3 h-[45vh] min-h-[280px] lg:h-full lg:min-h-0 flex-shrink-0">
               <FamilyTree
                 family={activeFamily}
+                orphans={displayOrphans.length > 0 ? displayOrphans : undefined}
                 families={displayFamilies}
                 activeFamilyIdx={activeFamilyIdx}
                 onSwitchFamily={switchFamily}
@@ -566,14 +581,13 @@ const Members = () => {
                           transition={{ duration: 0.15 }}
                           className="flex items-center gap-3 min-w-0 flex-1"
                         >
-                          <Avatar className="h-10 w-10 border-2 border-border shrink-0">
-                            <AvatarImage src={isOrphanOnlyView ? orphanProcessedMembers[0]?.profile_picture_url : activeFamily?.root.profile_picture_url} />
-                            <AvatarFallback className="text-sm font-semibold bg-primary/10 text-primary">
-                              {isOrphanOnlyView
-                                ? (orphanProcessedMembers[0]?.full_name ?? '?').split(' ').map(n => n[0]).join('').slice(0, 2)
-                                : (activeFamily?.root.full_name ?? '').split(' ').map(n => n[0]).join('').slice(0, 2)}
-                            </AvatarFallback>
-                          </Avatar>
+                          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full border-2 border-border text-muted-foreground ${isOrphanOnlyView ? 'bg-muted/50' : 'bg-amber-500/10 text-amber-600'}`}>
+                            {isOrphanOnlyView ? (
+                              <UserX className="h-5 w-5" aria-hidden />
+                            ) : (
+                              <Home className="h-5 w-5" aria-hidden />
+                            )}
+                          </span>
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <span className="text-sm font-semibold text-foreground truncate">
@@ -613,17 +627,28 @@ const Members = () => {
                     </AnimatePresence>
                   </div>
 
-                  {/* Right: manage links button (board+ only) */}
+                  {/* Right: copy family emails + manage links (board+ only) */}
                   {canManageActions && (
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      className="h-8 w-8 shrink-0 text-muted-foreground"
-                      onClick={() => setIsManageFamilyOpen(true)}
-                      title="Manage big/little links"
-                    >
-                      <Users className="h-4 w-4" />
-                    </Button>
+                    <>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 shrink-0 text-muted-foreground"
+                        onClick={copyFamilyEmailsCsv}
+                        title="Copy family emails"
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-8 w-8 shrink-0 text-muted-foreground"
+                        onClick={() => setIsManageFamilyOpen(true)}
+                        title="Manage big/little links"
+                      >
+                        <Users className="h-4 w-4" />
+                      </Button>
+                    </>
                   )}
                 </div>
               </div>

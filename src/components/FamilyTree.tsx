@@ -11,7 +11,7 @@ import { Canvas, useThree, useFrame } from '@react-three/fiber';
 import { Html, Line } from '@react-three/drei';
 import * as THREE from 'three';
 import { GitBranch, ZoomIn, ZoomOut } from 'lucide-react';
-import type { Family, FamilyNode } from '@/types/modal.types';
+import type { Family, FamilyNode, MemberWithRole } from '@/types/modal.types';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // CSS (injected once)
@@ -346,11 +346,87 @@ function FamilyScene({
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Orphans scene: disconnected nodes in a circle (no edges)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const ORPHAN_RADIUS = 12;
+const ORPHAN_PADDING_SCALE = 1.4;
+
+function OrphanScene({
+    orphans,
+    currentUserId,
+    hoveredId,
+    searchTopMemberId,
+    onHover,
+    onNodeClick,
+    onNodePointerDown,
+}: {
+    orphans: MemberWithRole[];
+    currentUserId: string;
+    hoveredId: string | null;
+    searchTopMemberId: string | null;
+    onHover: (id: string | null) => void;
+    onNodeClick: (memberId: string) => void;
+    onNodePointerDown?: () => void;
+}) {
+    const positions = useMemo(() => {
+        const m = new Map<string, NodePosition>();
+        const n = orphans.length;
+        orphans.forEach((member, i) => {
+            const angle = n > 0 ? (2 * Math.PI * i) / n - Math.PI / 2 : 0;
+            m.set(member.id, {
+                x: ORPHAN_RADIUS * Math.cos(angle),
+                y: ORPHAN_RADIUS * Math.sin(angle),
+            });
+        });
+        return m;
+    }, [orphans]);
+
+    const syntheticNodes: FamilyNode[] = useMemo(
+        () =>
+            orphans.map((member) => ({
+                member,
+                big_id: null,
+                depth: 0,
+                littles: [],
+            })) as FamilyNode[],
+        [orphans],
+    );
+
+    return (
+        <>
+            <AutoCamera positions={positions} paddingScale={ORPHAN_PADDING_SCALE} />
+            <ambientLight intensity={0.5} />
+            <pointLight position={[0, 0, 10]} intensity={0.6} color="#ffffff" />
+            {syntheticNodes.map((node) => {
+                const pos = positions.get(node.member.id);
+                return pos ? (
+                    <TreeNodeCard
+                        key={node.member.id}
+                        node={node}
+                        position={pos}
+                        isCurrentUser={node.member.id === currentUserId}
+                        isHovered={hoveredId === node.member.id}
+                        isSearchTop={searchTopMemberId === node.member.id}
+                        onEnter={() => onHover(node.member.id)}
+                        onLeave={() => onHover(null)}
+                        onNodeClick={() => onNodeClick(node.member.id)}
+                        onNodePointerDown={onNodePointerDown}
+                    />
+                ) : null;
+            })}
+        </>
+    );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Canvas component — exported
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface FamilyTreeProps {
     family: Family | null;
+    /** When set, an extra "Orphans" view is available at index families.length */
+    orphans?: MemberWithRole[];
     families: Family[];
     activeFamilyIdx: number;
     onSwitchFamily: (idx: number) => void;
@@ -370,6 +446,7 @@ const DRAG_THRESHOLD = 4;
 
 export function FamilyTree({
     family,
+    orphans = undefined,
     families,
     activeFamilyIdx,
     onSwitchFamily,
@@ -457,20 +534,33 @@ export function FamilyTree({
             onPointerLeave={onPointerUp}
             style={{ touchAction: 'none' }}
         >
-            {/* Canvas */}
-            {family && (
+            {/* Canvas: family tree or orphans (disconnected) */}
+            {(family || (orphans && orphans.length > 0)) && (
                 <Canvas camera={{ fov: 50, near: 0.1, far: 1000 }} style={{ background: 'transparent' }}>
                     <FamilyTreeControlsContext.Provider value={controlsContextValue}>
-                        <FamilyScene
-                            key={activeFamilyIdx}
-                            family={family}
-                            currentUserId={currentUserId}
-                            hoveredId={hoveredId}
-                            searchTopMemberId={searchTopMemberId}
-                            onHover={onHover}
-                            onNodeClick={handleNodeClick}
-                            onNodePointerDown={handleNodePointerDown}
-                        />
+                        {family ? (
+                            <FamilyScene
+                                key={activeFamilyIdx}
+                                family={family}
+                                currentUserId={currentUserId}
+                                hoveredId={hoveredId}
+                                searchTopMemberId={searchTopMemberId}
+                                onHover={onHover}
+                                onNodeClick={handleNodeClick}
+                                onNodePointerDown={handleNodePointerDown}
+                            />
+                        ) : orphans && orphans.length > 0 ? (
+                            <OrphanScene
+                                key="orphans"
+                                orphans={orphans}
+                                currentUserId={currentUserId}
+                                hoveredId={hoveredId}
+                                searchTopMemberId={searchTopMemberId}
+                                onHover={onHover}
+                                onNodeClick={handleNodeClick}
+                                onNodePointerDown={handleNodePointerDown}
+                            />
+                        ) : null}
                     </FamilyTreeControlsContext.Provider>
                 </Canvas>
             )}
@@ -492,8 +582,8 @@ export function FamilyTree({
 
             {/* Overlay: nav dots + zoom rocker */}
             <div className="absolute inset-0 z-10 pointer-events-none">
-                {/* Nav dots */}
-                {hasRelationships && families.length > 1 && (
+                {/* Nav dots: families + optional Orphans */}
+                {(hasRelationships && families.length > 0) || (orphans && orphans.length > 0) ? (
                     <div data-no-pan className="absolute right-3 top-1/2 -translate-y-1/2 flex flex-col gap-2.5 pointer-events-auto">
                         {families.map((f, i) => (
                             <button
@@ -508,8 +598,20 @@ export function FamilyTree({
                                 </span>
                             </button>
                         ))}
+                        {orphans && orphans.length > 0 && (
+                            <button
+                                onClick={() => onSwitchFamily(families.length)}
+                                title="Orphans (not in a family)"
+                                className="group relative flex items-center justify-end"
+                            >
+                                <div className={`rounded-full transition-all duration-300 ${activeFamilyIdx === families.length ? 'w-2.5 h-2.5 bg-primary shadow-sm' : 'w-2 h-2 bg-muted-foreground/40 hover:bg-muted-foreground/60'}`} />
+                                <span className="absolute right-full mr-2 px-2 py-1 rounded-md text-xs bg-popover text-popover-foreground border border-border shadow-md whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+                                    Orphans
+                                </span>
+                            </button>
+                        )}
                     </div>
-                )}
+                ) : null}
 
                 {/* Zoom rocker */}
                 <div data-no-pan className="absolute top-3 right-3 flex flex-col rounded-lg border border-border bg-card/95 shadow-sm overflow-hidden pointer-events-auto">
@@ -534,7 +636,7 @@ export function FamilyTree({
             </div>
 
             {/* Keyboard hint */}
-            {hasRelationships && families.length > 1 && (
+            {((hasRelationships && families.length > 0) || (orphans && orphans.length > 0)) && (families.length + (orphans?.length ? 1 : 0) > 1) && (
                 <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-75 pointer-events-none text-muted-foreground text-xs">
                     <kbd className="px-2 py-1 rounded border border-border bg-muted/50 font-mono text-base leading-none">↑</kbd>
                     <kbd className="px-2 py-1 rounded border border-border bg-muted/50 font-mono text-base leading-none">↓</kbd>

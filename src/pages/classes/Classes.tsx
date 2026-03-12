@@ -528,7 +528,7 @@ const Classes = () => {
         }
         const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
-          toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV` });
+          toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard` });
         });
       };
       actions.push({

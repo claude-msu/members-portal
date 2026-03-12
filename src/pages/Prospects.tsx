@@ -238,7 +238,7 @@ const Prospects = () => {
     void navigator.clipboard.writeText(csv).then(() => {
       toast({
         title: 'Copied',
-        description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV`,
+        description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard`,
       });
     });
   };
