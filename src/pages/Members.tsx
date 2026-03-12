@@ -463,7 +463,14 @@ const Members = () => {
             {role !== 'prospect' && (
               withinCoworkingWindow ? (
                 <Button variant="default" onClick={() => setIsJotFormModalOpen(true)} className="gap-2">
-                  <img src="/claude-logo-transparent.png" alt="" className="h-4 w-4 object-contain shrink-0 [filter:brightness(0)_invert(1)]" aria-hidden />
+                  <span
+                    className="h-4 w-4 shrink-0 inline-block bg-current [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+                    style={{
+                      maskImage: 'url(/claude-logo-transparent.png)',
+                      WebkitMaskImage: 'url(/claude-logo-transparent.png)',
+                    }}
+                    aria-hidden
+                  />
                   Claude Pro
                 </Button>
               ) : (
@@ -471,7 +478,14 @@ const Members = () => {
                   <TooltipTrigger asChild>
                     <span>
                       <Button variant="default" disabled className="gap-2">
-                        <img src="/claude-logo-transparent.png" alt="" className="h-4 w-4 object-contain shrink-0 [filter:brightness(0)_invert(1)]" aria-hidden />
+                        <span
+                          className="h-4 w-4 shrink-0 inline-block bg-current [mask-size:contain] [mask-repeat:no-repeat] [mask-position:center] [-webkit-mask-size:contain] [-webkit-mask-repeat:no-repeat] [-webkit-mask-position:center]"
+                          style={{
+                            maskImage: 'url(/claude-logo-transparent.png)',
+                            WebkitMaskImage: 'url(/claude-logo-transparent.png)',
+                          }}
+                          aria-hidden
+                        />
                         Claude Pro
                       </Button>
                     </span>
