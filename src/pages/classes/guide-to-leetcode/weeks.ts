@@ -551,7 +551,7 @@ Explanation: In this case, no transactions are done and the max profit = 0.
 
 
 /** Current week. Update every Sunday: set to the week that just went live. */
-export const CURRENT: WeekConfig = WEEK1;
+export const CURRENT: WeekConfig = WEEK2;
 
 /** Next drop's week. Shown in upper half of countdown and when timer resets. Null = fallback to CURRENT. */
-export const QUEUED: WeekConfig | null = WEEK2;
+export const QUEUED: WeekConfig | null = null;
