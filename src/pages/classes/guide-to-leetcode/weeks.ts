@@ -59,6 +59,7 @@ export interface WeekConfig {
     questions: Question[];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const WEEK1: WeekConfig = {
     number: 1,
     theme: 'Sliding Window',
