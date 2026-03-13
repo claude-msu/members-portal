@@ -129,7 +129,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
       <Collapsible open={!collapsed} onOpenChange={onToggle}>
         <div className="space-y-4">
           <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-start p-0 h-auto border-0 hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit">
+            <button className="w-full justify-start p-0 h-auto border-0 hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit">
               <div className="flex items-center gap-2 w-full">
                 {collapsed ? (
                   <ChevronRight className="h-4 w-4" />
@@ -142,7 +142,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
                 </div>
                 <Badge>{applications.length}</Badge>
               </div>
-            </Button>
+            </button>
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className={`grid gap-4 ${isMobile ? "ml-0" : "ml-6"}`}>
@@ -203,7 +203,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
             <Collapsible open={!myApplicationsCollapsed} onOpenChange={setMyApplicationsCollapsed}>
               <div className="space-y-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start p-0 h-auto hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit border-0">
+                  <button className="w-full justify-start p-0 h-auto hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit border-0">
                     <div className="flex items-center gap-2 w-full">
                       {myApplicationsCollapsed ? (
                         <Folder className="h-5 w-5" />
@@ -216,7 +216,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
                       </div>
                       <Badge>{myApplicationsTotal}</Badge>
                     </div>
-                  </Button>
+                  </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4">
                   {/* My Pending Applications */}
@@ -246,7 +246,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
             <Collapsible open={!reviewApplicationsCollapsed} onOpenChange={setReviewApplicationsCollapsed}>
               <div className="space-y-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" className="w-full justify-start p-0 h-auto hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit border-0">
+                  <button className="w-full justify-start p-0 h-auto hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit border-0">
                     <div className="flex items-center gap-2 w-full">
                       {reviewApplicationsCollapsed ? (
                         <Folder className="h-5 w-5" />
@@ -259,7 +259,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
                       </div>
                       <Badge>{reviewApplicationsTotal}</Badge>
                     </div>
-                  </Button>
+                  </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4">
                   {/* Review Pending Applications */}

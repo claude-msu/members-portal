@@ -177,6 +177,21 @@ const Prospects = () => {
     }
   };
 
+  const handleKickProspect = async (prospectId: string, prospectName: string) => {
+    try {
+      const { error } = await supabase.rpc('delete_profile', { target_user_id: prospectId });
+      if (error) throw error;
+      toast({ title: 'Prospect Kicked', description: `${prospectName} has been removed from the club` });
+      fetchProspects();
+    } catch (error) {
+      toast({
+        title: 'Error',
+        description: error instanceof Error ? error.message : 'Failed to kick prospect',
+        variant: 'destructive',
+      });
+    }
+  };
+
   const handleBanProspect = async (prospectId: string, prospectName: string) => {
     try {
       const { data, error } = await supabase.rpc('ban_user_by_id', {
@@ -198,13 +213,6 @@ const Prospects = () => {
         variant: 'destructive',
       });
       fetchProspects();
-
-      // Invalidate ProfileContext queries since banning affects what data users can see
-      queryClient.invalidateQueries({ queryKey: ['user-role'] });
-      queryClient.invalidateQueries({ queryKey: ['user-events'] });
-      queryClient.invalidateQueries({ queryKey: ['user-projects'] });
-      queryClient.invalidateQueries({ queryKey: ['user-classes'] });
-      queryClient.invalidateQueries({ queryKey: ['user-applications'] });
     } catch (error) {
       toast({
         title: 'Error',
@@ -326,29 +334,29 @@ const Prospects = () => {
              */
             const delay = initialDelay + stagger;
             return (
-            <motion.div
-              key={prospect.id}
-              className="min-w-0 max-w-[500px] w-full"
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.28,
-                delay,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              <PersonCard
-                person={prospect}
-                onViewProfile={handleViewProfile}
-                onGraduate={handleGraduate}
-                onBan={handleBanProspect}
-                canManage={canManageProspects}
-                isMobile={isMobile}
-                currentUserId={user?.id}
-                currentUserRole={userRole}
-                type="prospect"
-              />
-            </motion.div>
+              <motion.div
+                key={prospect.id}
+                className="min-w-0 max-w-[500px] w-full"
+                initial={{ opacity: 0, y: 100 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{
+                  duration: 0.28,
+                  delay,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <PersonCard
+                  person={prospect}
+                  onViewProfile={handleViewProfile}
+                  onGraduate={handleGraduate}
+                  onKick={handleKickProspect}
+                  canManage={canManageProspects}
+                  isMobile={isMobile}
+                  currentUserId={user?.id}
+                  currentUserRole={userRole}
+                  type="prospect"
+                />
+              </motion.div>
             );
           })}
         </div>

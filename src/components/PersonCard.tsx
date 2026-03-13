@@ -187,7 +187,7 @@ export const PersonCard = ({
                                     </>
                                 )}
 
-                                {/* Prospect Graduate */}
+                                {/* Graduate (Prospects only) */}
                                 {type === 'prospect' && onGraduate && (
                                     <DropdownMenuItem
                                         onClick={() => onGraduate(person.id, person.full_name || person.email)}
@@ -199,15 +199,15 @@ export const PersonCard = ({
                                     </DropdownMenuItem>
                                 )}
 
-                                {/* Kick (Members only) */}
-                                {type === 'member' && onKick && (
+                                {/* Kick */}
+                                {onKick && (
                                     <DropdownMenuItem
                                         onClick={() => onKick(person.id, person.full_name || person.email)}
                                         variant="red"
-                                        className="border-0 rounded-t-md rounded-b-none hover:rounded-md transition-all duration-200"
+                                        className={`border-0 ${type === 'member' ? 'rounded-b-none rounded-t-md' : 'rounded-b-md rounded-t-none'} hover:rounded-md transition-all duration-200`}
                                     >
                                         <UserMinus className="h-4 w-4" />
-                                        Kick Member
+                                        {type === 'member' ? 'Kick Member' : 'Kick Prospect'}
                                     </DropdownMenuItem>
                                 )}
 
@@ -216,7 +216,7 @@ export const PersonCard = ({
                                     <DropdownMenuItem
                                         onClick={() => onBan(person.id, person.full_name || person.email)}
                                         variant="red"
-                                        className={`border-0 ${type === 'member' ? 'rounded-b-md rounded-t-none' : 'rounded-b-md bg-destructive/20 rounded-t-none'} hover:rounded-md transition-all duration-200`}
+                                        className="border-0 rounded-t-none rounded-b-md hover:rounded-md transition-all duration-200"
                                     >
                                         <Ban className="h-4 w-4" />
                                         {type === 'member' ? 'Ban Member' : 'Ban Prospect'}

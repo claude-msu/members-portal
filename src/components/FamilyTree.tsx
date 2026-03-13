@@ -19,8 +19,8 @@ import type { Family, FamilyNode, MemberWithRole } from '@/types/modal.types';
 
 const STYLES = `
     @keyframes ft-aqua-pulse {
-      0%, 100% { box-shadow: 0 4px 16px hsl(var(--primary) / 0.35); }
-      50%      { box-shadow: 0 8px 24px hsl(var(--primary) / 0.5); }
+      0%, 100% { box-shadow: 0 0 16px hsl(var(--primary) / 0.5); }
+      50%      { box-shadow: 0 0 24px hsl(var(--primary) / 0.85); }
     }
     .ft-aqua-pulse {
       animation: ft-aqua-pulse 2s ease-in-out infinite;
@@ -170,7 +170,7 @@ function TreeNodeCard({
 
     const borderClass =
         isCurrentUser
-            ? 'ft-aqua-pulse border-[1.5px] border-primary shadow shadow-primary/20'
+            ? 'ft-aqua-pulse border-[1.5px] border-primary'
             : isEBoard
                 ? 'border-[1.5px] border-amber-500 shadow shadow-amber-500/15'
                 : isBoard

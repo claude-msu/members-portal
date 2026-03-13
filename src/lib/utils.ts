@@ -9,13 +9,13 @@ export function cn(...inputs: ClassValue[]) {
 // Centralized interface attributes for consistent styling across components
 export const interfaceAttributes = {
   variants: {
-    default: "bg-primary border-2 border-primary text-primary-foreground hover:bg-cream hover:text-primary",
+    default: "bg-primary border-2 border-primary text-primary-foreground hover:bg-white dark:hover:bg-black hover:text-primary",
     secondary: "border-2 border-primary hover:bg-primary text-primary hover:text-white",
 
     green: "bg-green-600 border-2 border-green-600 text-white hover:bg-cream hover:text-green-600",
-    red: "bg-background border-2 border-destructive text-destructive hover:bg-destructive hover:text-cream",
+    red: "bg-red-800/10 border-2 border-destructive text-destructive hover:bg-destructive hover:text-cream",
 
-    outline: "border-2 border-black hover:bg-black hover:text-cream",
+    outline: "border-2 border-black hover:bg-black hover:text-cream dark:border-gray-400 dark:hover:bg-gray-400 dark:hover:text-black",
     ghost: "hover:bg-primary hover:text-cream",
     link: "text-primary underline-offset-4 hover:underline",
   },
