@@ -192,6 +192,7 @@ const Prospects = () => {
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleBanProspect = async (prospectId: string, prospectName: string) => {
     try {
       const { data, error } = await supabase.rpc('ban_user_by_id', {
