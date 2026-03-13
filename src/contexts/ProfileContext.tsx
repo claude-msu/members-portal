@@ -18,6 +18,8 @@ export type Class = Database['public']['Tables']['classes']['Row'] & {
 };
 
 type Application = Database['public']['Tables']['applications']['Row'];
+/** Application with joined profile for display (e.g. applicant name in list). */
+export type ApplicationWithProfile = Application & { profiles: { full_name: string } | null };
 type Event = Database['public']['Tables']['events']['Row'];
 
 interface UserProjects {
@@ -36,12 +38,12 @@ interface UserClasses {
 
 interface UserApplications {
     self: {
-        pending: Application[];
-        decided: Application[];
+        pending: ApplicationWithProfile[];
+        decided: ApplicationWithProfile[];
     };
     review: {
-        pending: Application[];
-        decided: Application[];
+        pending: ApplicationWithProfile[];
+        decided: ApplicationWithProfile[];
     };
 }
 
@@ -290,50 +292,46 @@ async function fetchUserClasses(userId: string): Promise<UserClasses> {
 }
 
 async function fetchUserApplications(userId: string, role: AppRole): Promise<UserApplications> {
-    // Fetch user's own applications
+    const applicationsSelect = '*, profiles!applications_user_id_fkey(full_name)';
+
+    // Fetch user's own applications (with profile for display name)
     const { data: ownApplications, error: ownError } = await supabase
         .from('applications')
-        .select('*')
+        .select(applicationsSelect)
         .eq('user_id', userId)
         .order('created_at', { ascending: false });
 
     if (ownError) throw ownError;
 
-    // Categorize user's own applications
     const self = {
-        pending: ownApplications?.filter(a => a.status === 'pending') || [],
-        decided: ownApplications?.filter(a => ['accepted', 'rejected'].includes(a.status)) || [],
+        pending: (ownApplications as ApplicationWithProfile[])?.filter(a => a.status === 'pending') || [],
+        decided: (ownApplications as ApplicationWithProfile[])?.filter(a => ['accepted', 'rejected'].includes(a.status)) || [],
     };
 
-    // Initialize review categories
     const review = {
-        pending: [] as Application[],
-        decided: [] as Application[],
+        pending: [] as ApplicationWithProfile[],
+        decided: [] as ApplicationWithProfile[],
     };
 
-    // Fetch applications the user can review based on their role
     if (role === 'e-board' || role === 'board') {
-        // Build query for applications user can review
         let reviewQuery = supabase
             .from('applications')
-            .select('*')
-            .neq('user_id', userId) // Exclude own applications
-            .order('user_id', { ascending: false }); // Group by users
+            .select(applicationsSelect)
+            .neq('user_id', userId)
+            .order('user_id', { ascending: false });
 
-        // Board members can only review project and class applications
         if (role === 'board') {
             reviewQuery = reviewQuery.in('application_type', ['project', 'class']);
         }
-        // e-board can review all applications
 
         const { data: reviewableApplications, error: reviewError } = await reviewQuery;
 
         if (reviewError) throw reviewError;
 
         if (reviewableApplications) {
-            // Categorize reviewable applications
-            review.pending = reviewableApplications.filter(a => a.status === 'pending');
-            review.decided = reviewableApplications.filter(a => ['accepted', 'rejected'].includes(a.status));
+            const typed = reviewableApplications as ApplicationWithProfile[];
+            review.pending = typed.filter(a => a.status === 'pending');
+            review.decided = typed.filter(a => ['accepted', 'rejected'].includes(a.status));
         }
     }
 

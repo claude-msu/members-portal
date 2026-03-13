@@ -78,8 +78,6 @@ export const ApplicationCreateModal = ({
 
   // Form fields
   const [applicationType, setApplicationType] = useState<ApplicationType | ''>('');
-  const [fullName, setFullName] = useState('');
-  const [classYear, setClassYear] = useState('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
   const [whyPosition, setWhyPosition] = useState('');
@@ -94,14 +92,6 @@ export const ApplicationCreateModal = ({
   const [selectedBoardPosition, setSelectedBoardPosition] = useState('');
   const [selectedClassRole, setSelectedClassRole] = useState<'student' | 'teacher'>('student');
   const [selectedProjectRole, setSelectedProjectRole] = useState<'member' | 'lead'>('member');
-
-  // Initialize form
-  useEffect(() => {
-    if (profile && open) {
-      setFullName(profile.full_name || '');
-      setClassYear(profile.class_year || '');
-    }
-  }, [profile, open]);
 
   const fetchExistingApplications = useCallback(async () => {
     if (!user) return [];
@@ -259,8 +249,6 @@ export const ApplicationCreateModal = ({
 
   const resetForm = useCallback(() => {
     setApplicationType('');
-    setFullName(profile?.full_name || '');
-    setClassYear(profile?.class_year || '');
     setResumeFile(null);
     setTranscriptFile(null);
     setWhyPosition('');
@@ -275,7 +263,7 @@ export const ApplicationCreateModal = ({
     setSelectedBoardPosition('');
     setSelectedClassRole('student');
     setSelectedProjectRole('member');
-  }, [profile]);
+  }, []);
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -285,24 +273,6 @@ export const ApplicationCreateModal = ({
       toast({
         title: 'Required Field Missing',
         description: 'Please select an application type',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!fullName.trim()) {
-      toast({
-        title: 'Required Field Missing',
-        description: 'Please enter your full name',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    if (!classYear) {
-      toast({
-        title: 'Required Field Missing',
-        description: 'Please select your class year',
         variant: 'destructive',
       });
       return;
@@ -471,8 +441,6 @@ export const ApplicationCreateModal = ({
       const baseData: Partial<Application> = {
         user_id: user.id,
         application_type: applicationType,
-        full_name: fullName,
-        class_year: classYear,
         resume_url: resumeUrl,
         transcript_url: transcriptUrl,
         status: 'pending',
@@ -529,32 +497,6 @@ export const ApplicationCreateModal = ({
 
     return (
       <>
-        {/* Common Fields */}
-        <div className="space-y-2">
-          <Label htmlFor="fullName" required>Full Name</Label>
-          <Input
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="classYear" required>Class Year</Label>
-          <Select value={classYear} onValueChange={setClassYear}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select year" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="freshman">Freshman</SelectItem>
-              <SelectItem value="sophomore">Sophomore</SelectItem>
-              <SelectItem value="junior">Junior</SelectItem>
-              <SelectItem value="senior">Senior</SelectItem>
-              <SelectItem value="graduate">Graduate</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Type-specific Fields */}
         {applicationType === 'board' && (
           <>

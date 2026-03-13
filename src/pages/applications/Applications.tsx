@@ -9,9 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight, Folder, FolderOpen, User, Shield } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ApplicationCreateModal } from '@/components/modals/ApplicationCreateModal';
-import type { Database } from '@/integrations/supabase/database.types';
-
-type Application = Database['public']['Tables']['applications']['Row'];
+import type { ApplicationWithProfile } from '@/contexts/ProfileContext';
 
 const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCreateModal?: boolean }) => {
   const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
@@ -73,20 +71,20 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     }
   };
 
-  const getApplicationTarget = (application: Application) => {
+  const getApplicationTarget = (application: ApplicationWithProfile) => {
     if (application.application_type === 'board' && application.board_position) {
       return application.board_position;
     }
     return formatApplicationType(application.application_type);
   };
 
-  const renderApplicationCard = (app: Application) => (
+  const renderApplicationCard = (app: ApplicationWithProfile) => (
     <Card key={app.id} className="hover:shadow-md transition-shadow p-6">
       <div className={`flex h-full justify-between items-center ${isMobile ? 'gap-3' : ''}`}>
         <div className={`flex flex-col justify-between ${isMobile ? 'h-full' : 'gap-2'}`}>
           <div className="flex items-center gap-2">
             {getApplicationIcon(app.application_type)}
-            <CardTitle className={isMobile ? 'text-lg' : ''}>{app.full_name}</CardTitle>
+            <CardTitle className={isMobile ? 'text-lg' : ''}>{app.profiles?.full_name ?? 'Applicant'}</CardTitle>
           </div>
           <CardDescription className={`flex items-center ${isMobile ? 'flex-col items-start mt-1 gap-1' : 'mt-1 gap-2'}`}>
             <span>{getApplicationTarget(app)}</span>
@@ -124,7 +122,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     </Card>
   );
 
-  const renderApplicationSection = (title: string, applications: Application[], collapsed: boolean, onToggle: () => void, icon: React.ReactNode) => {
+  const renderApplicationSection = (title: string, applications: ApplicationWithProfile[], collapsed: boolean, onToggle: () => void, icon: React.ReactNode) => {
     if (applications.length === 0) return null;
 
     return (

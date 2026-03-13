@@ -45,9 +45,7 @@ export type Database = {
           board_position: string | null
           class_id: string | null
           class_role: Database["public"]["Enums"]["class_member_type"] | null
-          class_year: string
           created_at: string
-          full_name: string
           id: string
           other_commitments: string | null
           problem_solved: string | null
@@ -73,9 +71,7 @@ export type Database = {
           board_position?: string | null
           class_id?: string | null
           class_role?: Database["public"]["Enums"]["class_member_type"] | null
-          class_year: string
           created_at?: string
-          full_name: string
           id?: string
           other_commitments?: string | null
           problem_solved?: string | null
@@ -101,9 +97,7 @@ export type Database = {
           board_position?: string | null
           class_id?: string | null
           class_role?: Database["public"]["Enums"]["class_member_type"] | null
-          class_year?: string
           created_at?: string
-          full_name?: string
           id?: string
           other_commitments?: string | null
           problem_solved?: string | null

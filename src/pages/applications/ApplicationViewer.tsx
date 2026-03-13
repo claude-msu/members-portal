@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +14,6 @@ import {
     XCircle,
     ExternalLink,
     Calendar,
-    GraduationCap,
     FileText,
     Info,
     Briefcase,
@@ -256,7 +254,7 @@ const ApplicationViewerPage = () => {
     const getAcceptanceMessage = () => {
         if (!application) return '';
 
-        const name = application.full_name;
+        const name = applicantProfile?.full_name ?? 'Applicant';
         switch (application.application_type) {
             case 'board':
                 return `Added ${name} to ${application.board_position || 'Board'}!`;
@@ -542,7 +540,7 @@ const ApplicationViewerPage = () => {
                                 transition={{ delay: 0.6 }}
                                 className="text-xl"
                             >
-                                {application.full_name}'s application has been declined
+                                {applicantProfile?.full_name ?? 'Applicant'}'s application has been declined
                             </motion.p>
                         </motion.div>
 
@@ -573,7 +571,7 @@ const ApplicationViewerPage = () => {
 
                         <div>
                             <div className={`flex items-center gap-6 flex-wrap${isMobile ? ' justify-between' : ''}`}>
-                                <h1 className="text-4xl font-bold">{application.full_name}</h1>
+                                <h1 className="text-4xl font-bold">{applicantProfile?.full_name ?? 'Applicant'}</h1>
                                 {getStatusBadge(application.status)}
                             </div>
                         </div>
@@ -591,7 +589,7 @@ const ApplicationViewerPage = () => {
                             {/* Deletion Warning */}
                             {deletionInfo && application.status !== 'pending' && (
                                 <Alert className="bg-muted/50 border-muted-foreground/20">
-                                    <AlertDescription className="text-sm flex gap-3 text-muted-foreground flex items-center min-h-7">
+                                    <AlertDescription className="text-sm flex items-center gap-3 text-muted-foreground min-h-7">
                                         <Info className={isMobile ? "h-10 w-10" : "h-4 w-4"} />
                                         <div className="flex items-center gap-2">
                                             {deletionInfo}
@@ -600,17 +598,46 @@ const ApplicationViewerPage = () => {
                                 </Alert>
                             )}
 
-                            {/* Basic Information */}
+                            {/* Application Information */}
                             <div className="bg-card border rounded-lg p-6 shadow-sm">
-                                <h2 className="text-xl font-semibold mb-4">Basic Information</h2>
-                                <div className="grid grid-cols-2 gap-6">
-                                    <div className="space-y-1">
-                                        <p className="text-sm text-muted-foreground">Class Year</p>
-                                        <div className="flex items-center gap-2">
-                                            <GraduationCap className="h-5 w-5 text-muted-foreground" />
-                                            <p className="font-medium capitalize text-lg">{application.class_year}</p>
+                                <h2 className="text-xl font-semibold mb-4">Application Information</h2>
+                                {/* Project/Class/Position name - full row */}
+                                {((application.application_type === 'board' && application.board_position) ||
+                                    (application.application_type === 'class' && classData) ||
+                                    (application.application_type === 'project' && projectData)) && (
+                                        <div className="space-y-1 mb-4">
+                                            <p className="text-sm font-medium text-muted-foreground">
+                                                {application.application_type === 'board' && 'Position'}
+                                                {application.application_type === 'class' && 'Class'}
+                                                {application.application_type === 'project' && 'Project'}
+                                            </p>
+                                            <div className="flex items-center gap-2">
+                                                {application.application_type === 'board' && <Briefcase className="h-5 w-5" />}
+                                                {application.application_type === 'class' && <BookOpen className="h-5 w-5" />}
+                                                {application.application_type === 'project' && <Briefcase className="h-5 w-5" />}
+                                                <p className="text-lg font-semibold">
+                                                    {application.application_type === 'board' && application.board_position}
+                                                    {application.application_type === 'class' && classData?.name}
+                                                    {application.application_type === 'project' && projectData?.name}
+                                                </p>
+                                            </div>
                                         </div>
-                                    </div>
+                                    )}
+                                {/* Role (member/student/lead/teacher) and submission date */}
+                                <div className="grid grid-cols-2 gap-6">
+                                    {(application.application_type === 'class' && application.class_role) ||
+                                    (application.application_type === 'project' && application.project_role) ? (
+                                        <div className="space-y-1">
+                                            <p className="text-sm text-muted-foreground">Role</p>
+                                            <div className="flex items-center gap-2">
+                                                <BookUser className="h-5 w-5 text-muted-foreground" />
+                                                <p className="font-medium capitalize text-lg">
+                                                    {application.application_type === 'class' && application.class_role?.replace('_', ' ')}
+                                                    {application.application_type === 'project' && application.project_role?.replace('_', ' ')}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    ) : null}
                                     <div className="space-y-1">
                                         <p className="text-sm text-muted-foreground">Submitted</p>
                                         <div className="flex items-center gap-2">
@@ -619,53 +646,6 @@ const ApplicationViewerPage = () => {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* Application Target */}
-                                {((application.application_type === 'board' && application.board_position) ||
-                                    (application.application_type === 'class' && classData) ||
-                                    (application.application_type === 'project' && projectData)) && (
-                                        <>
-                                            <Separator className="my-4" />
-                                            <p className="text-sm font-medium mb-3 text-muted-foreground">
-                                                {application.application_type === 'board' && 'Position Applied For'}
-                                                {application.application_type === 'class' && 'Class Applied For'}
-                                                {application.application_type === 'project' && 'Project Applied For'}
-                                            </p>
-                                            <div
-                                                className={`grid ${isMobile ? 'grid-rows-2 justify-items-start gap-3' : 'grid-cols-2 gap-6'
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    {application.application_type === 'board' && <Briefcase className="h-5 w-5" />}
-                                                    {application.application_type === 'class' && <BookOpen className="h-5 w-5" />}
-                                                    {application.application_type === 'project' && <Briefcase className="h-5 w-5" />}
-                                                    <p className="text-lg font-semibold">
-                                                        {application.application_type === 'board' && application.board_position}
-                                                        {application.application_type === 'class' && classData?.name}
-                                                        {application.application_type === 'project' && projectData?.name}
-                                                    </p>
-                                                </div>
-                                                <div className="flex items-center gap-2">
-                                                    {application.application_type === 'class' && application.class_role && (
-                                                        <>
-                                                            <BookUser className="h-5 w-5 text-muted-foreground" />
-                                                            <span className="text-lg font-semibold capitalize">
-                                                                {application.class_role.replace('_', ' ')}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                    {application.application_type === 'project' && application.project_role && (
-                                                        <>
-                                                            <BookUser className="h-5 w-5 text-muted-foreground" />
-                                                            <span className="text-lg font-semibold capitalize">
-                                                                {application.project_role.replace('_', ' ')}
-                                                            </span>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </>
-                                    )}
                             </div>
 
                             {/* Application Responses */}

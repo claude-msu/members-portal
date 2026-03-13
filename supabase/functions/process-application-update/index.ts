@@ -251,7 +251,7 @@ serve(async (req) => {
         }
 
         const userEmail = profile.email
-        const userName = profile.full_name || application.full_name
+        const userName = profile.full_name ?? ''
         const hasSlackAccount = !!profile.slack_user_id
 
         // Save original values for rollback
