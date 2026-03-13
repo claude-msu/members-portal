@@ -56,7 +56,7 @@ export const createButtonVariants = (baseClasses: string = "") => {
 export const createBadgeVariants = (baseClasses: string = "") => {
   return cva(
     cn(
-      "inline-flex items-center rounded-full border-2 dark:border-[#46474a] px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+      "inline-flex items-center rounded-full border-2 px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
       baseClasses
     ),
     {
@@ -69,10 +69,10 @@ export const createBadgeVariants = (baseClasses: string = "") => {
           default: "bg-secondary text-secondary-foreground",
           secondary: "bg-secondary text-primary",
 
-          green: "bg-green-600/5 text-green-600 dark:bg-green-600/20",
-          red: "bg-red-600/5 text-red-600 dark:bg-red-600/15",
-          blue: "bg-blue-600/5 text-blue-600 dark:bg-blue-600/10",
-          gray: "bg-gray-600/5 text-gray-600",
+          green: "bg-green-600/5 text-green-600 dark:bg-green-600/20 border-green-200 dark:border-green-900",
+          red: "bg-red-600/5 text-red-600 dark:bg-red-600/15 border-red-200 dark:border-red-900",
+          blue: "bg-blue-600/5 text-blue-600 dark:bg-blue-600/10 border-blue-200 dark:border-blue-900",
+          gray: "bg-gray-600/5 text-gray-600 dark:bg-gray-600/20 border-gray-200 dark:border-gray-900",
 
           outline: "text-foreground",
           ghost: "border-primary",
