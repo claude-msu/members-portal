@@ -79,7 +79,10 @@ export const ApplicationCreateModal = ({
   // Form fields
   const [applicationType, setApplicationType] = useState<ApplicationType | ''>('');
   const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [profileResumeFile, setProfileResumeFile] = useState<File | null>(null);
+  const [resumePullLoading, setResumePullLoading] = useState(false);
   const [transcriptFile, setTranscriptFile] = useState<File | null>(null);
+  const [resumeInputKey, setResumeInputKey] = useState(0);
   const [whyPosition, setWhyPosition] = useState('');
   const [relevantExperience, setRelevantExperience] = useState('');
   const [otherCommitments, setOtherCommitments] = useState('');
@@ -185,6 +188,54 @@ export const ApplicationCreateModal = ({
     }
   }, [open, user, fetchExistingApplications, fetchAvailableOptions]);
 
+  // When user selects application type, pull their profile resume into memory so "what they see is what they submit"
+  useEffect(() => {
+    if (!open || !applicationType || !profile?.resume_url || resumeFile) {
+      if (!applicationType) setProfileResumeFile(null);
+      return;
+    }
+
+    let cancelled = false;
+    setResumePullLoading(true);
+    setProfileResumeFile(null);
+
+    const urlParts = profile.resume_url.split('/profiles/');
+    if (urlParts.length < 2) {
+      setResumePullLoading(false);
+      return;
+    }
+    const storagePath = urlParts[1].split('?')[0];
+
+    supabase.storage
+      .from('profiles')
+      .download(storagePath)
+      .then(({ data: blob, error: downloadError }) => {
+        if (cancelled) return;
+        if (downloadError || !blob) {
+          console.error('Failed to download profile resume:', downloadError);
+          setResumePullLoading(false);
+          return;
+        }
+        const ext = storagePath.split('.').pop() || 'pdf';
+        const file = new File([blob], `resume.${ext}`, { type: blob.type || 'application/pdf' });
+        setProfileResumeFile(file);
+        toast({
+          title: 'Resume pulled from profile',
+          description: 'Your profile resume was attached to this application.',
+        });
+      })
+      .catch(() => {
+        if (!cancelled) setProfileResumeFile(null);
+      })
+      .finally(() => {
+        if (!cancelled) setResumePullLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [open, applicationType, profile?.resume_url, resumeFile, toast]);
+
   const handleApplicationTypeChange = (type: ApplicationType) => {
     // Check if user has GitHub username for project applications
     if (type === 'project' && !profile?.github_username) {
@@ -219,6 +270,8 @@ export const ApplicationCreateModal = ({
     }
   };
 
+  const fullName = profile?.full_name ?? 'Applicant';
+
   const uploadFile = async (file: File, type: 'resume' | 'transcript'): Promise<string> => {
     const safeUserName = fullName.replace(/\s+/g, '-');
     const fileExt = file.name.split('.').pop();
@@ -250,6 +303,7 @@ export const ApplicationCreateModal = ({
   const resetForm = useCallback(() => {
     setApplicationType('');
     setResumeFile(null);
+    setProfileResumeFile(null);
     setTranscriptFile(null);
     setWhyPosition('');
     setRelevantExperience('');
@@ -432,6 +486,8 @@ export const ApplicationCreateModal = ({
 
       if (resumeFile) {
         resumeUrl = await uploadFile(resumeFile, 'resume');
+      } else if (profileResumeFile) {
+        resumeUrl = await uploadFile(profileResumeFile, 'resume');
       }
 
       if (transcriptFile) {
@@ -678,12 +734,40 @@ export const ApplicationCreateModal = ({
 
         <div className="space-y-2">
           <Label htmlFor="resume">Resume</Label>
-          <Input
-            id="resume"
-            type="file"
-            accept=".pdf,.doc,.docx"
-            onChange={(e) => setResumeFile(e.target.files?.[0] || null)}
-          />
+          {resumePullLoading && (
+            <p className="text-sm text-muted-foreground">Loading your profile resume…</p>
+          )}
+          {!resumePullLoading && (resumeFile || profileResumeFile) ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-medium">
+                {resumeFile ? resumeFile.name : 'Profile Resume'}
+              </span>
+              <button
+                type="button"
+                className="text-sm text-primary underline-offset-4 hover:underline"
+                onClick={() => {
+                  setResumeFile(null);
+                  setProfileResumeFile(null);
+                  setResumeInputKey((k) => k + 1);
+                }}
+              >
+                Remove
+              </button>
+            </div>
+          ) : null}
+          {!resumePullLoading && !resumeFile && !profileResumeFile && (
+            <Input
+              key={resumeInputKey}
+              id="resume"
+              type="file"
+              accept=".pdf,.doc,.docx"
+              onChange={(e) => {
+                const file = e.target.files?.[0] ?? null;
+                setResumeFile(file);
+                if (file) setProfileResumeFile(null);
+              }}
+            />
+          )}
         </div>
 
         <div className="space-y-2">
