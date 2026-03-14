@@ -14,6 +14,7 @@ import { useProfile } from '@/contexts/ProfileContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Search, Mail } from 'lucide-react';
+import { escapeCsv } from '@/lib/utils';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 type AppRole = Database['public']['Enums']['app_role'];
@@ -241,8 +242,6 @@ const Prospects = () => {
       });
       return;
     }
-    const escapeCsv = (s: string) =>
-      /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     const csv = emails.map(escapeCsv).join(',');
     void navigator.clipboard.writeText(csv).then(() => {
       toast({

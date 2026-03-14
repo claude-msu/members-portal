@@ -6,6 +6,11 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Escape a string for use in a CSV field (wrap in quotes and escape internal quotes if needed). */
+export function escapeCsv(s: string): string {
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 // Centralized interface attributes for consistent styling across components
 export const interfaceAttributes = {
   variants: {

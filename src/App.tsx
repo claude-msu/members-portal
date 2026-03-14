@@ -145,7 +145,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Toaster />
     <Sonner />
-    <BrowserRouter>
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <ProfileProvider>
           <TooltipProvider delayDuration={150} skipDelayDuration={100}>

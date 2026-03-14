@@ -34,6 +34,7 @@ import {
 import Cropper, { Area } from 'react-easy-crop';
 import type { Database } from '@/integrations/supabase/database.types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { isValidGithubUsername, isValidLinkedinUsername } from '@/lib/validation';
 
 const Profile = () => {
   // Get data from contexts
@@ -359,35 +360,6 @@ const Profile = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // --- Username validation ---
-    // GitHub username:
-    // - only alphanumeric characters or single hyphens
-    // - cannot begin or end with a hyphen
-    // - no multiple consecutive hyphens
-    // - must not contain a slash at all
-    // - max 39 chars, min 1 char
-    function isValidGithubUsername(username: string) {
-      if (!username) return true; // allow empty (optional field)
-      if (username.length > 39) return false;
-      if (username.startsWith('-') || username.endsWith('-')) return false;
-      if (username.includes('--')) return false;
-      if (username.includes('/')) return false;
-      if (!/^[a-zA-Z0-9-]+$/.test(username)) return false;
-      return true;
-    }
-
-    // LinkedIn username:
-    // - min 5 chars, max 30 chars
-    // - only letters, digits, "-", "_"
-    // - must start with letter/number
-    // - cannot end with a hyphen or underscore
-    function isValidLinkedinUsername(username: string) {
-      if (!username) return true; // allow empty (optional field)
-      if (username.length < 5 || username.length > 30) return false;
-      if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{3,28}[a-zA-Z0-9]$/.test(username)) return false;
-      return true;
-    }
 
     if (!isValidGithubUsername(githubUsername)) {
       toast({

@@ -28,6 +28,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Search, Mail, Users, Home, Trophy, UserX } from 'lucide-react';
+import { escapeCsv } from '@/lib/utils';
 
 /** True if current time is 7:00pm–8:30pm EST on a Thursday. */
 function isWithinCoworkingWindow(): boolean {
@@ -293,7 +294,6 @@ const Members = () => {
       toast({ title: 'No emails', description: 'No emails to copy for this family.', variant: 'destructive' });
       return;
     }
-    const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
       toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard` });
     });

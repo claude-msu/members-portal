@@ -25,7 +25,7 @@ import { ItemCard } from '@/components/ItemCard';
 import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X, CheckCircle, Mail } from 'lucide-react';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, escapeCsv } from '@/lib/utils';
 import QrCodeWithLogo from 'qrcode-with-logos';
 import type { Database } from '@/integrations/supabase/database.types';
 
@@ -802,7 +802,6 @@ const Events = () => {
           toast({ title: 'No emails', description: 'No invited member emails to copy for this event.', variant: 'destructive' });
           return;
         }
-        const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
           toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard` });
         });

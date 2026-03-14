@@ -22,6 +22,7 @@ import SemesterSelector from '@/components/SemesterSelector';
 import { Plus, Github, Calendar as CalendarIcon, Users, Briefcase, Crown, Eye, Edit, Mail } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
+import { escapeCsv } from '@/lib/utils';
 
 type Semester = Database['public']['Tables']['semesters']['Row'];
 
@@ -525,7 +526,6 @@ const Projects = () => {
           toast({ title: 'No emails', description: 'No member emails to copy for this project.', variant: 'destructive' });
           return;
         }
-        const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
           toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard as CSV` });
         });

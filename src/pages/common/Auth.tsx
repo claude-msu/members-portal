@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { isValidEduEmail } from '@/lib/validation';
 
 const Auth = () => {
   const location = useLocation();
@@ -134,7 +135,7 @@ const Auth = () => {
   }, [user, authLoading, navigate]);
 
   const validateEmail = (email: string) => {
-    if (!email.endsWith('.edu')) {
+    if (!isValidEduEmail(email)) {
       toast({
         title: 'Invalid Email',
         description: 'Please use your .edu email address.',
