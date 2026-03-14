@@ -22,6 +22,7 @@ import { Plus, MapPin, Users, Edit, Calendar as CalendarIcon, Eye, Crown, BookOp
 import type { Database } from '@/integrations/supabase/database.types';
 import type { MembershipInfo, ItemWithMembers } from '@/types/modal.types';
 import { useNavigate } from 'react-router-dom';
+import { escapeCsv } from '@/lib/utils';
 
 type Semester = Database['public']['Tables']['semesters']['Row'];
 
@@ -526,7 +527,6 @@ const Classes = () => {
           toast({ title: 'No emails', description: 'No member emails to copy for this class.', variant: 'destructive' });
           return;
         }
-        const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
           toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard` });
         });

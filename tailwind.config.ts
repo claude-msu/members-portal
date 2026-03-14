@@ -4,7 +4,7 @@ import tailwindcssAnimate from "tailwindcss-animate";
 export default {
   darkMode: ["class"],
   content: [
-    "./src/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx,css}",
     "./pages/**/*.{ts,tsx}",
     "./components/**/*.{ts,tsx}",
     "./app/**/*.{ts,tsx}",
@@ -25,21 +25,17 @@ export default {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
+        page: "hsl(var(--page))",
         foreground: "hsl(var(--foreground))",
         cream: "hsl(var(--cream))",
         "claude-peach": "hsl(var(--claude-peach))",
+        "on-primary": "hsl(var(--on-primary))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
           DEFAULT: "hsl(var(--secondary))",
           foreground: "hsl(var(--secondary-foreground))",
-        },
-        destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -47,7 +43,7 @@ export default {
         },
         accent: {
           DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          foreground: "hsl(var(--on-primary))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

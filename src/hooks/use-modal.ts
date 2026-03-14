@@ -54,7 +54,6 @@ export const getItemStatus = (item) => {
     }
 
     if (end < now) {
-        console.log("ended");
         return {
             label: 'Completed',
             variant: 'red' as const,

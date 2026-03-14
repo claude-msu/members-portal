@@ -39,12 +39,12 @@ function Calendar({
         ),
         day_range_end: "day-range-end",
         day_today: "bg-transparent border-2 border-primary text-black rounded-md",
-        day_selected: "bg-primary text-primary-foreground rounded-md",
+        day_selected: "bg-primary text-on-primary rounded-md",
         day_outside:
           "day-outside text-muted-foreground opacity-50",
         day_disabled: "text-muted-foreground opacity-50",
         day_range_middle:
-          "aria-selected:bg-primary aria-selected:text-primary-foreground",
+          "aria-selected:bg-primary aria-selected:text-on-primary",
         day_hidden: "invisible",
         ...classNames,
       }}

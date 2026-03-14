@@ -74,7 +74,7 @@ const Checkin = () => {
 
     if (loading || checking) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-orange-50/20 to-background dark:from-background dark:via-orange-950/10 dark:to-background">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-page via-orange-50/20 to-page dark:from-page dark:via-orange-950/10 dark:to-page">
                 <div className="text-center space-y-4">
                     <div className="w-12 h-12 border-4 border-orange-600 border-t-transparent rounded-full animate-spin mx-auto"></div>
                     <p className="text-muted-foreground">Checking you in...</p>
@@ -84,7 +84,7 @@ const Checkin = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-orange-50/20 to-background dark:from-background dark:via-orange-950/10 dark:to-background p-4">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-page via-orange-50/20 to-page dark:from-page dark:via-orange-950/10 dark:to-page p-4">
             <Card className="w-full max-w-md">
                 <CardHeader className="text-center">
                     <div className="flex justify-center mb-4">

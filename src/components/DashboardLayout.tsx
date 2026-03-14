@@ -106,7 +106,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           isMobile={isMobile}
         />
         <div className="flex w-screen flex-col">
-          <header className="h-[5vh] border-b border-border flex items-center justify-between px-4 bg-background">
+          <header className="h-[5vh] border-b border-border flex items-center justify-between px-4 bg-page">
             <SidebarTrigger />
             <ThemeToggle />
           </header>
@@ -233,7 +233,7 @@ const AppSidebar = ({
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-sidebar-primary transition-colors">
-                <Avatar className="h-10 w-10 border-2 border-background shadow-sm">
+                <Avatar className="h-10 w-10 border-2 border-page shadow-sm">
                   <AvatarImage src={profile?.profile_picture_url || undefined} />
                   <AvatarFallback className="text-sm">
                     {profile?.full_name
@@ -274,7 +274,7 @@ const AppSidebar = ({
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={signOut}
-                className="text-destructive hover:bg-destructive hover:text-destructive-foreground focus:bg-destructive focus:text-destructive-foreground"
+                className="text-red-600 hover:bg-red-600 hover:text-white focus:bg-red-600 focus:text-white"
               >
                 <LogOut className="h-4 w-4 mr-1" />
                 Sign Out

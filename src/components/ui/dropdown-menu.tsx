@@ -108,7 +108,7 @@ const DropdownMenuItem = React.forwardRef<
       buttonVariants({ variant, size }),
       "relative flex items-center w-full rounded-sm px-2 py-1.5 text-sm transition-colors",
       inset && "pl-8",
-      disabled && "opacity-50 pointer-events-none cursor-not-allowed bg-background text-gray-700",
+      disabled && "opacity-50 pointer-events-none cursor-not-allowed bg-page text-gray-700",
       className,
     )}
     {...props}

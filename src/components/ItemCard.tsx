@@ -116,7 +116,7 @@ export const ItemCard = ({
                     <div className="space-y-3 text-sm text-muted-foreground mt-3">
                         <div className="flex -space-x-2">
                             {displayedMembers.map((member) => (
-                                <Avatar key={member.id} className="h-8 w-8 border-2 border-background">
+                                <Avatar key={member.id} className="h-8 w-8 border-2 border-page">
                                     <AvatarImage src={member.profile.profile_picture_url || undefined} />
                                     <AvatarFallback className="text-xs">
                                         {member.profile.full_name
@@ -126,7 +126,7 @@ export const ItemCard = ({
                                 </Avatar>
                             ))}
                             {remainingCount > 0 && (
-                                <div className="h-8 w-8 rounded-full border-2 border-background bg-muted flex items-center justify-center text-xs">
+                                <div className="h-8 w-8 rounded-full border-2 border-page bg-muted flex items-center justify-center text-xs">
                                     +{remainingCount}
                                 </div>
                             )}

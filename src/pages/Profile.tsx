@@ -34,6 +34,7 @@ import {
 import Cropper, { Area } from 'react-easy-crop';
 import type { Database } from '@/integrations/supabase/database.types';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { isValidGithubUsername, isValidLinkedinUsername } from '@/lib/validation';
 
 const Profile = () => {
   // Get data from contexts
@@ -360,35 +361,6 @@ const Profile = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // --- Username validation ---
-    // GitHub username:
-    // - only alphanumeric characters or single hyphens
-    // - cannot begin or end with a hyphen
-    // - no multiple consecutive hyphens
-    // - must not contain a slash at all
-    // - max 39 chars, min 1 char
-    function isValidGithubUsername(username: string) {
-      if (!username) return true; // allow empty (optional field)
-      if (username.length > 39) return false;
-      if (username.startsWith('-') || username.endsWith('-')) return false;
-      if (username.includes('--')) return false;
-      if (username.includes('/')) return false;
-      if (!/^[a-zA-Z0-9-]+$/.test(username)) return false;
-      return true;
-    }
-
-    // LinkedIn username:
-    // - min 5 chars, max 30 chars
-    // - only letters, digits, "-", "_"
-    // - must start with letter/number
-    // - cannot end with a hyphen or underscore
-    function isValidLinkedinUsername(username: string) {
-      if (!username) return true; // allow empty (optional field)
-      if (username.length < 5 || username.length > 30) return false;
-      if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{3,28}[a-zA-Z0-9]$/.test(username)) return false;
-      return true;
-    }
-
     if (!isValidGithubUsername(githubUsername)) {
       toast({
         title: 'Invalid GitHub Username',
@@ -561,7 +533,7 @@ const Profile = () => {
                     htmlFor="avatar-upload"
                     className={`absolute bottom-0 right-0 bg-primary rounded-full cursor-pointer hover:bg-primary/90 transition-colors shadow-lg ${isMobile ? 'p-2' : 'p-2.5'}`}
                   >
-                    <Camera className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-primary-foreground`} />
+                    <Camera className={`${isMobile ? 'h-3 w-3' : 'h-4 w-4'} text-on-primary`} />
                     <input
                       ref={fileInputRef}
                       id="avatar-upload"
@@ -812,7 +784,7 @@ const Profile = () => {
             <AlertDialogTrigger asChild>
               <button
                 disabled={isDeleting}
-                className="text-sm text-muted-foreground/60 hover:text-destructive transition-colors"
+                className="text-sm text-muted-foreground/60 hover:text-red-600 transition-colors"
               >
                 {isDeleting ? 'Deleting your profile...' : 'Delete your profile'}
               </button>
@@ -930,7 +902,7 @@ const Profile = () => {
             </div>
           </div>
           <div
-            className={`gap-2 pt-4 w-full flex flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60
+            className={`gap-2 pt-4 w-full flex flex-shrink-0 border-t bg-page/95 backdrop-blur supports-[backdrop-filter]:bg-page/60
               ${isMobile ? 'flex-col' : 'flex-row'}
             `}
           >

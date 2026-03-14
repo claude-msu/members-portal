@@ -83,7 +83,7 @@ export const EditModal = ({
                     </div>
 
                     <div
-                        className={`gap-2 pt-4 w-full flex flex-shrink-0 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60
+                        className={`gap-2 pt-4 w-full flex flex-shrink-0 border-t bg-page/95 backdrop-blur supports-[backdrop-filter]:bg-page/60
                             ${isMobile ? 'flex-col' : 'flex-row'}
                         `}
                     >

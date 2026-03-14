@@ -1,10 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
+import { renderWithProviders, screen, waitFor } from '@/tests/utils/test-utils';
 import userEvent from '@testing-library/user-event';
 import InteractiveLogo from '@/components/InteractiveLogo';
 
-// Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -16,26 +14,15 @@ vi.mock('react-router-dom', async () => {
 
 describe('InteractiveLogo', () => {
   it('renders the logo image', () => {
-    render(
-      <BrowserRouter>
-        <InteractiveLogo />
-      </BrowserRouter>
-    );
-
-    const logo = screen.getByAltText('Claude Logo');
+    renderWithProviders(<InteractiveLogo />);
+    const logo = screen.getByRole('img', { name: 'Claude Logo' });
     expect(logo).toBeInTheDocument();
   });
 
   it('navigates to /auth when clicked', async () => {
     const user = userEvent.setup();
-
-    render(
-      <BrowserRouter>
-        <InteractiveLogo />
-      </BrowserRouter>
-    );
-
-    const logo = screen.getByAltText('Claude Logo');
+    renderWithProviders(<InteractiveLogo />);
+    const logo = screen.getByRole('img', { name: 'Claude Logo' });
     const logoContainer = logo.closest('div.cursor-pointer');
 
     if (logoContainer) {
@@ -47,12 +34,7 @@ describe('InteractiveLogo', () => {
   });
 
   it('shows "Click to login" hint', () => {
-    render(
-      <BrowserRouter>
-        <InteractiveLogo />
-      </BrowserRouter>
-    );
-
+    renderWithProviders(<InteractiveLogo />);
     const hint = screen.getByText('Click to login');
     expect(hint).toBeInTheDocument();
   });

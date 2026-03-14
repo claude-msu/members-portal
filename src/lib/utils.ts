@@ -6,14 +6,19 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/** Escape a string for use in a CSV field (wrap in quotes and escape internal quotes if needed). */
+export function escapeCsv(s: string): string {
+  return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+}
+
 // Centralized interface attributes for consistent styling across components
 export const interfaceAttributes = {
   variants: {
-    default: "bg-primary border-2 border-primary text-primary-foreground hover:bg-white dark:hover:bg-black hover:text-primary",
+    default: "bg-primary border-2 border-primary text-on-primary hover:bg-white dark:hover:bg-black hover:text-primary",
     secondary: "border-2 border-primary hover:bg-primary text-primary hover:text-white",
 
     green: "bg-green-600 border-2 border-green-600 text-white hover:bg-cream hover:text-green-600",
-    red: "bg-red-800/10 border-2 border-destructive text-destructive hover:bg-destructive hover:text-cream",
+    red: "bg-red-800/10 border-2 border-red-600 text-red-600 hover:bg-red-600 hover:text-white",
 
     outline: "border-2 border-black hover:bg-black hover:text-cream dark:border-gray-400 dark:hover:bg-gray-400 dark:hover:text-black",
     ghost: "hover:bg-primary hover:text-cream",
@@ -39,7 +44,7 @@ export type InterfaceSize = keyof typeof interfaceAttributes.sizes;
 export const createButtonVariants = (baseClasses: string = "") => {
   return cva(
     cn(
-      "inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+      "inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-md text-sm font-medium ring-offset-page transition-colors focus-visible:outline-none focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
       baseClasses
     ),
     {
@@ -62,7 +67,7 @@ export const createBadgeVariants = (baseClasses: string = "") => {
     {
       variants: {
         variant: {
-          board: "!border-primary bg-primary text-primary-foreground",
+          board: "!border-primary bg-primary text-on-primary",
           member: "bg-secondary text-secondary-foreground",
           prospect: "text-foreground",
 

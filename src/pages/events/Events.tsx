@@ -25,7 +25,7 @@ import { ItemCard } from '@/components/ItemCard';
 import { Plus, Calendar as CalendarIcon, MapPin, Users, Trophy, Eye, Edit, QrCode, Clock, MailCheck, X, CheckCircle, Mail } from 'lucide-react';
 import { FaGoogle, FaApple } from 'react-icons/fa';
 import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { cn, escapeCsv } from '@/lib/utils';
 import QrCodeWithLogo from 'qrcode-with-logos';
 import type { Database } from '@/integrations/supabase/database.types';
 
@@ -802,7 +802,6 @@ const Events = () => {
           toast({ title: 'No emails', description: 'No invited member emails to copy for this event.', variant: 'destructive' });
           return;
         }
-        const escapeCsv = (s: string) => /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         void navigator.clipboard.writeText(emails.map(escapeCsv).join(',')).then(() => {
           toast({ title: 'Copied', description: `${emails.length} email${emails.length === 1 ? '' : 's'} copied to clipboard` });
         });
@@ -1122,7 +1121,7 @@ const Events = () => {
                       id="frequency"
                       value={recurrenceFrequency}
                       onChange={(e) => setRecurrenceFrequency(e.target.value as 'daily' | 'weekly' | 'monthly')}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                      className="flex h-10 w-full rounded-md border border-input bg-page px-3 py-2 text-sm ring-offset-page focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     >
                       <option value="daily">Daily</option>
                       <option value="weekly">Weekly</option>

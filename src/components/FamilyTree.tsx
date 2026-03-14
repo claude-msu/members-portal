@@ -34,7 +34,7 @@ const STYLES = `
       animation: ft-search-top-glow 2.2s ease-in-out infinite;
     }
     .ft-canvas-bg {
-      background: linear-gradient(165deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.6) 50%, hsl(var(--background)) 100%);
+      background: linear-gradient(165deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.6) 50%, hsl(var(--page)) 100%);
       /* Node sizes by depth: base = level 1 (kept as-is); root = base + step; each level steps down by --ft-node-step */
       --ft-node-base: 30px;
       --ft-node-step: 14px;
