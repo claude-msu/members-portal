@@ -22,7 +22,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { Trophy, Mail, Award, Linkedin, Github, FileText, Camera, RotateCw, ExternalLink, Trash2, AlertTriangle } from 'lucide-react';
+import { Trophy, Mail, Linkedin, Github, FileText, Camera, RotateCw, ExternalLink, Trash2, AlertTriangle } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import {
   Select,
@@ -33,6 +33,7 @@ import {
 } from '@/components/ui/select';
 import Cropper, { Area } from 'react-easy-crop';
 import type { Database } from '@/integrations/supabase/database.types';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 
 const Profile = () => {
   // Get data from contexts
@@ -586,31 +587,65 @@ const Profile = () => {
               <div className="relative flex justify-center">
                 <div className="bg-card px-4 gap-2 flex flex-row">
                   <UserBadge className="text-xs capitalize px-4 py-1.5 shrink-0 whitespace-nowrap" />
-                  <Badge className="px-4 py-1.5 shrink-0 whitespace-nowrap bg-green-700 text-white font-semibold border-1 border-black">
-                    {profile.term_joined || (() => {
-                      const date = user.created_at ? new Date(user.created_at) : new Date();
-                      return date.toLocaleString('en-US', { month: 'short', year: 'numeric' });
-                    })()}
-                  </Badge>
+                  {profile.term_joined && (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Badge
+                          className="px-4 py-1.5 shrink-0 whitespace-nowrap relative overflow-hidden font-semibold border-2 rounded-full tracking-wide"
+                          style={{
+                            background: 'transparent',
+                            borderColor: 'rgba(88, 80, 236, 0.33)',
+                            zIndex: 1,
+                          }}
+                        >
+                          <span
+                            className="absolute inset-0 pointer-events-none"
+                            aria-hidden="true"
+                            style={{
+                              zIndex: 0,
+                              borderRadius: 'inherit',
+                              filter: 'blur(10px)',
+                              opacity: 0.71,
+                              background: 'conic-gradient(from 180deg, rgba(88,80,236,0.78) 0%, rgba(88,80,236,0.39) 100%)',
+                              animation: 'swirl 2.8s linear infinite',
+                            }}
+                          />
+                          <span
+                            className="relative z-10"
+                            style={{
+                              color: 'rgb(55 65 81)',
+                            }}
+                          >
+                            <span className="dark:text-white text-[rgb(55,65,81)]">
+                              {profile.term_joined}
+                            </span>
+                          </span>
+                          <style>
+                            {`
+                              @keyframes swirl {
+                                0% { transform: rotate(0deg);}
+                                100% { transform: rotate(360deg);}
+                              }
+                            `}
+                          </style>
+                        </Badge>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {profile.created_at
+                          ? `Joined: ${new Date(profile.created_at).toLocaleDateString()}`
+                          : 'Date joined unavailable'}
+                      </TooltipContent>
+                    </Tooltip>
+                  )}
                 </div>
               </div>
             </div>
 
             <CardContent className="space-y-6 flex-1 flex flex-col justify-between">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="p-4 bg-gradient-to-br from-yellow-500/10 to-primary/10 rounded-lg border text-center">
-                  <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mx-auto mb-2" />
-                  <div className="text-xl font-bold">{profile.points}</div>
-                  <div className="text-xs text-muted-foreground mt-1">Points</div>
-                </div>
-
-                <div className="p-4 bg-gradient-to-br from-blue-500/10 to-purple-500/10 rounded-lg border text-center">
-                  <Award className="h-5 w-5 text-blue-600 dark:text-blue-500 mx-auto mb-2" />
-                  <div className="text-xl font-bold capitalize truncate">
-                    {classYear || 'Not set'}
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-1">Class Year</div>
-                </div>
+              <div className="p-4 bg-gradient-to-br from-yellow-500/10 to-primary/10 rounded-lg border text-center">
+                <Trophy className="h-5 w-5 text-yellow-600 dark:text-yellow-500 mx-auto mb-2" />
+                <div className="text-xl font-bold">{profile.points}</div>
+                <div className="text-xs text-muted-foreground mt-1">Points</div>
               </div>
             </CardContent>
           </Card>
@@ -626,7 +661,7 @@ const Profile = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className={isMobile ? 'p-4' : ''}>
-              <form onSubmit={handleSubmit} className={`space-y-6 ${isMobile ? 'space-y-4' : 'space-y-6'}`}>
+              <form onSubmit={handleSubmit} className="space-y-4">
                 <div className={`grid gap-6 ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2'}`}>
                   <div className="space-y-2">
                     <Label htmlFor="fullName">Full Name</Label>
