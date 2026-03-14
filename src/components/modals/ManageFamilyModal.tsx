@@ -102,7 +102,7 @@ function MemberCombobox({
                     <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-72 p-0 bg-background text-foreground" align={align}>
+            <PopoverContent className="w-72 p-0 bg-page text-foreground" align={align}>
                 <div
                     className="p-1"
                     style={{
@@ -381,7 +381,7 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                     className={cn(
                         'fixed left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%]',
                         'flex w-[90vw] max-w-lg flex-col gap-4',
-                        'rounded-lg border bg-background p-6 shadow-lg',
+                        'rounded-lg border bg-page p-6 shadow-lg',
                         'duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out',
                         'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
                         'data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
@@ -507,7 +507,7 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-8 w-8 shrink-0 ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                                                className="h-8 w-8 shrink-0 ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-600 hover:bg-red-600/10 transition-all"
                                                 onClick={() => handleUnlink(rel.id)}
                                                 disabled={deletingId === rel.id}
                                                 title="Remove connection"
@@ -588,7 +588,7 @@ export function ManageFamilyModal({ open, onClose, members }: Props) {
                                             <Button
                                                 size="icon"
                                                 variant="ghost"
-                                                className="h-8 w-8 shrink-0 ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                                                className="h-8 w-8 shrink-0 ml-auto opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-red-600 hover:bg-red-600/10 transition-all"
                                                 onClick={() => handleUnlink(rel.id)}
                                                 disabled={deletingId === rel.id}
                                                 title="Remove connection"

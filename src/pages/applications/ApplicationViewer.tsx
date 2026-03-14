@@ -424,7 +424,7 @@ const ApplicationViewerPage = () => {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-page">
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     <Button variant="ghost" onClick={() => navigate('/applications')} className="mb-6">
                         <ArrowLeft className="h-4 w-4 mr-2" />
@@ -442,7 +442,7 @@ const ApplicationViewerPage = () => {
 
     if (!application) {
         return (
-            <div className="min-h-screen bg-background flex items-center justify-center">
+            <div className="min-h-screen bg-page flex items-center justify-center">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-2">Application Not Found</h1>
                     <Button onClick={() => navigate('/applications')}>
@@ -556,7 +556,7 @@ const ApplicationViewerPage = () => {
                 )}
             </AnimatePresence>
 
-            <div className="min-h-screen bg-background">
+            <div className="min-h-screen bg-page">
                 <div className="max-w-7xl mx-auto px-6 py-8">
                     {/* Header */}
                     <motion.div

@@ -38,7 +38,7 @@ describe('utils', () => {
       expect(classes).toContain('items-center');
       // Should have the default background and text color for 'default' variant
       expect(classes).toContain('bg-primary');
-      expect(classes).toContain('text-primary-foreground');
+      expect(classes).toContain('text-on-primary');
       expect(classes).toContain('border-2');
       expect(classes).toContain('border-primary');
     });
@@ -59,7 +59,7 @@ describe('utils', () => {
       // Check for correct styles from the variant map in utils.ts
       expect(defaultClasses).toContain('bg-primary');
       expect(defaultClasses).toContain('border-primary');
-      expect(defaultClasses).toContain('text-primary-foreground');
+      expect(defaultClasses).toContain('text-on-primary');
 
       expect(secondaryClasses).toContain('border-primary');
       expect(secondaryClasses).toContain('hover:bg-primary');
@@ -72,10 +72,10 @@ describe('utils', () => {
       expect(greenClasses).toContain('hover:bg-cream');
       expect(greenClasses).toContain('hover:text-green-600');
 
-      expect(redClasses).toContain('border-destructive');
-      expect(redClasses).toContain('text-destructive');
-      expect(redClasses).toContain('hover:bg-destructive');
-      expect(redClasses).toContain('hover:text-cream');
+      expect(redClasses).toContain('border-red-600');
+      expect(redClasses).toContain('text-red-600');
+      expect(redClasses).toContain('hover:bg-red-600');
+      expect(redClasses).toContain('hover:text-white');
     });
 
     it('applies size classes correctly', () => {
@@ -138,17 +138,17 @@ describe('utils', () => {
       expect(secondaryClasses).toContain('border-2');
       expect(secondaryClasses).toContain('text-primary');
 
-      // board: border-2 border-primary bg-primary text-primary-foreground
+      // board: border-2 border-primary bg-primary text-on-primary
       expect(boardClasses).toContain('bg-primary');
       expect(boardClasses).toContain('border-primary');
-      expect(boardClasses).toContain('text-primary-foreground');
+      expect(boardClasses).toContain('text-on-primary');
 
       // green: bg-green-600/5 text-green-600 (no border-green-600, see @src/lib/utils.ts)
       expect(greenClasses).toContain('bg-green-600/5');
       expect(greenClasses).toContain('text-green-600');
       expect(greenClasses).toContain('border-2');
 
-      // red: bg-red-600/5 text-red-600 (no border-destructive, see @src/lib/utils.ts)
+      // red: badge uses bg-red-600/5 (see @src/lib/utils.ts createBadgeVariants)
       expect(redClasses).toContain('bg-red-600/5');
       expect(redClasses).toContain('text-red-600');
       expect(redClasses).toContain('border-2');

@@ -23,7 +23,7 @@ All colors MUST be HSL.
 @layer base {
   :root {
     --cream: 33 100% 97%;
-    --background: var(--cream);
+    --page: var(--cream);
     --foreground: 24 10% 15%;
 
     --card: 0 0% 100%;
@@ -33,7 +33,7 @@ All colors MUST be HSL.
     --popover-foreground: 24 10% 15%;
 
     --primary: 25 95% 53%;
-    --primary-foreground: var(--cream);
+    --on-primary: var(--cream);
 
     --secondary: 30 100% 95%;
     --secondary-foreground: 24 10% 15%;
@@ -43,10 +43,7 @@ All colors MUST be HSL.
 
     --claude-peach: 14 69% 60%;
     --primary: var(--claude-peach);
-    --primary-foreground: var(--cream);
-
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --on-primary: var(--cream);
 
     --border: 30 30% 88%;
     --input: 30 30% 88%;
@@ -65,7 +62,7 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 24 15% 8%;
+    --page: 24 15% 8%;
     --foreground: 33 100% 97%;
 
     --card: 24 15% 10%;
@@ -75,7 +72,7 @@ All colors MUST be HSL.
     --popover-foreground: 33 100% 97%;
 
     --primary: 25 95% 53%;
-    --primary-foreground: 24 15% 8%;
+    --on-primary: 24 15% 8%;
 
     --secondary: 24 10% 15%;
     --secondary-foreground: 33 100% 97%;
@@ -84,10 +81,7 @@ All colors MUST be HSL.
     --muted-foreground: 30 15% 65%;
 
     --primary: var(--claude-peach);
-    --primary-foreground: 24 15% 8%;
-
-    --destructive: 0 62.8% 40%;
-    --destructive-foreground: 33 100% 97%;
+    --on-primary: 24 15% 8%;
 
     --border: 24 15% 20%;
     --input: 24 15% 20%;
@@ -110,7 +104,7 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-page text-foreground;
   }
 
 

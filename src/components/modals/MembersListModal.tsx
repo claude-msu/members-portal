@@ -267,7 +267,7 @@ export const MembersListModal = ({
                     {/* Modal 1: Members List */}
                     <DialogPrimitive.Content
                         className={cn(
-                            'pointer-events-auto relative flex max-h-[85vh] w-[90vw] max-w-lg flex-col gap-4 rounded-lg border bg-background p-6 shadow-lg duration-200',
+                            'pointer-events-auto relative flex max-h-[85vh] w-[90vw] max-w-lg flex-col gap-4 rounded-lg border bg-page p-6 shadow-lg duration-200',
                             'data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95',
                             isMobile && 'px-4',
                         )}
@@ -408,7 +408,7 @@ export const MembersListModal = ({
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="hidden h-8 w-8 text-muted-foreground hover:bg-destructive/10 hover:text-destructive md:flex"
+                                            className="hidden h-8 w-8 text-muted-foreground hover:bg-red-600/10 hover:text-red-600 md:flex"
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 handleRemoveMember(member.id);
@@ -439,7 +439,7 @@ export const MembersListModal = ({
                                 exit={{ opacity: 0, x: 24 }}
                                 transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
                                 data-profile-modal
-                                className="pointer-events-auto relative flex max-h-[85vh] w-[28rem] flex-col rounded-lg border bg-background shadow-lg overflow-hidden"
+                                className="pointer-events-auto relative flex max-h-[85vh] w-[28rem] flex-col rounded-lg border bg-page shadow-lg overflow-hidden"
                             >
                                 <ProfileViewer
                                     member={profileViewerMember}

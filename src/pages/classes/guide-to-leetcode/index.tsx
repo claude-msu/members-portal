@@ -122,7 +122,7 @@ function CountdownInline() {
                 <div key={unit.label} className="flex items-center gap-0.5">
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <div className="w-9 h-8 rounded-lg bg-background border border-border flex items-center justify-center cursor-default shadow-sm font-mono tabular-nums min-w-[2.25rem]">
+                            <div className="w-9 h-8 rounded-lg bg-page border border-border flex items-center justify-center cursor-default shadow-sm font-mono tabular-nums min-w-[2.25rem]">
                                 <span className="text-sm font-bold text-foreground">
                                     {unit.pad ? String(unit.value).padStart(2, '0') : String(unit.value)}
                                 </span>

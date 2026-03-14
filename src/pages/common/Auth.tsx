@@ -665,7 +665,7 @@ const Auth = () => {
   };
 
   return (
-    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-secondary ${isMobile ? 'px-4 py-8' : 'px-4'}`}>
+    <div className={`min-h-screen flex items-center justify-center bg-gradient-to-br from-page to-secondary ${isMobile ? 'px-4 py-8' : 'px-4'}`}>
       <Card className={`w-full ${isMobile ? 'max-w-sm' : 'max-w-md'}`}>
         <CardHeader className={isMobile ? 'pb-4' : ''}>
           <CardTitle className={isMobile ? 'text-xl' : ''}>

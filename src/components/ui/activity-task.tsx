@@ -102,7 +102,7 @@ export const ActivityTask = ({ children }: ActivityTaskProps) => {
                 indicatorClassName="size-full [&_svg]:stroke-[2.5]"
                 className={cn(
                     'rounded border-2 border-muted-foreground/30',
-                    'data-[state=checked]:bg-foreground data-[state=checked]:border-foreground data-[state=checked]:text-background',
+                    'data-[state=checked]:bg-foreground data-[state=checked]:border-foreground data-[state=checked]:text-page',
                     'focus-visible:ring-2 focus-visible:ring-foreground/20 focus-visible:ring-offset-0',
                     'group-hover:border-muted-foreground/50',
                 )}
