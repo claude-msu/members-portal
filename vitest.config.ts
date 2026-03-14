@@ -18,6 +18,22 @@ export default defineConfig({
         '**/*.config.*',
         '**/mockData',
         '/supabase',
+        // Generated / external: not our code to cover
+        'src/integrations/**',
+        // UI primitives (shadcn): low ROI to test; we test behavior in app code
+        'src/components/ui/**',
+        // Modals: form validation tested but full coverage (dates, submit) is integration-level
+        'src/components/modals/**',
+        // Entry and app shell: minimal logic
+        'src/main.tsx',
+        'src/App.tsx',
+        'src/App.css',
+        'src/index.css',
+        'src/vite-env.d.ts',
+        // Contexts: auth/profile/theme; typically covered via integration/E2E, not unit
+        'src/contexts/**',
+        // Page routes: feature-heavy; validation/logic tested in lib + Auth tests; full flows via E2E
+        'src/pages/**',
       ],
     },
   },

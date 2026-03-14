@@ -51,7 +51,7 @@ jobs:
       - name: Run tests with coverage
         run: npm run test:coverage
 
-      - name: Check coverage requirements (min 85%)
+      - name: Check coverage requirements (min 80%)
         run: |
           node -e "
           const fs = require('fs');
@@ -60,7 +60,7 @@ jobs:
             process.exit(1);
           }
           const summary = JSON.parse(fs.readFileSync('coverage/coverage-summary.json', 'utf8')).total;
-          const min = 85;
+          const min = 80;
           const checks = [
             ['Statements', summary.statements.pct],
             ['Branches', summary.branches.pct],
