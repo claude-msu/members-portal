@@ -122,7 +122,7 @@ SELECT cron.schedule(
     headers := jsonb_build_object(
       'Content-Type',  'application/json',
       'Authorization', internal.service_role_bearer()
-    )
+    ),
     timeout_milliseconds := 30000
   ) AS request_id;
   $$
@@ -150,7 +150,7 @@ SELECT cron.schedule(
     headers := jsonb_build_object(
       'Content-Type',  'application/json',
       'Authorization', internal.service_role_bearer()
-    )
+    ),
     timeout_milliseconds := 30000
   ) AS request_id;
   $$
