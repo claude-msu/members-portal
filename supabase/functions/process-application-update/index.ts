@@ -117,7 +117,7 @@ function getEmailHtml(
 
     <!-- Logo Header -->
     <div style="text-align: center; padding: 40px 30px 30px 30px;">
-      <img src="https://claudemsu.dev/claude-logo.png" alt="Claude Builder Club" style="height: 60px; width: auto;">
+      <img src="https://claudemsu.dev/logo.png" alt="Claude Builder Club" style="height: 60px; width: auto;">
       <h2 style="margin: 20px 0 0 0; font-size: 24px; font-weight: 600; color: #1a1a1a;">
         Application Update
       </h2>
