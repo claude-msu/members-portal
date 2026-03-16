@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { GitBranch } from 'lucide-react';
+import { Binary } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -8,60 +8,58 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTermWithTip,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
+import { CppBlock } from '@/components/ui/cpp-block';
 
-// ── PR workflow diagram ──────────────────────────────────────────────────────
-const PRWorkflow = () => (
-    <div className="my-8 rounded-xl border border-border bg-muted/30 p-5">
-        <div className="flex flex-wrap items-center gap-2 justify-center text-xs">
-            {[
-                { label: 'Branch', sub: 'git checkout -b feature/x', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Code', sub: 'edit, commit', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Push', sub: 'git push origin feature/x', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Open PR', sub: 'GitHub UI', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Review', sub: 'approve / request changes', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Merge', sub: 'main gets the code', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-            ].map((step, i) => (
-                <div key={i} className={step.bg ? `rounded-lg border border-border px-3 py-2 ${step.bg}` : 'px-1'}>
-                    <span className={`font-semibold ${step.color}`}>{step.label}</span>
-                    {step.sub && <p className="text-muted-foreground mt-0.5 font-mono">{step.sub}</p>}
+// ── Design pattern cards ──────────────────────────────────────────────────────
+const PatternCards = () => (
+    <div className="my-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
+        {[
+            {
+                name: 'Singleton',
+                category: 'Creational',
+                color: 'text-blue-600 dark:text-blue-400',
+                bg: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800',
+                problem: 'You need exactly one instance of a class — a database connection, a config manager, a logger.',
+                signal: 'When you find yourself passing the same object everywhere, or using global variables to share state.',
+            },
+            {
+                name: 'Observer',
+                category: 'Behavioral',
+                color: 'text-emerald-600 dark:text-emerald-400',
+                bg: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
+                problem: 'One object changes state and multiple other objects need to be notified automatically.',
+                signal: 'Event systems, UI state changes, notification systems. React\'s useState is Observer at the framework level.',
+            },
+            {
+                name: 'Factory',
+                category: 'Creational',
+                color: 'text-orange-600 dark:text-orange-400',
+                bg: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800',
+                problem: 'You need to create objects without specifying the exact class — the type is determined at runtime.',
+                signal: 'When you have if/else or switch on a type to decide which object to create. Replace that with a factory.',
+            },
+        ].map((p) => (
+            <div key={p.name} className={`rounded-xl border ${p.bg} overflow-hidden`}>
+                <div className="px-4 py-3 border-b border-inherit">
+                    <p className={`text-xs font-black ${p.color}`}>{p.name}</p>
+                    <p className="text-xs text-muted-foreground">{p.category}</p>
                 </div>
-            ))}
-        </div>
-    </div>
-);
-
-// ── Kanban board ──────────────────────────────────────────────────────────────
-const KanbanBoard = () => {
-    const columns = [
-        { title: 'Backlog', color: 'text-muted-foreground', bg: 'bg-muted/30', cards: ['Add dark mode', 'Export to CSV'] },
-        { title: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20', cards: ['User auth', 'Dashboard'] },
-        { title: 'In Review', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20', cards: ['Login bug fix'] },
-        { title: 'Done', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20', cards: ['Scaffolding', 'CI setup'] },
-    ];
-    return (
-        <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {columns.map((col) => (
-                <div key={col.title} className={`rounded-xl border border-border ${col.bg} p-3`}>
-                    <p className={`text-xs font-bold mb-2 ${col.color}`}>{col.title}</p>
-                    <div className="space-y-2">
-                        {col.cards.map((card) => (
-                            <div key={card} className="rounded-lg border border-border bg-card px-2.5 py-2">
-                                <p className="text-xs text-foreground">{card}</p>
-                            </div>
-                        ))}
+                <div className="px-4 py-3 space-y-2.5">
+                    <div>
+                        <p className="text-xs font-semibold text-foreground mb-0.5">Problem it solves</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{p.problem}</p>
+                    </div>
+                    <div>
+                        <p className="text-xs font-semibold text-foreground mb-0.5">Recognize it when</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{p.signal}</p>
                     </div>
                 </div>
-            ))}
-        </div>
-    );
-};
+            </div>
+        ))}
+    </div>
+);
 
 export default function Week2Lecture2() {
     const navigate = useNavigate();
@@ -71,127 +69,315 @@ export default function Week2Lecture2() {
             <LectureHeader
                 week={2}
                 session="Lecture 2"
-                title="GitHub, Agile & Project Management"
-                description="Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature."
-                icon={<GitBranch className="h-4 w-4" />}
+                title="Hash Maps, Complexity & Interview Patterns"
+                description="Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers."
+                icon={<Binary className="h-4 w-4" />}
             />
 
-            {/* ── 01 FROM GIT TO COLLABORATION ───────────────────────────────── */}
-            <LectureSectionHeading number="01" title="From Git to Collaboration" />
+            {/* ── 01 DESIGN BEFORE CODE ───────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="Design Before Code" />
 
             <LectureP>
-                You now know how to branch, commit, and merge locally. In practice, teams don't merge by running <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git merge</code> on each other's branches. They use <LectureTermWithTip tip="A proposal to merge your branch into another (usually main). Includes a description, discussion thread, and optional required approvals before merge.">pull requests</LectureTermWithTip> (PRs): you push your branch to GitHub, open a PR to propose merging it into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, someone reviews your code, and then the merge happens. The PR is the unit of review and the audit trail for every change.
+                The most expensive bugs in software are design bugs — wrong abstractions, wrong relationships between classes, wrong assumptions about what will change. A design bug found in the planning phase costs an hour to fix. Found in production, it costs weeks of refactoring.
             </LectureP>
             <LectureP>
-                Pull requests connect Git (the mechanics) to how work actually gets done: an issue describes what to build, a branch holds the code, and the PR ties them together so that when the PR merges, the issue closes and the board updates. That loop — idea → issue → branch → PR → merge → done — is the Agile workflow in practice.
+                Good OOP design starts with three questions: <strong className="text-foreground">What are the entities?</strong> (nouns → classes), <strong className="text-foreground">What do they do?</strong> (verbs → methods), and <strong className="text-foreground">What changes, and what stays the same?</strong> The answer to the third question determines where you use interfaces and abstraction.
             </LectureP>
 
-            <LectureCallout type="info">
-                "Pull request" and "merge request" (GitLab) mean the same thing: a request to merge your branch into the target branch, with a discussion thread and optional required approvals. GitHub calls them PRs; GitLab calls them MRs.
-            </LectureCallout>
-
-            {/* ── 02 THE PULL REQUEST WORKFLOW ────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="The Pull Request Workflow" />
-
-            <PRWorkflow />
-
-            <LectureP>
-                After you push your branch, go to your repo on GitHub. You'll often see a yellow banner: "feature/add-login had recent pushes" with a button <strong className="text-foreground">Compare & pull request</strong>. Click it. Add a title and a description: what does this PR do? Why? How can a reviewer test it? Link the issue it addresses with "Closes #42" so GitHub auto-closes the issue when the PR merges.
-            </LectureP>
-
-            <LectureSubHeading title="What to put in a PR description" />
-            <LectureP>
-                Good PR descriptions save reviewers time and leave a record for the future. Include: a short summary of the change, what problem it solves, how to test it (steps or a checklist), and any screenshots or notes for reviewers. In industry, PR templates (stored in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/PULL_REQUEST_TEMPLATE.md</code>) standardize this so every PR has the same structure.
-            </LectureP>
-
-            <LectureCallout type="tip">
-                Write "Closes #123" or "Fixes #123" in the PR description. When the PR is merged, GitHub automatically closes that issue and moves it to Done on your project board. No manual dragging required — the board stays in sync with the code.
-            </LectureCallout>
-
-            <LectureSubHeading title="Review and merge" />
-            <LectureP>
-                Reviewers comment on specific lines or the whole PR. They can approve, request changes, or suggest edits. Once the branch is approved (and any required checks pass, e.g. CI), someone merges the PR. GitHub offers merge options: create a merge commit, squash all commits into one, or rebase. Teams usually choose one and stick to it so history is consistent.
-            </LectureP>
-
-            <LectureCallout type="warning">
-                Don't merge your own PR without review unless your team explicitly allows it. The whole point is a second set of eyes — catching bugs, suggesting cleaner approaches, and sharing context. Skipping review is a common source of regressions and technical debt.
-            </LectureCallout>
-
-            {/* ── 03 ISSUES AS THE SOURCE OF WORK ──────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Issues as the Source of Work" />
-
-            <LectureP>
-                Every piece of work should start as an <LectureTermWithTip tip="A single unit of work in GitHub: bug report, feature request, or task. Has a title, description, labels, and can be linked to PRs.">issue</LectureTermWithTip>: a bug report, a feature request, or a task. Issues live in the <LectureTermWithTip tip="The ordered list of work that might get done. Items sit here until the team pulls them into the current sprint or cycle.">backlog</LectureTermWithTip> until the team decides to do them. When you're ready to work on something, you assign yourself (or get it assigned), create a branch, and when you open a PR you link it to the issue. That way the issue tracks the work from "to do" to "in progress" to "done."
-            </LectureP>
-            <LectureP>
-                Issues don't have to be huge. "Add a README section for setup" is a valid issue. "Fix typo in login error message" is too. The goal is traceability: every change is tied to a reason, and every reason is visible in the backlog and on the board.
-            </LectureP>
-
-            <LectureCallout type="tip">
-                Use issue templates (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/ISSUE_TEMPLATE/bug_report.md</code>) so reporters fill in the right fields: steps to reproduce, expected vs actual behavior, environment. It keeps issues actionable instead of vague.
-            </LectureCallout>
-
-            {/* ── 04 AGILE IN ONE PAGE ───────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Agile in One Page" />
-
-            <LectureP>
-                <LectureTermWithTip tip="A mindset and set of practices: deliver working software in small increments, get feedback early, and adapt. Emphasizes people and flexibility over rigid plans.">Agile</LectureTermWithTip> means shipping small increments, getting feedback, and adapting. Instead of planning a whole product upfront and building it in one shot (waterfall), teams work in short cycles: pick a chunk of work from the backlog, build it, ship it, learn from it, then repeat. The backlog is the ordered list of everything that might get built; the current cycle (sprint or just "in progress") is what the team is doing now.
-            </LectureP>
-            <LectureP>
-                Two common ways to run this: <LectureTermWithTip tip="A framework with fixed-length iterations (sprints), planning at the start, and a retrospective at the end. Roles include Scrum Master and Product Owner.">Scrum</LectureTermWithTip> (fixed-length sprints, e.g. 2 weeks, with planning and retro at the boundaries) and <LectureTermWithTip tip="A flow-based method. Work moves across columns (e.g. To Do → In Progress → Done). No fixed sprint length; optional WIP limits per column.">Kanban</LectureTermWithTip> (continuous flow with a board and optional WIP limits). Many teams mix both: a board with columns like Backlog → In Progress → In Review → Done, and optional time-boxed sprints for planning and demos.
-            </LectureP>
-
-            <KanbanBoard />
-
-            <LectureCallout type="info">
-                The backlog is never "finished" — it's a living list. New ideas and bugs get added; priorities change. The sprint (or current work) is a commitment: we will finish these items by the end of the cycle. That tension — infinite backlog, finite sprint — is what keeps agile focused.
-            </LectureCallout>
-
-            {/* ── 05 GITHUB PROJECTS ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="GitHub Projects — Your Board in the Repo" />
-
-            <LectureP>
-                <LectureTermWithTip tip="GitHub's built-in project management: boards or tables linked to your repo. Issues become cards; PRs that close issues update the board automatically.">GitHub Projects</LectureTermWithTip> gives you a board (Kanban or table view) tied directly to your repo. Create a project from the repo's Projects tab, add columns like Backlog, In Progress, In Review, Done, and add your issues as cards. When you open a PR that "Closes #5," the issue card can move to Done automatically. No separate Jira or Trello — the board lives next to the code.
-            </LectureP>
-            <LectureP>
-                For this course, you'll create a GitHub Project for your capstone repo, add issues for the work you plan in Weeks 3–5, and ship every deliverable via a PR that closes an issue. By the end you'll have a real workflow: idea → issue → branch → PR → review → merge → done.
-            </LectureP>
-
-            <div className="my-6 space-y-2">
+            <div className="my-6 rounded-xl border border-border bg-muted/30 p-5 space-y-3">
+                <p className="text-xs font-semibold text-foreground">Design exercise: Library Management System</p>
                 {[
-                    { step: '1', title: 'Create a Project', desc: 'Repo → Projects → New project. Choose Board. Add columns: Backlog, Sprint, In Progress, In Review, Done.' },
-                    { step: '2', title: 'Add issues', desc: 'Create issues for each feature or task. Add them to the project so they show as cards in Backlog.' },
-                    { step: '3', title: 'Move work into the sprint', desc: 'Drag issues from Backlog into Sprint or In Progress when you start them.' },
-                    { step: '4', title: 'Open PRs that close issues', desc: 'In the PR description write "Closes #N". When the PR merges, the issue closes and the card moves to Done.' },
-                ].map((item) => (
-                    <div key={item.step} className="flex gap-4 rounded-xl border border-border bg-card p-4">
-                        <span className="text-xl font-black text-primary/70 shrink-0">{item.step}</span>
-                        <div>
-                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                    { q: 'What are the entities?', a: 'Book, DVD, Magazine, Member, Loan, Library — each becomes a class' },
+                    { q: 'What do they do?', a: 'checkout(), returnItem(), search(), addMember(), getLoanHistory() — these become methods' },
+                    { q: 'What changes?', a: 'New item types will be added. Loan durations differ per type. New payment methods might be added for fines.' },
+                    { q: 'What stays the same?', a: 'The checkout/return flow is always the same regardless of item type. This is the interface.' },
+                ].map((row) => (
+                    <div key={row.q} className="rounded-lg border border-border bg-card p-3">
+                        <p className="text-xs font-semibold text-orange-600 dark:text-orange-400">{row.q}</p>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{row.a}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* ── 02 SOLID PRINCIPLES ─────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="SOLID — The Five Design Principles" />
+
+            <LectureP>
+                <LectureTerm>SOLID</LectureTerm> is the standard vocabulary for OOP design quality. You'll hear these in code reviews and design discussions throughout your career. You don't need to memorize the names — you need to recognize the problems they solve.
+            </LectureP>
+
+            <div className="my-6 space-y-3">
+                {[
+                    {
+                        letter: 'S',
+                        name: 'Single Responsibility',
+                        rule: 'A class should have one reason to change.',
+                        bad: 'A User class that handles authentication, database persistence, AND email sending.',
+                        good: 'UserAuth, UserRepository, EmailService — each focused, independently changeable.',
+                    },
+                    {
+                        letter: 'O',
+                        name: 'Open/Closed',
+                        rule: 'Open for extension, closed for modification.',
+                        bad: 'Adding a new item type requires editing a switch statement inside Library.',
+                        good: 'New item type inherits from LibraryItem — no existing code changes.',
+                    },
+                    {
+                        letter: 'L',
+                        name: 'Liskov Substitution',
+                        rule: 'A derived class must be substitutable for its base class without breaking the program.',
+                        bad: 'A Square inheriting Rectangle and overriding setWidth to also set height — breaks Rectangle callers.',
+                        good: 'DVD and Book both work anywhere a LibraryItem is expected, no surprises.',
+                    },
+                    {
+                        letter: 'I',
+                        name: 'Interface Segregation',
+                        rule: 'Don\'t force classes to implement methods they don\'t use.',
+                        bad: 'A Printable interface with print(), fax(), and scan() — most classes only need print().',
+                        good: 'Separate Printable, Faxable, Scannable interfaces — implement only what applies.',
+                    },
+                    {
+                        letter: 'D',
+                        name: 'Dependency Inversion',
+                        rule: 'Depend on abstractions, not concrete implementations.',
+                        bad: 'Library holds a vector<SQLiteDatabase*> — now you can\'t swap databases.',
+                        good: 'Library depends on a Database interface — works with SQLite, Postgres, or a mock in tests.',
+                    },
+                ].map((p) => (
+                    <div key={p.letter} className="rounded-xl border border-border overflow-hidden">
+                        <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-muted/30">
+                            <span className="text-2xl font-black text-primary/20 select-none">{p.letter}</span>
+                            <div>
+                                <p className="text-xs font-bold text-foreground">{p.name} Principle</p>
+                                <p className="text-xs text-muted-foreground">{p.rule}</p>
+                            </div>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
+                            <div className="px-4 py-2.5">
+                                <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">❌ Violation</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed">{p.bad}</p>
+                            </div>
+                            <div className="px-4 py-2.5">
+                                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">✅ Compliant</p>
+                                <p className="text-xs text-muted-foreground leading-relaxed">{p.good}</p>
+                            </div>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <LectureCallout type="tip">
-                Use labels on issues (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bug</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">good first issue</code>) so you can filter the board and reports. Milestones (e.g. "Sprint 1") group issues by time so you can see sprint scope and progress at a glance.
-            </LectureCallout>
-
-            {/* ── 06 WHAT YOU WILL DO IN THE ACTIVITY ─────────────────────────── */}
-            <LectureSectionHeading number="06" title="What You'll Do in the Activity" />
+            {/* ── 03 DESIGN PATTERNS ──────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Design Patterns" />
 
             <LectureP>
-                The Week 2 activity is <strong className="text-foreground">Project Kickoff</strong>: choose your project domain, create the repo, set up a GitHub Project board, write issues for the work you'll do in Weeks 3–5, and open your first PR. From here on, every deliverable in the course ships through this board — same as in industry.
+                <LectureTerm>Design patterns</LectureTerm> are named, reusable solutions to recurring design problems. They're not code you copy — they're vocabulary for describing structures. When a senior engineer says "use a Factory here," they mean a specific structure with known tradeoffs. Learn the three most common:
             </LectureP>
+
+            <PatternCards />
+
+            <LectureSubHeading title="Singleton in C++" />
+
+            <CppBlock
+                title="Singleton — thread-safe with static local (C++11+)"
+                lines={[
+                    'class Logger {',
+                    'public:',
+                    '    // Delete copy constructor and assignment — no duplicates',
+                    '    Logger(const Logger&) = delete;',
+                    '    Logger& operator=(const Logger&) = delete;',
+                    '',
+                    '    static Logger& getInstance() {',
+                    '        static Logger instance;  // initialized once, guaranteed thread-safe',
+                    '        return instance;',
+                    '    }',
+                    '',
+                    '    void log(const string& message) {',
+                    '        cout << "[LOG] " << message << endl;',
+                    '    }',
+                    '',
+                    'private:',
+                    '    Logger() {}  // private constructor — prevent direct instantiation',
+                    '};',
+                    '',
+                    '// Usage — no new, no pointer, no global variable',
+                    '// Logger::getInstance().log("System started");',
+                ]}
+            />
+
+            <LectureSubHeading title="Observer in C++" />
+
+            <CppBlock
+                title="Observer — event subscription and notification"
+                lines={[
+                    '// Abstract observer — anything that wants to be notified',
+                    'class Observer {',
+                    'public:',
+                    '    virtual void onEvent(const string& event) = 0;',
+                    '    virtual ~Observer() {}',
+                    '};',
+                    '',
+                    '// Subject — holds observers and fires events',
+                    'class EventEmitter {',
+                    'private:',
+                    '    vector<Observer*> observers;',
+                    'public:',
+                    '    void subscribe(Observer* obs) { observers.push_back(obs); }',
+                    '',
+                    '    void emit(const string& event) {',
+                    '        for (Observer* obs : observers) obs->onEvent(event);',
+                    '    }',
+                    '};',
+                    '',
+                    '// Concrete observer — e.g. the Library notifying members on overdue items',
+                    'class EmailNotifier : public Observer {',
+                    'public:',
+                    '    void onEvent(const string& event) override {',
+                    '        cout << "Email sent: " << event << endl;',
+                    '    }',
+                    '};',
+                ]}
+            />
+
+            <LectureSubHeading title="Factory in C++" />
+
+            <CppBlock
+                title="Factory — create objects without specifying the concrete class"
+                lines={[
+                    '// Without factory: the caller knows too much',
+                    '// if (type == "book")    item = new Book(...);',
+                    '// else if (type == "dvd") item = new DVD(...);',
+                    '// This switch lives everywhere. Adding a new type = update all callsites.',
+                    '',
+                    '// With factory: creation logic in one place',
+                    'class ItemFactory {',
+                    'public:',
+                    '    static LibraryItem* create(const string& type, const string& id, const string& title) {',
+                    '        if (type == "book")     return new Book(id, title, "Unknown", 0);',
+                    '        if (type == "dvd")      return new DVD(id, title, "Unknown", 0);',
+                    '        if (type == "magazine") return new Magazine(id, title, 0, "Unknown");',
+                    '        return nullptr;',
+                    '    }',
+                    '};',
+                    '',
+                    '// Usage — caller never touches Book/DVD/Magazine constructors directly',
+                    '// LibraryItem* item = ItemFactory::create("book", "001", "Clean Code");',
+                ]}
+            />
+
+            {/* ── 04 INTERFACES IN C++ ────────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Interfaces via Pure Abstract Classes" />
+
+            <LectureP>
+                C++ has no <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">interface</code> keyword — interfaces are implemented as classes where every method is pure virtual. This is the primary tool for the Dependency Inversion Principle: your high-level code depends on the interface, not the concrete implementation.
+            </LectureP>
+
+            <CppBlock
+                title="interface pattern — swappable implementations"
+                lines={[
+                    '// The interface — what Library cares about',
+                    'class IStorage {',
+                    'public:',
+                    '    virtual void save(const string& id, const string& data) = 0;',
+                    '    virtual string load(const string& id) = 0;',
+                    '    virtual ~IStorage() {}',
+                    '};',
+                    '',
+                    '// Concrete implementation 1 — file system',
+                    'class FileStorage : public IStorage {',
+                    'public:',
+                    '    void save(const string& id, const string& data) override { /* write to file */ }',
+                    '    string load(const string& id) override { return ""; /* read from file */ }',
+                    '};',
+                    '',
+                    '// Concrete implementation 2 — in-memory (great for tests)',
+                    'class InMemoryStorage : public IStorage {',
+                    '    unordered_map<string, string> store;',
+                    'public:',
+                    '    void save(const string& id, const string& data) override { store[id] = data; }',
+                    '    string load(const string& id) override { return store.count(id) ? store[id] : ""; }',
+                    '};',
+                    '',
+                    '// Library depends on the interface, not the concrete type',
+                    'class Library {',
+                    '    IStorage* storage;  // pointer to interface — could be either implementation',
+                    'public:',
+                    '    Library(IStorage* s) : storage(s) {}',
+                    '    // ... now swapping storage requires zero changes to Library',
+                    '};',
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                Depending on interfaces instead of concrete classes makes your code <LectureTerm>testable</LectureTerm>. In tests, inject <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">InMemoryStorage</code> — no disk I/O, runs instantly, always clean. In production, inject <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">FileStorage</code> or a database implementation. Same Library code. This is called <strong className="text-foreground">dependency injection</strong>.
+            </LectureCallout>
+
+            {/* ── 05 SMART POINTERS ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Smart Pointers — Automatic Memory Management" />
+
+            <LectureP>
+                Raw pointers (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">new</code> / <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code>) are error-prone. Forget to delete and you leak memory. Delete twice and you crash. C++11 introduced <LectureTerm>smart pointers</LectureTerm> that manage memory automatically through RAII (Resource Acquisition Is Initialization).
+            </LectureP>
+
+            <CppBlock
+                title="unique_ptr and shared_ptr — prefer over raw pointers"
+                lines={[
+                    '#include <memory>',
+                    '',
+                    '// unique_ptr — sole owner. Memory freed when pointer goes out of scope.',
+                    '// Use for: class members, factory return values, anything with one owner.',
+                    'unique_ptr<Book> book = make_unique<Book>("001", "Clean Code", "Martin", 431);',
+                    '// book->getTitle() works normally',
+                    '// No delete needed — freed automatically when book leaves scope',
+                    '',
+                    '// shared_ptr — reference counted. Freed when last owner is gone.',
+                    '// Use for: shared ownership, observer lists, graph nodes.',
+                    'shared_ptr<LibraryItem> item = make_shared<Book>("002", "SICP", "Abelson", 657);',
+                    'shared_ptr<LibraryItem> copy = item;  // ref count = 2',
+                    '// item freed only when both item and copy go out of scope',
+                    '',
+                    '// In your Library class — prefer this over raw vector<LibraryItem*>',
+                    'vector<unique_ptr<LibraryItem>> catalog;',
+                    'catalog.push_back(make_unique<Book>("003", "The Pragmatic Programmer", "Hunt", 352));',
+                    '// Destructor frees everything automatically — no manual cleanup needed',
+                ]}
+            />
+
+            {/* ── 06 PUTTING IT TOGETHER ──────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="The Complete Design" />
+
+            <LectureP>
+                Here's the full architecture of the system you'll build in the activity, applying everything from this lecture:
+            </LectureP>
+
+            <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden font-mono text-xs">
+                {[
+                    { label: 'IStorage', note: 'interface — save/load abstract operations', color: 'text-purple-600 dark:text-purple-400' },
+                    { label: '  ↳ FileStorage, InMemoryStorage', note: 'concrete implementations', color: 'text-muted-foreground' },
+                    { label: 'LibraryItem', note: 'abstract base — id, title, checkout(), pure virtual getType()/getLoanDays()', color: 'text-blue-600 dark:text-blue-400' },
+                    { label: '  ↳ Book, DVD, Magazine', note: 'concrete items — override type and loan period', color: 'text-muted-foreground' },
+                    { label: 'ItemFactory', note: 'static factory — create(type, id, title) → LibraryItem*', color: 'text-orange-600 dark:text-orange-400' },
+                    { label: 'Observer / EventEmitter', note: 'notification when items go overdue or are checked out', color: 'text-emerald-600 dark:text-emerald-400' },
+                    { label: 'Library', note: 'orchestrator — holds catalog (vector<unique_ptr<LibraryItem>>), depends on IStorage', color: 'text-rose-600 dark:text-rose-400' },
+                    { label: 'Logger (Singleton)', note: 'single shared log for all operations', color: 'text-zinc-500' },
+                ].map((row) => (
+                    <div key={row.label} className="flex items-start gap-4 px-4 py-2.5 border-b border-border last:border-b-0">
+                        <code className={`shrink-0 w-72 ${row.color}`}>{row.label}</code>
+                        <span className="text-muted-foreground text-xs">{row.note}</span>
+                    </div>
+                ))}
+            </div>
+
+            <LectureCallout type="info">
+                You won't implement every layer in the activity — the storage interface and full observer system are bonus challenges. But designing with this architecture in mind from the start means the code is <em>ready</em> for those extensions. That's the point of good design: it makes change cheap.
+            </LectureCallout>
 
             <LectureFooterNav
                 prev={{
-                    label: 'Version Control with Git',
+                    label: 'Trees, Stacks & Queues',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
                 }}
                 next={{
-                    label: 'Project Kickoff',
+                    label: 'Data Structures in Practice',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/activity'),
                 }}
             />

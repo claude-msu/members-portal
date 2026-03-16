@@ -1,412 +1,358 @@
 import { useNavigate } from 'react-router-dom';
-import { Workflow } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
+import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
-// ── Waterfall vs Agile ────────────────────────────────────────────────────────
-const WaterfallVsAgile = () => (
-    <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/20 border-b border-border">
-                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">Waterfall — plan everything upfront</p>
-            </div>
-            <div className="p-4">
-                <div className="space-y-1.5">
-                    {['Requirements', 'Design', 'Implementation', 'Testing', 'Deployment'].map((phase, i, arr) => (
-                        <div key={phase} className="space-y-1">
-                            <div className="rounded-md px-3 py-2 text-xs font-medium text-white text-center"
-                                style={{ backgroundColor: `hsl(${220 + i * 8}, 60%, ${40 + i * 4}%)` }}>
-                                {phase}
-                            </div>
-                            {i < arr.length - 1 && (
-                                <p className="text-center text-muted-foreground text-xs">↓</p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
-                    Each phase must complete before the next starts. Customer sees working software only at the very end — often a year later, often wrong.
-                </p>
-            </div>
-        </div>
-
-        <div className="rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/20 border-b border-border">
-                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Agile — ship small, learn fast</p>
-            </div>
-            <div className="p-4">
-                <div className="space-y-2">
-                    {[
-                        { label: 'Sprint 1', work: 'auth + dashboard', status: 'shipped ✓' },
-                        { label: 'Sprint 2', work: 'search + filters', status: 'shipped ✓' },
-                        { label: 'Sprint 3', work: 'notifications', status: 'in progress' },
-                        { label: 'Sprint 4', work: 'mobile polish', status: 'planned' },
-                    ].map((s) => (
-                        <div key={s.label}
-                            className="rounded-md border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-2 flex items-center justify-between">
-                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{s.label}</span>
-                            <span className="text-xs text-muted-foreground">{s.work}</span>
-                            <span className={`text-xs font-medium ${s.status.includes('✓') ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>{s.status}</span>
-                        </div>
-                    ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
-                    Working software ships every 1–2 weeks. Customer gives feedback after each sprint — the plan adapts to what's actually needed.
-                </p>
-            </div>
-        </div>
-    </div>
-);
-
-// ── Sprint cycle diagram ──────────────────────────────────────────────────────
-const SprintCycle = () => {
-    const phases = [
-        {
-            title: 'Sprint Planning',
-            color: 'text-blue-600 dark:text-blue-400',
-            bg: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800',
-            desc: 'Team pulls stories from the backlog, estimates effort, and commits to a sprint goal. Output: a sprint backlog the team believes they can ship.',
-        },
-        {
-            title: 'Daily Standup',
-            color: 'text-orange-600 dark:text-orange-400',
-            bg: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800',
-            desc: 'Three questions, 15 minutes max, every day: What did I do yesterday? What will I do today? Any blockers? Blockers get resolved offline — standup is synchronization, not problem solving.',
-        },
-        {
-            title: 'Development',
-            color: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
-            desc: 'Build, test, and review code. Stories move through the board: To Do → In Progress → In Review → Done. "Done" means tested, reviewed, and deployable — not just coded.',
-        },
-        {
-            title: 'Sprint Review',
-            color: 'text-purple-600 dark:text-purple-400',
-            bg: 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800',
-            desc: 'Demo working software to stakeholders. Gather real feedback. Update the backlog based on what you learned. This is the feedback loop that makes agile work.',
-        },
-        {
-            title: 'Retrospective',
-            color: 'text-rose-600 dark:text-rose-400',
-            bg: 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800',
-            desc: 'Internal team meeting: What went well? What didn\'t? What do we commit to changing next sprint? The retrospective is where teams improve — skip it and you stagnate.',
-        },
-    ];
-    return (
-        <div className="my-8 space-y-2">
-            {phases.map((phase, i) => (
-                <div key={phase.title} className="flex items-stretch gap-3">
-                    <div className={`rounded-xl border flex-1 px-4 py-3 ${phase.bg}`}>
-                        <p className={`text-xs font-bold ${phase.color}`}>{phase.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{phase.desc}</p>
-                    </div>
-                    {i < phases.length - 1 && (
-                        <div className="flex items-end pb-3 text-muted-foreground text-sm select-none">↓</div>
-                    )}
-                </div>
-            ))}
-            <p className="text-center text-xs text-muted-foreground pt-1 select-none">↺ &nbsp; repeat every 1–2 weeks</p>
-        </div>
-    );
-};
-
-// ── Kanban board ──────────────────────────────────────────────────────────────
-const KanbanBoard = () => {
-    const columns = [
-        {
-            title: 'Backlog', color: 'text-muted-foreground', bg: 'bg-muted/30',
-            cards: ['Add dark mode toggle', 'Improve search performance', 'Export to CSV'],
-        },
-        {
-            title: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20',
-            cards: ['User authentication', 'Dashboard layout'],
-        },
-        {
-            title: 'In Review', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20',
-            cards: ['Fix login redirect bug'],
-        },
-        {
-            title: 'Done', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-            cards: ['Project scaffolding', 'CI pipeline setup', 'Database schema'],
-        },
-    ];
-    return (
-        <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {columns.map((col) => (
-                <div key={col.title} className={`rounded-xl border border-border ${col.bg} p-3`}>
-                    <p className={`text-xs font-bold mb-2 ${col.color}`}>{col.title} <span className="text-muted-foreground font-normal">({col.cards.length})</span></p>
-                    <div className="space-y-2">
-                        {col.cards.map((card) => (
-                            <div key={card} className="rounded-lg border border-border bg-card px-2.5 py-2">
-                                <p className="text-xs text-foreground leading-relaxed">{card}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
-
-export default function Week6Lecture1() {
+export default function Week5Lecture1() {
     const navigate = useNavigate();
 
     return (
         <LectureLayout>
             <LectureHeader
-                week={6}
+                week={5}
                 session="Lecture 1"
-                title="Scrum, Kanban & Sprint Cycles"
-                description="The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives."
-                icon={<Workflow className="h-4 w-4" />}
+                title="Package Managers & Environments"
+                description="Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again."
+                icon={<Package className="h-4 w-4" />}
             />
 
-            {/* ── 01 WHY AGILE ────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Why Agile Exists" />
+            {/* ── 01 WHAT IS A PACKAGE ────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="What is a Package?" />
 
             <LectureP>
-                Software is uniquely hard to plan. Unlike building a bridge, you can't fully specify what you're building before you start — requirements change, users discover what they actually want only after using a prototype, and technology shifts under you mid-project. <LectureTerm>Waterfall</LectureTerm>, the dominant methodology before the 2000s, treated software like construction: plan everything, then execute. It failed constantly.
+                A <LectureTermWithTip tip="A distributable unit of code (library or tool) with a name and version. Published to a registry so others can install it with one command.">package</LectureTermWithTip> is a bundle of code that someone else wrote, tested, and published so that you don't have to write it yourself. It has a name, a version, and a set of files. It might also depend on other packages — those are called its <LectureTermWithTip tip="Other packages this one needs to run. Installing a package automatically installs its dependencies (and their dependencies, recursively).">dependencies</LectureTermWithTip>.
             </LectureP>
             <LectureP>
-                In 2001, seventeen software practitioners wrote the <LectureTerm>Agile Manifesto</LectureTerm> — four values that reoriented the entire industry. The core insight: working software beats comprehensive documentation, customer collaboration beats contract negotiation, and responding to change beats following a plan.
+                When you install a package, you're not just downloading one file. You're downloading that package, plus all of its dependencies, plus all of their dependencies, potentially dozens of levels deep. A simple React project can have tens of thousands of packages in its <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The package manager resolves, downloads, and wires all of them together so you don't have to think about it.
             </LectureP>
-
-            <WaterfallVsAgile />
+            <LectureP>
+                This is both a superpower and a responsibility. You can build sophisticated applications by composing packages written by experts. But you're also trusting that code with your system and your users — which is why understanding what you're installing matters.
+            </LectureP>
 
             <LectureCallout type="info">
-                Agile isn't a specific process — it's a set of values. <LectureTerm>Scrum</LectureTerm> and <LectureTerm>Kanban</LectureTerm> are concrete frameworks that implement those values. Most real teams blend both, picking the ceremonies and artifacts that actually help them ship.
+                The infamous <LectureTermWithTip tip="A developer unpublished the tiny npm package 'left-pad', breaking thousands of projects that depended on it. Led to more careful dependency practices and lockfiles.">left-pad incident</LectureTermWithTip> in 2016 is a good illustration of package dependency risk. A developer unpublished a 17-line npm package called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left-pad</code> from the registry. Because thousands of other packages depended on it, builds broke across the entire JavaScript ecosystem within minutes — including React and Babel. The entire internet's JS infrastructure depended on a function that pads strings with spaces.
             </LectureCallout>
 
-            {/* ── 02 SCRUM ────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Scrum" />
+            {/* ── 02 THE REGISTRY MODEL ───────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="The Registry Model" />
 
             <LectureP>
-                <LectureTerm>Scrum</LectureTerm> organizes work into fixed-length iterations called <LectureTerm>sprints</LectureTerm> — typically 1–2 weeks. Each sprint is a complete loop: plan, build, ship, learn, repeat. The three roles in Scrum are the <LectureTerm>Product Owner</LectureTerm> (decides what to build and in what order), the <LectureTerm>Scrum Master</LectureTerm> (removes blockers, protects the team), and the <LectureTerm>Development Team</LectureTerm> (builds the thing).
+                Every package manager works against a <LectureTermWithTip tip="A central server that stores package metadata and files. npm uses registry.npmjs.org; pip uses pypi.org. Install commands query the registry.">registry</LectureTermWithTip> — a centralized database of published packages. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install react</code>, npm reaches out to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">registry.npmjs.org</code>, downloads the package metadata, resolves the full dependency tree, and installs everything. The registry is the source of truth.
             </LectureP>
 
-            <SprintCycle />
-
-            <LectureSubHeading title="User Stories" />
-            <LectureP>
-                Work in Scrum is expressed as <LectureTerm>user stories</LectureTerm> — short, plain-language descriptions of a feature from the perspective of the person who needs it. The canonical format: <em className="text-foreground">As a [type of user], I want [some goal] so that [some reason].</em> This keeps the team focused on value delivered to real people, not technical tasks divorced from purpose.
-            </LectureP>
-
-            <div className="my-6 space-y-2">
+            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
                     {
-                        story: 'As a member, I want to search for books by title so that I can find what I\'m looking for without browsing the whole catalog.',
-                        points: 3,
-                        acceptance: ['Search returns results within 200ms', 'Partial matches are included', 'Results show availability status'],
+                        manager: 'npm / yarn / pnpm',
+                        registry: 'registry.npmjs.org',
+                        ecosystem: 'JavaScript / Node.js',
+                        packages: '2.5M+ packages',
                     },
                     {
-                        story: 'As a librarian, I want to see all overdue loans in one view so that I can follow up with members who haven\'t returned items.',
-                        points: 2,
-                        acceptance: ['List shows patron name, item title, and days overdue', 'Sortable by days overdue descending', 'Exportable to CSV'],
+                        manager: 'pip',
+                        registry: 'pypi.org',
+                        ecosystem: 'Python',
+                        packages: '500K+ packages',
                     },
-                ].map((s, i) => (
-                    <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
-                        <div className="px-4 py-3 border-b border-border flex items-start justify-between gap-3">
-                            <p className="text-xs text-foreground leading-relaxed italic">"{s.story}"</p>
-                            <div className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary shrink-0">{s.points} pts</div>
-                        </div>
-                        <div className="px-4 py-2.5">
-                            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Acceptance criteria</p>
-                            <div className="space-y-1">
-                                {s.acceptance.map((a) => (
-                                    <div key={a} className="flex items-start gap-2">
-                                        <span className="text-emerald-500 text-xs mt-0.5 shrink-0">✓</span>
-                                        <p className="text-xs text-muted-foreground">{a}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
+                    {
+                        manager: 'apt',
+                        registry: 'Debian/Ubuntu mirrors',
+                        ecosystem: 'Linux system software',
+                        packages: '60K+ packages',
+                    },
+                    {
+                        manager: 'brew',
+                        registry: 'github.com/Homebrew',
+                        ecosystem: 'macOS / Linux userland',
+                        packages: '7K+ formulae',
+                    },
+                ].map((item) => (
+                    <div key={item.manager} className="rounded-lg border border-border bg-card p-4">
+                        <code className="text-sm font-bold text-foreground">{item.manager}</code>
+                        <p className="text-xs text-muted-foreground mt-1">{item.ecosystem}</p>
+                        <p className="text-xs text-muted-foreground mt-2 font-mono">{item.registry}</p>
+                        <p className="text-xs text-primary/70 mt-1">{item.packages}</p>
                     </div>
                 ))}
             </div>
 
-            <LectureCallout type="tip">
-                <LectureTerm>Story points</LectureTerm> measure relative effort, not hours. A 2-point story is roughly twice as complex as a 1-point story — the team calibrates their own scale. Common sequences: 1, 2, 3, 5, 8 (Fibonacci). The key insight: estimate in points, not time. Teams are bad at estimating hours; they're better at estimating relative complexity.
+            <LectureP>
+                Understanding that there's a registry behind every package manager explains a lot of behavior: why installs fail with network errors, why you sometimes get stale versions, why companies run private registries for internal packages, and why supply chain attacks (malicious code injected into popular packages) are a real security concern.
+            </LectureP>
+
+            {/* ── 03 NPM ──────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="npm — The JavaScript Package Manager" />
+
+            <LectureP>
+                <LectureTermWithTip tip="Node Package Manager. Installs JavaScript packages, manages package.json and node_modules, and runs scripts. The default package manager for Node.js.">npm</LectureTermWithTip> (Node Package Manager) ships with Node.js and is the package manager you'll use most as a web developer. It manages two things: packages installed globally on your machine (CLI tools), and packages installed locally in a specific project.
+            </LectureP>
+
+            <LectureSubHeading title="The package.json file" />
+            <LectureP>
+                Every Node.js project has a <LectureTermWithTip tip="The project manifest: name, version, scripts, and dependency lists (dependencies and devDependencies). npm install reads this file.">package.json</LectureTermWithTip> file at its root. This is the manifest — it records the project name, version, scripts, and most importantly, the list of packages the project depends on. It's the single source of truth for your project's dependencies.
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'create a new project and initialize a package.json', cmd: 'mkdir my-project && cd my-project && npm init -y' },
+                    { comment: 'install a package as a runtime dependency', cmd: 'npm install express' },
+                    { comment: 'install a package only needed during development', cmd: 'npm install --save-dev typescript' },
+                    { comment: 'install a specific version of a package', cmd: 'npm install react@18.2.0' },
+                    { comment: 'install all dependencies listed in package.json', cmd: 'npm install' },
+                    { comment: 'remove a package', cmd: 'npm uninstall express' },
+                ]}
+            />
+
+            <LectureP>
+                The <LectureCmd tip="npm install (no arguments): reads package.json and installs every dependency listed under 'dependencies' and 'devDependencies'. This is what you run after cloning a project — it reconstructs the full node_modules folder from the manifest.">npm install</LectureCmd> command with no arguments is what you run when you clone a new project. It reads <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> and recreates the entire <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The <LectureCmd tip="--save-dev flag: installs the package as a devDependency — only needed during development (linting, testing, TypeScript compilation). Not included in production builds.">--save-dev</LectureCmd> flag marks packages as development-only. These are things like TypeScript, ESLint, and test runners that don't need to be included in production.
+            </LectureP>
+
+            <LectureSubHeading title="The package-lock.json file" />
+            <LectureP>
+                When npm installs packages, it creates a <LectureTermWithTip tip="Locks exact versions of every package (including transitive deps). Commit this file so everyone gets the same dependency tree; makes builds reproducible.">package-lock.json</LectureTermWithTip> file. While <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> specifies version ranges (e.g., <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">^18.0.0</code>), the lockfile pins every package to its exact installed version — including all transitive dependencies. This ensures that anyone who clones your project gets the exact same dependency tree, not "approximately the same."
+            </LectureP>
+
+            <LectureCallout type="warning">
+                Never delete <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> and never add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules/</code> to Git. The lockfile should be committed — it's what makes builds reproducible across your team. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules/</code> can be 200MB+ and is entirely reconstructable from the lockfile.
             </LectureCallout>
 
-            {/* ── 03 AGILE ARTIFACTS ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Agile Artifacts" />
-
+            <LectureSubHeading title="npm scripts" />
             <LectureP>
-                Three artifacts keep everyone aligned on what's being built and how much is left.
+                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">scripts</code> field in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> lets you define shortcut commands for your project. These are how you start dev servers, run tests, build for production, and lint your code — all through a consistent interface regardless of what tools are underneath.
             </LectureP>
 
-            <div className="my-6 space-y-3">
-                {[
-                    {
-                        name: 'Product Backlog',
-                        color: 'text-blue-600 dark:text-blue-400',
-                        bg: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800',
-                        desc: 'The master ordered list of everything that might go into the product. Owned by the Product Owner. Constantly refined — stories at the top are detailed and ready; stories at the bottom are rough ideas. The backlog is never "done."',
-                        example: 'Everything from "add dark mode" to "rebuild the search engine" — all in one prioritized list.',
-                    },
-                    {
-                        name: 'Sprint Backlog',
-                        color: 'text-orange-600 dark:text-orange-400',
-                        bg: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800',
-                        desc: 'The subset of the product backlog the team commits to completing in the current sprint. Owned by the team. Once the sprint starts, scope is locked — new requests go to the product backlog for the next sprint.',
-                        example: 'The 5–8 stories the team pulled into Sprint 3, with tasks broken out under each.',
-                    },
-                    {
-                        name: 'Burndown Chart',
-                        color: 'text-emerald-600 dark:text-emerald-400',
-                        bg: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
-                        desc: 'A graph showing remaining story points vs. days remaining in the sprint. The ideal line slopes from total points to zero. If the actual line is above the ideal, the team is behind. If below, they\'re ahead.',
-                        example: 'Sprint starts with 24 points. By day 5, ideal = 12 remaining; actual = 15 remaining. Slightly behind — worth discussing in standup.',
-                    },
-                ].map((a) => (
-                    <div key={a.name} className={`rounded-xl border ${a.bg} overflow-hidden`}>
-                        <div className="px-4 py-2.5 border-b border-inherit">
-                            <p className={`text-xs font-bold ${a.color}`}>{a.name}</p>
-                        </div>
-                        <div className="px-4 py-3 space-y-1.5">
-                            <p className="text-xs text-muted-foreground leading-relaxed">{a.desc}</p>
-                            <p className="text-xs text-foreground"><span className="font-semibold text-muted-foreground">Example: </span>{a.example}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── 04 KANBAN ───────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Kanban" />
-
-            <LectureP>
-                <LectureTerm>Kanban</LectureTerm> is a flow-based alternative to Scrum's sprints. Instead of time-boxed iterations, work flows continuously through a board of columns. The core principle is <LectureTerm>WIP limits</LectureTerm> (Work In Progress limits) — you cap how many items can be in each column at once. If "In Progress" is full, you can't start something new until you finish something in progress. This forces the team to finish work rather than start more.
-            </LectureP>
-
-            <KanbanBoard />
-
-            <div className="my-6 rounded-xl border border-border overflow-hidden">
-                <div className="grid grid-cols-2 divide-x divide-border text-xs">
-                    <div className="p-4">
-                        <p className="font-semibold text-foreground mb-2">Choose Scrum when</p>
-                        <div className="space-y-1.5">
-                            {[
-                                'Building a product with evolving requirements',
-                                'Team is new and needs structure',
-                                'Stakeholders want regular demos and feedback loops',
-                                'Work can be broken into sprint-sized chunks',
-                            ].map((point) => (
-                                <div key={point} className="flex gap-2">
-                                    <span className="text-blue-500 shrink-0">→</span>
-                                    <p className="text-muted-foreground">{point}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="p-4">
-                        <p className="font-semibold text-foreground mb-2">Choose Kanban when</p>
-                        <div className="space-y-1.5">
-                            {[
-                                'Work arrives unpredictably (bug fixes, support tickets)',
-                                'Team is experienced and self-organizing',
-                                'Continuous delivery matters more than sprint goals',
-                                'Items vary wildly in size and can\'t be sprint-scoped',
-                            ].map((point) => (
-                                <div key={point} className="flex gap-2">
-                                    <span className="text-emerald-500 shrink-0">→</span>
-                                    <p className="text-muted-foreground">{point}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
+                    package.json — scripts section
+                </div>
+                <div className="bg-zinc-950 px-5 py-4 select-none">
+                    <p className="text-zinc-400">{'{'}</p>
+                    <p className="text-zinc-400 pl-4">{'"scripts": {'}</p>
+                    <p className="text-zinc-500 pl-8">{'"dev": '}<span className="text-emerald-400">"vite"</span><span className="text-zinc-400">,</span></p>
+                    <p className="text-zinc-500 pl-8">{'"build": '}<span className="text-emerald-400">"tsc && vite build"</span><span className="text-zinc-400">,</span></p>
+                    <p className="text-zinc-500 pl-8">{'"lint": '}<span className="text-emerald-400">"eslint src --ext ts,tsx"</span><span className="text-zinc-400">,</span></p>
+                    <p className="text-zinc-500 pl-8">{'"test": '}<span className="text-emerald-400">"vitest"</span></p>
+                    <p className="text-zinc-400 pl-4">{'}'}</p>
+                    <p className="text-zinc-400">{'}'}</p>
                 </div>
             </div>
 
-            {/* ── 05 GITHUB PROJECTS ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="GitHub Projects — Agile in Practice" />
+            <LectureP>
+                In a project that defines <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dev</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">build</code>, or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test</code> in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> (e.g. from Vite or Create React App), you run:
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'run the dev script (starts the development server)', cmd: 'npm run dev' },
+                    { comment: 'run the build script', cmd: 'npm run build' },
+                    { comment: 'run the test script', cmd: 'npm run test' },
+                    { comment: 'list all globally installed packages', cmd: 'npm list -g --depth=0' },
+                    { comment: 'install a CLI tool globally so it works from anywhere', cmd: 'npm install -g typescript' },
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                <LectureCmd tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureCmd> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
+            </LectureCallout>
+
+            {/* ── 04 PIP ──────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="pip — Python's Package Manager" />
 
             <LectureP>
-                GitHub Projects is where most engineering teams actually live — it combines issues, pull requests, and project boards in the same tool as your code. No context switching between Jira and GitHub. For the club's projects and for your own work, GitHub Projects is the right default.
+                <LectureTermWithTip tip="Pip Installs Packages. Python's default package manager; installs from PyPI. Use inside a virtual environment so projects don't share global packages.">pip</LectureTermWithTip> is Python's package manager. It installs packages from PyPI (the Python Package Index). The workflow is similar to npm, but Python projects use a <LectureTermWithTip tip="An isolated Python environment per project. Activate it with source .venv/bin/activate; pip install then only affects that project.">virtual environment</LectureTermWithTip> instead of a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder to isolate dependencies.
             </LectureP>
 
-            <div className="my-6 space-y-3">
-                {[
-                    {
-                        step: '01',
-                        title: 'Create a Project',
-                        desc: 'Go to your GitHub repo → Projects tab → New Project. Choose "Board" view for Kanban or "Roadmap" for timeline planning. Add columns: Backlog, Sprint, In Progress, In Review, Done.',
-                    },
-                    {
-                        step: '02',
-                        title: 'Write Issues as User Stories',
-                        desc: 'Every feature is a GitHub Issue. Title: the story in one line. Body: full user story format + acceptance criteria. Add labels (feature, bug, chore) and estimates via custom fields.',
-                    },
-                    {
-                        step: '03',
-                        title: 'Link PRs to Issues',
-                        desc: 'In your PR description, write "Closes #42" — GitHub auto-closes the issue and moves the card to Done when the PR merges. The board stays current with zero manual updates.',
-                    },
-                    {
-                        step: '04',
-                        title: 'Use Milestones for Sprints',
-                        desc: 'Create a Milestone called "Sprint 1" with a due date. Assign issues to it. The milestone progress bar becomes your burndown chart — issues closed vs. total assigned.',
-                    },
-                ].map((item) => (
-                    <div key={item.step} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
-                        <span className="text-2xl font-black text-primary/70 shrink-0 select-none">{item.step}</span>
-                        <div>
-                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
+            <LectureSubHeading title="Virtual environments" />
+            <LectureP>
+                Without a virtual environment, pip installs packages globally — meaning every Python project on your machine shares the same package versions. This causes version conflicts when Project A needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.25</code> and Project B needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.31</code>. A <LectureTermWithTip tip="A folder (e.g. .venv) containing a copy of the Python interpreter and project-specific packages. Prevents version conflicts between projects.">virtual environment</LectureTermWithTip> creates an isolated Python installation per project so each project has its own packages.
+            </LectureP>
 
-            {/* ── 06 THE RETROSPECTIVE ────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="The Retrospective — How Teams Actually Improve" />
+            <TerminalBlock
+                lines={[
+                    { comment: 'create a virtual environment in a folder called .venv', cmd: 'python3 -m venv .venv' },
+                    { comment: 'activate it (macOS/Linux)', cmd: 'source .venv/bin/activate' },
+                    { comment: 'activate it (Windows)', cmd: '.venv\\Scripts\\activate' },
+                    { comment: 'your prompt will now show (.venv) — you are inside the environment', cmd: '' },
+                    { comment: 'install packages — they go into .venv, not globally', cmd: 'pip install fastapi uvicorn' },
+                    { comment: 'save the current environment to a requirements file', cmd: 'pip freeze > requirements.txt' },
+                    { comment: 'install from a requirements file (on a new machine)', cmd: 'pip install -r requirements.txt' },
+                    { comment: 'deactivate the virtual environment', cmd: 'deactivate' },
+                ]}
+            />
 
             <LectureP>
-                The retrospective is the most skipped and most valuable ceremony in agile. Teams skip it when they feel busy — which is exactly when they need it most. Without retrospectives, teams repeat the same mistakes sprint after sprint.
+                The <LectureCmd tip="pip freeze: outputs every installed package and its exact version in a format suitable for a requirements.txt file. Like package-lock.json for Python — captures the exact state of your environment.">pip freeze</LectureCmd> command captures your exact environment to a <LectureTermWithTip tip="A text file listing package names and versions (one per line). pip install -r requirements.txt recreates the environment. Commit this; don't commit .venv.">requirements.txt</LectureTermWithTip> file. This is Python's equivalent of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> — it pins exact versions so anyone who runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install -r requirements.txt</code> gets the same environment.
+            </LectureP>
+
+            <LectureCallout type="info">
+                Always add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.venv/</code> to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code>. Virtual environments are local — they contain compiled binaries specific to your OS and Python version. Commit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requirements.txt</code>, not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.venv/</code>.
+            </LectureCallout>
+
+            {/* ── 05 APT ──────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="apt — Linux System Package Manager" />
+
+            <LectureP>
+                <LectureTermWithTip tip="Advanced Package Tool. The default package manager for Debian and Ubuntu. Manages system software: run apt update before apt install.">apt</LectureTermWithTip> (Advanced Package Tool) is the system-level package manager for Debian and Ubuntu — the Linux distributions you'll encounter on most servers. Unlike npm and pip which manage language-level libraries, apt manages system-level software: web servers, databases, programming language runtimes, system utilities.
             </LectureP>
             <LectureP>
-                The classic format is <LectureTerm>Start / Stop / Continue</LectureTerm>: what should we start doing that we aren't? What should we stop doing that isn't working? What's working well that we should keep? Each item leads to a concrete action with an owner — not just a vague intention to "communicate better."
+                When you install Node.js on a fresh Ubuntu server, you use apt. When you install PostgreSQL or nginx or Python, you use apt. It's the foundation layer that everything else sits on top of.
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'update the package index (always run this first)', cmd: 'sudo apt update' },
+                    { comment: 'upgrade all installed packages to their latest versions', cmd: 'sudo apt upgrade' },
+                    { comment: 'install a package', cmd: 'sudo apt install nginx' },
+                    { comment: 'install multiple packages at once', cmd: 'sudo apt install git curl wget build-essential' },
+                    { comment: 'search for a package by name or description', cmd: 'apt search "web server"' },
+                    { comment: 'show detailed info about a package before installing', cmd: 'apt show nginx' },
+                    { comment: 'remove a package but keep its config files', cmd: 'sudo apt remove nginx' },
+                    { comment: 'remove a package AND its config files', cmd: 'sudo apt purge nginx' },
+                    { comment: 'remove packages that were installed as dependencies and are no longer needed', cmd: 'sudo apt autoremove' },
+                ]}
+            />
+
+            <LectureP>
+                The difference between <LectureCmd tip="apt remove: uninstalls the package binary but leaves configuration files in place. Useful if you plan to reinstall later and want to keep your settings.">apt remove</LectureCmd> and <LectureCmd tip="apt purge: uninstalls the package AND deletes all its configuration files. Use this for a clean uninstall — like it was never there.">apt purge</LectureCmd> matters when you're managing servers. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">remove</code> leaves config files behind (useful if you might reinstall). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">purge</code> cleans everything out completely.
+            </LectureP>
+
+            <LectureSubHeading title="PPAs and external repositories" />
+            <LectureP>
+                Not every package is in Ubuntu's default repositories. For software like the latest version of Node.js, you often need to add a <LectureTermWithTip tip="Personal Package Archive. A third-party repository for Ubuntu/Debian that provides packages not in the official repos. Add with add-apt-repository.">PPA</LectureTermWithTip> (Personal Package Archive) or an external repository before you can install it.
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'add NodeSource repository so apt knows where to get the latest Node.js', cmd: 'curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -' },
+                    { comment: 'now apt can find and install the latest Node.js', cmd: 'sudo apt install nodejs' },
+                    { comment: 'verify the version', cmd: 'node --version' },
+                ]}
+            />
+
+            <LectureCallout type="warning">
+                Be careful when piping scripts directly into bash from the internet — <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">curl ... | sudo bash</code> runs whatever is at that URL with root privileges. Only do this with commands from official documentation of major, trusted projects.
+            </LectureCallout>
+
+            {/* ── 06 BREW ─────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="brew — macOS Package Manager" />
+
+            <LectureP>
+                <LectureTermWithTip tip="The de facto macOS package manager. Installs CLI tools (formulae) and GUI apps (casks). Install from brew.sh; then use brew install for everything else.">Homebrew</LectureTermWithTip> is the unofficial-but-universal package manager for macOS. Apple ships a minimal set of tools — Homebrew fills the gap with thousands of packages that developers need.
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'install Homebrew (run this once on a new Mac)', cmd: '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"' },
+                    { comment: 'install a package (called a "formula")', cmd: 'brew install git' },
+                    { comment: 'install a GUI application (called a "cask")', cmd: 'brew install --cask visual-studio-code' },
+                    { comment: 'update brew and all formula definitions', cmd: 'brew update' },
+                    { comment: 'upgrade all installed formulae', cmd: 'brew upgrade' },
+                    { comment: 'see what you have installed', cmd: 'brew list' },
+                    { comment: 'check for problems with your brew installation', cmd: 'brew doctor' },
+                ]}
+            />
+
+            <LectureP>
+                Homebrew distinguishes between <LectureTermWithTip tip="Homebrew's term for a command-line tool or library (e.g. git, node). Install with brew install <name>.">formulae</LectureTermWithTip> (command-line tools and libraries, like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">postgresql</code>) and <LectureTermWithTip tip="Homebrew's term for a GUI application (.app). Install with brew install --cask <name>; goes to your Applications folder.">casks</LectureTermWithTip> (GUI applications, like VS Code, Chrome, or Docker Desktop). The <LectureCmd tip="--cask flag: tells brew to install a GUI application rather than a command-line tool. Casks are macOS .app bundles that install into your Applications folder.">--cask</LectureCmd> flag is how you install GUI apps.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                A common first-day-on-a-new-Mac workflow: install Homebrew, then use it to install everything else — git, node, python, postgresql, the works. It's faster and cleaner than downloading installers manually.
+            </LectureCallout>
+
+            {/* ── 07 SEMANTIC VERSIONING ──────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Semantic Versioning" />
+
+            <LectureP>
+                Every package has a version number. Understanding how versioning works helps you make informed decisions about what to install and when to upgrade. The standard format is <LectureTermWithTip tip="Semantic versioning: MAJOR = breaking changes, MINOR = new features (backward compatible), PATCH = bug fixes. e.g. 18.2.0.">MAJOR.MINOR.PATCH</LectureTermWithTip> — for example, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">18.2.0</code>.
             </LectureP>
 
             <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden">
-                <div className="grid grid-cols-3 divide-x divide-border text-xs">
+                <div className="grid grid-cols-3 divide-x divide-border">
                     {[
-                        { label: 'Start', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20', items: ['Writing tests before code', 'PR descriptions with context', 'Dedicated code review time Fridays'] },
-                        { label: 'Stop', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/20', items: ['Merging without review', 'Scope creep mid-sprint', 'Standup going 30+ minutes'] },
-                        { label: 'Continue', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20', items: ['Monday planning sessions', 'Pair programming on blockers', 'Friday demos to stakeholders'] },
-                    ].map((col) => (
-                        <div key={col.label} className={`p-4 ${col.bg}`}>
-                            <p className={`font-bold mb-3 ${col.color}`}>{col.label}</p>
-                            <div className="space-y-2">
-                                {col.items.map((item) => (
-                                    <div key={item} className="rounded-lg border border-border bg-card px-2.5 py-2">
-                                        <p className="text-xs text-muted-foreground leading-relaxed">{item}</p>
-                                    </div>
-                                ))}
-                            </div>
+                        {
+                            part: 'MAJOR',
+                            example: '18',
+                            meaning: 'Breaking changes. Code written for v17 may not work on v18 without modifications.',
+                            color: 'text-rose-600 dark:text-rose-400',
+                            bg: 'bg-rose-50 dark:bg-rose-950/20',
+                        },
+                        {
+                            part: 'MINOR',
+                            example: '2',
+                            meaning: 'New features added in a backwards-compatible way. Upgrading is safe.',
+                            color: 'text-amber-600 dark:text-amber-400',
+                            bg: 'bg-amber-50 dark:bg-amber-950/20',
+                        },
+                        {
+                            part: 'PATCH',
+                            example: '0',
+                            meaning: 'Bug fixes only. No new features, no breaking changes. Always upgrade.',
+                            color: 'text-emerald-600 dark:text-emerald-400',
+                            bg: 'bg-emerald-50 dark:bg-emerald-950/20',
+                        },
+                    ].map((item) => (
+                        <div key={item.part} className={`p-4 ${item.bg}`}>
+                            <p className={`text-xs font-bold uppercase tracking-wider ${item.color}`}>{item.part}</p>
+                            <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.example}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed mt-2">{item.meaning}</p>
                         </div>
                     ))}
                 </div>
             </div>
 
-            <LectureCallout type="tip">
-                The best retrospectives are psychologically safe — team members can say what's actually wrong without fear of blame. If your retrospective only produces "good job everyone," something's wrong. The facilitator's job is to make it safe to say hard things.
+            <LectureP>
+                In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code>, version ranges use special symbols. A <LectureCmd tip="^ (caret) in package.json: accepts any version compatible with the specified version. ^18.2.0 means 'any version >= 18.2.0 and < 19.0.0'. Will automatically get new features and bug fixes but not breaking changes.">^</LectureCmd> (caret) means "compatible with" — it will accept newer minor and patch versions but not a new major. A <LectureCmd tip="~ (tilde) in package.json: more restrictive than caret. ~18.2.0 means 'any version >= 18.2.0 and < 18.3.0'. Only accepts patch-level updates.">~</LectureCmd> (tilde) is more restrictive — only patch updates. No prefix means exactly that version.
+            </LectureP>
+
+            <LectureCallout type="info">
+                This is why <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> exists. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> might say <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">^18.2.0</code> which could resolve to different versions on different machines at different times. The lockfile pins the exact version so every install is identical.
             </LectureCallout>
+
+            {/* ── 08 PUTTING IT TOGETHER ──────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Setting Up a Real Environment" />
+
+            <LectureP>
+                Let's walk through setting up a fresh Ubuntu server from scratch — the kind of environment you'd get from a cloud provider like AWS or DigitalOcean. This is the real-world workflow combining everything from this lecture.
+            </LectureP>
+
+            <TerminalBlock
+                title="bash — fresh Ubuntu server"
+                lines={[
+                    { comment: 'first thing: update the system', cmd: 'sudo apt update && sudo apt upgrade -y' },
+                    { comment: 'install essential build tools', cmd: 'sudo apt install -y curl git build-essential' },
+                    { comment: 'add NodeSource repo and install Node.js 20', cmd: 'curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -' },
+                    { cmd: 'sudo apt install -y nodejs' },
+                    { comment: 'verify node and npm are installed', cmd: 'node --version && npm --version' },
+                    { comment: 'install Python and pip', cmd: 'sudo apt install -y python3 python3-pip python3-venv' },
+                    { comment: 'install nginx web server', cmd: 'sudo apt install -y nginx' },
+                    { comment: 'verify nginx is running', cmd: 'systemctl status nginx' },
+                    { comment: 'create a project and set up a Python venv', cmd: 'mkdir ~/app && cd ~/app && python3 -m venv .venv' },
+                    { cmd: 'source .venv/bin/activate' },
+                    { cmd: 'pip install fastapi uvicorn' },
+                ]}
+            />
+
+            <LectureP>
+                This sequence — update, install essentials, install runtimes, verify — is the pattern for every server setup you'll ever do. The specific packages change, the pattern doesn't.
+            </LectureP>
 
             <LectureFooterNav
                 prev={{
-                    label: 'Build Your Frontend',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/activity'),
+                    label: 'Project Kickoff',
+                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/activity'),
                 }}
                 next={{
-                    label: 'CI/CD, TDD & Engineering Culture',
+                    label: 'Docker & Containerization',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-2'),
                 }}
             />

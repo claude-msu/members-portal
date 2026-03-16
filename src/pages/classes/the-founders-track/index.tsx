@@ -22,11 +22,9 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-import { CURRENT, QUEUED, type WeekConfig, type PortfolioEntry } from './weeks';
+import { WEEKS, getCurrent, type WeekConfig, type PortfolioEntry } from './weeks';
 
 // ─── Countdown helpers ────────────────────────────────────────────────────────
-
-const HALF_CYCLE_MS = 3.5 * 24 * 60 * 60 * 1000;
 
 const getNextSunday = () => {
     const now = new Date();
@@ -58,20 +56,6 @@ function useCountdown(target: Date) {
         return () => clearInterval(id);
     }, [calc]);
     return time;
-}
-
-function useCountdownUpperHalf(target: Date): boolean {
-    const calc = useCallback(() => {
-        const diff = target.getTime() - Date.now();
-        if (diff <= 0) return true;
-        return diff > HALF_CYCLE_MS;
-    }, [target]);
-    const [upper, setUpper] = useState(() => calc());
-    useEffect(() => {
-        const id = setInterval(() => setUpper(calc()), 1000);
-        return () => clearInterval(id);
-    }, [calc]);
-    return upper;
 }
 
 // ─── Countdown inline ─────────────────────────────────────────────────────────
@@ -323,8 +307,13 @@ function PersonaCard({ week }: { week: WeekConfig }) {
 
 export default function TheFoundersTrack() {
     const navigate = useNavigate();
-    const useQueue = useCountdownUpperHalf(NEXT_DROP);
-    const displayWeek = (useQueue && QUEUED) ? QUEUED : CURRENT;
+    const [currentWeek, setCurrentWeek] = useState(1);
+
+    useEffect(() => {
+        getCurrent().then(setCurrentWeek);
+    }, []);
+
+    const displayWeek = WEEKS[Math.min(Math.max(currentWeek - 1, 0), WEEKS.length - 1)];
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
@@ -361,7 +350,7 @@ export default function TheFoundersTrack() {
                         The Founder's Track
                     </h1>
                     <p className="mt-2 text-sm text-muted-foreground leading-relaxed">
-                        An 8-week internal accelerator for students who are building something. Every Thursday at Coworking, you'll defend your progress in front of a different investor persona — each one attacking from a completely different angle.
+                        An internal accelerator for students who are building something. Every Thursday at Coworking, you'll defend your progress in front of a different investor persona — each one attacking from a completely different angle.
                     </p>
                 </div>
             </motion.div>

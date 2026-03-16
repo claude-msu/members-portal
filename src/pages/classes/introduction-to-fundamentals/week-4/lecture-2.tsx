@@ -1,92 +1,67 @@
 import { useNavigate } from 'react-router-dom';
-import { Server } from 'lucide-react';
+import { GitBranch } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
-// ── Relational table diagram ──────────────────────────────────────────────────
-const RelationalDiagram = () => (
-    <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {[
-            {
-                table: 'users',
-                color: 'text-blue-600 dark:text-blue-400',
-                border: 'border-blue-200 dark:border-blue-800',
-                header: 'bg-blue-50 dark:bg-blue-950/30',
-                rows: [
-                    { id: '1', name: 'Alice', email: 'alice@msu.edu' },
-                    { id: '2', name: 'Bob', email: 'bob@msu.edu' },
-                ],
-                cols: ['id', 'name', 'email'],
-            },
-            {
-                table: 'notes',
-                color: 'text-emerald-600 dark:text-emerald-400',
-                border: 'border-emerald-200 dark:border-emerald-800',
-                header: 'bg-emerald-50 dark:bg-emerald-950/30',
-                rows: [
-                    { id: '1', user_id: '1', title: 'FastAPI intro' },
-                    { id: '2', user_id: '1', title: 'SQL basics' },
-                    { id: '3', user_id: '2', title: 'React hooks' },
-                ],
-                cols: ['id', 'user_id', 'title'],
-            },
-        ].map((t) => (
-            <div key={t.table} className={`rounded-xl border ${t.border} overflow-hidden`}>
-                <div className={`px-4 py-2 ${t.header}`}>
-                    <code className={`text-xs font-bold ${t.color}`}>{t.table}</code>
-                </div>
-                <table className="w-full text-xs font-mono">
-                    <thead>
-                        <tr className="border-b border-border">
-                            {t.cols.map((c) => (
-                                <th key={c} className="px-3 py-1.5 text-left text-muted-foreground font-normal">{c}</th>
-                            ))}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {t.rows.map((row, i) => (
-                            <tr key={i} className="border-b border-border last:border-b-0">
-                                {t.cols.map((c) => (
-                                    <td key={c} className={`px-3 py-1.5 ${c === 'user_id' ? 'text-blue-600 dark:text-blue-400' : 'text-foreground'}`}>
-                                        {(row as Record<string, string>)[c]}
-                                    </td>
-                                ))}
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-        ))}
-        <div className="sm:col-span-2 text-xs text-muted-foreground">
-            <code>notes.user_id</code> is a foreign key that references <code>users.id</code>. The relationship: one user has many notes.
-        </div>
-    </div>
-);
-
-// ── SQL code block ────────────────────────────────────────────────────────────
-const SqlBlock = ({ title, lines }: { title: string; lines: { comment?: string; sql: string }[] }) => (
-    <div className="my-4 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">{title}</div>
-        <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
-            {lines.map((line, i) => (
-                <div key={i}>
-                    {line.comment && <p className="text-zinc-500 mb-0.5">{`-- ${line.comment}`}</p>}
-                    <p className="text-zinc-300">{line.sql}</p>
+// ── PR workflow diagram ──────────────────────────────────────────────────────
+const PRWorkflow = () => (
+    <div className="my-8 rounded-xl border border-border bg-muted/30 p-5">
+        <div className="flex flex-wrap items-center gap-2 justify-center text-xs">
+            {[
+                { label: 'Branch', sub: 'git checkout -b feature/x', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20' },
+                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                { label: 'Code', sub: 'edit, commit', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20' },
+                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                { label: 'Push', sub: 'git push origin feature/x', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
+                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                { label: 'Open PR', sub: 'GitHub UI', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/20' },
+                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                { label: 'Review', sub: 'approve / request changes', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/20' },
+                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                { label: 'Merge', sub: 'main gets the code', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
+            ].map((step, i) => (
+                <div key={i} className={step.bg ? `rounded-lg border border-border px-3 py-2 ${step.bg}` : 'px-1'}>
+                    <span className={`font-semibold ${step.color}`}>{step.label}</span>
+                    {step.sub && <p className="text-muted-foreground mt-0.5 font-mono">{step.sub}</p>}
                 </div>
             ))}
         </div>
     </div>
 );
+
+// ── Kanban board ──────────────────────────────────────────────────────────────
+const KanbanBoard = () => {
+    const columns = [
+        { title: 'Backlog', color: 'text-muted-foreground', bg: 'bg-muted/30', cards: ['Add dark mode', 'Export to CSV'] },
+        { title: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20', cards: ['User auth', 'Dashboard'] },
+        { title: 'In Review', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20', cards: ['Login bug fix'] },
+        { title: 'Done', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20', cards: ['Scaffolding', 'CI setup'] },
+    ];
+    return (
+        <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            {columns.map((col) => (
+                <div key={col.title} className={`rounded-xl border border-border ${col.bg} p-3`}>
+                    <p className={`text-xs font-bold mb-2 ${col.color}`}>{col.title}</p>
+                    <div className="space-y-2">
+                        {col.cards.map((card) => (
+                            <div key={card} className="rounded-lg border border-border bg-card px-2.5 py-2">
+                                <p className="text-xs text-foreground">{card}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 export default function Week4Lecture2() {
     const navigate = useNavigate();
@@ -96,302 +71,127 @@ export default function Week4Lecture2() {
             <LectureHeader
                 week={4}
                 session="Lecture 2"
-                title="Databases: SQL, SQLite & Redis"
-                description="SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command."
-                icon={<Server className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
+                title="GitHub, Agile & Project Management"
+                description="Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature."
+                icon={<GitBranch className="h-4 w-4" />}
             />
 
-            {/* ── 01 RELATIONAL DATABASES ─────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Relational Databases" />
+            {/* ── 01 FROM GIT TO COLLABORATION ───────────────────────────────── */}
+            <LectureSectionHeading number="01" title="From Git to Collaboration" />
 
             <LectureP>
-                A <LectureTermWithTip tip="Data stored in tables (rows and columns) with relationships between tables. You query with SQL. Examples: SQLite, PostgreSQL, MySQL.">relational database</LectureTermWithTip> stores data in <LectureTermWithTip tip="A set of rows with the same columns. Like a spreadsheet sheet; each row is one record, each column is an attribute.">tables</LectureTermWithTip> — rows and columns, like a spreadsheet. Each table represents one type of thing (users, notes, orders). Rows are individual records. Columns are the attributes of those records.
+                You now know how to branch, commit, and merge locally. In practice, teams don't merge by running <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git merge</code> on each other's branches. They use <LectureTermWithTip tip="A proposal to merge your branch into another (usually main). Includes a description, discussion thread, and optional required approvals before merge.">pull requests</LectureTermWithTip> (PRs): you push your branch to GitHub, open a PR to propose merging it into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, someone reviews your code, and then the merge happens. The PR is the unit of review and the audit trail for every change.
             </LectureP>
             <LectureP>
-                What makes relational databases powerful is the ability to <LectureTermWithTip tip="Combine rows from two or more tables based on a related column. SQL JOIN clauses (INNER, LEFT, etc.) do this in a single query.">join</LectureTermWithTip> tables together. Instead of duplicating user data into every note, you store users in one table and notes in another, linked by a <LectureTermWithTip tip="A column that references the primary key of another table. Enforces referential integrity and enables joins.">foreign key</LectureTermWithTip>. When you need the full picture, you join them in your query.
+                Pull requests connect Git (the mechanics) to how work actually gets done: an issue describes what to build, a branch holds the code, and the PR ties them together so that when the PR merges, the issue closes and the board updates. That loop — idea → issue → branch → PR → merge → done — is the Agile workflow in practice.
             </LectureP>
-
-            <RelationalDiagram />
 
             <LectureCallout type="info">
-                <strong className="text-foreground">SQLite</strong> stores the database in a single file on disk — zero configuration, perfect for development and small apps. <strong className="text-foreground">PostgreSQL</strong> is a full server, handles concurrent writes, supports advanced types, and is what you use in production. Start with SQLite, switch to Postgres when you need it. FastAPI + SQLAlchemy makes this switch trivial.
+                "Pull request" and "merge request" (GitLab) mean the same thing: a request to merge your branch into the target branch, with a discussion thread and optional required approvals. GitHub calls them PRs; GitLab calls them MRs.
             </LectureCallout>
 
-            {/* ── 02 CORE SQL ─────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Core SQL" />
+            {/* ── 02 THE PULL REQUEST WORKFLOW ────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="The Pull Request Workflow" />
+
+            <PRWorkflow />
 
             <LectureP>
-                SQL (Structured Query Language) is the language you use to talk to relational databases. The same syntax works across SQLite, PostgreSQL, MySQL, and most others with minor variations. Learn it once, use it everywhere.
+                After you push your branch, go to your repo on GitHub. You'll often see a yellow banner: "feature/add-login had recent pushes" with a button <strong className="text-foreground">Compare & pull request</strong>. Click it. Add a title and a description: what does this PR do? Why? How can a reviewer test it? Link the issue it addresses with "Closes #42" so GitHub auto-closes the issue when the PR merges.
             </LectureP>
 
-            <LectureSubHeading title="Creating tables" />
-
-            <SqlBlock
-                title="DDL — defining the schema"
-                lines={[
-                    { comment: 'CREATE TABLE defines the structure. Run once when setting up.', sql: '' },
-                    { sql: 'CREATE TABLE users (' },
-                    { sql: '    id         INTEGER PRIMARY KEY AUTOINCREMENT,' },
-                    { sql: '    name       TEXT    NOT NULL,' },
-                    { sql: '    email      TEXT    NOT NULL UNIQUE,' },
-                    { sql: '    created_at TEXT    NOT NULL DEFAULT (datetime(\'now\'))' },
-                    { sql: ');' },
-                    { sql: '' },
-                    { sql: 'CREATE TABLE notes (' },
-                    { sql: '    id         INTEGER PRIMARY KEY AUTOINCREMENT,' },
-                    { sql: '    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,' },
-                    { sql: '    title      TEXT    NOT NULL,' },
-                    { sql: '    content    TEXT    NOT NULL,' },
-                    { sql: '    created_at TEXT    NOT NULL DEFAULT (datetime(\'now\'))' },
-                    { sql: ');' },
-                ]}
-            />
-
-            <LectureSubHeading title="Reading data — SELECT" />
-
-            <SqlBlock
-                title="SELECT — the most important SQL statement"
-                lines={[
-                    { comment: 'Get everything from a table', sql: 'SELECT * FROM notes;' },
-                    { comment: 'Get specific columns', sql: 'SELECT id, title FROM notes;' },
-                    { comment: 'Filter with WHERE', sql: "SELECT * FROM notes WHERE user_id = 1;" },
-                    { comment: 'Multiple conditions', sql: "SELECT * FROM notes WHERE user_id = 1 AND title LIKE '%SQL%';" },
-                    { comment: 'Sort results', sql: 'SELECT * FROM notes ORDER BY created_at DESC;' },
-                    { comment: 'Limit results (pagination)', sql: 'SELECT * FROM notes ORDER BY created_at DESC LIMIT 10 OFFSET 20;' },
-                    { comment: 'Count rows', sql: 'SELECT COUNT(*) FROM notes WHERE user_id = 1;' },
-                ]}
-            />
-
-            <LectureSubHeading title="JOIN — combining tables" />
-
+            <LectureSubHeading title="What to put in a PR description" />
             <LectureP>
-                A <LectureTerm>JOIN</LectureTerm> combines rows from two tables based on a related column. The most common kind is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">INNER JOIN</code> — it returns only rows where the join condition matches in both tables.
+                Good PR descriptions save reviewers time and leave a record for the future. Include: a short summary of the change, what problem it solves, how to test it (steps or a checklist), and any screenshots or notes for reviewers. In industry, PR templates (stored in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/PULL_REQUEST_TEMPLATE.md</code>) standardize this so every PR has the same structure.
             </LectureP>
-
-            <SqlBlock
-                title="JOIN — get notes with their author's name"
-                lines={[
-                    { sql: 'SELECT' },
-                    { sql: '    notes.id,' },
-                    { sql: '    notes.title,' },
-                    { sql: '    users.name AS author_name,' },
-                    { sql: '    notes.created_at' },
-                    { sql: 'FROM notes' },
-                    { sql: 'INNER JOIN users ON notes.user_id = users.id' },
-                    { sql: 'WHERE users.email = \'alice@msu.edu\'' },
-                    { sql: 'ORDER BY notes.created_at DESC;' },
-                ]}
-            />
-
-            <LectureSubHeading title="Writing data — INSERT, UPDATE, DELETE" />
-
-            <SqlBlock
-                title="DML — modifying data"
-                lines={[
-                    { comment: 'INSERT — add a new row', sql: "INSERT INTO notes (user_id, title, content) VALUES (1, 'New note', 'Hello SQL');" },
-                    { comment: 'UPDATE — modify existing rows (ALWAYS include WHERE or you update everything)', sql: "UPDATE notes SET title = 'Updated title' WHERE id = 3;" },
-                    { comment: 'DELETE — remove rows (ALWAYS include WHERE or you delete everything)', sql: 'DELETE FROM notes WHERE id = 3;' },
-                ]}
-            />
-
-            <LectureCallout type="warning">
-                Every <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">UPDATE</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DELETE</code> without a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">WHERE</code> clause affects every row in the table. This is the most common way to accidentally destroy production data. Before running any destructive query, run the equivalent <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">SELECT</code> first to see exactly which rows you're about to modify.
-            </LectureCallout>
-
-            {/* ── 03 GROUP BY AND AGGREGATES ──────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Aggregates & GROUP BY" />
-
-            <LectureP>
-                Aggregate functions compute a single value from a set of rows. Combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">GROUP BY</code>, you can compute statistics per group — notes per user, revenue per product, signups per day.
-            </LectureP>
-
-            <SqlBlock
-                title="aggregates with GROUP BY"
-                lines={[
-                    { comment: 'Count notes per user', sql: 'SELECT user_id, COUNT(*) AS note_count' },
-                    { sql: 'FROM notes' },
-                    { sql: 'GROUP BY user_id' },
-                    { sql: 'ORDER BY note_count DESC;' },
-                    { comment: 'Only include users with more than 5 notes (HAVING filters groups, WHERE filters rows)', sql: 'SELECT user_id, COUNT(*) AS note_count' },
-                    { sql: 'FROM notes' },
-                    { sql: 'GROUP BY user_id' },
-                    { sql: 'HAVING COUNT(*) > 5;' },
-                ]}
-            />
-
-            {/* ── 04 SQLALCHEMY ───────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="SQLAlchemy — Python's Database Toolkit" />
-
-            <LectureP>
-                Writing raw SQL strings in Python works but gets messy fast — no type safety, no autocomplete, and SQL injection risk if you're not careful. <LectureTermWithTip tip="A Python library for talking to databases. Provides an ORM (map classes to tables) and a Core API for raw SQL. Works with SQLite, PostgreSQL, MySQL, etc.">SQLAlchemy</LectureTermWithTip> is Python's most widely used database library. It can be used as a pure query builder (Core) or as a full <LectureTermWithTip tip="Object Relational Mapper. Maps Python classes to tables; you work with objects and the ORM generates SQL. Reduces boilerplate and helps avoid SQL injection.">ORM</LectureTermWithTip> (Object Relational Mapper) that maps Python classes to database tables.
-            </LectureP>
-            <LectureP>
-                With the ORM, you define your tables as Python classes. SQLAlchemy translates operations on those classes into SQL. You interact with Python objects — SQLAlchemy handles the database communication.
-            </LectureP>
-
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    database.py — connection setup
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy </span><span className="text-blue-400">import </span><span className="text-zinc-400">create_engine</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">sessionmaker, DeclarativeBase</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># SQLite for development — just a file, zero config</span></p>
-                    <p><span className="text-sky-300">DATABASE_URL </span><span className="text-zinc-400">= </span><span className="text-amber-400">"sqlite:///./notes.db"</span></p>
-                    <p className="mt-1"><span className="text-zinc-500"># Switch to Postgres in production — only this line changes</span></p>
-                    <p><span className="text-zinc-500"># DATABASE_URL = "postgresql://user:pass@localhost/notesdb"</span></p>
-                    <p className="mt-2"><span className="text-sky-300">engine </span><span className="text-zinc-400">= create_engine(DATABASE_URL, connect_args={'{"check_same_thread": False'}{'}'})  </span><span className="text-zinc-500"># SQLite only</span></p>
-                    <p><span className="text-sky-300">SessionLocal </span><span className="text-zinc-400">= sessionmaker(autocommit=</span><span className="text-blue-400">False</span><span className="text-zinc-400">, autoflush=</span><span className="text-blue-400">False</span><span className="text-zinc-400">, bind=engine)</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">Base</span><span className="text-zinc-400">(DeclarativeBase): </span><span className="text-blue-400">pass</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Dependency — gives each request its own DB session, then closes it</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_db</span><span className="text-zinc-400">():</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db </span><span className="text-zinc-400">= SessionLocal()</span></p>
-                    <p className="pl-4"><span className="text-blue-400">try</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-blue-400">yield </span><span className="text-sky-300">db</span></p>
-                    <p className="pl-4"><span className="text-blue-400">finally</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-sky-300">db</span><span className="text-zinc-400">.close()</span></p>
-                </div>
-            </div>
 
             <LectureCallout type="tip">
-                In production with Postgres or MySQL, use <LectureTerm>connection pooling</LectureTerm> (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">create_engine(..., pool_size=10, max_overflow=20)</code>) so the app reuses connections instead of opening a new one per request. SQLite doesn't need pooling for typical dev use.
+                Write "Closes #123" or "Fixes #123" in the PR description. When the PR is merged, GitHub automatically closes that issue and moves it to Done on your project board. No manual dragging required — the board stays in sync with the code.
             </LectureCallout>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    models.py — SQLAlchemy ORM models
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy </span><span className="text-blue-400">import </span><span className="text-zinc-400">Integer, String, Boolean, ForeignKey, func</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">mapped_column, Mapped, relationship</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">.database </span><span className="text-blue-400">import </span><span className="text-zinc-400">Base</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">User</span><span className="text-zinc-400">(Base):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">__tablename__ </span><span className="text-zinc-400">= </span><span className="text-amber-400">"users"</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(Integer, primary_key=</span><span className="text-blue-400">True</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">name</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">email</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, unique=</span><span className="text-blue-400">True</span><span className="text-zinc-400">, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">notes</span><span className="text-zinc-400">: Mapped[list[</span><span className="text-emerald-400">"Note"</span><span className="text-zinc-400">]] = relationship(back_populates=</span><span className="text-amber-400">"author"</span><span className="text-zinc-400">)</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">Note</span><span className="text-zinc-400">(Base):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">__tablename__ </span><span className="text-zinc-400">= </span><span className="text-amber-400">"notes"</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(Integer, primary_key=</span><span className="text-blue-400">True</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">user_id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(ForeignKey(</span><span className="text-amber-400">"users.id"</span><span className="text-zinc-400">))</span></p>
-                    <p className="pl-4"><span className="text-sky-300">title</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">content</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">author</span><span className="text-zinc-400">: Mapped[</span><span className="text-emerald-400">"User"</span><span className="text-zinc-400">] = relationship(back_populates=</span><span className="text-amber-400">"notes"</span><span className="text-zinc-400">)</span></p>
-                </div>
-            </div>
-
-            {/* ── 05 FASTAPI + SQLALCHEMY ─────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Wiring FastAPI to SQLAlchemy" />
-
+            <LectureSubHeading title="Review and merge" />
             <LectureP>
-                FastAPI uses <LectureTerm>Depends</LectureTerm> to inject dependencies into route handlers. The database session is a perfect use case: each request gets its own session (from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code>), uses it, and the session is closed after the response is sent.
-            </LectureP>
-
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    main.py — full CRUD with SQLAlchemy
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">fastapi </span><span className="text-blue-400">import </span><span className="text-zinc-400">FastAPI, Depends, HTTPException</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">Session</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">. </span><span className="text-blue-400">import </span><span className="text-zinc-400">models, schemas</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">.database </span><span className="text-blue-400">import </span><span className="text-zinc-400">engine, get_db</span></p>
-                    <p className="mt-2"><span className="text-sky-300">models</span><span className="text-zinc-400">.Base.metadata.create_all(bind=engine)  </span><span className="text-zinc-500"># create tables if they don't exist</span></p>
-                    <p><span className="text-sky-300">app </span><span className="text-zinc-400">= FastAPI()</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=list[schemas.NoteResponse])</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">db</span><span className="text-zinc-400">.query(models.Note).offset(skip).limit(limit).all()</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.post(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=schemas.NoteResponse, status_code=201)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">create_note</span><span className="text-zinc-400">(note: schemas.NoteCreate, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db_note </span><span className="text-zinc-400">= models.Note(**note.model_dump())</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.add(db_note)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.commit()</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.refresh(db_note)  </span><span className="text-zinc-500"># load the auto-generated id from DB</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">db_note</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.delete(</span><span className="text-amber-400">"/notes/{'{note_id}'}"</span><span className="text-zinc-400">, status_code=204)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">delete_note</span><span className="text-zinc-400">(note_id: int, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">note </span><span className="text-zinc-400">= db.query(models.Note).filter(models.Note.id == note_id).first()</span></p>
-                    <p className="pl-4"><span className="text-blue-400">if not </span><span className="text-sky-300">note</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-blue-400">raise </span><span className="text-zinc-400">HTTPException(status_code=404, detail=</span><span className="text-amber-400">"Note not found"</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.delete(note)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.commit()</span></p>
-                </div>
-            </div>
-
-            <LectureP>
-                The <LectureCmd tip="Depends() — FastAPI's dependency injection system. Pass a function to Depends() and FastAPI will call it for you and inject the result as the parameter value. Used for database sessions, authentication, config, and any shared logic that routes need.">Depends(get_db)</LectureCmd> annotation is FastAPI's dependency injection system. FastAPI calls <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db()</code> before the handler runs, injects the session, and runs the generator's cleanup (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db.close()</code>) after the response is sent. You never manage session lifecycle manually.
+                Reviewers comment on specific lines or the whole PR. They can approve, request changes, or suggest edits. Once the branch is approved (and any required checks pass, e.g. CI), someone merges the PR. GitHub offers merge options: create a merge commit, squash all commits into one, or rebase. Teams usually choose one and stick to it so history is consistent.
             </LectureP>
 
             <LectureCallout type="warning">
-                When using the ORM with relationships, avoid the <LectureTerm>N+1 query problem</LectureTerm>: loading a list of notes and then accessing <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">note.author</code> for each one triggers a separate query per note. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">joinedload()</code> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">selectinload()</code> to eager-load related data in one (or two) queries.
+                Don't merge your own PR without review unless your team explicitly allows it. The whole point is a second set of eyes — catching bugs, suggesting cleaner approaches, and sharing context. Skipping review is a common source of regressions and technical debt.
             </LectureCallout>
 
-            {/* ── 06 INDEXING ─────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Indexing — Making Queries Fast" />
+            {/* ── 03 ISSUES AS THE SOURCE OF WORK ──────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Issues as the Source of Work" />
 
             <LectureP>
-                Without an index, a database has to scan every row to find matching records — a <LectureTerm>full table scan</LectureTerm>. For a table with 1M rows, that's 1M comparisons per query. An <LectureTerm>index</LectureTerm> is a data structure (usually a B-tree) that lets the database jump directly to matching rows. The cost: more disk space and slightly slower writes. The benefit: reads that would take seconds become milliseconds.
+                Every piece of work should start as an <LectureTermWithTip tip="A single unit of work in GitHub: bug report, feature request, or task. Has a title, description, labels, and can be linked to PRs.">issue</LectureTermWithTip>: a bug report, a feature request, or a task. Issues live in the <LectureTermWithTip tip="The ordered list of work that might get done. Items sit here until the team pulls them into the current sprint or cycle.">backlog</LectureTermWithTip> until the team decides to do them. When you're ready to work on something, you assign yourself (or get it assigned), create a branch, and when you open a PR you link it to the issue. That way the issue tracks the work from "to do" to "in progress" to "done."
             </LectureP>
-
-            <SqlBlock
-                title="indexing common query patterns"
-                lines={[
-                    { comment: "Add an index on any column you filter by frequently", sql: 'CREATE INDEX idx_notes_user_id ON notes(user_id);' },
-                    { comment: "Unique index — enforces uniqueness AND speeds up lookups", sql: 'CREATE UNIQUE INDEX idx_users_email ON users(email);' },
-                    { comment: "Composite index — useful when you always filter by both columns together", sql: 'CREATE INDEX idx_notes_user_created ON notes(user_id, created_at DESC);' },
-                    { comment: "Check if a query is using an index (SQLite)", sql: 'EXPLAIN QUERY PLAN SELECT * FROM notes WHERE user_id = 1;' },
-                ]}
-            />
+            <LectureP>
+                Issues don't have to be huge. "Add a README section for setup" is a valid issue. "Fix typo in login error message" is too. The goal is traceability: every change is tied to a reason, and every reason is visible in the backlog and on the board.
+            </LectureP>
 
             <LectureCallout type="tip">
-                A good rule of thumb: index every foreign key column and every column that appears in a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">WHERE</code> clause in a frequently-run query. Don't index everything — each index adds overhead to inserts and updates.
+                Use issue templates (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/ISSUE_TEMPLATE/bug_report.md</code>) so reporters fill in the right fields: steps to reproduce, expected vs actual behavior, environment. It keeps issues actionable instead of vague.
             </LectureCallout>
 
-            {/* ── 07 NORMALIZATION ────────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Normalization — Designing Good Schemas" />
+            {/* ── 04 AGILE IN ONE PAGE ───────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Agile in One Page" />
 
             <LectureP>
-                <LectureTerm>Normalization</LectureTerm> is the practice of organizing data to eliminate redundancy. The core idea: store each piece of information in exactly one place. If you need to update it, you update it once.
+                <LectureTermWithTip tip="A mindset and set of practices: deliver working software in small increments, get feedback early, and adapt. Emphasizes people and flexibility over rigid plans.">Agile</LectureTermWithTip> means shipping small increments, getting feedback, and adapting. Instead of planning a whole product upfront and building it in one shot (waterfall), teams work in short cycles: pick a chunk of work from the backlog, build it, ship it, learn from it, then repeat. The backlog is the ordered list of everything that might get built; the current cycle (sprint or just "in progress") is what the team is doing now.
+            </LectureP>
+            <LectureP>
+                Two common ways to run this: <LectureTermWithTip tip="A framework with fixed-length iterations (sprints), planning at the start, and a retrospective at the end. Roles include Scrum Master and Product Owner.">Scrum</LectureTermWithTip> (fixed-length sprints, e.g. 2 weeks, with planning and retro at the boundaries) and <LectureTermWithTip tip="A flow-based method. Work moves across columns (e.g. To Do → In Progress → Done). No fixed sprint length; optional WIP limits per column.">Kanban</LectureTermWithTip> (continuous flow with a board and optional WIP limits). Many teams mix both: a board with columns like Backlog → In Progress → In Review → Done, and optional time-boxed sprints for planning and demos.
             </LectureP>
 
-            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-border bg-rose-50 dark:bg-rose-950/20">
-                        <p className="text-xs font-semibold text-rose-600 dark:text-rose-400">❌ Denormalized — data repeated</p>
-                    </div>
-                    <div className="p-4 font-mono text-xs space-y-1 text-muted-foreground">
-                        <p className="text-foreground font-semibold">notes table</p>
-                        <p>id, title, content</p>
-                        <p className="text-rose-500">author_name, author_email ← repeated for every note</p>
-                        <p className="mt-2 text-rose-400 text-xs">If Alice changes her email, you update every note she wrote.</p>
-                    </div>
-                </div>
-                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-border bg-emerald-50 dark:bg-emerald-950/20">
-                        <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">✅ Normalized — data stored once</p>
-                    </div>
-                    <div className="p-4 font-mono text-xs space-y-1 text-muted-foreground">
-                        <p className="text-foreground font-semibold">users</p>
-                        <p>id, name, email ← stored once</p>
-                        <p className="text-foreground font-semibold mt-2">notes</p>
-                        <p>id, user_id, title, content ← references users</p>
-                        <p className="mt-2 text-emerald-400 text-xs">Update email in one place. All notes reflect it automatically.</p>
-                    </div>
-                </div>
-            </div>
+            <KanbanBoard />
 
             <LectureCallout type="info">
-                <strong className="text-foreground">When to use SQL vs Redis:</strong> Use SQL (SQLite, Postgres) for persistent, relational data that you query in flexible ways — users, notes, orders. Use Redis for fast caching (e.g. session data, API response cache), rate limiting, or temporary data. In the activity you'll wire both: SQLite for the source of truth, Redis for a cache layer.
+                The backlog is never "finished" — it's a living list. New ideas and bugs get added; priorities change. The sprint (or current work) is a commitment: we will finish these items by the end of the cycle. That tension — infinite backlog, finite sprint — is what keeps agile focused.
             </LectureCallout>
+
+            {/* ── 05 GITHUB PROJECTS ─────────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="GitHub Projects — Your Board in the Repo" />
+
+            <LectureP>
+                <LectureTermWithTip tip="GitHub's built-in project management: boards or tables linked to your repo. Issues become cards; PRs that close issues update the board automatically.">GitHub Projects</LectureTermWithTip> gives you a board (Kanban or table view) tied directly to your repo. Create a project from the repo's Projects tab, add columns like Backlog, In Progress, In Review, Done, and add your issues as cards. When you open a PR that "Closes #5," the issue card can move to Done automatically. No separate Jira or Trello — the board lives next to the code.
+            </LectureP>
+            <LectureP>
+                For this course, you'll create a GitHub Project for your capstone repo, add issues for the work you plan in Weeks 3–5, and ship every deliverable via a PR that closes an issue. By the end you'll have a real workflow: idea → issue → branch → PR → review → merge → done.
+            </LectureP>
+
+            <div className="my-6 space-y-2">
+                {[
+                    { step: '1', title: 'Create a Project', desc: 'Repo → Projects → New project. Choose Board. Add columns: Backlog, Sprint, In Progress, In Review, Done.' },
+                    { step: '2', title: 'Add issues', desc: 'Create issues for each feature or task. Add them to the project so they show as cards in Backlog.' },
+                    { step: '3', title: 'Move work into the sprint', desc: 'Drag issues from Backlog into Sprint or In Progress when you start them.' },
+                    { step: '4', title: 'Open PRs that close issues', desc: 'In the PR description write "Closes #N". When the PR merges, the issue closes and the card moves to Done.' },
+                ].map((item) => (
+                    <div key={item.step} className="flex gap-4 rounded-xl border border-border bg-card p-4">
+                        <span className="text-xl font-black text-primary/70 shrink-0">{item.step}</span>
+                        <div>
+                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <LectureCallout type="tip">
+                Use labels on issues (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bug</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">good first issue</code>) so you can filter the board and reports. Milestones (e.g. "Sprint 1") group issues by time so you can see sprint scope and progress at a glance.
+            </LectureCallout>
+
+            {/* ── 06 WHAT YOU WILL DO IN THE ACTIVITY ─────────────────────────── */}
+            <LectureSectionHeading number="06" title="What You'll Do in the Activity" />
+
+            <LectureP>
+                The Week 2 activity is <strong className="text-foreground">Project Kickoff</strong>: choose your project domain, create the repo, set up a GitHub Project board, write issues for the work you'll do in Weeks 3–5, and open your first PR. From here on, every deliverable in the course ships through this board — same as in industry.
+            </LectureP>
 
             <LectureFooterNav
                 prev={{
-                    label: 'FastAPI & Python Backends',
+                    label: 'Version Control with Git',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-1'),
                 }}
                 next={{
-                    label: 'Build Your Backend',
+                    label: 'Project Kickoff',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/activity'),
                 }}
             />

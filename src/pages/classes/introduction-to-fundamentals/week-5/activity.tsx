@@ -1,15 +1,14 @@
 import { useNavigate } from 'react-router-dom';
-import { Globe } from 'lucide-react';
+import { Workflow } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
-import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
     LectureSectionHeading,
+    LectureP,
 } from '@/components/ui/lecture-typography';
 
 export default function Week5Activity() {
@@ -19,162 +18,96 @@ export default function Week5Activity() {
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
-                week={5}
-                session="Activity"
-                title="Build Your Frontend"
-                description="Your API is live. Now build the interface — React components, Tailwind styling, and real data flowing from your backend. By the end of this session you have a complete full-stack app you built from scratch."
-                icon={<Globe className="h-4 w-4" />}
-            />
-
-            <LectureCallout type="info">
-                Your backend must be running locally (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder) before starting this activity. All data in the UI comes from the live API.
-            </LectureCallout>
-
-            {/* ── 01 SCAFFOLD THE FRONTEND ────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Scaffold the Frontend" />
-
-            <ActivityChallenge
-                number="1.1"
-                title="Vite + React + Tailwind"
-                description="Set up the modern React development environment."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Navigate to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder</ActivityTask>
-                    <ActivityTask>Delete the placeholder <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">index.html</code></ActivityTask>
-                    <ActivityTask>Run: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm create vite@latest . -- --template react-ts</code></ActivityTask>
-                    <ActivityTask>Install dependencies: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code></ActivityTask>
-                    <ActivityTask>Install Tailwind: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install -D tailwindcss postcss autoprefixer && npx tailwindcss init -p</code></ActivityTask>
-                    <ActivityTask>Configure <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">tailwind.config.js</code> content paths and add the Tailwind directives to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">index.css</code></ActivityTask>
-                    <ActivityTask>Run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm run dev</code> and verify the default Vite page loads</ActivityTask>
-                </div>
-
-                <TerminalBlock
-                    title="bash — frontend"
-                    lines={[
-                        { cmd: 'npm create vite@latest . -- --template react-ts' },
-                        { cmd: 'npm install' },
-                        { cmd: 'npm install -D tailwindcss postcss autoprefixer && npx tailwindcss init -p' },
-                        { cmd: 'npm run dev' },
-                    ]}
+                    week={5}
+                    session="Activity"
+                    title="Set Up Your Entire Sprint Roadmap"
+                    description="Create issues on your GitHub Project board for all remaining sprints: Week 6 (Containers), Week 7 (Backend), Week 8 (Testing & CI/CD), Week 9 (Frontend), Week 10 (Auth), Week 11 (Deployment). Each sprint gets 2–4 issues that match that week's deliverables. From here on you just pull issues and ship."
+                    icon={<Workflow className="h-4 w-4" />}
                 />
 
                 <LectureCallout type="info">
-                    <span title="A frontend build tool that uses native ES modules in development for near-instant hot module replacement. Dramatically faster than webpack-based setups like Create React App.">Vite</span> is incredibly fast — changes appear instantly in your browser during development.
+                    You already have a repo and GitHub Project board from Week 4 (Project Kickoff). This activity is about populating the board with issues for <strong className="text-foreground">every</strong> remaining week — so when you start Week 6, you're just pulling the Containers issues; when you start Week 7, the Backend issues; and so on. No mid-course sprint planning needed.
                 </LectureCallout>
-            </ActivityChallenge>
 
-            {/* ── 02 PROJECT REQUIREMENTS ─────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Project Requirements" />
+                <LectureSectionHeading number="01" title="Create Issues for Each Sprint Theme" />
 
-            <div className="my-4 space-y-2">
-                {[
-                    '3 or more views/pages (use React Router for navigation between them)',
-                    'All data fetched from your live FastAPI backend using fetch + useEffect',
-                    'No hardcoded mock data — if the backend is down, the UI should show an error state',
-                    'Fully styled with Tailwind — no inline styles, no separate CSS files',
-                    'Loading and error states handled for every fetch call',
-                ].map((req, i) => (
-                    <div key={i} className="flex gap-3 rounded-lg border border-border bg-card p-3">
-                        <span className="text-xs font-semibold text-violet-600 dark:text-violet-400 shrink-0">✓</span>
-                        <p className="text-sm text-foreground">{req}</p>
+                <ActivityChallenge
+                    number="1.1"
+                    title="Week 6 — Containers"
+                    description="2–4 issues for Docker/containerization week."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create issues such as: Dockerfile for backend (or stub), docker-compose for local run, document how to build and run with Docker</ActivityTask>
+                        <ActivityTask>Add acceptance criteria to each issue so you know when it's done</ActivityTask>
+                        <ActivityTask>Optionally create a Milestone "Week 6 — Containers" and assign these issues to it</ActivityTask>
                     </div>
-                ))}
-            </div>
+                </ActivityChallenge>
 
-            <LectureCallout type="warning">
-                Handle loading and error states on every fetch. An app that crashes silently when the API is unreachable is not a finished app.
-            </LectureCallout>
+                <ActivityChallenge
+                    number="1.2"
+                    title="Week 7 — Backend"
+                    description="2–4 issues for FastAPI, SQLite, Docker Compose."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create issues for: FastAPI app with 3+ endpoints, SQLite storage, optional Redis/caching, Docker Compose wiring</ActivityTask>
+                        <ActivityTask>Tailor titles and criteria to your project domain (e.g. "GET/POST /recipes", "SQLite schema for recipes")</ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-            {/* ── 03 BUILD YOUR VIEWS ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Build Your Views" />
+                <ActivityChallenge
+                    number="1.3"
+                    title="Week 8 — Testing & CI/CD"
+                    description="2–4 issues for tests and GitHub Actions."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create issues for: unit or integration tests (backend and/or frontend), GitHub Actions workflow that runs tests, README section on how to run tests</ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-            <ActivityChallenge
-                number="3.1"
-                title="Set Up React Router"
-                description="Create navigation between your views."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Install React Router: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install react-router-dom</code></ActivityTask>
-                    <ActivityTask>Wrap your app in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BrowserRouter</code></ActivityTask>
-                    <ActivityTask>Define at least 3 routes</ActivityTask>
-                    <ActivityTask>Build a minimal nav component that links between them</ActivityTask>
-                </div>
+                <ActivityChallenge
+                    number="1.4"
+                    title="Week 9 — Frontend"
+                    description="2–4 issues for React, Tailwind, API connection."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create issues for: React app with 3+ views, Tailwind styling, fetch from your API, full-stack flow working end to end</ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-                <ActivityHint label="basic router setup">
-                    <code className="bg-muted px-1 rounded text-xs">{'<BrowserRouter><Routes><Route path="/" element={<Home />} />...'}</code> — then use <code className="bg-muted px-1 rounded text-xs">Link</code> components in your nav to navigate.
-                </ActivityHint>
-            </ActivityChallenge>
+                <ActivityChallenge
+                    number="1.5"
+                    title="Week 10 — Auth"
+                    description="2–4 issues for login and protected routes."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create issues for: login/signup endpoint, JWT or session handling, at least one protected API route and one protected frontend route</ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-            <ActivityChallenge
-                number="3.2"
-                title="Fetch Real Data"
-                description="Build your primary list view with live API data."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>In your primary list view, fetch data from your backend using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useEffect</code> and store it in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useState</code></ActivityTask>
-                    <ActivityTask>Show a loading state (a simple "Loading..." text is fine) while the fetch is in progress</ActivityTask>
-                    <ActivityTask>Show an error message if the fetch fails</ActivityTask>
-                    <ActivityTask>Display the data once it arrives</ActivityTask>
-                </div>
+                <ActivityChallenge
+                    number="1.6"
+                    title="Week 11 — Deployment"
+                    description="2–4 issues for production deploy."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create issues for: deploy backend (e.g. Railway), deploy frontend (e.g. Vercel), README with env vars (names only) and live URLs</ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-                <LectureCallout type="info">
-                    <span title="A React hook that runs a side effect after render. With an empty dependency array ([]), it runs once when the component mounts — the right place to trigger your initial data fetch.">useEffect</span> is where you fetch data. The empty dependency array <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[]</code> runs it once on mount.
+                <LectureCallout type="tip">
+                    You don't have to complete every issue in the week it's assigned — the board is a roadmap. But having the issues written now means you always know what "done" looks like for each week, and you can close issues with PRs as you go. From Week 6 on, execution is: pull an issue → build → PR → close issue → repeat.
                 </LectureCallout>
-            </ActivityChallenge>
 
-            <ActivityChallenge
-                number="3.3"
-                title="Build the Remaining Views"
-                description="Implement your remaining 2+ views with full styling."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Implement your remaining 2+ views</ActivityTask>
-                    <ActivityTask>Each must fetch from or post to your API</ActivityTask>
-                    <ActivityTask>Style everything with Tailwind — pay attention to spacing, color, and responsive layout</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            {/* ── 04 SHIP IT ──────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Ship It" />
-
-            <ActivityChallenge
-                number="4.1"
-                title="End-to-End Test"
-                description="Verify the full stack works together."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>With <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> running in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm run dev</code> running in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder:</ActivityTask>
-                    <ActivityTask>Create a new resource through your UI</ActivityTask>
-                    <ActivityTask>Verify it appears in the list</ActivityTask>
-                    <ActivityTask>Verify it is stored by checking your API <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code></ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="4.2"
-                title="PR and Board Update"
-                description="Finalize and ship Issue #3."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Commit everything</ActivityTask>
-                    <ActivityTask>Push</ActivityTask>
-                    <ActivityTask>Open a PR that closes Issue #3 from your GitHub Project board</ActivityTask>
-                    <ActivityTask>Move Issue #3 to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
-                    <ActivityTask>Your PR description must include: a screenshot of the running app, confirmation that data persists across page refreshes, and the URL of your running local app</ActivityTask>
-                    <ActivityTask>All 3 issues should now be in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code> on your board</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <LectureFooterNav
-                prev={{
-                    label: 'Tailwind CSS & Connecting to Your API',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-2'),
-                }}
-                next={{
-                    label: 'Classes, Encapsulation & Inheritance',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
-                }}
-            />
+                <LectureFooterNav
+                    prev={{
+                        label: 'Backlog Design & Issue Writing',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-2'),
+                    }}
+                    next={{
+                        label: 'Package Managers & Environments',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
+                    }}
+                />
             </LectureLayout>
         </ActivityTaskListProvider>
     );

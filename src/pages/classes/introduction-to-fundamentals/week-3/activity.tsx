@@ -1,9 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import { Package } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
@@ -20,203 +19,167 @@ export default function Week3Activity() {
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
-                week={3}
-                session="Activity"
-                title="Containerize Your Backend Stub"
-                description="You have a provided Python stub with one working endpoint. Your job is to containerize it, persist data with a volume, and explore what base image choice actually costs you in megabytes. The Dockerfile you write today is the one you will use in Week 4."
-                icon={<Package className="h-4 w-4" />}
-            />
-
-            <LectureCallout type="info">
-                The stub app is at <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/main.py</code> in your project repo — the placeholder from Week 2.
-            </LectureCallout>
-
-            {/* ── 01 WRITE THE DOCKERFILE ─────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Write the Dockerfile" />
-
-            <LectureP>
-                The stub is a single-file Flask app with one GET <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/health</code> endpoint that returns <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{`{"status": "ok"}`}</code> and logs each request to a file called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests.log</code>.
-            </LectureP>
-
-            {/* Stub code block */}
-            <div className="my-4 rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
-                <p className="text-blue-400">from flask import Flask, jsonify</p>
-                <p className="text-blue-400">import datetime</p>
-                <p className="mt-2 text-zinc-400"></p>
-                <p className="text-blue-400">app = Flask(__name__)</p>
-                <p className="text-blue-400">LOG_FILE = <span className="text-amber-400">"/data/requests.log"</span></p>
-                <p className="mt-2 text-zinc-400"></p>
-                <p className="text-blue-400">@app.get(<span className="text-amber-400">"/health"</span>)</p>
-                <p className="text-blue-400">def health():</p>
-                <p className="text-zinc-400 pl-4">with open(LOG_FILE, <span className="text-amber-400">"a"</span>) as f:</p>
-                <p className="text-zinc-400 pl-8">f.write(f<span className="text-amber-400">"</span>{`{datetime.datetime.now()} — health check\\n`}<span className="text-amber-400">"</span>)</p>
-                <p className="text-zinc-400 pl-4">return jsonify({`{"status": "ok"}`})</p>
-                <p className="mt-2 text-zinc-400"></p>
-                <p className="text-blue-400">if __name__ == <span className="text-amber-400">"__main__"</span>:</p>
-                <p className="text-zinc-400 pl-4">app.run(host=<span className="text-amber-400">"0.0.0.0"</span>, port=8000)</p>
-            </div>
-
-            <ActivityChallenge
-                number="1.1"
-                title="Write the Dockerfile"
-                description="Containerize the Python stub with the right base image and configuration."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code></ActivityTask>
-                    <ActivityTask>Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python:3.11-slim</code> as the base image</ActivityTask>
-                    <ActivityTask>Set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/app</code> as the working directory</ActivityTask>
-                    <ActivityTask>Copy <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code></ActivityTask>
-                    <ActivityTask>Install flask with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">RUN pip install flask</code></ActivityTask>
-                    <ActivityTask>Create the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/data</code> directory with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">RUN mkdir /data</code></ActivityTask>
-                    <ActivityTask>Expose port 8000</ActivityTask>
-                    <ActivityTask>Set the CMD to run the app: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">CMD ["python", "main.py"]</code></ActivityTask>
-                </div>
-
-                <ActivityHint label="Dockerfile structure">
-                    The skeleton looks like: FROM, WORKDIR, COPY, RUN, RUN, EXPOSE, CMD. Order each step logically.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="1.2"
-                title="Build and Run"
-                description="Verify the container works end-to-end."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Build the image: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build -t my-stub .</code></ActivityTask>
-                    <ActivityTask>Run it: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run -p 8000:8000 my-stub</code></ActivityTask>
-                    <ActivityTask>In another terminal, hit the endpoint: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">curl http://localhost:8000/health</code></ActivityTask>
-                    <ActivityTask>Verify you get <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{`{"status": "ok"}`}</code></ActivityTask>
-                </div>
-
-                <TerminalBlock
-                    title="bash — backend"
-                    lines={[
-                        { cmd: 'docker build -t my-stub .' },
-                        { cmd: 'docker run -p 8000:8000 my-stub' },
-                    ]}
-                />
-
-                <TerminalBlock
-                    title="bash — another terminal"
-                    lines={[
-                        { cmd: 'curl http://localhost:8000/health' },
-                    ]}
+                    week={3}
+                    session="Activity"
+                    title="CLI Phonebook"
+                    description="Build a full CLI Phonebook in C++ in two parts: Part 1 is the OOP foundation (Contact, PhoneBook, add/delete/list). Part 2 adds data structures — BST for sorted order, stack for undo, and a hash map for O(1) search by phone."
+                    icon={<Cpu className="h-4 w-4" />}
                 />
 
                 <LectureCallout type="info">
-                    <span title="Port mapping — format is host_port:container_port. The left side is what you access on your machine, the right side is what the container listens on internally.">-p 8000:8000</span> tells Docker to map your machine's port 8000 to the container's port 8000.
+                    Use one codebase for the whole activity. Compile after every challenge: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall phonebook.cpp -o phonebook && ./phonebook</code>. Fix errors as they appear.
                 </LectureCallout>
-            </ActivityChallenge>
 
-            {/* ── 02 PERSIST DATA WITH A VOLUME ───────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Persist Data with a Volume" />
+                {/* ── PART 1: OOP FOUNDATION ─────────────────────────────────── */}
+                <LectureSectionHeading number="01" title="Part 1 — Contact and PhoneBook" />
 
-            <LectureP>
-                The stub writes to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/data/requests.log</code> inside the container. Right now that log disappears when the container stops. Fix that with a volume.
-            </LectureP>
+                <LectureP>
+                    Create the Contact class and a PhoneBook manager that stores contacts in a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector</code>. You'll replace the vector with a BST in Part 2.
+                </LectureP>
 
-            <ActivityChallenge
-                number="2.1"
-                title="Mount a Volume"
-                description="Bind mount a directory on your machine to the container's /data folder."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Stop and remove your running container</ActivityTask>
-                    <ActivityTask>Re-run with a bind mount: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run -p 8000:8000 -v $(pwd)/data:/data my-stub</code></ActivityTask>
-                    <ActivityTask>Hit the health endpoint 3 times</ActivityTask>
-                    <ActivityTask>Stop the container</ActivityTask>
-                    <ActivityTask>Verify that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">data/requests.log</code> exists on your machine and contains 3 entries</ActivityTask>
-                </div>
+                <ActivityChallenge
+                    number="1.1"
+                    title="Contact Class"
+                    description="A simple struct or class to hold one contact."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phonebook.cpp</code> with includes: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">iostream</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector</code></ActivityTask>
+                        <ActivityTask>Define <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct Contact</code> (or class) with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string firstName</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string lastName</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string phone</code></ActivityTask>
+                        <ActivityTask>Add a constructor and a helper to print the contact (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void print() const</code>)</ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-                <TerminalBlock
-                    title="bash — backend"
-                    lines={[
-                        { cmd: 'docker run -p 8000:8000 -v $(pwd)/data:/data my-stub' },
-                    ]}
+                <ActivityChallenge
+                    number="1.2"
+                    title="PhoneBook with vector"
+                    description="Manager class with add, delete, list."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class PhoneBook</code> with private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector&lt;Contact&gt; contacts</code> (or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector&lt;Contact*&gt;</code> if you prefer)</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void addContact(Contact c)</code> — push onto the vector</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void listAll()</code> — loop and print each contact</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void deleteContact(size_t index)</code> or delete by name/phone — remove from the vector</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="1.3"
+                    title="Interactive Menu"
+                    description="Wire Part 1 together."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code>, create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PhoneBook</code> and loop on a menu</ActivityTask>
+                        <ActivityTask>Menu: (1) Add contact, (2) Delete contact, (3) List all, (0) Quit</ActivityTask>
+                        <ActivityTask>For add: read first name, last name, phone from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin</code> and call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code></ActivityTask>
+                        <ActivityTask>For delete: list with indices and ask for index to delete (or search by name), then call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code></ActivityTask>
+                        <ActivityTask>Compile and run; verify add, list, and delete work before moving to Part 2</ActivityTask>
+                    </div>
+
+                    <ActivityHint label="cin and getline">
+                        After <code className="bg-muted px-1 rounded">cin &gt;&gt; choice</code>, call <code className="bg-muted px-1 rounded">cin.ignore()</code> before <code className="bg-muted px-1 rounded">getline(cin, name)</code> so the newline isn't consumed as the name.
+                    </ActivityHint>
+                </ActivityChallenge>
+
+                {/* ── PART 2: BST FOR ALPHABETICAL STORAGE ────────────────────── */}
+                <LectureSectionHeading number="02" title="Part 2 — BST for Alphabetical Storage" />
+
+                <LectureP>
+                    Replace the vector with a BST so that listing all contacts always comes out alphabetically (by last name) without sorting.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="2.1"
+                    title="BST Node"
+                    description="Create the tree structure."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* data</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* right</code>, and a constructor</ActivityTask>
+                        <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PhoneBook</code>, replace <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector&lt;Contact&gt;</code> with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* root = nullptr</code></ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="2.2"
+                    title="BST Insert and In-Order List"
+                    description="Recursive insert and traversal."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Add private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(ContactNode* node, Contact* contact)</code> — compare by last name (case-insensitive); go left if smaller, right if larger; create new node at nullptr</ActivityTask>
+                        <ActivityTask>Update <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code> to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(root, ...)</code> and update root if needed</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inOrder(ContactNode* node)</code> — left, visit (print contact), right</ActivityTask>
+                        <ActivityTask>Call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inOrder(root)</code> from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">listAll()</code>; verify contacts print alphabetically</ActivityTask>
+                    </div>
+
+                    <ActivityHint label="recursive insert">
+                        Base case: if (node == nullptr) return new ContactNode(contact). Else if (name &lt; node's name) node-&gt;left = insert(node-&gt;left, contact); else node-&gt;right = insert(node-&gt;right, contact). Return node.
+                    </ActivityHint>
+                </ActivityChallenge>
+
+                {/* ── PART 2: STACK UNDO ──────────────────────────────────────── */}
+                <LectureSectionHeading number="03" title="Part 2 — Stack-Based Undo" />
+
+                <LectureP>
+                    Record every add and delete on a stack so the last action can be undone.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="3.1"
+                    title="Action Stack"
+                    description="Record and undo."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">#include &lt;stack&gt;</code></ActivityTask>
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct Action</code> with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string type</code> ("add" or "delete") and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact contactSnapshot</code></ActivityTask>
+                        <ActivityTask>Add private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stack&lt;Action&gt; history</code> to PhoneBook</ActivityTask>
+                        <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>: after inserting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"Action{\"add\", *contact}"}</code></ActivityTask>
+                        <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>: before deleting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"Action{\"delete\", *contact}"}</code></ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void undo()</code>: if history empty print "Nothing to undo."; else pop top — if "add" remove that contact, if "delete" re-add from snapshot</ActivityTask>
+                        <ActivityTask>Add "Undo" as a menu option</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                {/* ── PART 2: HASH MAP FOR O(1) SEARCH ─────────────────────────── */}
+                <LectureSectionHeading number="04" title="Part 2 — Hash Map for O(1) Search by Phone" />
+
+                <LectureP>
+                    Add a secondary index: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map&lt;string, Contact*&gt;</code> keyed by phone number so lookup by phone is O(1).
+                </LectureP>
+
+                <ActivityChallenge
+                    number="4.1"
+                    title="Phone Index and Search"
+                    description="Maintain the index and add search by phone."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">#include &lt;unordered_map&gt;</code></ActivityTask>
+                        <ActivityTask>Add private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map&lt;string, Contact*&gt; phoneIndex</code> to PhoneBook</ActivityTask>
+                        <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>, insert into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex[phone] = pointer</code>; in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>, erase from phoneIndex</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* findByPhone(string number)</code> — return phoneIndex[number] or nullptr</ActivityTask>
+                        <ActivityTask>Add "Search by phone" to the menu; print contact or "Not found."</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="4.2"
+                    title="Final Menu"
+                    description="All options in one place."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Menu: (1) Add contact, (2) Delete contact, (3) List all (alphabetical), (4) Search by phone, (5) Undo, (0) Quit</ActivityTask>
+                        <ActivityTask>Compile and run through all options to verify the full phonebook works</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <LectureFooterNav
+                    prev={{
+                        label: 'Polymorphism, STL & System Design',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-2'),
+                    }}
+                    next={{
+                        label: 'Version Control with Git',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-1'),
+                    }}
                 />
-
-                <TerminalBlock
-                    title="bash — another terminal"
-                    lines={[
-                        { cmd: 'curl http://localhost:8000/health' },
-                        { cmd: 'curl http://localhost:8000/health' },
-                        { cmd: 'curl http://localhost:8000/health' },
-                        { cmd: 'cat data/requests.log' },
-                    ]}
-                />
-
-                <LectureCallout type="info">
-                    <span title="Maps a specific directory on your host machine directly into the container. Changes in either location are immediately reflected in the other.">bind mount</span> syncs a folder on your machine with a folder inside the container. Both see the same files in real-time.
-                </LectureCallout>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="2.2"
-                title="Prove It Survives a Restart"
-                description="Stop the container, start it again, and verify the log file persists."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Stop the container</ActivityTask>
-                    <ActivityTask>Start it again with the same volume flag</ActivityTask>
-                    <ActivityTask>Hit the endpoint 2 more times</ActivityTask>
-                    <ActivityTask>Cat the log file again — it should now have 5 entries, not 2</ActivityTask>
-                </div>
-
-                <ActivityHint label="if your count resets">
-                    Make sure you are using the same <code className="bg-muted px-1 rounded">$(pwd)/data</code> path each time. If you run from a different directory the volume will mount a different folder.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            {/* ── 03 COMPARE BASE IMAGES ──────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Compare Base Images" />
-
-            <LectureP>
-                The image size you ship affects pull times, cold start times, and storage costs. The base image is the biggest lever.
-            </LectureP>
-
-            <ActivityChallenge
-                number="3.1"
-                title="Build with Alpine"
-                description="Compare Python slim vs. Alpine Linux."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Create a second Dockerfile named <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile.alpine</code></ActivityTask>
-                    <ActivityTask>Change only the FROM line to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python:3.11-alpine</code></ActivityTask>
-                    <ActivityTask>Build it: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build -f Dockerfile.alpine -t my-stub-alpine .</code></ActivityTask>
-                    <ActivityTask>Run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker images</code> and compare the sizes of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">my-stub</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">my-stub-alpine</code></ActivityTask>
-                </div>
-
-                <LectureCallout type="info">
-                    <span title="A minimal Linux distribution designed for security and small size. Uses musl libc and busybox instead of the GNU equivalents, which makes images dramatically smaller but can cause compatibility issues with some packages.">Alpine Linux</span> is built for containers — it strips out everything unnecessary and keeps the OS as tiny as possible.
-                </LectureCallout>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="3.2"
-                title="Document Your Findings"
-                description="Record the size difference and explain why it matters."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>In your repo, create a file called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DOCKER.md</code></ActivityTask>
-                    <ActivityTask>Write the size of each image</ActivityTask>
-                    <ActivityTask>Write one sentence explaining why they differ</ActivityTask>
-                    <ActivityTask>Commit: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git add . && git commit -m "docs: add Docker findings"</code></ActivityTask>
-                    <ActivityTask>Push and open a PR that closes your Issue #1 from the project board</ActivityTask>
-                    <ActivityTask>Move Issue #1 to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code> on your GitHub Project board</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <LectureFooterNav
-                prev={{
-                    label: 'Docker & Containerization',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-2'),
-                }}
-                next={{
-                    label: 'FastAPI & Python Backends',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-1'),
-                }}
-            />
             </LectureLayout>
         </ActivityTaskListProvider>
     );

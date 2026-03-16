@@ -1,348 +1,378 @@
 import { useNavigate } from 'react-router-dom';
-import { Workflow } from 'lucide-react';
+import { Package } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
+import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
+    LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
-import { CodeBlock } from '@/components/ui/code-block';
-import { FlowDiagram } from '@/components/ui/flow-diagram';
 
-export default function Week6Lecture2() {
+// ── VM vs Container diagram ───────────────────────────────────────────────────
+const VmVsContainerDiagram = () => (
+    <div className="my-8 rounded-xl border border-border overflow-hidden">
+        <div className="grid grid-cols-2 divide-x divide-border">
+            <div className="p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Virtual Machine</p>
+                {[
+                    { label: 'App A', bg: 'bg-blue-100 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300' },
+                    { label: 'Guest OS', bg: 'bg-blue-50 dark:bg-blue-950/20 text-blue-600 dark:text-blue-400 text-xs' },
+                    { label: 'App B', bg: 'bg-purple-100 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300' },
+                    { label: 'Guest OS', bg: 'bg-purple-50 dark:bg-purple-950/20 text-purple-600 dark:text-purple-400 text-xs' },
+                    { label: 'Hypervisor', bg: 'bg-muted text-muted-foreground' },
+                    { label: 'Host OS', bg: 'bg-muted text-muted-foreground' },
+                    { label: 'Hardware', bg: 'bg-zinc-200 dark:bg-zinc-800 text-foreground' },
+                ].map((layer, i) => (
+                    <div key={i} className={`text-center text-xs font-medium py-1.5 px-2 rounded mb-1 ${layer.bg}`}>
+                        {layer.label}
+                    </div>
+                ))}
+                <p className="text-xs text-muted-foreground mt-2">Each VM runs a full OS. Heavy. Slow to start. GBs per VM.</p>
+            </div>
+            <div className="p-4">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-3">Container</p>
+                {[
+                    { label: 'App A', bg: 'bg-orange-100 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300' },
+                    { label: 'App B', bg: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300' },
+                    { label: 'Docker Engine', bg: 'bg-muted text-muted-foreground' },
+                    { label: 'Host OS', bg: 'bg-muted text-muted-foreground' },
+                    { label: 'Hardware', bg: 'bg-zinc-200 dark:bg-zinc-800 text-foreground' },
+                ].map((layer, i) => (
+                    <div key={i} className={`text-center text-xs font-medium py-1.5 px-2 rounded mb-1 ${layer.bg}`}>
+                        {layer.label}
+                    </div>
+                ))}
+                <p className="text-xs text-muted-foreground mt-2">Containers share the host OS kernel. Lightweight. Start in milliseconds. MBs per container.</p>
+            </div>
+        </div>
+    </div>
+);
+
+export default function Week5Lecture2() {
     const navigate = useNavigate();
 
     return (
         <LectureLayout>
             <LectureHeader
-                week={6}
+                week={5}
                 session="Lecture 2"
-                title="CI/CD, TDD & Engineering Culture"
-                description="Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight."
-                icon={<Workflow className="h-4 w-4" />}
+                title="Docker & Containerization"
+                description="'It works on my machine' ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere."
+                icon={<Package className="h-4 w-4" />}
             />
 
-            {/* ── 01 CI/CD ────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="CI/CD — Continuous Integration & Continuous Delivery" />
+            {/* ── 01 THE PROBLEM ──────────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="The Problem Docker Solves" />
 
             <LectureP>
-                <LectureTermWithTip tip="CI: every push triggers an automated build and test. Broken code is caught before it reaches main. Runs in a clean environment (e.g. GitHub Actions runner).">Continuous Integration</LectureTermWithTip> (CI) means every code change is automatically built and tested the moment it's pushed. <LectureTermWithTip tip="CD: if CI passes, the build is deployable — automatically or with one click. Reduces manual release steps and deployment risk.">Continuous Delivery</LectureTermWithTip> (CD) means that if those tests pass, the change can be deployed to production automatically — or with a single click. Together, CI/CD turns deployment from a stressful quarterly event into a routine daily activity.
+                Imagine you build a web app on your MacBook. It uses Node.js 20, a specific version of a library, and a config file that lives at a certain path. You deploy it to a Ubuntu server running Node.js 18. The library version is slightly different. The config path doesn't exist. It crashes.
             </LectureP>
             <LectureP>
-                The business case is simple: small, frequent deployments are safer than large, infrequent ones. A change that touches 50 lines is easy to debug when something breaks. A change that touches 5,000 lines deployed once a quarter is a nightmare. CI/CD enforces small, reviewed, tested increments.
+                This is the environment problem. Software doesn't run in isolation — it depends on the OS, the runtime version, installed libraries, environment variables, and dozens of other things. Getting all of those to match between development, staging, and production is hard. Doing it reliably across a team is even harder.
             </LectureP>
-
-            <FlowDiagram
-                stages={[
-                    { label: 'Push', icon: '↑', desc: 'Developer pushes to GitHub', color: 'text-zinc-500', bg: 'bg-muted/50 border-border' },
-                    { label: 'Lint', icon: '✦', desc: 'ESLint / tsc check', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' },
-                    { label: 'Test', icon: '✓', desc: 'Unit + integration tests', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800' },
-                    { label: 'Build', icon: '⬡', desc: 'Compile + bundle', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800' },
-                    { label: 'Deploy', icon: '→', desc: 'Ship to production', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' },
-                ]}
-                description="Any stage failing blocks deployment automatically. A broken lint check is as much a blocker as a broken test — the pipeline enforces standards without relying on human memory."
-            />
-
-            <LectureSubHeading title="GitHub Actions — CI/CD in your repo" />
             <LectureP>
-                GitHub Actions is the most common CI/CD tool for projects hosted on GitHub. Workflows live in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/workflows/</code> as YAML files and run on GitHub's infrastructure — free for public repos, 2,000 minutes/month for free tier private repos.
+                Docker solves this by bundling your application together with its entire environment into a <LectureTermWithTip tip="A runnable instance of a Docker image. Isolated from the host and other containers; shares the host kernel. Start with docker run.">container</LectureTermWithTip>. The container includes the OS libraries, the runtime, the dependencies, the config — everything. You ship the container, and it runs identically on any machine that has Docker installed.
             </LectureP>
 
-            <CodeBlock
-                title=".github/workflows/ci.yml — complete pipeline"
-                lines={[
-                    { text: 'name: CI' },
-                    { text: '' },
-                    { text: 'on:' },
-                    { text: '  push:' },
-                    { text: '    branches: [main, develop]' },
-                    { text: '  pull_request:' },
-                    { text: '    branches: [main]' },
-                    { text: '' },
-                    { text: 'jobs:' },
-                    { text: '  ci:' },
-                    { text: '    runs-on: ubuntu-latest' },
-                    { text: '    steps:' },
-                    { text: '      - uses: actions/checkout@v4' },
-                    { text: '' },
-                    { text: '      - name: Setup Node.js' },
-                    { text: '        uses: actions/setup-node@v4' },
-                    { text: '        with:' },
-                    { text: '          node-version: \'20\'' },
-                    { text: '          cache: \'npm\'' },
-                    { text: '' },
-                    { text: '      - name: Install dependencies' },
-                    { text: '        run: npm ci' },
-                    { text: '' },
-                    { text: '      - name: Type check' },
-                    { text: '        run: npm run tsc --noEmit' },
-                    { text: '' },
-                    { text: '      - name: Lint' },
-                    { text: '        run: npm run lint' },
-                    { text: '' },
-                    { text: '      - name: Test' },
-                    { text: '        run: npm run test -- --coverage' },
-                    { text: '' },
-                    { text: '      - name: Build' },
-                    { text: '        run: npm run build' },
-                ]}
-            />
+            {/* ── 02 CONTAINERS VS VMs ────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Containers vs. Virtual Machines" />
+
+            <LectureP>
+                Before Docker, the standard solution to the environment problem was <LectureTermWithTip tip="Software that emulates a full computer and runs a complete guest OS. Heavier than containers; each VM has its own kernel and boot process.">virtual machines</LectureTermWithTip>. A VM emulates an entire computer — including a full operating system — on top of your physical hardware. This works, but it's expensive: each VM needs gigabytes of disk space and takes minutes to start.
+            </LectureP>
+            <LectureP>
+                Containers take a different approach. Instead of emulating hardware and running a full OS, containers share the host machine's OS kernel and isolate only the application and its dependencies. They're faster to start (milliseconds instead of minutes), use far less memory, and you can run dozens on a single machine where you might only run 3–4 VMs.
+            </LectureP>
+
+            <VmVsContainerDiagram />
 
             <LectureCallout type="info">
-                Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm ci</code> (not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code>) in CI pipelines. It installs exactly what's in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> without modifying it, runs faster, and fails if the lockfile is out of sync — preventing "works on my machine" dependency drift.
+                Containers aren't completely isolated the way VMs are — they share the host kernel. This means a Linux container can't run natively on a Mac or Windows machine without a Linux VM underneath. Docker Desktop handles this transparently by running a lightweight Linux VM in the background.
             </LectureCallout>
 
-            {/* ── 02 BRANCH PROTECTION ────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Branch Protection Rules" />
+            {/* ── 03 IMAGES AND CONTAINERS ────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Images and Containers" />
 
             <LectureP>
-                A CI pipeline is only effective if merging broken code is actually prevented. <LectureTermWithTip tip="Repo settings that lock a branch (e.g. main): require PRs, require status checks to pass, optional required reviews. Prevents direct push and merge of failing code.">Branch protection rules</LectureTermWithTip> on GitHub enforce this: certain branches (typically <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>) can only receive code through pull requests, and only after all required checks pass.
-            </LectureP>
-
-            <div className="my-6 space-y-2">
-                {[
-                    { rule: 'Require pull request before merging', why: 'No direct pushes to main. Every change gets reviewed.' },
-                    { rule: 'Require status checks to pass', why: 'CI must go green — lint, tests, build — before the merge button is clickable.' },
-                    { rule: 'Require at least 1 approving review', why: 'A second pair of eyes catches bugs and knowledge silos. Reviewers learn the codebase as a side effect.' },
-                    { rule: 'Dismiss stale reviews on new commits', why: 'A new push after approval invalidates old approvals — you have to re-review the updated diff.' },
-                    { rule: 'Require branches to be up to date', why: 'Can\'t merge a branch that\'s behind main — prevents "merge race" bugs where two PRs conflict only after both land.' },
-                ].map((item) => (
-                    <div key={item.rule} className="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
-                        <span className="text-emerald-500 shrink-0 mt-0.5 text-sm">✓</span>
-                        <div>
-                            <p className="text-xs font-semibold text-foreground">{item.rule}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.why}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── 03 TDD ──────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Test-Driven Development" />
-
-            <LectureP>
-                <LectureTermWithTip tip="Red-Green-Refactor: write a failing test, write minimal code to pass, then refactor. Produces testable design and high coverage by construction.">Test-Driven Development</LectureTermWithTip> (TDD) inverts the usual order: write the test first, watch it fail, then write the code to make it pass. The loop is: <span className="text-rose-500 font-semibold">Red</span> (test fails) → <span className="text-emerald-500 font-semibold">Green</span> (make it pass) → <span className="text-blue-500 font-semibold">Refactor</span> (clean up without breaking it).
+                Two terms you need to keep straight:
             </LectureP>
             <LectureP>
-                TDD sounds backwards. It feels backwards at first. The payoff: you write exactly as much code as the tests require — no more. Your design emerges from usage, not speculation. And you end up with a test suite that covers every feature by construction, because you never wrote a feature without a test.
+                A <LectureTermWithTip tip="A read-only template built from a Dockerfile. Contains the filesystem and metadata needed to run an app. You build images, then run containers from them.">Docker image</LectureTermWithTip> is a read-only template — a snapshot of a filesystem with all the software and files needed to run an application. It's like a class definition or a blueprint. It doesn't run. It just describes what a running container should look like. Images are built from a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> and stored in a registry like Docker Hub.
+            </LectureP>
+            <LectureP>
+                A <LectureTerm>container</LectureTerm> is a running instance of an image. You can run many containers from the same image simultaneously, each isolated from the others. It's like instantiating multiple objects from a class.
             </LectureP>
 
-            <div className="my-6 flex items-center justify-center gap-4">
-                {[
-                    { label: '① Red', sub: 'Write a failing test', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800' },
-                    { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                    { label: '② Green', sub: 'Make it pass', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' },
-                    { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                    { label: '③ Refactor', sub: 'Clean without breaking', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' },
-                ].map((item, i) => (
-                    item.bg ? (
-                        <div key={i} className={`rounded-xl border px-4 py-3 text-center ${item.bg}`}>
-                            <p className={`text-xs font-bold ${item.color}`}>{item.label}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
-                        </div>
-                    ) : (
-                        <span key={i} className={`text-lg font-bold ${item.color} select-none`}>{item.label}</span>
-                    )
-                ))}
-            </div>
+            <LectureCallout type="tip">
+                Image : Container = Class : Object. The image is the blueprint; the container is the running instance. You build images once. You run them many times.
+            </LectureCallout>
 
-            <LectureSubHeading title="Writing tests with Vitest" />
+            {/* ── 04 CORE COMMANDS ────────────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Core Docker Commands" />
 
-            <CodeBlock
-                title="src/lib/cart.test.ts — TDD style: test first"
+            <LectureP>
+                Docker has a large CLI surface but you'll use a small subset of it for 90% of your work. Here's the essential set:
+            </LectureP>
+
+            <LectureSubHeading title="Working with images" />
+            <TerminalBlock
                 lines={[
-                    { text: 'import { describe, it, expect } from \'vitest\'' },
-                    { text: 'import { Cart } from \'./cart\'' },
-                    { text: '' },
-                    { text: 'describe(\'Cart\', () => {' },
-                    { text: '  it(\'starts empty\', () => {' },
-                    { text: '    const cart = new Cart()' },
-                    { text: '    expect(cart.total()).toBe(0)' },
-                    { text: '    expect(cart.items()).toHaveLength(0)' },
-                    { text: '  })' },
-                    { text: '' },
-                    { text: '  it(\'adds items and updates total\', () => {' },
-                    { text: '    const cart = new Cart()' },
-                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
-                    { text: '    cart.add({ id: \'b\', name: \'Pen\', price: 1.50 })' },
-                    { text: '    expect(cart.total()).toBeCloseTo(14.49)' },
-                    { text: '    expect(cart.items()).toHaveLength(2)' },
-                    { text: '  })' },
-                    { text: '' },
-                    { text: '  it(\'removes items\', () => {' },
-                    { text: '    const cart = new Cart()' },
-                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
-                    { text: '    cart.remove(\'a\')' },
-                    { text: '    expect(cart.items()).toHaveLength(0)' },
-                    { text: '  })' },
-                    { text: '' },
-                    { text: '  it(\'does not add duplicates — increases quantity instead\', () => {' },
-                    { text: '    const cart = new Cart()' },
-                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
-                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
-                    { text: '    expect(cart.items()).toHaveLength(1)' },
-                    { text: '    expect(cart.items()[0].quantity).toBe(2)' },
-                    { text: '  })' },
-                    { text: '})' },
+                    { comment: 'pull an image from Docker Hub without running it', cmd: 'docker pull node:20-alpine' },
+                    { comment: 'list all images stored locally', cmd: 'docker images' },
+                    { comment: 'remove an image', cmd: 'docker rmi node:20-alpine' },
+                    { comment: 'build an image from a Dockerfile in the current directory', cmd: 'docker build -t my-app:latest .' },
+                    { comment: 'build and tag with a specific version', cmd: 'docker build -t my-app:1.0.0 .' },
                 ]}
             />
 
-            <LectureCallout type="tip">
-                The test names are the spec. Read them top to bottom and you understand exactly what <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Cart</code> is supposed to do — without reading the implementation. Good test names are documentation that never goes out of date.
-            </LectureCallout>
+            <LectureP>
+                The <LectureCmd tip="-t flag for docker build: tag. Assigns a name and optional version tag to the built image. Format is name:tag. Without a tag, Docker defaults to 'latest'.">-t</LectureCmd> flag in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> assigns a name and tag to the image. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code> at the end tells Docker where to find the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> — the current directory. The tag format is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">name:version</code>. If you omit the version, Docker uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">latest</code>.
+            </LectureP>
 
-            <LectureSubHeading title="What to test — and what not to" />
+            <LectureSubHeading title="Running containers" />
+            <TerminalBlock
+                lines={[
+                    { comment: 'run a container from an image', cmd: 'docker run node:20-alpine' },
+                    { comment: 'run in detached mode (background) with a name', cmd: 'docker run -d --name my-app node:20-alpine' },
+                    { comment: 'map host port 3000 to container port 3000', cmd: 'docker run -d -p 3000:3000 my-app:latest' },
+                    { comment: 'mount a local directory into the container', cmd: 'docker run -v $(pwd):/app my-app:latest' },
+                    { comment: 'pass environment variables into the container', cmd: 'docker run -e DATABASE_URL=postgres://... my-app:latest' },
+                    { comment: 'run interactively with a bash shell', cmd: 'docker run -it node:20-alpine /bin/sh' },
+                ]}
+            />
 
-            <div className="my-6 rounded-xl border border-border overflow-hidden text-xs">
-                <div className="grid grid-cols-2 divide-x divide-border">
-                    <div className="p-4">
-                        <p className="font-semibold text-foreground mb-2.5">✅ Test this</p>
-                        <div className="space-y-2">
-                            {[
-                                'Business logic — calculation, transformation, validation',
-                                'Edge cases — empty input, nulls, boundary values',
-                                'Error paths — what happens when things go wrong',
-                                'Public API of a module — the interface, not internals',
-                            ].map((item) => <p key={item} className="text-muted-foreground leading-relaxed">{item}</p>)}
-                        </div>
+            <LectureP>
+                The <LectureCmd tip="-p flag for docker run: publish ports. Format is host_port:container_port. Without this, the container's ports are completely isolated and unreachable from your machine — even if your app listens on port 3000 inside the container.">-p</LectureCmd> flag is critical to understand. Containers are isolated by default — their ports are invisible to the outside world. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-p 3000:3000</code> punches a hole: requests to your machine's port 3000 get forwarded to the container's port 3000. Without this, your app runs but you can't reach it.
+            </LectureP>
+            <LectureP>
+                The <LectureCmd tip="-d flag for docker run: detached mode. Runs the container in the background and returns your terminal. Without -d, the container runs in the foreground and you can't use your terminal until it stops.">-d</LectureCmd> flag runs the container in the background so your terminal isn't held hostage. The <LectureCmd tip="-v flag for docker run: volume mount. Maps a directory from your host machine into the container. Changes to files in that directory are immediately visible inside the container — essential for development workflows.">-v</LectureCmd> flag mounts a local directory into the container, which is essential for development — it means the container sees your local code changes in real time.
+            </LectureP>
+
+            <LectureSubHeading title="Managing running containers" />
+            <TerminalBlock
+                lines={[
+                    { comment: 'list all running containers', cmd: 'docker ps' },
+                    { comment: 'list all containers including stopped ones', cmd: 'docker ps -a' },
+                    { comment: 'stop a running container gracefully', cmd: 'docker stop my-app' },
+                    { comment: 'kill a container immediately', cmd: 'docker kill my-app' },
+                    { comment: 'remove a stopped container', cmd: 'docker rm my-app' },
+                    { comment: 'view the logs of a container', cmd: 'docker logs my-app' },
+                    { comment: 'follow logs in real time (like tail -f)', cmd: 'docker logs -f my-app' },
+                    { comment: 'open a shell inside a running container', cmd: 'docker exec -it my-app /bin/sh' },
+                ]}
+            />
+
+            <LectureP>
+                <LectureCmd tip="docker exec -it: execute a command inside a running container. -i keeps stdin open, -t allocates a pseudo-TTY (terminal). Together they give you an interactive shell. Use /bin/bash if bash is available, /bin/sh otherwise.">docker exec -it</LectureCmd> is your debugging lifeline. When a container is misbehaving, you open a shell inside it and poke around exactly as you would on a regular Linux machine — check files, run commands, inspect environment variables.
+            </LectureP>
+
+            {/* ── 05 THE DOCKERFILE ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="The Dockerfile" />
+
+            <LectureP>
+                A <LectureTerm>Dockerfile</LectureTerm> is a text file containing instructions for building a Docker image. Each instruction adds a <LectureTerm>layer</LectureTerm> to the image. Docker builds the image by executing the instructions in order from top to bottom.
+            </LectureP>
+            <LectureP>
+                Here is a Dockerfile for a simple Node.js application, annotated line by line:
+            </LectureP>
+
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
+                    Dockerfile
+                </div>
+                <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
+                    <div>
+                        <p className="text-zinc-500"># Start from the official Node.js 20 image (Alpine = minimal Linux, ~5MB)</p>
+                        <p className="text-blue-400">FROM <span className="text-emerald-400">node:20-alpine</span></p>
                     </div>
-                    <div className="p-4">
-                        <p className="font-semibold text-foreground mb-2.5">❌ Don't test this</p>
-                        <div className="space-y-2">
-                            {[
-                                'Implementation details — private methods, internal state',
-                                'Third-party libraries — they have their own tests',
-                                'Simple getters/setters with no logic',
-                                'Things that require complex mocking to set up — usually a design smell',
-                            ].map((item) => <p key={item} className="text-muted-foreground leading-relaxed">{item}</p>)}
-                        </div>
+                    <div>
+                        <p className="text-zinc-500"># Set the working directory inside the container</p>
+                        <p className="text-blue-400">WORKDIR <span className="text-emerald-400">/app</span></p>
+                    </div>
+                    <div>
+                        <p className="text-zinc-500"># Copy package files first (for layer caching — explained below)</p>
+                        <p className="text-blue-400">COPY <span className="text-emerald-400">package*.json ./</span></p>
+                    </div>
+                    <div>
+                        <p className="text-zinc-500"># Install dependencies</p>
+                        <p className="text-blue-400">RUN <span className="text-emerald-400">npm ci --only=production</span></p>
+                    </div>
+                    <div>
+                        <p className="text-zinc-500"># Copy the rest of the application code</p>
+                        <p className="text-blue-400">COPY <span className="text-emerald-400">. .</span></p>
+                    </div>
+                    <div>
+                        <p className="text-zinc-500"># Tell Docker this container listens on port 3000</p>
+                        <p className="text-blue-400">EXPOSE <span className="text-emerald-400">3000</span></p>
+                    </div>
+                    <div>
+                        <p className="text-zinc-500"># The command that runs when the container starts</p>
+                        <p className="text-blue-400">CMD <span className="text-emerald-400">["node", "server.js"]</span></p>
                     </div>
                 </div>
             </div>
 
-            {/* ── 04 CODE REVIEW ──────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Code Review — The Most Underrated Practice" />
-
+            <LectureSubHeading title="Dockerfile instructions" />
             <LectureP>
-                Code review is the primary mechanism for knowledge transfer on a team. It's how junior engineers learn from seniors, how seniors learn the codebase, and how the team maintains shared standards. A team that skips code review is a team where knowledge siloes form, where bugs ship that a second pair of eyes would have caught, and where no one grows.
+                Each Dockerfile instruction creates a new layer. Understanding what each one does:
             </LectureP>
 
-            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-border bg-muted/30">
-                        <p className="text-xs font-bold text-foreground">Writing good PRs</p>
-                    </div>
-                    <div className="px-4 py-3 space-y-2">
-                        {[
-                            { title: 'Keep them small', desc: 'Under 400 lines of diff. Reviewers lose focus on large PRs — bugs slip through.' },
-                            { title: 'Write a description', desc: 'What changed, why, and how to test it. A PR with no description gets superficial review.' },
-                            { title: 'Link the issue', desc: '"Closes #42" — connects the PR to the user story it implements.' },
-                            { title: 'Self-review first', desc: 'Read your own diff before requesting review. You\'ll catch 30% of issues yourself.' },
-                        ].map((item) => (
-                            <div key={item.title}>
-                                <p className="text-xs font-semibold text-foreground">{item.title}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-                <div className="rounded-xl border border-border bg-card overflow-hidden">
-                    <div className="px-4 py-2.5 border-b border-border bg-muted/30">
-                        <p className="text-xs font-bold text-foreground">Giving good reviews</p>
-                    </div>
-                    <div className="px-4 py-3 space-y-2">
-                        {[
-                            { title: 'Ask questions, not accusations', desc: '"What happens if this list is empty?" not "You forgot to handle empty lists."' },
-                            { title: 'Distinguish blocking vs non-blocking', desc: '"Nit: rename this variable" vs "This will crash in production — must fix."' },
-                            { title: 'Explain the why', desc: 'Don\'t just say "use a map here." Say why a map is better for this use case.' },
-                            { title: 'Approve and learn', desc: 'You don\'t have to understand every line before approving. But ask about what you don\'t understand.' },
-                        ].map((item) => (
-                            <div key={item.title}>
-                                <p className="text-xs font-semibold text-foreground">{item.title}</p>
-                                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
-
-            {/* ── 05 ENGINEERING CULTURE ──────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Engineering Culture" />
-
-            <LectureP>
-                Every technical practice in this lecture — CI/CD, TDD, code review, retrospectives — only works in a team culture that supports it. Culture isn't a values statement on the wall. It's what actually happens when a deadline is tight and someone proposes skipping tests "just this once."
-            </LectureP>
-
-            <div className="my-6 space-y-3">
+            <div className="my-6 rounded-xl border border-border overflow-hidden">
                 {[
-                    {
-                        title: 'Blameless post-mortems',
-                        color: 'text-blue-600 dark:text-blue-400',
-                        desc: 'When something breaks in production, the question isn\'t "who screwed up" — it\'s "how did our system allow this to happen?" The goal is to fix the system, not punish the person. Blame-based cultures hide failures; blameless cultures learn from them.',
-                    },
-                    {
-                        title: 'Psychological safety',
-                        color: 'text-emerald-600 dark:text-emerald-400',
-                        desc: 'Team members should be able to say "I don\'t understand this," "I think this is wrong," or "I made a mistake" without fear. Google\'s Project Aristotle found psychological safety was the single biggest predictor of team effectiveness — more important than individual talent.',
-                    },
-                    {
-                        title: 'Done means done',
-                        color: 'text-orange-600 dark:text-orange-400',
-                        desc: '"Done" doesn\'t mean "coded." It means tested, reviewed, merged, and deployed. A feature that\'s 90% done and sitting in a PR branch has zero value to users. Finishing matters more than starting.',
-                    },
-                    {
-                        title: 'Leave the codebase better than you found it',
-                        color: 'text-purple-600 dark:text-purple-400',
-                        desc: 'The Boy Scout Rule: whenever you touch a file, clean up one small thing nearby. Rename the confusing variable. Add the missing test. Remove the dead code. Codebases don\'t decay all at once — they decay in small ignored moments.',
-                    },
-                ].map((item) => (
-                    <div key={item.title} className="rounded-xl border border-border bg-card p-4">
-                        <p className={`text-xs font-bold mb-1 ${item.color}`}>{item.title}</p>
+                    { instruction: 'FROM', desc: 'Sets the base image. Every Dockerfile starts here. Uses an image from Docker Hub (e.g. node:20-alpine, python:3.12, ubuntu:22.04).' },
+                    { instruction: 'WORKDIR', desc: 'Sets the working directory for subsequent instructions. Creates the directory if it doesn\'t exist. Like running cd inside the container.' },
+                    { instruction: 'COPY', desc: 'Copies files from your host machine into the image. Format: COPY source destination. The source is relative to the build context (usually your project folder).' },
+                    { instruction: 'RUN', desc: 'Executes a shell command during the build. Use this to install packages, compile code, or set up config. Each RUN creates a new layer.' },
+                    { instruction: 'ENV', desc: 'Sets environment variables that will be available inside the container at runtime.' },
+                    { instruction: 'EXPOSE', desc: 'Documents which port the container listens on. Informational only — you still need -p when running the container.' },
+                    { instruction: 'CMD', desc: 'The default command to run when the container starts. Only the last CMD in a Dockerfile takes effect. Can be overridden at runtime.' },
+                    { instruction: 'ENTRYPOINT', desc: 'Like CMD, but harder to override. Used when the container is meant to behave as a single executable.' },
+                ].map((item, i) => (
+                    <div key={i} className="flex items-start gap-4 px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors">
+                        <code className="text-xs font-bold text-blue-600 dark:text-blue-400 w-24 shrink-0 select-none" style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+                            {item.instruction}
+                        </code>
                         <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
                     </div>
                 ))}
             </div>
 
-            {/* ── 06 YOUR FIRST JOB ───────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="What to Expect on Day One" />
+            {/* ── 06 IMAGE LAYERS AND CACHING ─────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Image Layers and Caching" />
 
             <LectureP>
-                You've now covered the full stack of a modern software engineer: terminal fluency, version control, containerization, frontend, backend, databases, data structures, and software engineering practices. Here's what actually matters when you start a real job.
+                Every instruction in a Dockerfile creates an immutable <LectureTerm>layer</LectureTerm>. Docker caches each layer and reuses it on subsequent builds if neither that instruction nor anything before it has changed. This makes rebuilds fast — if your dependencies haven't changed, Docker skips the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code> step entirely.
+            </LectureP>
+            <LectureP>
+                This is why the Dockerfile above copies <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package*.json</code> before copying the rest of the code. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> changes rarely. Your application code changes constantly. By copying them separately, Docker can cache the expensive <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code> layer and only re-run it when dependencies actually change.
             </LectureP>
 
-            <div className="my-6 space-y-2">
-                {[
-                    { label: 'Read before writing', desc: 'Spend your first two weeks understanding the existing codebase — the patterns, the conventions, the why. Code first, ask questions later is the fastest path to revert.' },
-                    { label: 'Small PRs from day one', desc: 'Your first PR should be tiny and unambiguously correct. Build trust before making large changes. Ask for review, ask questions in review comments.' },
-                    { label: 'Ask questions early, not late', desc: 'Asking "how does X work?" on day 3 is expected. Asking on day 30 after spinning for a week is costly. No one expects you to know everything on day one.' },
-                    { label: 'Write things down', desc: 'Document what you learn about the system — in wikis, in PR descriptions, in comments. Future-you and your teammates will thank you.' },
-                    { label: 'Ship something in week one', desc: 'Even if it\'s tiny. Fixing a typo in the docs. Adding a missing test. The goal is to complete the full cycle — branch, PR, review, merge, deploy — early. Everything after is iteration.' },
-                ].map((item, i) => (
-                    <div key={item.label} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
-                        <span className="text-2xl font-black text-primary/70 shrink-0 select-none">{String(i + 1).padStart(2, '0')}</span>
-                        <div>
-                            <p className="text-sm font-semibold text-foreground">{item.label}</p>
-                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
-                        </div>
-                    </div>
-                ))}
+            <LectureCallout type="tip">
+                Layer ordering is one of the most important Dockerfile optimization techniques. Rule of thumb: put instructions that change rarely near the top, instructions that change often near the bottom. Cache-busting an early layer invalidates every layer after it.
+            </LectureCallout>
+
+            <LectureSubHeading title="The .dockerignore file" />
+            <LectureP>
+                Just like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code>, a <LectureTerm>.dockerignore</LectureTerm> file tells Docker which files to exclude from the build context — the files sent to the Docker engine when you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code>. Always exclude <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code>, and any secrets.
+            </LectureP>
+
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
+                    .dockerignore
+                </div>
+                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
+                    <p className="text-zinc-500"># Never copy these into the image</p>
+                    <p className="text-emerald-400">node_modules</p>
+                    <p className="text-emerald-400">.git</p>
+                    <p className="text-emerald-400">.env</p>
+                    <p className="text-emerald-400">*.log</p>
+                    <p className="text-emerald-400">dist</p>
+                    <p className="text-emerald-400">build</p>
+                </div>
             </div>
 
-            <LectureCallout type="info">
-                This is the last lecture of the course. What comes next is building — real projects, real clients, real feedback loops.
+            {/* ── 07 DOCKER COMPOSE ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Docker Compose" />
+
+            <LectureP>
+                Real applications rarely consist of a single container. A typical web app might need: a Node.js server, a PostgreSQL database, and a Redis cache. Running these separately with individual <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run</code> commands and manually configuring how they talk to each other is painful. <LectureTerm>Docker Compose</LectureTerm> solves this.
+            </LectureP>
+            <LectureP>
+                Compose lets you define a multi-container application in a single <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code> file and start everything with one command.
+            </LectureP>
+
+            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
+                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
+                    docker-compose.yml
+                </div>
+                <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
+                    <p className="text-blue-400">services<span className="text-zinc-400">:</span></p>
+
+                    <p className="text-emerald-400 pl-4">app<span className="text-zinc-400">:</span></p>
+                    <p className="text-zinc-400 pl-8">build<span className="text-zinc-500">: .</span></p>
+                    <p className="text-zinc-400 pl-8">ports<span className="text-zinc-500">:</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">"3000:3000"</span></p>
+                    <p className="text-zinc-400 pl-8">environment<span className="text-zinc-500">:</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">DATABASE_URL=postgres://user:pass@db:5432/mydb</span></p>
+                    <p className="text-zinc-400 pl-8">depends_on<span className="text-zinc-500">:</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">db</span></p>
+
+                    <p className="text-emerald-400 pl-4 mt-2">db<span className="text-zinc-400">:</span></p>
+                    <p className="text-zinc-400 pl-8">image<span className="text-zinc-500">: </span><span className="text-amber-400">postgres:16-alpine</span></p>
+                    <p className="text-zinc-400 pl-8">environment<span className="text-zinc-500">:</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">POSTGRES_USER=user</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">POSTGRES_PASSWORD=pass</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">POSTGRES_DB=mydb</span></p>
+                    <p className="text-zinc-400 pl-8">volumes<span className="text-zinc-500">:</span></p>
+                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">postgres_data:/var/lib/postgresql/data</span></p>
+
+                    <p className="text-blue-400 mt-2">volumes<span className="text-zinc-400">:</span></p>
+                    <p className="text-zinc-400 pl-4">postgres_data<span className="text-zinc-500">:</span></p>
+                </div>
+            </div>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'start all services defined in docker-compose.yml', cmd: 'docker compose up' },
+                    { comment: 'start in detached mode (background)', cmd: 'docker compose up -d' },
+                    { comment: 'rebuild images before starting (use after changing Dockerfile)', cmd: 'docker compose up --build' },
+                    { comment: 'stop all services', cmd: 'docker compose down' },
+                    { comment: 'stop and remove volumes (deletes database data)', cmd: 'docker compose down -v' },
+                    { comment: 'view logs from all services', cmd: 'docker compose logs -f' },
+                    { comment: 'view logs from one specific service', cmd: 'docker compose logs -f app' },
+                    { comment: 'run a one-off command in a service container', cmd: 'docker compose exec app /bin/sh' },
+                ]}
+            />
+
+            <LectureP>
+                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">depends_on</code> key in the compose file tells Docker to start the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db</code> service before the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">app</code> service. Services on the same Compose network can reach each other by their service name — so the app connects to the database at <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db:5432</code> rather than <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:5432</code>.
+            </LectureP>
+
+            <LectureCallout type="warning">
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose down -v</code> deletes your named volumes — including any database data stored in them. This is intentional for wiping a dev environment clean, but catastrophic if you run it accidentally on a database you care about.
+            </LectureCallout>
+
+            {/* ── 08 PUTTING IT TOGETHER ──────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Containerizing Your First App" />
+
+            <LectureP>
+                Let's walk through containerizing a minimal Node.js server from scratch. This is the exact process you'll follow for the activity.
+            </LectureP>
+
+            <TerminalBlock
+                title="bash — ~/my-app"
+                lines={[
+                    { comment: 'create the project', cmd: 'mkdir my-app && cd my-app && npm init -y' },
+                    { comment: 'install express', cmd: 'npm install express' },
+                    { comment: 'create the server file', cmd: 'touch server.js' },
+                    { comment: 'create the Dockerfile', cmd: 'touch Dockerfile' },
+                    { comment: 'create the .dockerignore', cmd: 'touch .dockerignore' },
+                    { comment: 'build the image', cmd: 'docker build -t my-app:latest .' },
+                    { comment: 'run the container, mapping port 3000', cmd: 'docker run -d -p 3000:3000 --name my-app my-app:latest' },
+                    { comment: 'check it is running', cmd: 'docker ps' },
+                    { comment: 'test it responds', cmd: 'curl http://localhost:3000' },
+                    { comment: 'view the logs', cmd: 'docker logs my-app' },
+                    { comment: 'stop and remove the container', cmd: 'docker stop my-app && docker rm my-app' },
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                The complete flow to remember: write <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run</code>. Every time you change your app, rebuild the image and rerun the container. In production, this process is automated by a CI/CD pipeline.
             </LectureCallout>
 
             <LectureFooterNav
                 prev={{
-                    label: 'Scrum, Kanban & Sprint Cycles',
+                    label: 'Package Managers & Environments',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
                 }}
                 next={{
-                    label: 'Sprint Simulation & Project Showcase',
+                    label: 'Containerize Your Backend Stub',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
                 }}
             />

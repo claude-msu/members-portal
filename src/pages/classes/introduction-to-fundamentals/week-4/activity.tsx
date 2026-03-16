@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Server } from 'lucide-react';
+import { GitBranch } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -20,171 +20,177 @@ export default function Week4Activity() {
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
-                week={4}
-                session="Activity"
-                title="Build Your Backend"
-                description="The Dockerfile exists. Now fill it in — a real FastAPI backend with SQLite storage and Redis caching, all running via Docker Compose. By the end you have a documented API you can hand off to your frontend next week."
-                icon={<Server className="h-4 w-4" />}
-            />
-
-            <LectureCallout type="info">
-                You are building the backend for the domain you chose in Week 2. Use FastAPI's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page to verify everything as you go.
-            </LectureCallout>
-
-            {/* ── 01 PROJECT REQUIREMENTS ──────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Project Requirements" />
-
-            <LectureP>
-                Before writing code, understand what you are shipping. Every backend this week must meet these requirements regardless of domain.
-            </LectureP>
-
-            <div className="my-4 space-y-2">
-                {[
-                    '3 or more REST endpoints (at minimum: create one resource, list all resources, get one resource by ID)',
-                    'SQLite database using SQLAlchemy for all persistent data',
-                    'At least one Redis-cached endpoint — a read that is expensive enough to be worth caching (e.g., aggregate, filtered list, recommendation computation)',
-                    'Docker Compose file that starts FastAPI + Redis with one command: docker compose up',
-                    'FastAPI /docs page fully documents all endpoints with correct schemas',
-                ].map((req, i) => (
-                    <div key={i} className="flex gap-3 rounded-lg border border-border bg-card p-3">
-                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 shrink-0">✓</span>
-                        <p className="text-sm text-foreground">{req}</p>
-                    </div>
-                ))}
-            </div>
-
-            <LectureCallout type="warning">
-                Redis is a cache, not your primary database. Every piece of data must live in SQLite first. Redis holds computed results that are expensive to recompute on every request. If Redis goes down, your app should still work.
-            </LectureCallout>
-
-            {/* ── 02 SET UP DOCKER COMPOSE ────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Set Up Docker Compose" />
-
-            <ActivityChallenge
-                number="2.1"
-                title="Write docker-compose.yml"
-                description="Define FastAPI + Redis services that work together."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code></ActivityTask>
-                    <ActivityTask>Define an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">api</code> service: build from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code>, ports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">8000:8000</code>, depends_on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
-                    <ActivityTask>Define a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> service: image <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis:7-alpine</code>, no extra config needed</ActivityTask>
-                    <ActivityTask>Verify with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code></ActivityTask>
-                </div>
-
-                <TerminalBlock
-                    title="bash — backend"
-                    lines={[
-                        { cmd: 'docker compose up' },
-                    ]}
+                    week={4}
+                    session="Activity"
+                    title="Project Kickoff"
+                    description="This is where your project starts. Choose your domain, scaffold the repo, and create your GitHub Project board. In Week 5 (Sprint Planning) you will create issues for every sprint in advance — Containers, Backend, Testing, Frontend, Auth, Deployment."
+                    icon={<GitBranch className="h-4 w-4" />}
                 />
 
-                <LectureCallout type="info">
-                    <span title="Tells Docker Compose to start the redis service before the api service. Does not wait for Redis to be ready — just for the container to start. For production readiness checks, you would use healthchecks.">depends_on</span> ensures Redis starts first, but doesn't wait for it to be ready. Your code should handle the case where Redis is temporarily unavailable.
-                </LectureCallout>
-            </ActivityChallenge>
+                {/* ── 01 CHOOSE YOUR DOMAIN ───────────────────────────────────────── */}
+                <LectureSectionHeading number="01" title="Choose Your Domain" />
 
-            {/* ── 03 BUILD YOUR ENDPOINTS ─────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Build Your Endpoints" />
-
-            <ActivityChallenge
-                number="3.1"
-                title="Database Models"
-                description="Set up SQLAlchemy and define your data schema."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">models.py</code> with your SQLAlchemy model(s) representing your chosen domain</ActivityTask>
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">database.py</code> with engine setup and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code> dependency</ActivityTask>
-                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> to create tables on startup</ActivityTask>
-                </div>
-
-                <ActivityHint label="SQLAlchemy quickstart">
-                    <code className="bg-muted px-1 rounded text-xs">from sqlalchemy import create_engine; from sqlalchemy.orm import sessionmaker, declarative_base</code> — then define your Base class and models that inherit from it.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="3.2"
-                title="Core Endpoints"
-                description="Implement your 3 required REST endpoints."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Implement your 3 required endpoints. Each must use a Pydantic schema for request/response validation</ActivityTask>
-                    <ActivityTask>Test each one through <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> before moving on</ActivityTask>
-                </div>
-
-                <LectureCallout type="tip">
-                    Write one endpoint, test it in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code>, then write the next. Do not write all three and then test — you will not know which one is broken.
-                </LectureCallout>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="3.3"
-                title="Redis Caching Layer"
-                description="Add caching to your most expensive read operation."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Connect to Redis using the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> Python package: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis.Redis(host='redis', port=6379)</code></ActivityTask>
-                    <ActivityTask>Pick the most read-heavy endpoint — the one that does the most computation or hits the most rows</ActivityTask>
-                    <ActivityTask>Cache its result in Redis with a 60-second TTL using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r.setex()</code></ActivityTask>
-                    <ActivityTask>On each request: check Redis first (cache hit), fall back to SQLite if not found (cache miss), then store the result in Redis</ActivityTask>
-                </div>
-
-                <div className="my-4 rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
-                    <p className="text-zinc-400 mb-2"># Cache hit/miss pattern:</p>
-                    <p className="text-blue-400">result = r.get(<span className="text-amber-400">'cache_key'</span>)</p>
-                    <p className="text-blue-400">if result:</p>
-                    <p className="text-zinc-400 pl-4">return json.loads(result)  <span className="text-gray-500"># cache hit</span></p>
-                    <p className="text-blue-400">else:</p>
-                    <p className="text-zinc-400 pl-4">result = compute_expensive_query()</p>
-                    <p className="text-zinc-400 pl-4">r.setex(<span className="text-amber-400">'cache_key'</span>, 60, json.dumps(result))</p>
-                    <p className="text-zinc-400 pl-4">return result  <span className="text-gray-500"># cache miss, but now cached</span></p>
-                </div>
+                <LectureP>
+                    This project runs Weeks 4–8 (and continues through Weeks 9–12). By the end you will have a live full-stack web app. Choose one domain now and commit — you are building this all the way through.
+                </LectureP>
 
                 <LectureCallout type="info">
-                    <span title="Time To Live — how long a cached value stays valid before Redis automatically deletes it. After 60 seconds the next request will recompute the value and re-cache it. Prevents serving stale data indefinitely.">TTL</span> is the expiration time. After 60 seconds the next request will recompute the value and re-cache it.
+                    The ten ideas below are <strong className="text-foreground">examples to inspire you</strong>, not a fixed menu. Take one and make it your own: change the scope, rename features, or combine concepts so the result is <strong className="text-foreground">unique and resume-worthy</strong>. If you have a different idea entirely, ask your teacher to confirm it's feasible for the course timeline before you commit.
                 </LectureCallout>
-            </ActivityChallenge>
 
-            {/* ── 04 SHIP IT ──────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Ship It" />
-
-            <ActivityChallenge
-                number="4.1"
-                title="Verify and Document"
-                description="Finalize your API documentation."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> and confirm all endpoints appear with correct schemas</ActivityTask>
-                    <ActivityTask>Test the cached endpoint twice in quick succession and confirm the second response is faster</ActivityTask>
-                    <ActivityTask>Write a short <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">API.md</code> in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder documenting each endpoint: method, path, what it does, example request/response</ActivityTask>
+                {/* Domain selection grid — examples to customize */}
+                <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {[
+                        { num: 1, name: 'Recipe Book', desc: 'Save, browse, and search your personal recipe collection.' },
+                        { num: 2, name: 'Study Planner', desc: 'Track courses, assignments, and upcoming deadlines.' },
+                        { num: 3, name: 'Expense Tracker', desc: 'Log expenses by category and view spending history.' },
+                        { num: 4, name: 'Event Board', desc: 'Create events, browse upcoming ones, and RSVP.' },
+                        { num: 5, name: 'Habit Tracker', desc: 'Define habits, log daily completions, and track streaks.' },
+                        { num: 6, name: 'Trivia Game', desc: 'Build question banks, play rounds, and track a live leaderboard.' },
+                        { num: 7, name: 'Movie Recommender', desc: 'Rate watched movies and get recommendations based on your taste.' },
+                        { num: 8, name: 'Book Log', desc: 'Track books you read, rate them, and maintain a reading list.' },
+                        { num: 9, name: 'Workout Logger', desc: 'Log exercises, sets, and reps; view progress over time.' },
+                        { num: 10, name: 'Link Saver', desc: 'Save and tag links with notes; search and filter your collection.' },
+                    ].map((domain) => (
+                        <div
+                            key={domain.num}
+                            className="rounded-xl border border-border bg-card p-4"
+                        >
+                            <p className="font-semibold text-sm text-foreground">{domain.num}. {domain.name}</p>
+                            <p className="text-xs text-muted-foreground mt-1">{domain.desc}</p>
+                        </div>
+                    ))}
                 </div>
-            </ActivityChallenge>
 
-            <ActivityChallenge
-                number="4.2"
-                title="PR and Board Update"
-                description="Finalize and ship Issue #2."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Commit everything</ActivityTask>
-                    <ActivityTask>Push</ActivityTask>
-                    <ActivityTask>Open a PR that closes Issue #2 from your GitHub Project board</ActivityTask>
-                    <ActivityTask>Move Issue #2 to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
-                    <ActivityTask>Your PR description should include: a screenshot of your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page, confirmation that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> works, and which endpoint is Redis-cached and why you chose it</ActivityTask>
-                </div>
-            </ActivityChallenge>
+                <LectureCallout type="warning">
+                    Pick something you would actually want to use. You are going to be inside this codebase for four weeks. Apathy is the main reason projects don't get finished.
+                </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Databases: SQL, SQLite & Redis',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-2'),
-                }}
-                next={{
-                    label: 'React Components & Hooks',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
-                }}
-            />
+                {/* ── 02 SCAFFOLD YOUR REPOSITORY ─────────────────────────────────── */}
+                <LectureSectionHeading number="02" title="Scaffold Your Repository" />
+
+                <ActivityChallenge
+                    number="2.1"
+                    title="Create the Repo"
+                    description="Start with the foundation — a GitHub repo with a README."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create a new public GitHub repo named after your project domain (<span title="A naming convention where words are lowercase and separated by hyphens. Example: my-project-name. Common for repo names and URLs.">kebab-case</span>)</ActivityTask>
+                        <ActivityTask>Clone it locally</ActivityTask>
+                        <ActivityTask>Create a README.md with: project name, your chosen domain, and a 2–3 sentence description of what it will do when finished</ActivityTask>
+                        <ActivityTask>Commit and push</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="2.2"
+                    title="Set Up Your Folder Structure"
+                    description="Create the directories that will hold your backend and frontend code."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create two folders at the root: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code></ActivityTask>
+                        <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> create a placeholder main.py with a single comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border"># Week 7 — FastAPI backend goes here</code></ActivityTask>
+                        <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code> create a placeholder index.html with a comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;!-- Week 9 — React frontend goes here --&gt;</code></ActivityTask>
+                        <ActivityTask>Commit with message: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chore: scaffold project structure</code></ActivityTask>
+                    </div>
+
+                    <TerminalBlock
+                        title="bash — your-project"
+                        lines={[
+                            { cmd: 'mkdir backend frontend' },
+                            { cmd: 'echo "# Week 7 — FastAPI backend goes here" > backend/main.py' },
+                            { cmd: 'echo "<!-- Week 9 — React frontend goes here -->" > frontend/index.html' },
+                            { cmd: 'git add . && git commit -m "chore: scaffold project structure"' },
+                        ]}
+                    />
+                </ActivityChallenge>
+
+                {/* ── 03 SET UP YOUR GITHUB PROJECT BOARD ──────────────────────────── */}
+                <LectureSectionHeading number="03" title="Set Up Your GitHub Project Board" />
+
+                <LectureP>
+                    Every deliverable for this project ships as a pull request that closes a GitHub issue. Set your board up now and you will not have to think about process again — just work.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="3.1"
+                    title="Create the Board"
+                    description="Get your Kanban board ready to track work."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Go to your GitHub repo → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Projects</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">New Project</code></ActivityTask>
+                        <ActivityTask>Choose the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Board</code> template (Kanban)</ActivityTask>
+                        <ActivityTask>Name it after your project</ActivityTask>
+                        <ActivityTask>Add three columns: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Backlog</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">In Progress</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
+                    </div>
+
+                    <LectureCallout type="info">
+                        <span title="A workflow management method where work items move across columns representing their current status. Originated at Toyota in the 1950s as a manufacturing scheduling system.">Kanban</span> keeps you focused. You never ask "what should I work on?" — you just move the next thing from Backlog to In Progress.
+                    </LectureCallout>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="3.2"
+                    title="Write Your Issues"
+                    description="Create the three issues that will track your Weeks 3–5 work."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 1</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: containerize backend stub</code> — body: "Write a Dockerfile for the backend stub provided in Week 3. Mount a volume for data persistence. Verify the container runs."</ActivityTask>
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 2</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build FastAPI backend</code> — body: "Implement the FastAPI backend with 3+ endpoints, SQLite storage, and a Redis caching layer running via Docker Compose."</ActivityTask>
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 3</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build React frontend</code> — body: "Build the React + Tailwind frontend with 3+ views connected to the live API."</ActivityTask>
+                        <ActivityTask>Add all three issues to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Backlog</code> column</ActivityTask>
+                    </div>
+
+                    <LectureCallout type="tip">
+                        Write issues like you are writing them for a teammate who has no context. Clear title, clear acceptance criteria. You will thank yourself in three weeks.
+                    </LectureCallout>
+                </ActivityChallenge>
+
+                {/* ── 04 OPEN YOUR FIRST PULL REQUEST ─────────────────────────────── */}
+                <LectureSectionHeading number="04" title="Open Your First Pull Request" />
+
+                <ActivityChallenge
+                    number="4.1"
+                    title="Branch, Push, and PR"
+                    description="Practice the Git workflow you'll use for every feature."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create a new branch: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git checkout -b feat/project-scaffold</code></ActivityTask>
+                        <ActivityTask>Make one small change (add your name to the README)</ActivityTask>
+                        <ActivityTask>Commit: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git add . && git commit -m "chore: add my name to README"</code></ActivityTask>
+                        <ActivityTask>Push the branch: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push origin feat/project-scaffold</code></ActivityTask>
+                        <ActivityTask>Open a pull request from that branch into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
+                        <ActivityTask>In the PR description write: what your project does, which domain you chose, and link all three issues using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Closes #1, Closes #2, Closes #3</code></ActivityTask>
+                    </div>
+
+                    <ActivityHint label="why not push to main directly">
+                        In industry, nobody pushes to main directly. All changes go through pull requests so they can be reviewed, discussed, and reverted if needed. You are building this habit now.
+                    </ActivityHint>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="4.2"
+                    title="Verify Your Setup"
+                    description="Confirm everything is in place."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Confirm your GitHub Project board shows 3 issues in Backlog</ActivityTask>
+                        <ActivityTask>Confirm your PR is open against <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
+                        <ActivityTask>Confirm your repo has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder</ActivityTask>
+                        <ActivityTask>Share your PR link in the club Slack — this is how your progress gets tracked each week</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <LectureFooterNav
+                    prev={{
+                        label: 'GitHub, Agile & Project Management',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-2'),
+                    }}
+                    next={{
+                        label: 'Containers with Docker',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
+                    }}
+                />
             </LectureLayout>
         </ActivityTaskListProvider>
     );

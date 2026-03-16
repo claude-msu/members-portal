@@ -695,13 +695,124 @@ He is the quietest person in most rooms he enters. He listens in a way that most
     },
 };
 
+// ─── Week 9 ───────────────────────────────────────────────────────────────────
+
+const WEEK9: WeekConfig = {
+    number: 9,
+    title: 'Week 9',
+    persona: {
+        name: 'Maya Chen',
+        title: 'Partner',
+        company: 'Runway Capital',
+        location: 'Austin, TX',
+        about: `Maya Chen spent twelve years as a COO and then CEO before writing a single check. She has scaled two companies from single-digit to triple-digit headcount and sold one of them. She does not believe you can separate "the idea" from "the team" — and she is far more interested in how you run the place than what the deck says.
+
+At Runway Capital she leads investments in B2B and vertical SaaS. Her reputation is built on a single question she asks in every first meeting: "Walk me through the last decision you made that half your team disagreed with." She has passed on founders who could not answer it concretely. She has backed founders who described a decision that blew up in their face and what they did next.
+
+She does not care about your TAM slide. She cares whether you have shipped something, talked to users, and can tell her what you would do with eighteen months of runway and no new funding. Portfolio founders call her "the operator's operator" because she asks the questions their own boards often skip.`,
+        education: [
+            { school: 'Stanford University', degree: 'BS Management Science & Engineering', years: '2002 – 2006' },
+            { school: 'Stanford GSB', degree: 'MBA', years: '2010 – 2012' },
+        ],
+        experience: [
+            {
+                company: 'Runway Capital',
+                role: 'Partner',
+                years: '2020 – Present',
+                description:
+                    'Leads B2B and vertical SaaS investments for a $180M fund. Brings operator lens to every diligence call: unit economics, hiring plan, and "what would you do if we said no?"',
+            },
+            {
+                company: 'ScalePath',
+                role: 'CEO',
+                years: '2016 – 2019',
+                description:
+                    'Took over as CEO after co-founder departure. Grew ARR 3x and led acquisition by strategic buyer. Left with a permanent bias toward teams that have already survived a crisis.',
+            },
+            {
+                company: 'DataLoom',
+                role: 'COO',
+                years: '2012 – 2016',
+                description:
+                    'First operating role out of GSB. Built go-to-market and operations from scratch. Learned that the best product in the world does not matter if the team cannot ship.',
+            },
+        ],
+        portfolio: [
+            { company: 'Stackline', stage: 'Seed, 2020', note: 'Vertical SaaS for inventory. Maya asked for a single spreadsheet: cohort retention by month. The founder had it in the room. She led the round.' },
+            { company: 'CrewLogic', stage: 'Series A, 2021', note: 'Workforce scheduling. Passed on the same company at seed when the founder could not explain why churn spiked in Q3. Came back at A with a clear narrative and a new head of customer success. She invested.' },
+            { company: 'InvoiceFlow', stage: 'Seed, 2023', note: 'SMB billing. The founder had been a CFO. Maya spent an hour on his unit economics and his definition of "done" for v1. Term sheet within a week.' },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$180M' },
+            { label: 'Portfolio Companies', value: '24' },
+            { label: 'Years as Operator (pre-VC)', value: '12' },
+            { label: 'Median First Check', value: '$1.5M' },
+        ],
+    },
+};
+
+// ─── Week 10 ──────────────────────────────────────────────────────────────────
+
+const WEEK10: WeekConfig = {
+    number: 10,
+    title: 'Week 10',
+    persona: {
+        name: 'Vikram Rao',
+        title: 'Managing Partner',
+        company: 'Monsoon Ventures',
+        location: 'London, UK',
+        about: `Vikram Rao runs a pan-European fund that has made forty-two investments across twelve countries. He does not have a sector thesis — he has a geography thesis. He believes the best companies in the next decade will be built by founders who understand multiple markets from day one, and he is willing to be wrong about the product if he is right about the team's ability to learn.
+
+He asks every founder: "Who is your first non-domestic customer and why?" If the answer is "we haven't thought about it," the meeting is effectively over. He has backed companies that pivoted twice before product-market fit and passed on companies that had perfect metrics but a single-market mindset. His portfolio includes a Berlin-based fintech, a Lisbon-based climate tech company, and a Warsaw-based devtools startup — and he has never asked any of them to move to London.
+
+He is known for long, unstructured conversations that feel like brainstorming sessions. Founders often leave not sure whether they were being interviewed or coached. Both are true.`,
+        education: [
+            { school: 'London School of Economics', degree: 'BSc Economics', years: '1998 – 2001' },
+            { school: 'INSEAD', degree: 'MBA', years: '2005 – 2006' },
+        ],
+        experience: [
+            {
+                company: 'Monsoon Ventures',
+                role: 'Managing Partner',
+                years: '2015 – Present',
+                description:
+                    'Runs $140M pan-European fund. Leads investments in 12 countries. No sector mandate — thesis is cross-border execution and founder adaptability.',
+            },
+            {
+                company: 'Index Ventures',
+                role: 'Principal',
+                years: '2010 – 2015',
+                description:
+                    'Focused on European early-stage. Led investments in 8 companies across UK, Germany, France. Left to start Monsoon with a thesis that "European" was too broad to be useful.',
+            },
+            {
+                company: 'McKinsey & Company',
+                role: 'Consultant',
+                years: '2006 – 2010',
+                description:
+                    'Strategy and operations across Europe and India. Built a habit of asking "what happens when you scale this to another country?" that has defined his investing ever since.',
+            },
+        ],
+        portfolio: [
+            { company: 'CrossPay', stage: 'Seed, 2019', note: 'Berlin fintech. First customer was in Poland. Vikram asked how they would support a customer in a country where no one on the team had ever lived. The founder had a plan. He wrote the check.' },
+            { company: 'TerraNode', stage: 'Pre-seed, 2021', note: 'Lisbon climate tech. No revenue. Vikram backed the team and their willingness to run pilots in three countries in the first year.' },
+            { company: 'DevStream', stage: 'Seed, 2022', note: 'Warsaw devtools. The founder had sold a previous company to a US acquirer. Vikram cared more about that experience than the current deck.' },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$140M' },
+            { label: 'Portfolio Companies', value: '42' },
+            { label: 'Countries Invested In', value: '12' },
+            { label: 'Median First Check', value: '€1.2M' },
+        ],
+    },
+};
+
 // ─── Exports ──────────────────────────────────────────────────────────────────
 
-/** Active week — shown now. Swap every Thursday before coworking. */
-export const CURRENT: WeekConfig = WEEK1;
+export const WEEKS: WeekConfig[] = [WEEK1, WEEK2, WEEK3, WEEK4, WEEK5, WEEK6, WEEK7, WEEK8, WEEK9, WEEK10];
 
-/**
- * Next week preview — shown in upper half of countdown before the swap.
- * Set to null after Week 8 when the semester ends.
- */
-export const QUEUED: WeekConfig | null = WEEK2;
+/** Current week is derived from semester via getCurrent() in index. */
+export async function getCurrent(): Promise<number> {
+    const week = await import('@/lib/semester').then((m) => m.getCurrent());
+    return Math.min(Math.max(week, 1), WEEKS.length);
+}

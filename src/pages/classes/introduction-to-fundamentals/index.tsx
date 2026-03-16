@@ -16,8 +16,13 @@ import {
     Users,
     Clock,
     ChevronRight,
+    Shield,
+    TestTube,
+    Rocket,
+    Trophy,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { getCurrent } from '@/lib/semester';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -35,7 +40,7 @@ interface Session {
 
 interface Week {
     number: number;
-    theme: string;
+    title: string;
     subtitle: string;
     icon: React.ReactNode;
     color: string;
@@ -47,7 +52,7 @@ interface Week {
 const WEEKS: Week[] = [
     {
         number: 1,
-        theme: 'Linux & The Command Line',
+        title: 'Linux & The Command Line',
         subtitle: 'Your new home base',
         icon: <Terminal className="h-5 w-5" />,
         color: 'brown',
@@ -86,202 +91,7 @@ const WEEKS: Week[] = [
     },
     {
         number: 2,
-        theme: 'Git & Agile Engineering',
-        subtitle: 'How real teams work',
-        icon: <GitBranch className="h-5 w-5" />,
-        color: 'gray',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Version Control with Git',
-                description:
-                    'Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes.',
-                duration: '90 min',
-                slug: 'week-2/lecture-1',
-                tags: ['git init', 'git commit', 'branching', 'merge conflicts'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'GitHub, Agile & Project Management',
-                description:
-                    'Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature.',
-                duration: '90 min',
-                slug: 'week-2/lecture-2',
-                tags: ['pull requests', 'GitHub Projects', 'issues', 'Scrum', 'Kanban'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Project Kickoff',
-                description:
-                    'Choose your project domain, scaffold your repo, create your GitHub Project board, write issues for Weeks 3–5, and open your first PR. Every deliverable from here ships through this board.',
-                duration: '90 min',
-                slug: 'week-2/activity',
-                tags: ['GitHub Projects', 'issues', 'pull requests', 'README'],
-            },
-        ],
-    },
-    {
-        number: 3,
-        theme: 'Containerization with Docker',
-        subtitle: 'Build once, run anywhere',
-        icon: <Package className="h-5 w-5" />,
-        color: 'green',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Package Managers & Environments',
-                description:
-                    'Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again.',
-                duration: '90 min',
-                slug: 'week-3/lecture-1',
-                tags: ['apt', 'npm', 'pip', 'venv', 'dependency resolution'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Docker & Containerization',
-                description:
-                    '"It works on my machine" ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere.',
-                duration: '90 min',
-                slug: 'week-3/lecture-2',
-                tags: ['Dockerfile', 'docker run', 'image layers', 'volumes'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Containerize Your Backend Stub',
-                description:
-                    'Write a Dockerfile for a provided Python stub, mount a volume to persist data between runs, and compare image sizes between base images. Your container is ready for Week 4.',
-                duration: '90 min',
-                slug: 'week-3/activity',
-                tags: ['Dockerfile', 'volumes', 'docker images', 'base images'],
-            },
-        ],
-    },
-    {
-        number: 4,
-        theme: 'Backend Development',
-        subtitle: 'The engine under the hood',
-        icon: <Server className="h-5 w-5" />,
-        color: 'blue',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'FastAPI & Python Backends',
-                description:
-                    'Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API.',
-                duration: '90 min',
-                slug: 'week-4/lecture-1',
-                tags: ['FastAPI', 'Pydantic', 'REST', 'endpoints', 'docs'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Databases: SQL, SQLite & Redis',
-                description:
-                    'SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command.',
-                duration: '90 min',
-                slug: 'week-4/lecture-2',
-                tags: ['SQLite', 'SQL', 'Redis', 'caching', 'docker-compose'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Build Your Backend',
-                description:
-                    'Build the FastAPI backend for your chosen project domain — 3+ endpoints, SQLite storage, Redis caching layer, all running via Docker Compose. Deliverable ships as a PR.',
-                duration: '90 min',
-                slug: 'week-4/activity',
-                tags: ['FastAPI', 'SQLite', 'Redis', 'docker-compose', 'REST'],
-            },
-        ],
-    },
-    {
-        number: 5,
-        theme: 'Frontend Development',
-        subtitle: 'Build interfaces people actually use',
-        icon: <Globe className="h-5 w-5" />,
-        color: 'purple',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'React Components & Hooks',
-                description:
-                    'React is the most widely used frontend library in the world. Learn the mental model, components, props, state, and the hooks you will use every single day.',
-                duration: '90 min',
-                slug: 'week-5/lecture-1',
-                tags: ['useState', 'useEffect', 'props', 'JSX'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Tailwind CSS & Connecting to Your API',
-                description:
-                    'Style your UI with utility classes that do exactly one thing, then wire your React frontend to the FastAPI backend you built last week using fetch.',
-                duration: '90 min',
-                slug: 'week-5/lecture-2',
-                tags: ['Tailwind', 'flex', 'grid', 'fetch', 'useEffect'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Build Your Frontend',
-                description:
-                    'Build the React + Tailwind frontend for your project — 3+ views, real data flowing from your API, fully styled. By the end you have a live full-stack end to end.',
-                duration: '90 min',
-                slug: 'week-5/activity',
-                tags: ['React', 'Tailwind', 'fetch', 'components', 'state'],
-            },
-        ],
-    },
-    {
-        number: 6,
-        theme: 'Sprint Review & Showcase',
-        subtitle: 'Ship it and reflect',
-        icon: <Workflow className="h-5 w-5" />,
-        color: 'indigo',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Scrum, Kanban & Sprint Cycles',
-                description:
-                    'The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives.',
-                duration: '90 min',
-                slug: 'week-6/lecture-1',
-                tags: ['Scrum', 'Kanban', 'user stories', 'sprints', 'retro'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'CI/CD, TDD & Engineering Culture',
-                description:
-                    'Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight.',
-                duration: '90 min',
-                slug: 'week-6/lecture-2',
-                tags: ['GitHub Actions', 'TDD', 'CI/CD', 'code review'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Sprint Simulation & Project Showcase',
-                description:
-                    'Close out your GitHub Project board, present your full-stack app as a sprint review demo, retrospective, and walk through what you would build next.',
-                duration: '90 min',
-                slug: 'week-6/activity',
-                tags: ['sprint review', 'demo', 'retrospective', 'GitHub Projects'],
-            },
-        ],
-    },
-    {
-        number: 7,
-        theme: 'Data Structures & Algorithms',
+        title: 'Data Structures & Algorithms',
         subtitle: 'Go deeper',
         icon: <Binary className="h-5 w-5" />,
         color: 'red',
@@ -293,7 +103,7 @@ const WEEKS: Week[] = [
                 description:
                     'Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take.',
                 duration: '90 min',
-                slug: 'week-7/lecture-1',
+                slug: 'week-2/lecture-1',
                 tags: ['BST', 'in-order traversal', 'BFS', 'DFS', 'stacks', 'queues'],
             },
             {
@@ -303,7 +113,7 @@ const WEEKS: Week[] = [
                 description:
                     'Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers.',
                 duration: '90 min',
-                slug: 'week-7/lecture-2',
+                slug: 'week-2/lecture-2',
                 tags: ['hash maps', 'Big-O', 'two pointers', 'sliding window'],
             },
             {
@@ -313,14 +123,14 @@ const WEEKS: Week[] = [
                 description:
                     'Implement a BST, a MinStack, and hash-map patterns in Python — no new language, just the concepts from this week. Prep for applying the same ideas in C++ next week.',
                 duration: '90 min',
-                slug: 'week-7/activity',
+                slug: 'week-2/activity',
                 tags: ['BST', 'in-order traversal', 'MinStack', 'two sum', 'hash map'],
             },
         ],
     },
     {
-        number: 8,
-        theme: 'C++ & Object-Oriented Programming',
+        number: 3,
+        title: 'C++ & Object-Oriented Programming',
         subtitle: 'Design software, not just functions',
         icon: <Cpu className="h-5 w-5" />,
         color: 'red',
@@ -332,7 +142,7 @@ const WEEKS: Week[] = [
                 description:
                     'C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible.',
                 duration: '90 min',
-                slug: 'week-8/lecture-1',
+                slug: 'week-3/lecture-1',
                 tags: ['classes', 'encapsulation', 'inheritance', 'virtual'],
             },
             {
@@ -342,7 +152,7 @@ const WEEKS: Week[] = [
                 description:
                     'Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core.',
                 duration: '90 min',
-                slug: 'week-8/lecture-2',
+                slug: 'week-3/lecture-2',
                 tags: ['polymorphism', 'abstract classes', 'vector', 'unordered_map'],
             },
             {
@@ -352,8 +162,359 @@ const WEEKS: Week[] = [
                 description:
                     'Full C++ capstone: Part 1 — Contact and PhoneBook (add/delete/list). Part 2 — BST for sorted order, stack-based undo, and hash map for O(1) search by phone.',
                 duration: '90 min',
-                slug: 'week-8/activity',
+                slug: 'week-3/activity',
                 tags: ['C++ classes', 'BST', 'stack', 'unordered_map', 'CLI'],
+            },
+        ],
+    },
+    {
+        number: 4,
+        title: 'Git & Agile Engineering',
+        subtitle: 'How real teams work',
+        icon: <GitBranch className="h-5 w-5" />,
+        color: 'gray',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'Version Control with Git',
+                description:
+                    'Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes.',
+                duration: '90 min',
+                slug: 'week-4/lecture-1',
+                tags: ['git init', 'git commit', 'branching', 'merge conflicts'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'GitHub, Agile & Project Management',
+                description:
+                    'Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature.',
+                duration: '90 min',
+                slug: 'week-4/lecture-2',
+                tags: ['pull requests', 'GitHub Projects', 'issues', 'Scrum', 'Kanban'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Project Kickoff',
+                description:
+                    'Choose your project domain, scaffold your repo, and create your GitHub Project board. In Week 5 (Sprint Planning) you will create issues for every sprint in advance — Containers, Backend, Testing, Frontend, Auth, Deployment. Every deliverable from here ships through this board.',
+                duration: '90 min',
+                slug: 'week-4/activity',
+                tags: ['GitHub Projects', 'issues', 'pull requests', 'README'],
+            },
+        ],
+    },
+    {
+        number: 5,
+        title: 'Sprint Planning',
+        subtitle: 'Set up all sprints in advance',
+        icon: <Workflow className="h-5 w-5" />,
+        color: 'indigo',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'Scrum, Kanban & Sprint Cycles',
+                description:
+                    'The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives. You will plan the entire project in advance so every week maps to a clear set of issues.',
+                duration: '90 min',
+                slug: 'week-5/lecture-1',
+                tags: ['Scrum', 'Kanban', 'user stories', 'sprints', 'backlog'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Backlog Design & Issue Writing',
+                description:
+                    'How to write issues that map to real deliverables: Containers, Backend, Testing, Frontend, Auth, Deployment. One sprint per theme — you create the full roadmap now so execution is just "pull the next issue."',
+                duration: '90 min',
+                slug: 'week-5/lecture-2',
+                tags: ['backlog', 'user stories', 'acceptance criteria', 'GitHub Projects'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Set Up Your Entire Sprint Roadmap',
+                description:
+                    'Create issues on your GitHub Project board for all remaining sprints: Week 6 (Containers), Week 7 (Backend), Week 8 (Testing & CI/CD), Week 9 (Frontend), Week 10 (Auth), Week 11 (Deployment). Each sprint gets 2–4 issues that match that week\'s deliverables. From here on you just pull issues and ship.',
+                duration: '90 min',
+                slug: 'week-5/activity',
+                tags: ['backlog', 'issues', 'sprint roadmap', 'GitHub Projects'],
+            },
+        ],
+    },
+    {
+        number: 6,
+        title: 'Containerization with Docker',
+        subtitle: 'Build once, run anywhere',
+        icon: <Package className="h-5 w-5" />,
+        color: 'green',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'Package Managers & Environments',
+                description:
+                    'Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again.',
+                duration: '90 min',
+                slug: 'week-6/lecture-1',
+                tags: ['apt', 'npm', 'pip', 'venv', 'dependency resolution'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Docker & Containerization',
+                description:
+                    '"It works on my machine" ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere.',
+                duration: '90 min',
+                slug: 'week-6/lecture-2',
+                tags: ['Dockerfile', 'docker run', 'image layers', 'volumes'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Containerize Your Backend Stub',
+                description:
+                    'Write a Dockerfile for a provided Python stub, mount a volume to persist data between runs, and compare image sizes between base images. Your container is ready for Week 7 (Backend).',
+                duration: '90 min',
+                slug: 'week-6/activity',
+                tags: ['Dockerfile', 'volumes', 'docker images', 'base images'],
+            },
+        ],
+    },
+    {
+        number: 7,
+        title: 'Backend Development',
+        subtitle: 'The engine under the hood',
+        icon: <Server className="h-5 w-5" />,
+        color: 'blue',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'FastAPI & Python Backends',
+                description:
+                    'Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API.',
+                duration: '90 min',
+                slug: 'week-7/lecture-1',
+                tags: ['FastAPI', 'Pydantic', 'REST', 'endpoints', 'docs'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Databases: SQL, SQLite & Redis',
+                description:
+                    'SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command.',
+                duration: '90 min',
+                slug: 'week-7/lecture-2',
+                tags: ['SQLite', 'SQL', 'Redis', 'caching', 'docker-compose'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Build Your Backend',
+                description:
+                    'Build the FastAPI backend for your chosen project domain — 3+ endpoints, SQLite storage, Redis caching layer, all running via Docker Compose. Deliverable ships as a PR.',
+                duration: '90 min',
+                slug: 'week-7/activity',
+                tags: ['FastAPI', 'SQLite', 'Redis', 'docker-compose', 'REST'],
+            },
+        ],
+    },
+    {
+        number: 8,
+        title: 'Testing & CI/CD',
+        subtitle: 'Ship with confidence',
+        icon: <TestTube className="h-5 w-5" />,
+        color: 'green',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'Vitest & Testing Your Project',
+                description:
+                    'Unit and integration testing with Vitest: testing your API, components, and critical paths so refactors don\'t break your fundamentals project.',
+                duration: '90 min',
+                slug: 'week-8/lecture-1',
+                tags: ['Vitest', 'unit tests', 'integration tests', 'mocking'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'GitHub Actions & Coverage',
+                description:
+                    'CI/CD with GitHub Actions: run tests on every push, enforce coverage, and automate checks so the team stays in sync.',
+                duration: '90 min',
+                slug: 'week-8/lecture-2',
+                tags: ['GitHub Actions', 'CI/CD', 'coverage', 'automation'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Pipeline for Your Repo',
+                description:
+                    'Add a GitHub Actions workflow to your project that runs tests and reports coverage. Fix any failing tests and document how to run them locally.',
+                duration: '90 min',
+                slug: 'week-8/activity',
+                tags: ['workflows', 'tests', 'coverage', 'README'],
+            },
+        ],
+    },
+    {
+        number: 9,
+        title: 'Frontend Development',
+        subtitle: 'Build interfaces people actually use',
+        icon: <Globe className="h-5 w-5" />,
+        color: 'purple',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'React Components & Hooks',
+                description:
+                    'React is the most widely used frontend library in the world. Learn the mental model, components, props, state, and the hooks you will use every single day.',
+                duration: '90 min',
+                slug: 'week-9/lecture-1',
+                tags: ['useState', 'useEffect', 'props', 'JSX'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Tailwind CSS & Connecting to Your API',
+                description:
+                    'Style your UI with utility classes that do exactly one thing, then wire your React frontend to the FastAPI backend you built using fetch.',
+                duration: '90 min',
+                slug: 'week-9/lecture-2',
+                tags: ['Tailwind', 'flex', 'grid', 'fetch', 'useEffect'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Build Your Frontend',
+                description:
+                    'Build the React + Tailwind frontend for your project — 3+ views, real data flowing from your API, fully styled. By the end you have a live full-stack end to end.',
+                duration: '90 min',
+                slug: 'week-9/activity',
+                tags: ['React', 'Tailwind', 'fetch', 'components', 'state'],
+            },
+        ],
+    },
+    {
+        number: 10,
+        title: 'Auth & Identity',
+        subtitle: 'Secure your project',
+        icon: <Shield className="h-5 w-5" />,
+        color: 'indigo',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'JWT, Sessions & Protecting Routes',
+                description:
+                    'Authentication and authorization on your fundamentals project: JWTs, session management, and protecting API and frontend routes so only the right users see the right data.',
+                duration: '90 min',
+                slug: 'week-10/lecture-1',
+                tags: ['JWT', 'sessions', 'auth middleware', 'protected routes'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Identity & User Context',
+                description:
+                    'User context across the stack, role-based access, and how to keep your project secure as you add more features.',
+                duration: '90 min',
+                slug: 'week-10/lecture-2',
+                tags: ['user context', 'roles', 'authorization', 'security'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Auth on Your Project',
+                description:
+                    'Implement login, session handling, and at least one protected route on your fundamentals project. Bring your code to Coworking for review.',
+                duration: '90 min',
+                slug: 'week-10/activity',
+                tags: ['login', 'sessions', 'protected routes', 'project'],
+            },
+        ],
+    },
+    {
+        number: 11,
+        title: 'Deployment',
+        subtitle: 'From local to production',
+        icon: <Rocket className="h-5 w-5" />,
+        color: 'blue',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'Vercel, Railway & What Production Means',
+                description:
+                    'Deploy your fundamentals project: frontend on Vercel, backend on Railway (or similar), env vars, and what "production" actually means for config, secrets, and domains.',
+                duration: '90 min',
+                slug: 'week-11/lecture-1',
+                tags: ['Vercel', 'Railway', 'deployment', 'env vars'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Databases & Persistence in Production',
+                description:
+                    'Production databases, connection strings, migrations, and keeping your project\'s data safe and consistent when you ship.',
+                duration: '90 min',
+                slug: 'week-11/lecture-2',
+                tags: ['production DB', 'migrations', 'connection strings', 'backups'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Ship Your Project',
+                description:
+                    'Deploy your fundamentals project end-to-end. Document your deployment steps and env vars (without secrets) in your README. Demo the live app.',
+                duration: '90 min',
+                slug: 'week-11/activity',
+                tags: ['deploy', 'README', 'demo', 'production'],
+            },
+        ],
+    },
+    {
+        number: 12,
+        title: 'Final Sprint',
+        subtitle: 'README, final demo, and celebration',
+        icon: <Trophy className="h-5 w-5" />,
+        color: 'amber',
+        sessions: [
+            {
+                type: 'lecture',
+                label: 'Lecture 1',
+                title: 'README, Docs & Open Source Habits',
+                description:
+                    'How to write a README that makes your project understandable and runnable. Docs, contributing guidelines, and habits that scale when others join.',
+                duration: '90 min',
+                slug: 'week-12/lecture-1',
+                tags: ['README', 'documentation', 'open source', 'contributing'],
+            },
+            {
+                type: 'lecture',
+                label: 'Lecture 2',
+                title: 'Demo Prep & Retrospective',
+                description:
+                    'Prepare a short demo of your fundamentals project: what you built, what you\'d do next, and one lesson you\'re taking forward. Run a lightweight retrospective.',
+                duration: '90 min',
+                slug: 'week-12/lecture-2',
+                tags: ['demo', 'retrospective', 'showcase', 'lessons learned'],
+            },
+            {
+                type: 'activity',
+                label: 'Activity',
+                title: 'Final Demo & Celebration',
+                description:
+                    'Present your project in a final sprint review. Share your README, live app, and one takeaway. Celebrate the 36-session journey from zero to full-stack.',
+                duration: '90 min',
+                slug: 'week-12/activity',
+                tags: ['demo', 'showcase', 'celebration', 'full-stack'],
             },
         ],
     },
@@ -425,6 +586,13 @@ const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badg
         border: 'border-indigo-200 dark:border-indigo-700',
         badge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200',
         dot: 'bg-indigo-500',
+    },
+    amber: {
+        bg: 'bg-amber-50 dark:bg-amber-950/20',
+        text: 'text-amber-700 dark:text-amber-300',
+        border: 'border-amber-200 dark:border-amber-800',
+        badge: 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-200',
+        dot: 'bg-amber-500',
     },
 };
 
@@ -548,14 +716,8 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
                 {/* Title block */}
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-xs font-bold uppercase tracking-widest ${c.text}`}>
-                            Week {week.number}
-                        </span>
-                        <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-                        <span className="text-xs text-muted-foreground">{week.subtitle}</span>
-                    </div>
-                    <h3 className="font-semibold text-sm text-foreground truncate">{week.theme}</h3>
+                    <p className="text-xs text-muted-foreground mb-0.5">{week.subtitle}</p>
+                    <h3 className="font-semibold text-sm text-foreground truncate">{week.title}</h3>
                 </div>
 
                 {/* Session count */}
@@ -601,7 +763,7 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-const VALID_WEEK_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
+const VALID_WEEK_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
 function getWeekFromSearchParams(searchParams: URLSearchParams): number | null {
     const s = searchParams.get('s');
@@ -622,6 +784,17 @@ export default function IntroductionToFundamentals() {
         if (weekFromUrl !== null) {
             setOpenWeeks((prev) => new Set(prev).add(weekFromUrl));
         }
+    }, [weekFromUrl]);
+
+    // Auto-expand current week on load when no URL week is specified
+    useEffect(() => {
+        if (weekFromUrl !== null) return;
+        getCurrent()
+            .then((week) => {
+                const clamped = Math.min(Math.max(week, 1), 12);
+                setOpenWeeks((prev) => new Set(prev).add(clamped));
+            })
+            .catch(() => {});
     }, [weekFromUrl]);
 
     const toggleWeek = (n: number) => {
@@ -668,8 +841,8 @@ export default function IntroductionToFundamentals() {
                             Introduction to Fundamentals
                         </h1>
                         <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                            An 18-session journey from zero to full-stack. Terminal fluency, version control,
-                            containers, React, backend APIs, algorithms, and agile — everything
+                            A 36-session journey from zero to full-stack. Terminal fluency, version control,
+                            containers, React, backend APIs, algorithms, auth, testing, deployment — everything
                             you need to contribute to real projects.
                         </p>
                     </div>
