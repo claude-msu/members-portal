@@ -31,14 +31,16 @@ async function sendDecisionEmail(
     boardPosition: string | null,
     status: 'accepted' | 'rejected',
     hasSlackAccount: boolean,
+    targetName: string | null,
 ): Promise<void> {
-    const subject = getEmailSubject(applicationType, boardPosition)
+    const subject = getEmailSubject(applicationType, boardPosition, targetName)
     const html = getEmailHtml(
         fullName,
         applicationType,
         boardPosition,
         status,
         hasSlackAccount,
+        targetName,
     )
 
     const resend = new Resend(RESEND_API_KEY)
@@ -58,14 +60,15 @@ async function sendDecisionEmail(
 function getEmailSubject(
     type: string,
     position: string | null,
+    targetName: string | null,
 ): string {
     switch (type) {
         case 'board':
-            return `Board Application Update - ${position || 'Board Member'}`
+            return `Board Application Update`
         case 'project':
             return 'Project Application Update'
         case 'class':
-            return 'Class Application Update'
+            return `Class Application Update`
         default:
             return 'Application Update'
     }
@@ -77,8 +80,9 @@ function getEmailHtml(
     boardPosition: string | null,
     status: 'accepted' | 'rejected',
     hasSlackAccount: boolean,
+    targetName: string | null,
 ): string {
-    const target = getApplicationTarget(applicationType, boardPosition)
+    const target = getApplicationTarget(applicationType, boardPosition, targetName)
     const accepted = status === 'accepted'
 
     // Smart Slack messaging based on state
@@ -197,14 +201,14 @@ function getEmailHtml(
   `
 }
 
-function getApplicationTarget(type: string, position: string | null): string {
+function getApplicationTarget(type: string, position: string | null, targetName: string | null): string {
     switch (type) {
         case 'board':
             return position || 'Board Position'
         case 'project':
-            return 'the project'
+            return targetName || 'the project'
         case 'class':
-            return 'the class'
+            return targetName || 'the class'
         default:
             return 'Claude Builder Club'
     }
@@ -253,6 +257,24 @@ serve(async (req) => {
         const userEmail = profile.email
         const userName = profile.full_name ?? ''
         const hasSlackAccount = !!profile.slack_user_id
+
+        // Resolve project/class name for emails
+        let targetName: string | null = null
+        if (application.application_type === 'project' && application.project_id) {
+            const { data: project } = await supabase
+                .from('projects')
+                .select('name')
+                .eq('id', application.project_id)
+                .single()
+            targetName = project?.name ?? null
+        } else if (application.application_type === 'class' && application.class_id) {
+            const { data: classRow } = await supabase
+                .from('classes')
+                .select('name')
+                .eq('id', application.class_id)
+                .single()
+            targetName = classRow?.name ?? null
+        }
 
         // Save original values for rollback
         const originalStatus = application.status
@@ -386,7 +408,8 @@ serve(async (req) => {
                 application.application_type,
                 application.board_position,
                 payload.status,
-                hasSlackAccount
+                hasSlackAccount,
+                targetName
             )
         } catch (emailError) {
             console.warn('⚠️ Email sending failed:', emailError)
