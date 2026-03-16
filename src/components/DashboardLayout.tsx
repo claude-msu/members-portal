@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile, UserBadge } from '@/contexts/ProfileContext';
+import { useProfile, UserBadge } from '@/contexts/AuthContext';
 import {
   Sidebar,
   SidebarContent,

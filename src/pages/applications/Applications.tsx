@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight, Folder, FolderOpen, User, Shield } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ApplicationCreateModal } from '@/components/modals/ApplicationCreateModal';
-import type { ApplicationWithProfile } from '@/contexts/ProfileContext';
+import type { ApplicationWithProfile } from '@/contexts/AuthContext';
 
 const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCreateModal?: boolean }) => {
   const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();

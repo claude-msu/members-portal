@@ -1,4 +1,4 @@
-import { useProfile, type Project, type Class } from '@/contexts/ProfileContext';
+import { useProfile, type Project, type Class } from '@/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
@@ -23,7 +23,7 @@ import { format } from 'date-fns';
 import { useAuth } from '@/contexts/AuthContext';
 import TextType from '@/components/ui/text-type';
 
-// Dashboard uses types from ProfileContext and separate queries
+// Dashboard uses types from AuthContext and separate queries
 
 type AdminStats = {
   members: number;
@@ -35,7 +35,7 @@ type AdminStats = {
 // --- Helper Functions ---
 const getStatus = (
   item: Project | Class,
-): { variant: 'gray' | 'green' | 'blue', label: string} => {
+): { variant: 'gray' | 'green' | 'blue', label: string } => {
   if (!item.semesters) return { variant: 'gray', label: 'Unknown' };
   const now = new Date();
   const startDate = new Date(item.semesters.start_date);
@@ -50,10 +50,10 @@ const getStatus = (
   return { variant: 'blue', label: 'Current' };
 }
 
-// Dashboard data is now sourced from ProfileContext and separate admin queries
+// Dashboard data is now sourced from AuthContext and separate admin queries
 
 export default function Dashboard() {
-  const { role, loading, isEBoard, isBoardOrAbove, userProjects, userClasses, userEvents, userApplications } = useProfile();
+  const { role, profileLoading, isEBoard, isBoardOrAbove, userProjects, userClasses, userEvents, userApplications } = useProfile();
   const { profile } = useAuth();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
@@ -132,7 +132,7 @@ export default function Dashboard() {
     gcTime: 1000 * 60 * 10,
   });
 
-  const isLoading = loading || (isEBoard && adminStatsLoading) || (isBoardOrAbove && (allProjectsLoading || allClassesLoading));
+  const isLoading = profileLoading || (isEBoard && adminStatsLoading) || (isBoardOrAbove && (allProjectsLoading || allClassesLoading));
 
   // --- Sub-Components ---
 
@@ -279,7 +279,7 @@ export default function Dashboard() {
       );
     }
 
-    // Everyone else shows personal stats (from ProfileContext)
+    // Everyone else shows personal stats (from AuthContext)
     return (
       <div className={`grid gap-4 ${isMobile ? 'grid-cols-2' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'}`}>
         <StatItem
@@ -417,7 +417,7 @@ export default function Dashboard() {
     const link = isProject ? '/projects' : '/classes';
 
     // For board/e-board: show all projects/classes from dashboard query
-    // For members: show their projects/classes from ProfileContext
+    // For members: show their projects/classes from AuthContext
     let items: (Project | Class)[] = [];
     let title = '';
 

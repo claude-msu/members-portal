@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { RoleBadge } from '@/contexts/ProfileContext';
+import { RoleBadge } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Trophy, Mail, GraduationCap, Crown, Users, Award, Eye, Settings, UserMinus, Ban, ArrowBigUpDashIcon } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/database.types';
-import type { AppRole } from '@/contexts/ProfileContext';
+import type { AppRole } from '@/contexts/AuthContext';
 
 type Profile = Database['public']['Tables']['profiles']['Row'];
 

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -165,7 +165,7 @@ const Events = () => {
     gcTime: 1000 * 60 * 5,
   });
 
-  // Events are now loaded via ProfileContext
+  // Events are loaded via AuthContext (userEvents)
 
   // Restore selected item from URL parameter
   useEffect(() => {
@@ -711,37 +711,6 @@ const Events = () => {
 
     const actions = [];
 
-    if (!isBoardOrAbove && event.rsvp_required && role !== 'prospect' && !eventHasStarted) {
-      if (hasAttended) {
-        // User has already attended - show attended status
-        actions.push({
-          label: 'Attended',
-          icon: <CheckCircle className="h-4 w-4 mr-2" />,
-          onClick: () => { }, // No action needed
-          variant: 'secondary' as const,
-          disabled: true,
-        });
-      } else if (hasRSVPed) {
-        // User has RSVPed but not attended - allow cancellation
-        actions.push({
-          label: isMobile ? 'Cancel' : 'Cancel RSVP',
-          icon: <X className="h-4 w-4 mr-2" />,
-          onClick: () => handleCancelRSVP(event.id),
-          variant: 'destructive' as const,
-          disabled: false,
-        });
-      } else {
-        // User hasn't RSVPed - allow RSVPing
-        actions.push({
-          label: isFull ? 'Full' : 'RSVP',
-          icon: <MailCheck className="h-4 w-4 mr-2" />,
-          onClick: () => handleRSVP(event.id),
-          variant: 'outline' as const,
-          disabled: isFull,
-        });
-      }
-    }
-
     if (isBoardOrAbove) {
       actions.push({
         label: isMobile ? 'Edit' : 'Edit Details',
@@ -826,6 +795,37 @@ const Events = () => {
     }
 
     else {
+      if (event.rsvp_required && !eventHasStarted) {
+        if (hasAttended) {
+          // User has already attended - show attended status
+          actions.push({
+            label: 'Attended',
+            icon: <CheckCircle className="h-4 w-4 mr-2" />,
+            onClick: () => { }, // No action needed
+            variant: 'secondary' as const,
+            disabled: true,
+          });
+        } else if (hasRSVPed) {
+          // User has RSVPed but not attended - allow cancellation
+          actions.push({
+            label: isMobile ? 'Cancel' : 'Cancel RSVP',
+            icon: <X className="h-4 w-4 mr-2" />,
+            onClick: () => handleCancelRSVP(event.id),
+            variant: 'destructive' as const,
+            disabled: false,
+          });
+        } else {
+          // User hasn't RSVPed - allow RSVPing
+          actions.push({
+            label: isFull ? 'Full' : 'RSVP',
+            icon: <MailCheck className="h-4 w-4 mr-2" />,
+            onClick: () => handleRSVP(event.id),
+            variant: 'outline' as const,
+            disabled: isFull,
+          });
+        }
+      }
+
       actions.push({
         label: isMobile ? 'Details' : 'View Details',
         onClick: () => modalState.open(event, event.id),

@@ -29,7 +29,7 @@ import ProfileViewer from '@/components/modals/ProfileViewer';
 import { DetailModal } from '@/components/modals/DetailModal';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { DetailSection } from '@/types/modal.types';
-import { Class, Project, useProfile } from '@/contexts/ProfileContext';
+import { Class, Project, useProfile } from '@/contexts/AuthContext';
 import { InterfaceVariant } from '@/lib/utils';
 
 type Application = Database['public']['Tables']['applications']['Row'];

@@ -21,11 +21,11 @@ import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { MembershipInfo, Profile } from '@/types/modal.types';
 import ProfileViewer from '@/components/modals/ProfileViewer';
-import type { AppRole } from '@/contexts/ProfileContext';
+import type { AppRole } from '@/contexts/AuthContext';
 
 interface MembersListModalProps {
     open: boolean;

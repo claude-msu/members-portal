@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { TooltipProvider } from "./components/ui/tooltip";
-import { ProfileProvider, useProfile } from "./contexts/ProfileContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 
 import Index from "./pages/Index";
@@ -78,10 +77,8 @@ const PostAuthRedirectHandler = () => {
 
 // Protected Route wrapper component
 const ProtectedRoute = ({ children, isMember = false }: { children: React.ReactNode; isMember?: boolean }) => {
-  const { user, loading: authLoading, profile } = useAuth();
-  const { loading: profileLoading, role } = useProfile();
+  const { user, loading: authLoading, profileLoading, profile, role } = useAuth();
 
-  // Show loading spinner while auth is initializing
   if (authLoading || profileLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -147,11 +144,10 @@ const App = () => (
     <Sonner />
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
-        <ProfileProvider>
-          <TooltipProvider delayDuration={150} skipDelayDuration={100}>
-            <ThemeProvider>
-              <PostAuthRedirectHandler />
-              <Routes>
+        <TooltipProvider delayDuration={150} skipDelayDuration={100}>
+          <ThemeProvider>
+            <PostAuthRedirectHandler />
+            <Routes>
                 {/* Public Routes */}
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
@@ -392,9 +388,8 @@ const App = () => (
                 <Route path="/404" element={<NotFound />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
               </Routes>
-            </ThemeProvider>
-          </TooltipProvider>
-        </ProfileProvider>
+          </ThemeProvider>
+        </TooltipProvider>
       </AuthProvider>
     </BrowserRouter>
   </QueryClientProvider>

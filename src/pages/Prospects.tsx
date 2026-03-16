@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +10,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { PersonCard } from '@/components/PersonCard';
 import ProfileViewer from '@/components/modals/ProfileViewer';
 import type { Database } from '@/integrations/supabase/database.types';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Search, Mail } from 'lucide-react';
@@ -35,6 +35,7 @@ const Prospects = () => {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const isMobile = useIsMobile();
+  const isClosingProfileRef = useRef(false);
 
   const prospectId = searchParams.get('id');
 
@@ -42,25 +43,32 @@ const Prospects = () => {
     fetchProspects();
   }, []);
 
-  // Restore selected prospect from URL parameter
+  // Sync modal closed when URL has no id (e.g. after clicking outside to close)
   useEffect(() => {
-    if (prospectId && !selectedProspect && prospects.length > 0) {
-      const prospect = prospects.find(p => p.id === prospectId);
-      if (prospect) {
-        setSelectedProspect(prospect);
-        setIsProfileModalOpen(true);
-      } else {
-        // Prospect not found or user doesn't have access
-        toast({
-          title: 'Prospect Not Found',
-          description: 'The requested prospect could not be found.',
-          variant: 'destructive',
-        });
-        setSearchParams({});
-      }
+    if (!prospectId) {
+      isClosingProfileRef.current = false;
+      setSelectedProspect(null);
+      setIsProfileModalOpen(false);
+    }
+  }, [prospectId]);
+
+  // Open modal when id is in URL (deep link or back/forward)
+  useEffect(() => {
+    if (!prospectId || prospects.length === 0 || isClosingProfileRef.current) return;
+    const prospect = prospects.find(p => p.id === prospectId);
+    if (prospect) {
+      setSelectedProspect(prospect);
+      setIsProfileModalOpen(true);
+    } else {
+      toast({
+        title: 'Prospect Not Found',
+        description: 'The requested prospect could not be found.',
+        variant: 'destructive',
+      });
+      setSearchParams({});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [prospectId, prospects, selectedProspect]); // setSearchParams and toast are stable
+  }, [prospectId, prospects]);
 
   const fetchProspects = async () => {
     const { data: profilesData, error: profilesError } = await supabase
@@ -169,7 +177,7 @@ const Prospects = () => {
       });
       fetchProspects();
 
-      // Invalidate ProfileContext queries since role changes affect what data users can see
+      // Invalidate auth/role queries since role changes affect what data users can see
       queryClient.invalidateQueries({ queryKey: ['user-role'] });
       queryClient.invalidateQueries({ queryKey: ['user-events'] });
       queryClient.invalidateQueries({ queryKey: ['user-projects'] });
@@ -365,6 +373,7 @@ const Prospects = () => {
       <ProfileViewer
         open={isProfileModalOpen}
         onClose={() => {
+          isClosingProfileRef.current = true;
           setIsProfileModalOpen(false);
           setSelectedProspect(null);
           setSearchParams({});

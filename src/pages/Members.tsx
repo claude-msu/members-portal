@@ -18,7 +18,7 @@ import {
   type MemberWithRole,
   type AppRole,
 } from '@/types/modal.types';
-import { useProfile } from '@/contexts/ProfileContext';
+import { useProfile } from '@/contexts/AuthContext';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -90,6 +90,7 @@ const Members = () => {
   const isTransRef = useRef(false);
   const activeIdxRef = useRef(0);
   const hasInitializedFamilySelection = useRef(false);
+  const isClosingProfileRef = useRef(false);
   activeIdxRef.current = activeFamilyIdx;
   isTransRef.current = isTransitioning;
 
@@ -112,23 +113,33 @@ const Members = () => {
     fetchMembers();
   }, []);
 
+  // Sync modal closed state when URL has no id (e.g. after clicking outside to close)
   useEffect(() => {
-    if (memberId && !selectedMember && members.length > 0) {
-      const member = members.find(m => m.id === memberId);
-      if (member) {
-        setSelectedMember(member);
-        setIsProfileModalOpen(true);
-      } else {
-        toast({
-          title: 'Member Not Found',
-          description: 'The requested member could not be found.',
-          variant: 'destructive',
-        });
-        setSearchParams({});
-      }
+    if (!memberId) {
+      isClosingProfileRef.current = false;
+      setSelectedMember(null);
+      setIsProfileModalOpen(false);
+    }
+  }, [memberId]);
+
+  // Open modal and set member when id is in URL (deep link or back/forward)
+  useEffect(() => {
+    if (!memberId || members.length === 0) return;
+    if (isClosingProfileRef.current) return;
+    const member = members.find(m => m.id === memberId);
+    if (member) {
+      setSelectedMember(member);
+      setIsProfileModalOpen(true);
+    } else {
+      toast({
+        title: 'Member Not Found',
+        description: 'The requested member could not be found.',
+        variant: 'destructive',
+      });
+      setSearchParams({});
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [memberId, members, selectedMember]);
+  }, [memberId, members]);
 
   const fetchMembers = async () => {
     const { data: profilesData, error: profilesError } = await supabase
@@ -352,6 +363,7 @@ const Members = () => {
       <ProfileViewer
         open={isProfileModalOpen}
         onClose={() => {
+          isClosingProfileRef.current = true;
           setIsProfileModalOpen(false);
           setSelectedMember(null);
           setSearchParams({});

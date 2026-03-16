@@ -1,4 +1,4 @@
-import { RoleBadge } from '@/contexts/ProfileContext';
+import { RoleBadge } from '@/contexts/AuthContext';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +15,7 @@ import { Trophy, Mail, GraduationCap, Crown, Users, Award, Linkedin, Github, Bri
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/database.types';
-import type { AppRole } from '@/contexts/ProfileContext';
+import type { AppRole } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { motion } from 'framer-motion';
 
@@ -343,9 +343,9 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
     );
   }
 
-  // Otherwise, return as modal
+  // Otherwise, return as modal (onOpenChange receives new open state; only call onClose when closing)
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={(isOpen) => { if (!isOpen) onClose?.(); }}>
       <DialogContent className="max-w-lg w-[95vw] mx-auto rounded-lg">
         <DialogHeader>
           <DialogTitle>Member Profile</DialogTitle>
