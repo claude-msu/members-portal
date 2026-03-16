@@ -125,8 +125,8 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
       dotVariant === 'review-pending' && samePersonApplications && samePersonApplications.length > 1;
     const sortedSame = showDots
       ? [...samePersonApplications].sort(
-          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        )
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )
       : [];
 
     return (
@@ -335,12 +335,12 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     : !searchQuery.trim()
       ? userApplications.review.decided
       : userApplications.review.decided
-          .filter(groupMatchesSearch)
-          .map((g) => ({
-            ...g,
-            applications: g.applications.filter(applicationMatchesSearch),
-          }))
-          .filter((g) => g.applications.length > 0);
+        .filter(groupMatchesSearch)
+        .map((g) => ({
+          ...g,
+          applications: g.applications.filter(applicationMatchesSearch),
+        }))
+        .filter((g) => g.applications.length > 0);
 
   const myApplicationsTotal = filteredSelfPending.length + filteredSelfDecided.length;
   const reviewApplicationsTotal =
@@ -348,9 +348,9 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     filteredReviewDecided.reduce((acc, g) => acc + g.applications.length, 0);
   const hasAnyApplicationsUnfiltered = userApplications
     ? userApplications.self.pending.length +
-      userApplications.self.decided.length +
-      userApplications.review.pending.length +
-      userApplications.review.decided.reduce((acc, g) => acc + g.applications.length, 0) > 0
+    userApplications.self.decided.length +
+    userApplications.review.pending.length +
+    userApplications.review.decided.reduce((acc, g) => acc + g.applications.length, 0) > 0
     : false;
   const showEmptySearchState = searchQuery.trim() && myApplicationsTotal === 0 && reviewApplicationsTotal === 0;
 
