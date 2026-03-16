@@ -28,16 +28,14 @@ async function sendDecisionEmail(
     email: string,
     fullName: string,
     applicationType: string,
-    boardPosition: string | null,
     status: 'accepted' | 'rejected',
     hasSlackAccount: boolean,
     targetName: string | null,
 ): Promise<void> {
-    const subject = getEmailSubject(applicationType, boardPosition, targetName)
+    const subject = getEmailSubject(applicationType)
     const html = getEmailHtml(
         fullName,
         applicationType,
-        boardPosition,
         status,
         hasSlackAccount,
         targetName,
@@ -59,8 +57,6 @@ async function sendDecisionEmail(
 
 function getEmailSubject(
     type: string,
-    position: string | null,
-    targetName: string | null,
 ): string {
     switch (type) {
         case 'board':
@@ -77,12 +73,11 @@ function getEmailSubject(
 function getEmailHtml(
     fullName: string,
     applicationType: string,
-    boardPosition: string | null,
     status: 'accepted' | 'rejected',
     hasSlackAccount: boolean,
     targetName: string | null,
 ): string {
-    const target = getApplicationTarget(applicationType, boardPosition, targetName)
+    const target = getApplicationTarget(applicationType, targetName)
     const accepted = status === 'accepted'
 
     // Smart Slack messaging based on state
@@ -201,10 +196,10 @@ function getEmailHtml(
   `
 }
 
-function getApplicationTarget(type: string, position: string | null, targetName: string | null): string {
+function getApplicationTarget(type: string, targetName: string | null): string {
     switch (type) {
         case 'board':
-            return position || 'Board Position'
+            return targetName || 'Board Position'
         case 'project':
             return targetName || 'the project'
         case 'class':
@@ -405,14 +400,13 @@ serve(async (req) => {
             await sendDecisionEmail(
                 userEmail,
                 userName,
-                application.application_type,
-                application.board_position,
+                application.application_type || application.board_position,
                 payload.status,
                 hasSlackAccount,
                 targetName
             )
         } catch (emailError) {
-            console.warn('⚠️ Email sending failed:', emailError)
+            console.warn('Email sending failed:', emailError)
         }
 
         // ========================================================================
