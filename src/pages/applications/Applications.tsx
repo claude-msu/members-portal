@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import type { ApplicationWithProfile, ApplicationGroup } from '@/contexts/AuthContext';
 
 const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCreateModal?: boolean }) => {
-  const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications, profile } = useProfile();
+  const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
