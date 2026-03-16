@@ -354,6 +354,29 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     : false;
   const showEmptySearchState = searchQuery.trim() && myApplicationsTotal === 0 && reviewApplicationsTotal === 0;
 
+  // When searching, open all folders/sections that contain results
+  useEffect(() => {
+    if (!searchQuery.trim()) return;
+    if (myApplicationsTotal > 0) {
+      setMyApplicationsCollapsed(false);
+      if (filteredSelfPending.length > 0) setMyPendingCollapsed(false);
+      if (filteredSelfDecided.length > 0) setMyReviewedCollapsed(false);
+    }
+    if (reviewApplicationsTotal > 0) {
+      setReviewApplicationsCollapsed(false);
+      if (filteredReviewPending.length > 0) setReviewPendingCollapsed(false);
+      if (filteredReviewDecided.length > 0) setReviewReviewedCollapsed(false);
+    }
+  }, [
+    searchQuery,
+    myApplicationsTotal,
+    reviewApplicationsTotal,
+    filteredSelfPending.length,
+    filteredSelfDecided.length,
+    filteredReviewPending.length,
+    filteredReviewDecided.length,
+  ]);
+
   /** All review applications by user_id (pending + decided) for status dots in pending section. */
   const allReviewByUser = (() => {
     const map = new Map<string, ApplicationWithProfile[]>();
