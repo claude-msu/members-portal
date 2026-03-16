@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PersonCard } from '@/components/PersonCard';
-import ProfileViewer from '@/components/modals/ProfileViewer';
+import ProfileModal from '@/components/modals/ProfileModal';
 import type { Database } from '@/integrations/supabase/database.types';
 import { useProfile } from '@/contexts/AuthContext';
 import { useQueryClient } from '@tanstack/react-query';
@@ -370,7 +370,7 @@ const Prospects = () => {
         </div>
       )}
 
-      <ProfileViewer
+      <ProfileModal
         open={isProfileModalOpen}
         onClose={() => {
           isClosingProfileRef.current = true;

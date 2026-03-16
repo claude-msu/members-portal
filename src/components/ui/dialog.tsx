@@ -3,7 +3,60 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 import { cn } from "@/lib/utils";
 
-const Dialog = DialogPrimitive.Root;
+/** Duration of the dialog close animation (ms). Delay notifying parent until after this so content doesn't clear while fading. */
+const CLOSE_ANIMATION_MS = 250;
+
+const Dialog = React.forwardRef<
+  React.ElementRef<typeof DialogPrimitive.Root>,
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Root>
+>(function Dialog({ open: openProp, onOpenChange, ...props }, ref) {
+  const [internalOpen, setInternalOpen] = React.useState(openProp ?? false);
+  const closeTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Sync from parent (e.g. programmatic open/close)
+  React.useEffect(() => {
+    setInternalOpen(openProp ?? false);
+    if (openProp === false && closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
+      closeTimeoutRef.current = null;
+    }
+  }, [openProp]);
+
+  React.useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
+
+  const handleOpenChange = React.useCallback(
+    (open: boolean) => {
+      if (open) {
+        if (closeTimeoutRef.current) {
+          clearTimeout(closeTimeoutRef.current);
+          closeTimeoutRef.current = null;
+        }
+        setInternalOpen(true);
+        onOpenChange?.(true);
+      } else {
+        setInternalOpen(false);
+        closeTimeoutRef.current = setTimeout(() => {
+          closeTimeoutRef.current = null;
+          onOpenChange?.(false);
+        }, CLOSE_ANIMATION_MS);
+      }
+    },
+    [onOpenChange]
+  );
+
+  return (
+    <DialogPrimitive.Root
+      ref={ref}
+      open={internalOpen}
+      onOpenChange={handleOpenChange}
+      {...props}
+    />
+  );
+});
 
 const DialogTrigger = DialogPrimitive.Trigger;
 

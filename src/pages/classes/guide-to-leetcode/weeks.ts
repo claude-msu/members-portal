@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 /**
  * Represents a LeetCode-style coding question for the guide.
  *
@@ -59,7 +61,6 @@ export interface WeekConfig {
     questions: Question[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const WEEK1: WeekConfig = {
     number: 1,
     theme: 'Sliding Window',
@@ -376,10 +377,10 @@ Output: 1
 };
 
 
-const WEEK2: WeekConfig = {
-    number: 2,
+const WEEK4: WeekConfig = {
+    number: 4,
     theme: 'Two Pointers & Sliding Window',
-    title: 'Week 2 — Two Pointers & Sliding Window',
+    title: 'Week 4 — Two Pointers & Sliding Window',
     goal: 'Move pointers with purpose, never by accident.',
     rules: [
         'Two pointers only work when you can justify why each pointer moves.',
@@ -552,7 +553,7 @@ Explanation: In this case, no transactions are done and the max profit = 0.
 
 
 /** Current week. Update every Sunday: set to the week that just went live. */
-export const CURRENT: WeekConfig = WEEK2;
+export const CURRENT: WeekConfig = WEEK4;
 
 /** Next drop's week. Shown in upper half of countdown and when timer resets. Null = fallback to CURRENT. */
 export const QUEUED: WeekConfig | null = null;

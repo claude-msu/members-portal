@@ -24,7 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/contexts/AuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { MembershipInfo, Profile } from '@/types/modal.types';
-import ProfileViewer from '@/components/modals/ProfileViewer';
+import ProfileModal from '@/components/modals/ProfileModal';
 import type { AppRole } from '@/contexts/AuthContext';
 
 interface MembersListModalProps {
@@ -441,7 +441,7 @@ export const MembersListModal = ({
                                 data-profile-modal
                                 className="pointer-events-auto relative flex max-h-[85vh] w-[28rem] flex-col rounded-lg border bg-page shadow-lg overflow-hidden"
                             >
-                                <ProfileViewer
+                                <ProfileModal
                                     member={profileViewerMember}
                                     embedded
                                     className="border-0 shadow-none"

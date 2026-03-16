@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { useToast } from '@/hooks/use-toast';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { PersonCard } from '@/components/PersonCard';
-import ProfileViewer from '@/components/modals/ProfileViewer';
+import ProfileModal from '@/components/modals/ProfileModal';
 import { JotFormModal } from '@/components/modals/JotFormModal';
 import { ManageFamilyModal } from '@/components/modals/ManageFamilyModal';
 import { FamilyTree } from '@/components/FamilyTree';
@@ -360,7 +360,7 @@ const Members = () => {
   // ── Modals shared by both layouts ──────────────────────────────────────────
   const sharedModals = (
     <>
-      <ProfileViewer
+      <ProfileModal
         open={isProfileModalOpen}
         onClose={() => {
           isClosingProfileRef.current = true;

@@ -41,7 +41,7 @@ interface InvolvementBadge {
   name: string;
 }
 
-const ProfileViewer = ({ open = false, onClose, member, embedded = false, className = '' }: ProfileViewerProps) => {
+const ProfileModal = ({ open = false, onClose, member, embedded = false, className = '' }: ProfileViewerProps) => {
   const [involvementBadges, setInvolvementBadges] = useState<InvolvementBadge[]>([]);
   const [emailCopied, setEmailCopied] = useState(false);
   const isMobile = useIsMobile();
@@ -357,4 +357,4 @@ const ProfileViewer = ({ open = false, onClose, member, embedded = false, classN
   );
 };
 
-export default ProfileViewer;
+export default ProfileModal;

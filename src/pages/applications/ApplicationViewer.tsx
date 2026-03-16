@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 import { format, addDays, differenceInDays } from 'date-fns';
 import { motion, AnimatePresence } from 'framer-motion';
-import ProfileViewer from '@/components/modals/ProfileViewer';
+import ProfileModal from '@/components/modals/ProfileModal';
 import { DetailModal } from '@/components/modals/DetailModal';
 import type { Database } from '@/integrations/supabase/database.types';
 import type { DetailSection } from '@/types/modal.types';
@@ -729,7 +729,7 @@ const ApplicationViewerPage = () => {
                             {/* Embedded Profile */}
                             {applicantProfile && (
                                 <div>
-                                    <ProfileViewer member={applicantProfile} embedded className="lg:sticky lg:top-24" />
+                                    <ProfileModal member={applicantProfile} embedded className="lg:sticky lg:top-24" />
                                 </div>
                             )}
 
