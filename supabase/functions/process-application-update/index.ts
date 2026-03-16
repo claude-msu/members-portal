@@ -181,7 +181,7 @@ function getEmailHtml(
       <!-- Help Section -->
       <p style="font-size: 14px; color: #6b7280; margin: 0;">
         Need help? Email us at
-        <a href="mailto:RSO.claudemsu@msu.edu" style="color: rgb(223, 115, 83); text-decoration: none;">rso.claudemsu@msu.edu</a>
+        <a href="mailto:RSO.claudemsu@msu.edu" style="color: rgb(223, 115, 83); text-decoration: none;">RSO.claudemsu@msu.edu</a>
       </p>
     </div>
 
