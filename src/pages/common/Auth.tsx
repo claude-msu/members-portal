@@ -566,11 +566,6 @@ const Auth = () => {
           description: 'Logged in successfully!',
         });
 
-        toast({
-          title: "Check out the new Members page",
-          onClick: () => navigate("/members"),
-        });
-
         // Navigate - don't clear redirectAfterLogin here, let ProtectedRoute handle it
         // The useEffect above will handle the navigation when user state updates
       } else {
