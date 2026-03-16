@@ -120,6 +120,13 @@ He reads every application himself. He does not use analysts. He will know your 
                 description:
                     'Entry-level role during the early mobile era. Spent two years watching partners make decisions and became convinced that the best investments had nothing to do with the spreadsheet in the room.',
             },
+            {
+                company: 'Independent Writing & Research',
+                role: 'Self-directed Study',
+                years: '2007 – 2008',
+                description:
+                    'Spent a year deliberately outside any institution after leaving Oxford. Wrote a paper on the philosophical conditions under which a technology becomes culturally irreversible. Applied to Kleiner Perkins on a Tuesday. He has described this period as something he cannot fully explain to anyone with a conventional career arc, which is most people.',
+            },
         ],
         portfolio: [
             {
@@ -141,6 +148,11 @@ He reads every application himself. He does not use analysts. He will know your 
                 company: 'Fieldwork AI',
                 stage: 'Pre-seed, 2022',
                 note: 'Agricultural intelligence platform. The founder came in having never pitched before. Orion made the decision before the meeting ended.',
+            },
+            {
+                company: 'Common Room',
+                stage: 'Seed, 2024',
+                note: 'Creative collaboration platform for working artists and independent studios. The founder had no technical background. She arrived with a hand-drawn diagram of every way a creative project typically dies before it is finished. Orion asked if she had considered making it a poster.',
             },
         ],
         stats: [
@@ -194,9 +206,16 @@ He is not interested in your vision. He has said publicly that he leaves the vis
             {
                 company: 'UPS Supply Chain Solutions',
                 role: 'Operations Manager, Midwest Region',
-                years: '2002 – 2008',
+                years: '2003 – 2008',
                 description:
-                    'Managed regional logistics infrastructure for the Midwest. Left after six years when he realized he was getting very good at optimizing a broken system instead of building a better one.',
+                    'Managed regional logistics infrastructure for the Midwest. Left after five years when he realized he was getting very good at optimizing a broken system instead of building a better one.',
+            },
+            {
+                company: 'Kellner Industries',
+                role: 'Plant Operations Analyst',
+                years: '2002 – 2003',
+                description:
+                    'First job out of Purdue. Worked on the floor of a mid-sized manufacturing plant tracking assembly throughput and defect rates by hand. A supervisor told him after six months that he asked too many questions about why the system was built the way it was instead of just running it better. He considered this accurate and left for UPS the following year.',
             },
         ],
         portfolio: [
@@ -214,6 +233,11 @@ He is not interested in your vision. He has said publicly that he leaves the vis
                 company: 'Coldchain Co.',
                 stage: 'Seed, 2022',
                 note: 'Temperature-controlled logistics for pharmaceuticals. Passed on two better-funded competitors. His note: "they know what breaks first."',
+            },
+            {
+                company: 'ShiftBridge',
+                stage: 'Seed, 2023',
+                note: 'Labor scheduling for food service and hospitality operators. The founder had spent fifteen years managing restaurant groups before writing a line of code. Hector asked him to describe the worst shift he ever had to cover on short notice. The founder answered for eleven minutes without stopping.',
             },
         ],
         stats: [
@@ -281,17 +305,22 @@ Pythia is not cold. She will tell you this herself if you ask. There is a differ
             {
                 company: 'Clausewright',
                 stage: 'Seed, 2017',
-                note: 'Legal contract automation. Pythia backed it after the founder produced a bottom-up TAM analysis in the meeting, unprompted, from memory. She made a note of the methodology.',
+                note: 'Contract intelligence platform using NLP to extract, flag, and compare clause-level risk across legal documents at scale. The founder produced a bottom-up TAM from memory in the meeting. Pythia asked to see the model\'s error rate distribution before the second meeting.',
             },
             {
-                company: 'Densum Analytics',
+                company: 'Aleph Systems',
                 stage: 'Series A, 2019',
-                note: 'Supply chain forecasting for mid-market manufacturers. Passed on three similar companies in the same year. Her notes on the others each contain a single line: "top-down TAM, no unit economics model."',
+                note: 'Probabilistic demand forecasting for mid-market manufacturers, using ensemble models trained on proprietary supply chain signals. Passed on four similar companies the same year. Her diligence notes on each end with the same line: "no model validation framework, top-down TAM only."',
             },
             {
-                company: 'Fract',
+                company: 'Vanta ML',
                 stage: 'Seed, 2021',
-                note: 'Revenue-based financing for e-commerce. The founder knew their CAC, LTV, payback period, and net revenue retention to two decimal places in the first five minutes. Pythia sent a term sheet the next morning.',
+                note: 'Model evaluation and regression testing infrastructure for teams running ML in production. The founder had a live dashboard showing drift metrics across six enterprise customers during the pitch, updated in real time. Pythia asked to see it a second time before leaving the room.',
+            },
+            {
+                company: 'Keystone Data',
+                stage: 'Pre-seed, 2023',
+                note: 'Data lineage and observability tooling for enterprise pipelines, built by a team with backgrounds in quantitative risk management. Pythia had read the founding CTO\'s two published papers on data quality measurement before the first call.',
             },
         ],
         stats: [
@@ -371,6 +400,16 @@ Human First Fund requires a minimum of twenty documented user conversations befo
                 stage: 'Seed, 2021',
                 note: 'Hyperlocal community platform. Passed on two similar companies in the same year. Her notes: "no named users in either pitch — personas only."',
             },
+            {
+                company: 'Anchor',
+                stage: 'Seed, 2022',
+                note: 'Peer support communities for people navigating major life transitions — job loss, illness, relocation, divorce. Agatha had conducted field interviews with 19 members before the round closed. The founder was not aware she had done this until the term sheet arrived.',
+            },
+            {
+                company: 'Tender Table',
+                stage: 'Pre-seed, 2023',
+                note: 'Community-led meal sharing for isolated older adults in mid-sized cities. The founder had no technical background and had been running a neighborhood dinner program for three years before building any software around it. Agatha required no additional user evidence.',
+            },
         ],
         stats: [
             { label: 'Fund Size', value: '$120M' },
@@ -437,17 +476,27 @@ She is not contrarian for sport. She has said this in every profile ever written
             {
                 company: 'Bastion',
                 stage: 'Seed, 2014',
-                note: 'Enterprise security infrastructure. Every other major firm passed in the same round. Eris\'s investment memo contained a single paragraph about why the consensus was wrong and three pages about why the founder would not give up.',
+                note: 'Zero-trust network access infrastructure for enterprise teams. Every major firm in the round passed. Eris\'s investment memo was one paragraph on why the consensus was wrong and three pages on why the founder would not stop.',
             },
             {
-                company: 'Verdant Systems',
+                company: 'Driftwood',
                 stage: 'Series A, 2017',
-                note: 'Climate data infrastructure for insurers. Considered too niche, too early, and too regulatory-heavy by most of the firms that saw it. Eris led the round. Now the category leader.',
+                note: 'Cloud cost observability and rightsizing for engineering organizations. Dismissed as too niche and too unsexy by every firm that passed. Eris led the round on the argument that within three years every engineering team would have this problem and almost none of them would know how to solve it.',
             },
             {
                 company: 'Pulsar',
                 stage: 'Seed, 2020',
-                note: 'Real-time data streaming for financial services. Three investors passed citing incumbent lock-in. Eris backed it after the founder spent twenty minutes explaining, without defensiveness, exactly why the incumbents would win in the short term and lose in the long one.',
+                note: 'Event streaming infrastructure for regulated industries. Three investors cited incumbent lock-in. Eris backed it after the founder spent twenty minutes explaining, without defensiveness, exactly why the incumbents would win in the short term and lose in the long one.',
+            },
+            {
+                company: 'Gatekeeper',
+                stage: 'Pre-seed, 2021',
+                note: 'Secrets management and automated credential rotation for engineering teams. The category had three well-funded incumbents. Her internal note: "none of them are run by someone who has been paged at 2am about a rotated secret breaking production."',
+            },
+            {
+                company: 'Logframe',
+                stage: 'Seed, 2023',
+                note: 'Distributed tracing and observability for microservice architectures. The founding team had a combined forty years at infrastructure companies most people outside engineering departments had never heard of. Consensus said the market was too crowded. Eris said it was insufficiently solved.',
             },
         ],
         stats: [
@@ -666,6 +715,13 @@ He is the quietest person in most rooms he enters. He listens in a way that most
                 description:
                     'First role after Sloan. Sourced deals, supported partners, and spent two years watching investment decisions get made. Concluded very quickly that the most interesting variable in any investment was never the idea.',
             },
+            {
+                company: 'Cambridge Associates',
+                role: 'Research Analyst, Endowments Practice',
+                years: '1997 – 2000',
+                description:
+                    'Three years studying investment manager selection and endowment portfolio construction. Found the work itself less interesting than the founders of investment firms he sometimes observed during due diligence — people who had chosen to build something rather than join something. Applied to MIT Sloan on the advice of one of them.',
+            },
         ],
         portfolio: [
             {
@@ -682,6 +738,16 @@ He is the quietest person in most rooms he enters. He listens in a way that most
                 company: 'Foundry',
                 stage: 'Seed, 2019',
                 note: 'Team operating system for early-stage startups. The co-founders came in having already worked through a serious disagreement about company direction — and could describe exactly how they resolved it, what each of them had been wrong about, and what they had learned. Chiron backed them the same week.',
+            },
+            {
+                company: 'Meridian Studio',
+                stage: 'Seed, 2021',
+                note: 'Creative production tools for independent filmmakers. The founder\'s only credential was fifteen years making films almost nobody watched, which she described without embarrassment. Chiron asked what she had learned during those years that she could not have learned any other way. The answer took the rest of the meeting.',
+            },
+            {
+                company: 'Passage',
+                stage: 'Pre-seed, 2023',
+                note: 'Grief and loss navigation platform. The founding team described the shutdown of their previous company in the pitch — not as a failure to get past, but as the event that made the current company necessary. Chiron called the lead founder the following morning.',
             },
         ],
         stats: [
@@ -725,27 +791,20 @@ She does not care about your TAM slide. She cares whether you have shipped somet
             {
                 company: 'ScalePath',
                 role: 'CEO',
-                years: '2016 – 2019',
+                years: '2015 – 2020',
                 description:
-                    'Took over as CEO after co-founder departure. Grew ARR 3x and led acquisition by strategic buyer. Left with a permanent bias toward teams that have already survived a crisis.',
-            },
-            {
-                company: 'DataLoom',
-                role: 'COO',
-                years: '2012 – 2016',
-                description:
-                    'First operating role out of GSB. Built go-to-market and operations from scratch. Learned that the best product in the world does not matter if the team cannot ship.',
+                    'Took over as CEO after co-founder departure. Grew ARR 3x and led acquisition by strategic buyer. Left with a permanent bias toward teams that have already survived a crisis — and moved directly into investing.',
             },
         ],
         portfolio: [
             { company: 'Stackline', stage: 'Seed, 2020', note: 'Vertical SaaS for inventory. Maya asked for a single spreadsheet: cohort retention by month. The founder had it in the room. She led the round.' },
-            { company: 'CrewLogic', stage: 'Series A, 2021', note: 'Workforce scheduling. Passed on the same company at seed when the founder could not explain why churn spiked in Q3. Came back at A with a clear narrative and a new head of customer success. She invested.' },
-            { company: 'InvoiceFlow', stage: 'Seed, 2023', note: 'SMB billing. The founder had been a CFO. Maya spent an hour on his unit economics and his definition of "done" for v1. Term sheet within a week.' },
+            { company: 'CrewLogic', stage: 'Series A, 2022', note: 'Workforce scheduling. Passed on the same company at seed when the founder could not explain why churn had spiked in Q3. Came back a year later with a clear narrative and a new head of customer success. She invested.' },
         ],
         stats: [
             { label: 'Fund Size', value: '$180M' },
-            { label: 'Portfolio Companies', value: '24' },
-            { label: 'Years as Operator (pre-VC)', value: '12' },
+            { label: 'Portfolio Companies', value: '8' },
+            { label: 'Years Investing', value: '5' },
+            { label: 'Years as Operator (pre-VC)', value: '8' },
             { label: 'Median First Check', value: '$1.5M' },
         ],
     },
@@ -797,19 +856,190 @@ He is known for long, unstructured conversations that feel like brainstorming se
             { company: 'CrossPay', stage: 'Seed, 2019', note: 'Berlin fintech. First customer was in Poland. Vikram asked how they would support a customer in a country where no one on the team had ever lived. The founder had a plan. He wrote the check.' },
             { company: 'TerraNode', stage: 'Pre-seed, 2021', note: 'Lisbon climate tech. No revenue. Vikram backed the team and their willingness to run pilots in three countries in the first year.' },
             { company: 'DevStream', stage: 'Seed, 2022', note: 'Warsaw devtools. The founder had sold a previous company to a US acquirer. Vikram cared more about that experience than the current deck.' },
+            { company: 'Pipedeck', stage: 'Pre-seed, 2023', note: 'Amsterdam-based CI/CD pipeline visibility tooling for engineering teams operating across multi-cloud environments. The founding team shipped their first enterprise integration across four countries before raising. Vikram asked how many time zones their on-call rotation spanned.' },
         ],
         stats: [
             { label: 'Fund Size', value: '$140M' },
             { label: 'Portfolio Companies', value: '42' },
             { label: 'Countries Invested In', value: '12' },
             { label: 'Median First Check', value: '€1.2M' },
+            { label: 'Avg. Time to First Non-Domestic Customer', value: '4 months' },
+            { label: 'Years Investing', value: '15' },
+        ],
+    },
+};
+
+// ─── Week 11 ──────────────────────────────────────────────────────────────────
+
+const WEEK11: WeekConfig = {
+    number: 11,
+    title: 'Week 11',
+    persona: {
+        name: 'Nadia Ferreira',
+        title: 'Managing Partner',
+        company: 'Semente Capital',
+        location: 'Miami, FL',
+        about: `The nickname "Baseline Nadia" came from a World Bank colleague who noticed she would never let a conversation proceed without establishing what conditions currently looked like for the people being discussed. She carried this habit into venture capital when she founded Semente Capital in 2017, after nine years at the World Bank and USAID watching billions of dollars of intervention money chase the same well-measured problems while a far larger set of unmeasured ones grew quietly worse.
+
+Her thesis is not complicated: the people running most VC-backed companies are not building for people who look like their median user. She is. Semente focuses on health access, financial inclusion, and workforce tools for non-professional labor — and her checks have gone to companies in six countries. She grew up in São Paulo, studied public health there, and left for a Kennedy School MPP on the conviction that the problems she cared about would not be solved by government policy alone. She was right.
+
+She will ask you one question before any other: "What is the GDP per capita of your median user?" If you don't know, she will tell you that you don't know your business. If the answer is above a certain threshold, she will ask why you are sitting across from her and not someone else. She is not hostile when she asks this. She is just efficient.`,
+        education: [
+            {
+                school: 'University of São Paulo',
+                degree: 'BSc Public Health',
+                years: '2001 – 2005',
+            },
+            {
+                school: 'Harvard Kennedy School',
+                degree: 'MPP (Master of Public Policy)',
+                years: '2006 – 2008',
+            },
+        ],
+        experience: [
+            {
+                company: 'Semente Capital',
+                role: 'Managing Partner',
+                years: '2017 – Present',
+                description:
+                    'Leads a $75M fund investing in health access, financial inclusion, and workforce technology for non-professional labor — primarily in the US and Latin America. Has a standing rule: before any term sheet, she must be able to describe the median user\'s daily financial life in specific, non-demographic terms. Has turned down three companies with better metrics than funded companies because the founder could not answer that question.',
+            },
+            {
+                company: 'USAID',
+                role: 'Director, Health Innovation Program',
+                years: '2014 – 2017',
+                description:
+                    'Oversaw a $40M annual grant program funding market-based health solutions in Latin America and sub-Saharan Africa. Became convinced during this period that the most effective interventions looked more like companies than like programs — and that the field needed investors, not more program officers. Left to become one.',
+            },
+            {
+                company: 'World Bank',
+                role: 'Senior Health Economist, Latin America & Caribbean',
+                years: '2008 – 2014',
+                description:
+                    'Designed and evaluated health financing programs across Brazil, Colombia, Mexico, and Peru. Published research on informal-sector health coverage gaps that was cited in four subsequent national policy debates. Left after six years when she concluded that the people she was most interested in helping were moving faster than the institutions designed to help them.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Cora Health',
+                stage: 'Pre-seed, 2018',
+                note: 'Diagnostics infrastructure for rural clinics in Brazil and Colombia. The founder had spent ten years as a community health worker before building the company. Nadia asked what he had seen in 2013 specifically. He talked for fifteen minutes without stopping. She asked when she could see the prototype.',
+            },
+            {
+                company: 'EmpréstaFácil',
+                stage: 'Seed, 2020',
+                note: 'Mobile lending for informal workers in Mexico. The founder presented a single data point at the start of the meeting: 72% of their active users had never held a formal bank account before their first loan. Nadia later said it was the only TAM slide she had ever believed on first sight.',
+            },
+            {
+                company: 'BuilderPath',
+                stage: 'Seed, 2022',
+                note: 'Workforce credentialing for US construction and trades workers. Passed on two US-based competitors the same year. Her notes on both: "median user household income above $80K — wrong market for this fund."',
+            },
+            {
+                company: 'Rede Saúde',
+                stage: 'Pre-seed, 2023',
+                note: 'Community health worker coordination platform for rural Brazil and Mexico. No US VC had seen it. Nadia found it through a World Bank contact in Guadalajara. The founder had never met a US investor before. The product had 8,000 monthly active health workers before the first conversation with her.',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$75M' },
+            { label: 'Portfolio Companies', value: '21' },
+            { label: 'Countries Invested In', value: '6' },
+            { label: 'Avg First Check', value: '$1.2M' },
+            { label: 'Companies Serving Users Below $40K Income', value: '14 of 21' },
+            { label: 'Years in Public Sector Before Investing', value: '9' },
+        ],
+    },
+};
+
+// ─── Week 12 ──────────────────────────────────────────────────────────────────
+
+const WEEK12: WeekConfig = {
+    number: 12,
+    title: 'Week 12',
+    persona: {
+        name: 'Declan Marsh',
+        title: 'Founding Partner',
+        company: 'Second Scar Fund',
+        location: 'Dublin, Ireland',
+        about: `There are three startups on Declan Marsh's desk — he keeps the original founding materials from each one in three separate folders, in order. The first folder is the thinnest. HiveLink shut down in 2007, two years after founding, having burned through €2.3M of other people's money on a social platform that solved a problem nobody had. He does not hide this. He brings it up himself, usually within the first few minutes, before a founder has had the chance to form the impression that he has never failed. That impression, he says, is the most dangerous kind.
+
+The second and third folders are thicker. GridSync was acquired for €28M in 2010. Peregrine Freight hit a €400M market cap on the Euronext Dublin exchange in 2016. He started Second Scar Fund in 2020 on the premise he had been operating on for years without formalizing: the founders who survive failure are the only ones he trusts. Not because failure guarantees success, but because the knowledge you carry out of a company you watched collapse — and the specific decision to build again anyway — is the only thing he has found that reliably predicts what a founder will do when the next crisis arrives. The next crisis always arrives.
+
+He has no MBA. He studied history at UCD on the grounds that it was the only subject he was told had no commercial application, which he found interesting. He does not recommend the career path. He does not not recommend it either.`,
+        education: [
+            {
+                school: 'University College Dublin',
+                degree: 'BA History',
+                years: '2001 – 2004',
+            },
+        ],
+        experience: [
+            {
+                company: 'Second Scar Fund',
+                role: 'Founding Partner',
+                years: '2020 – Present',
+                description:
+                    'Runs a €50M fund with a single hard constraint: every founder backed has had at least one meaningful prior failure. Not a setback. A failure — something that ended, cost other people money, and required an account of what went wrong. Has backed 11 companies. Nine of those founders have a specific story they can tell about the worst three months of a company they ran before this one. The other two have a story about the worst week.',
+            },
+            {
+                company: 'Peregrine Freight',
+                role: 'CEO & Co-founder',
+                years: '2012 – 2019',
+                description:
+                    'Built a pan-European freight coordination platform from a two-person operation in Dublin to a publicly listed company on Euronext Dublin at a €400M market cap. Did not enjoy the IPO process. Has described the eighteen months of preparation for it as the period he learned the most about things he did not want to spend his career on.',
+            },
+            {
+                company: 'GridSync',
+                role: 'CEO & Co-founder',
+                years: '2008 – 2012',
+                description:
+                    'Energy management software for commercial buildings. Built and sold to a German utility for €28M. The first company he built after HiveLink shut down. Has said publicly that HiveLink taught him everything GridSync needed and that he could not have run GridSync without having run HiveLink first. Has also said he would not recommend HiveLink to anyone.',
+            },
+            {
+                company: 'HiveLink',
+                role: 'Co-founder',
+                years: '2005 – 2007',
+                description:
+                    'Social platform for professional communities. Shut down after 26 months. Burned €2.3M. Declan has given at least fifteen talks about this company and has declined to remove any of them from the internet.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Patchwork',
+                stage: 'Seed, 2021',
+                note: 'Async communication tooling for distributed teams. The founder had previously taken a company from 40 employees down to 4 in eight months before shutting it down. Declan spent most of the first meeting asking about that company, not this one. He called with a term sheet two days later.',
+            },
+            {
+                company: 'Haulhub',
+                stage: 'Seed, 2022',
+                note: 'Freight matching for SMB shippers. All three founders had worked at the same logistics startup that failed in 2018. Declan confirmed this before the meeting. He was the only investor in the room who did not ask about the current product in the first twenty minutes.',
+            },
+            {
+                company: 'Ridgeline Data',
+                stage: 'Pre-seed, 2023',
+                note: 'Infrastructure monitoring for cloud-native systems. The founder\'s previous company sold in a distressed deal for almost nothing in 2020. She called it a "zombie exit" in the pitch without being prompted. Declan backed her by the end of that week.',
+            },
+            {
+                company: 'Outpost',
+                stage: 'Seed, 2024',
+                note: 'Remote team operations tooling for distributed workforces. Both founders had previously co-founded a company together that failed publicly and messily in 2021, with press coverage Declan had read in full before the meeting. He asked what they had each told their families at the time.',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '€50M' },
+            { label: 'Portfolio Companies', value: '11' },
+            { label: 'Founders with Prior Failure', value: '11 of 11' },
+            { label: 'Own Companies Built', value: '3 (1 failed, 2 exited)' },
+            { label: 'Avg First Check', value: '€1.5M' },
+            { label: 'Years Without an MBA', value: 'All of them' },
         ],
     },
 };
 
 // ─── Exports ──────────────────────────────────────────────────────────────────
 
-export const WEEKS: WeekConfig[] = [WEEK1, WEEK2, WEEK3, WEEK4, WEEK5, WEEK6, WEEK7, WEEK8, WEEK9, WEEK10];
+export const WEEKS: WeekConfig[] = [WEEK1, WEEK2, WEEK3, WEEK4, WEEK5, WEEK6, WEEK7, WEEK8, WEEK9, WEEK10, WEEK11, WEEK12];
 
 /** Current week is derived from semester via getCurrent() in index. */
 export async function getCurrent(): Promise<number> {

@@ -31,7 +31,7 @@ const VmVsContainerDiagram = () => (
                 ].map((layer, i) => (
                     <div key={i} className={`text-center text-xs font-medium py-1.5 px-2 rounded mb-1 ${layer.bg}`}>
                         {layer.label}
-                    </div>
+                </div>
                 ))}
                 <p className="text-xs text-muted-foreground mt-2">Each VM runs a full OS. Heavy. Slow to start. GBs per VM.</p>
             </div>
@@ -46,8 +46,8 @@ const VmVsContainerDiagram = () => (
                 ].map((layer, i) => (
                     <div key={i} className={`text-center text-xs font-medium py-1.5 px-2 rounded mb-1 ${layer.bg}`}>
                         {layer.label}
-                    </div>
-                ))}
+                </div>
+            ))}
                 <p className="text-xs text-muted-foreground mt-2">Containers share the host OS kernel. Lightweight. Start in milliseconds. MBs per container.</p>
             </div>
         </div>

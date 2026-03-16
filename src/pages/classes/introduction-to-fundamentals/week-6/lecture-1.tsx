@@ -305,7 +305,7 @@ export default function Week5Lecture1() {
                             <p className={`text-xs font-bold uppercase tracking-wider ${item.color}`}>{item.part}</p>
                             <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.example}</p>
                             <p className="text-xs text-muted-foreground leading-relaxed mt-2">{item.meaning}</p>
-                        </div>
+                </div>
                     ))}
                 </div>
             </div>
