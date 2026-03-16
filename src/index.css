@@ -171,6 +171,22 @@ All colors MUST be HSL.
     }
   }
 
+  @keyframes application-dot-pulse {
+    0%,
+    100% {
+      opacity: 0.65;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+  }
+
+  .application-dot-current {
+    animation: application-dot-pulse 2.2s ease-in-out infinite;
+  }
+
   .sparkle {
     position: relative;
     overflow: visible;

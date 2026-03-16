@@ -6,13 +6,14 @@ import { Card, CardContent, CardTitle, CardDescription } from '@/components/ui/c
 import { Badge } from '@/components/ui/badge';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight, Folder, FolderOpen, User, Shield } from 'lucide-react';
+import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, ChevronRight, Folder, FolderOpen, User, Shield, Search } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ApplicationCreateModal } from '@/components/modals/ApplicationCreateModal';
-import type { ApplicationWithProfile } from '@/contexts/AuthContext';
+import { Input } from '@/components/ui/input';
+import type { ApplicationWithProfile, ApplicationGroup } from '@/contexts/AuthContext';
 
 const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCreateModal?: boolean }) => {
-  const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications } = useProfile();
+  const { isBoardOrAbove, userApplications, applicationsLoading, refreshApplications, profile } = useProfile();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
@@ -37,8 +38,37 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
   const [reviewApplicationsCollapsed, setReviewApplicationsCollapsed] = useState(false);
   const [reviewPendingCollapsed, setReviewPendingCollapsed] = useState(false);
   const [reviewReviewedCollapsed, setReviewReviewedCollapsed] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const appsDisabled: boolean = false;
+
+  /** Build searchable string for an application (name, email, type, role, class/project name). */
+  const getSearchableText = (app: ApplicationWithProfile): string => {
+    const parts: string[] = [
+      app.profiles?.full_name ?? '',
+      app.profiles?.email ?? '',
+      app.application_type ?? '',
+      app.class_role ?? '',
+      app.project_role ?? '',
+      app.board_position ?? '',
+      app.classes?.name ?? '',
+      app.projects?.name ?? '',
+    ];
+    return parts.filter(Boolean).join(' ').toLowerCase();
+  };
+
+  const applicationMatchesSearch = (app: ApplicationWithProfile): boolean => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.trim().toLowerCase();
+    return getSearchableText(app).includes(query);
+  };
+
+  const groupMatchesSearch = (group: ApplicationGroup): boolean => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.trim().toLowerCase();
+    if (group.applicantName.toLowerCase().includes(query)) return true;
+    return group.applications.some(applicationMatchesSearch);
+  };
 
   const getStatusVariant = (status: string): 'green' | 'red' | 'default' => {
     switch (status) {
@@ -78,51 +108,90 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     return formatApplicationType(application.application_type);
   };
 
-  const renderApplicationCard = (app: ApplicationWithProfile) => (
-    <Card key={app.id} className="hover:shadow-md transition-shadow p-6">
-      <div className={`flex h-full justify-between items-center ${isMobile ? 'gap-3' : ''}`}>
-        <div className={`flex flex-col justify-between ${isMobile ? 'h-full' : 'gap-2'}`}>
-          <div className="flex items-center gap-2">
-            {getApplicationIcon(app.application_type)}
-            <CardTitle className={isMobile ? 'text-lg' : ''}>{app.profiles?.full_name ?? 'Applicant'}</CardTitle>
+  /** Dot color by status (only used in review-pending section). */
+  const getReviewPendingDotClass = (a: ApplicationWithProfile, currentAppId: string) => {
+    if (a.id === currentAppId) return 'bg-primary application-dot-current';
+    if (a.status === 'accepted') return 'bg-green-500 opacity-80';
+    if (a.status === 'rejected') return 'bg-red-500 opacity-80';
+    return 'bg-primary opacity-60';
+  };
+
+  const renderApplicationCard = (
+    app: ApplicationWithProfile,
+    samePersonApplications?: ApplicationWithProfile[],
+    dotVariant?: 'review-pending'
+  ) => {
+    const showDots =
+      dotVariant === 'review-pending' && samePersonApplications && samePersonApplications.length > 1;
+    const sortedSame = showDots
+      ? [...samePersonApplications].sort(
+          (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        )
+      : [];
+
+    return (
+      <Card key={app.id} className="hover:shadow-md transition-shadow p-6">
+        <div className={`flex h-full justify-between items-center ${isMobile ? 'gap-3' : ''}`}>
+          <div className={`flex flex-col justify-between ${isMobile ? 'h-full' : 'gap-2'}`}>
+            <div className="flex items-center gap-2">
+              {getApplicationIcon(app.application_type)}
+              <CardTitle className={isMobile ? 'text-lg' : ''}>{app.profiles?.full_name ?? 'Applicant'}</CardTitle>
+            </div>
+            <CardDescription className={`flex items-center ${isMobile ? 'flex-col items-start mt-1 gap-1' : 'mt-1 gap-2'}`}>
+              <span>{getApplicationTarget(app)}</span>
+              <span className={isMobile ? 'hidden' : ''}>•</span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                {new Date(app.created_at).toLocaleDateString()}
+              </span>
+            </CardDescription>
           </div>
-          <CardDescription className={`flex items-center ${isMobile ? 'flex-col items-start mt-1 gap-1' : 'mt-1 gap-2'}`}>
-            <span>{getApplicationTarget(app)}</span>
-            <span className={isMobile ? 'hidden' : ''}>•</span>
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3 w-3" />
-              {new Date(app.created_at).toLocaleDateString()}
-            </span>
-          </CardDescription>
+          <div className={`flex ${isMobile ? 'flex-col h-full justify-between items-end' : 'items-center gap-7'}`}>
+            {showDots && (
+              <div className="flex items-center gap-1 shrink-0" title={`${sortedSame.length} applications from this person`}>
+                {sortedSame.map((a) => (
+                  <span
+                    key={a.id}
+                    className={`h-1.5 w-1.5 rounded-full shrink-0 ${getReviewPendingDotClass(a, app.id)}`}
+                    aria-hidden
+                  />
+                ))}
+              </div>
+            )}
+            <Badge variant={getStatusVariant(app.status)} className="capitalize">
+              {app.status}
+            </Badge>
+            {!isMobile && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  if (e.ctrlKey || e.metaKey) {
+                    window.open(`/applications/${app.id}`, '_blank', 'noopener');
+                  } else {
+                    navigate(`/applications/${app.id}`);
+                  }
+                }}
+                className="rounded-md px-3 h-9"
+              >
+                <Eye className="h-4 w-4 mr-2" />
+                {isBoardOrAbove ? 'Review' : 'View'}
+              </Button>
+            )}
+          </div>
         </div>
-        <div className={`flex ${isMobile ? 'flex-col h-full justify-between items-end' : 'items-center gap-7'}`}>
-          <Badge variant={getStatusVariant(app.status)} className="capitalize">
-            {app.status}
-          </Badge>
-          {!isMobile && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                if (e.ctrlKey || e.metaKey) {
-                  window.open(`/applications/${app.id}`, '_blank', 'noopener');
-                } else {
-                  navigate(`/applications/${app.id}`);
-                }
-              }}
-              className="rounded-md px-3 h-9"
-            >
+      </Card>
+    );
+  };
 
-              <Eye className="h-4 w-4 mr-2" />
-              {isBoardOrAbove ? 'Review' : 'View'}
-            </Button>
-          )}
-        </div>
-      </div>
-    </Card>
-  );
-
-  const renderApplicationSection = (title: string, applications: ApplicationWithProfile[], collapsed: boolean, onToggle: () => void, icon: React.ReactNode) => {
+  const renderApplicationSection = (
+    title: string,
+    applications: ApplicationWithProfile[],
+    collapsed: boolean,
+    onToggle: () => void,
+    icon: React.ReactNode,
+    allFromSamePerson?: ApplicationWithProfile[]
+  ) => {
     if (applications.length === 0) return null;
 
     return (
@@ -146,7 +215,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
           </CollapsibleTrigger>
           <CollapsibleContent>
             <div className={`grid gap-4 ${isMobile ? "ml-0" : "ml-6"}`}>
-              {applications.map(renderApplicationCard)}
+              {applications.map((app) => renderApplicationCard(app, allFromSamePerson, undefined))}
             </div>
           </CollapsibleContent>
         </div>
@@ -154,29 +223,182 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
     );
   };
 
-  const myApplicationsTotal = userApplications ? (
-    userApplications.self.pending.length +
-    userApplications.self.decided.length
-  ) : 0;
+  /** Renders review pending (flat by time) with status dots. */
+  const renderReviewPendingSection = (
+    title: string,
+    applications: ApplicationWithProfile[],
+    collapsed: boolean,
+    onToggle: () => void,
+    icon: React.ReactNode,
+    allReviewByUser: Map<string, ApplicationWithProfile[]>
+  ) => {
+    if (applications.length === 0) return null;
+    return (
+      <Collapsible open={!collapsed} onOpenChange={onToggle}>
+        <div className="space-y-4">
+          <CollapsibleTrigger asChild>
+            <button className="w-full justify-start p-0 h-auto border-0 hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit">
+              <div className="flex items-center gap-2 w-full">
+                {collapsed ? (
+                  <ChevronRight className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+                <div className="flex items-center gap-2">
+                  {icon}
+                  <span className="text-lg font-medium">{title}</span>
+                </div>
+                <Badge>{applications.length}</Badge>
+              </div>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className={`grid gap-4 ${isMobile ? "ml-0" : "ml-6"}`}>
+              {applications.map((app) => {
+                const samePerson = (allReviewByUser.get(app.user_id) ?? []).sort(
+                  (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+                );
+                return renderApplicationCard(app, samePerson, 'review-pending');
+              })}
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    );
+  };
 
-  const reviewApplicationsTotal = userApplications ? (
-    userApplications.review.pending.length +
-    userApplications.review.decided.length
-  ) : 0;
+  /** Renders a review section with applications grouped by applicant (no dots). */
+  const renderReviewSection = (
+    title: string,
+    groups: ApplicationGroup[],
+    collapsed: boolean,
+    onToggle: () => void,
+    icon: React.ReactNode
+  ) => {
+    const totalCount = groups.reduce((acc, g) => acc + g.applications.length, 0);
+    if (totalCount === 0) return null;
+
+    return (
+      <Collapsible open={!collapsed} onOpenChange={onToggle}>
+        <div className="space-y-4">
+          <CollapsibleTrigger asChild>
+            <button className="w-full justify-start p-0 h-auto border-0 hover:bg-transparent hover:text-inherit focus:bg-transparent focus:text-inherit active:bg-transparent active:text-inherit">
+              <div className="flex items-center gap-2 w-full">
+                {collapsed ? (
+                  <ChevronRight className="h-4 w-4" />
+                ) : (
+                  <ChevronDown className="h-4 w-4" />
+                )}
+                <div className="flex items-center gap-2">
+                  {icon}
+                  <span className="text-lg font-medium">{title}</span>
+                </div>
+                <Badge>{totalCount}</Badge>
+              </div>
+            </button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <div className={`space-y-6 ${isMobile ? "ml-0" : "ml-6"}`}>
+              {groups.map((group) => (
+                <div key={group.user_id} className="space-y-3">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <User className="h-4 w-4" />
+                    <span className="font-medium text-foreground">{group.applicantName}</span>
+                    <Badge variant="secondary" className="text-xs">
+                      {group.applications.length} {group.applications.length === 1 ? 'application' : 'applications'}
+                    </Badge>
+                  </div>
+                  <div className="grid gap-4">
+                    {group.applications.map((app) => renderApplicationCard(app, undefined, undefined))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CollapsibleContent>
+        </div>
+      </Collapsible>
+    );
+  };
+
+  // Filter by search (name, email, type, role, class/project name)
+  const filteredSelfPending = !userApplications
+    ? []
+    : userApplications.self.pending.filter(applicationMatchesSearch);
+  const filteredSelfDecided = !userApplications
+    ? []
+    : userApplications.self.decided.filter(applicationMatchesSearch);
+  const filteredReviewPending = !userApplications
+    ? []
+    : userApplications.review.pending.filter(applicationMatchesSearch);
+  const filteredReviewDecided = !userApplications
+    ? []
+    : !searchQuery.trim()
+      ? userApplications.review.decided
+      : userApplications.review.decided
+          .filter(groupMatchesSearch)
+          .map((g) => ({
+            ...g,
+            applications: g.applications.filter(applicationMatchesSearch),
+          }))
+          .filter((g) => g.applications.length > 0);
+
+  const myApplicationsTotal = filteredSelfPending.length + filteredSelfDecided.length;
+  const reviewApplicationsTotal =
+    filteredReviewPending.length +
+    filteredReviewDecided.reduce((acc, g) => acc + g.applications.length, 0);
+  const hasAnyApplicationsUnfiltered = userApplications
+    ? userApplications.self.pending.length +
+      userApplications.self.decided.length +
+      userApplications.review.pending.length +
+      userApplications.review.decided.reduce((acc, g) => acc + g.applications.length, 0) > 0
+    : false;
+  const showEmptySearchState = searchQuery.trim() && myApplicationsTotal === 0 && reviewApplicationsTotal === 0;
+
+  /** All review applications by user_id (pending + decided) for status dots in pending section. */
+  const allReviewByUser = (() => {
+    const map = new Map<string, ApplicationWithProfile[]>();
+    for (const app of userApplications?.review.pending ?? []) {
+      const list = map.get(app.user_id) ?? [];
+      list.push(app);
+      map.set(app.user_id, list);
+    }
+    for (const g of userApplications?.review.decided ?? []) {
+      for (const app of g.applications) {
+        const list = map.get(app.user_id) ?? [];
+        list.push(app);
+        map.set(app.user_id, list);
+      }
+    }
+    return map;
+  })();
 
   return (
     <div className="p-6 w-full h-full overflow-y-auto">
-      <div className="flex justify-between items-center">
+      <div className={`flex ${isMobile ? 'flex-col gap-4' : 'justify-between items-center'}`}>
         <div>
           <h1 className={`${isMobile ? 'text-2xl' : 'text-3xl'} font-bold`}>Applications</h1>
           <p className="text-muted-foreground">
             {isBoardOrAbove ? 'Manage applications' : 'Your applications'}
           </p>
         </div>
-        <Button onClick={() => setIsCreateModalOpen(true)} disabled={appsDisabled} >
-          <Plus className="h-4 w-4 mr-2" />
-          New Application
-        </Button>
+        <div className={`flex gap-3 ${isMobile ? 'flex-col' : 'items-center'}`}>
+          <Button onClick={() => setIsCreateModalOpen(true)} disabled={appsDisabled} className={hasAnyApplicationsUnfiltered && !isMobile ? 'shrink-0' : ''}>
+            <Plus className="h-4 w-4 mr-2" />
+            New Application
+          </Button>
+          {hasAnyApplicationsUnfiltered && (
+            <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={isMobile ? "Search" : "Search applications..."}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {applicationsLoading ? (
@@ -185,7 +407,7 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
             <p className="text-center text-muted-foreground">Loading applications...</p>
           </CardContent>
         </Card>
-      ) : !userApplications || (myApplicationsTotal === 0 && reviewApplicationsTotal === 0) ? (
+      ) : !userApplications || !hasAnyApplicationsUnfiltered ? (
         <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
@@ -193,6 +415,14 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
                 ? 'Applications are currently closed. Please wait for Rush Week to submit an application.'
                 : 'No applications yet. Click "New Application" to get started.'
               }
+            </p>
+          </CardContent>
+        </Card>
+      ) : showEmptySearchState ? (
+        <Card className="mt-6">
+          <CardContent className="pt-6">
+            <p className="text-center text-muted-foreground">
+              No applications match your search criteria.
             </p>
           </CardContent>
         </Card>
@@ -219,22 +449,24 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
                   </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4">
-                  {/* My Pending Applications */}
+                  {/* My Pending Applications (by time, no dots) */}
                   {renderApplicationSection(
                     "Pending",
-                    userApplications.self.pending,
+                    filteredSelfPending,
                     myPendingCollapsed,
                     () => setMyPendingCollapsed(!myPendingCollapsed),
-                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>,
+                    undefined
                   )}
 
-                  {/* My Reviewed Applications */}
+                  {/* My Reviewed Applications (by time, no dots) */}
                   {renderApplicationSection(
                     "Reviewed",
-                    userApplications.self.decided,
+                    filteredSelfDecided,
                     myReviewedCollapsed,
                     () => setMyReviewedCollapsed(!myReviewedCollapsed),
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>,
+                    undefined
                   )}
                 </CollapsibleContent>
               </div>
@@ -262,19 +494,20 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
                   </button>
                 </CollapsibleTrigger>
                 <CollapsibleContent className="space-y-4">
-                  {/* Review Pending Applications */}
-                  {renderApplicationSection(
+                  {/* Review Pending (flat by time, status dots: green/red/primary, current pulsating) */}
+                  {renderReviewPendingSection(
                     "Pending Review",
-                    userApplications.review.pending,
+                    filteredReviewPending,
                     reviewPendingCollapsed,
                     () => setReviewPendingCollapsed(!reviewPendingCollapsed),
-                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>,
+                    allReviewByUser
                   )}
 
-                  {/* Review Reviewed Applications */}
-                  {renderApplicationSection(
+                  {/* Review Decided (grouped by applicant only, no dots) */}
+                  {renderReviewSection(
                     "Reviewed",
-                    userApplications.review.decided,
+                    filteredReviewDecided,
                     reviewReviewedCollapsed,
                     () => setReviewReviewedCollapsed(!reviewReviewedCollapsed),
                     <div className="w-2 h-2 bg-purple-500 rounded-full"></div>

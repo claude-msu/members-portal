@@ -20,8 +20,19 @@ export type Class = Database['public']['Tables']['classes']['Row'] & {
 };
 
 type Application = Database['public']['Tables']['applications']['Row'];
-export type ApplicationWithProfile = Application & { profiles: { full_name: string } | null };
+export type ApplicationWithProfile = Application & {
+  profiles: { full_name: string; email: string } | null;
+  classes: { name: string } | null;
+  projects: { name: string } | null;
+};
 type Event = Database['public']['Tables']['events']['Row'];
+
+/** Applications from one applicant, ordered by submitted date (newest first). */
+export interface ApplicationGroup {
+  user_id: string;
+  applicantName: string;
+  applications: ApplicationWithProfile[];
+}
 
 interface UserProjects {
   inProgress: Project[];
@@ -38,8 +49,10 @@ interface UserClasses {
 }
 
 interface UserApplications {
+  /** Current user's applications: flat lists, sorted by submitted date (newest first). */
   self: { pending: ApplicationWithProfile[]; decided: ApplicationWithProfile[] };
-  review: { pending: ApplicationWithProfile[]; decided: ApplicationWithProfile[] };
+  /** Review queue: pending = flat list by time (newest first); decided = grouped by applicant only. */
+  review: { pending: ApplicationWithProfile[]; decided: ApplicationGroup[] };
 }
 
 interface UserEvents {
@@ -133,8 +146,35 @@ async function fetchUserClasses(userId: string): Promise<UserClasses> {
   return { inProgress, enrolled, completed, available };
 }
 
+function sortByCreatedAtDesc(apps: ApplicationWithProfile[]): ApplicationWithProfile[] {
+  return [...apps].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+}
+
+function groupApplicationsByApplicant(apps: ApplicationWithProfile[]): ApplicationGroup[] {
+  const byUser = new Map<string, ApplicationWithProfile[]>();
+  for (const app of apps) {
+    const list = byUser.get(app.user_id) ?? [];
+    list.push(app);
+    byUser.set(app.user_id, list);
+  }
+  const groups: ApplicationGroup[] = [];
+  byUser.forEach((applications, user_id) => {
+    const sorted = sortByCreatedAtDesc(applications);
+    const applicantName = applications[0]?.profiles?.full_name ?? 'Applicant';
+    groups.push({ user_id, applicantName, applications: sorted });
+  });
+  // Order groups by most recent submission (newest first)
+  groups.sort((a, b) => {
+    const aLatest = new Date(a.applications[0].created_at).getTime();
+    const bLatest = new Date(b.applications[0].created_at).getTime();
+    return bLatest - aLatest;
+  });
+  return groups;
+}
+
 async function fetchUserApplications(userId: string, role: AppRole): Promise<UserApplications> {
-  const applicationsSelect = '*, profiles!applications_user_id_fkey(full_name)';
+  const applicationsSelect =
+    '*, profiles!applications_user_id_fkey(full_name, email), classes:class_id(name), projects:project_id(name)';
   const { data: ownApplications, error: ownError } = await supabase
     .from('applications')
     .select(applicationsSelect)
@@ -144,23 +184,25 @@ async function fetchUserApplications(userId: string, role: AppRole): Promise<Use
 
   const own = (ownApplications ?? []) as unknown as ApplicationWithProfile[];
   const self = {
-    pending: own.filter((a) => a.status === 'pending'),
-    decided: own.filter((a) => ['accepted', 'rejected'].includes(a.status)),
+    pending: sortByCreatedAtDesc(own.filter((a) => a.status === 'pending')),
+    decided: sortByCreatedAtDesc(own.filter((a) => ['accepted', 'rejected'].includes(a.status))),
   };
-  const review = { pending: [] as ApplicationWithProfile[], decided: [] as ApplicationWithProfile[] };
+  const review = { pending: [] as ApplicationWithProfile[], decided: [] as ApplicationGroup[] };
 
   if (role === 'e-board' || role === 'board') {
     let reviewQuery = supabase
       .from('applications')
       .select(applicationsSelect)
       .neq('user_id', userId)
-      .order('user_id', { ascending: false });
+      .order('created_at', { ascending: false });
     if (role === 'board') reviewQuery = reviewQuery.in('application_type', ['project', 'class']);
     const { data: reviewableApplications, error: reviewError } = await reviewQuery;
     if (!reviewError && reviewableApplications) {
       const typed = reviewableApplications as unknown as ApplicationWithProfile[];
-      review.pending = typed.filter((a) => a.status === 'pending');
-      review.decided = typed.filter((a) => ['accepted', 'rejected'].includes(a.status));
+      const pending = typed.filter((a) => a.status === 'pending');
+      const decided = typed.filter((a) => ['accepted', 'rejected'].includes(a.status));
+      review.pending = sortByCreatedAtDesc(pending);
+      review.decided = groupApplicationsByApplicant(decided);
     }
   }
   return { self, review };
