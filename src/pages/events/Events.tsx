@@ -320,6 +320,7 @@ const Events = () => {
 
     try {
       const [hours, minutes] = eventTime.split(':');
+      // Build local date + time, then send as UTC via toISOString() — correct for a specific moment.
       const baseEventDateTime = new Date(date);
       baseEventDateTime.setHours(parseInt(hours), parseInt(minutes));
 
@@ -1208,7 +1209,7 @@ const Events = () => {
                             setRecurrenceEndDate(selectedDate);
                             setRecurrenceEndCalendarOpen(false);
                           }}
-                          disabled={(date) => date < date || date < (date || new Date())}
+                          disabled={(d) => d < (date || new Date())}
                           initialFocus
                         />
                       </PopoverContent>

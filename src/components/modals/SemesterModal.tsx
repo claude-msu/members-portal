@@ -33,14 +33,19 @@ interface SemesterModalProps {
   required?: boolean;
 }
 
-// Helper function to convert date to ISO string with timezone offset
-const getLocalISOString = (date: Date): string => {
-  const offset = -date.getTimezoneOffset();
-  const sign = offset >= 0 ? '+' : '-';
-  const hours = String(Math.abs(Math.floor(offset / 60))).padStart(2, '0');
-  const minutes = String(Math.abs(offset % 60)).padStart(2, '0');
-  const isoString = date.toISOString().split('Z')[0];
-  return `${isoString}${sign}${hours}:${minutes}`;
+// Store semester dates as date-only (YYYY-MM-DD). The DB will store as midnight UTC (or server TZ),
+// avoiding timezone conversion issues that produced 08:00/10:00 instead of 00:00.
+const toDateOnly = (date: Date): string => {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+};
+
+// Parse YYYY-MM-DD as local midnight (avoid new Date(str) which is UTC midnight and shifts the day in some zones).
+const parseDateOnly = (str: string): Date => {
+  const [y, m, d] = str.split('-').map(Number);
+  return new Date(y, m - 1, d);
 };
 
 const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
@@ -104,8 +109,8 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
       }
 
       // Validate dates
-      const startDate = new Date(formData.start_date);
-      const endDate = new Date(formData.end_date);
+      const startDate = parseDateOnly(formData.start_date);
+      const endDate = parseDateOnly(formData.end_date);
 
       if (endDate <= startDate) {
         toast({
@@ -117,13 +122,16 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
         return;
       }
 
+      // Send midnight UTC so DB stores 00:00:00+00 (avoids server TZ interpreting date-only as local midnight).
+      const start_date = `${formData.start_date}T00:00:00.000Z`;
+      const end_date = `${formData.end_date}T00:00:00.000Z`;
       const { data, error } = await supabase
         .from('semesters')
         .insert({
           code: formData.code,
           name: formData.name,
-          start_date: formData.start_date,
-          end_date: formData.end_date,
+          start_date,
+          end_date,
         })
         .select()
         .single();
@@ -190,11 +198,10 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
               placeholder="W26"
               value={formData.code}
               onChange={(e) => setFormData({ ...formData, code: e.target.value })}
-              required
               maxLength={10}
             />
             <p className="text-xs text-muted-foreground">
-              e.g., W26 (Winter 2026), F27 (Fall 2027)
+              e.g., S26 (Spring 2026), F27 (Fall 2027)
               {!isMobile
                 && ', Su26 (Summer 2026)'}
             </p>
@@ -209,7 +216,6 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
               placeholder="Winter 2026"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              required
             />
           </div>
 
@@ -229,16 +235,16 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.start_date
-                      ? format(new Date(formData.start_date), 'PPP')
+                      ? format(parseDateOnly(formData.start_date), 'PPP')
                       : <span>{isMobile ? 'Start date' : 'Pick a start date'}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="center">
                   <Calendar
                     mode="single"
-                    selected={formData.start_date ? new Date(formData.start_date) : undefined}
+                    selected={formData.start_date ? parseDateOnly(formData.start_date) : undefined}
                     onSelect={(selectedDate) => {
-                      setFormData({ ...formData, start_date: selectedDate ? getLocalISOString(selectedDate) : '' });
+                      setFormData({ ...formData, start_date: selectedDate ? toDateOnly(selectedDate) : '' });
                       setStartCalendarOpen(false);
                     }}
                     initialFocus
@@ -262,16 +268,16 @@ const SemesterModal = ({ open, onClose, onSuccess }: SemesterModalProps) => {
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {formData.end_date
-                      ? format(new Date(formData.end_date), 'PPP')
+                      ? format(parseDateOnly(formData.end_date), 'PPP')
                       : <span>{isMobile ? 'End date' : 'Pick an end date'}</span>}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="center">
                   <Calendar
                     mode="single"
-                    selected={formData.end_date ? new Date(formData.end_date) : undefined}
+                    selected={formData.end_date ? parseDateOnly(formData.end_date) : undefined}
                     onSelect={(selectedDate) => {
-                      setFormData({ ...formData, end_date: selectedDate ? getLocalISOString(selectedDate) : '' });
+                      setFormData({ ...formData, end_date: selectedDate ? toDateOnly(selectedDate) : '' });
                       setEndCalendarOpen(false);
                     }}
                     initialFocus
