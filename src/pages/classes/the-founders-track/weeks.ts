@@ -1,0 +1,707 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+/**
+ * A single line of education history on the persona's profile.
+ */
+export interface Education {
+    school: string;
+    degree: string;
+    years: string;
+}
+
+/**
+ * A single role in the persona's work history.
+ */
+export interface Experience {
+    company: string;
+    role: string;
+    years: string;
+    description: string;
+}
+
+/**
+ * A notable investment, acquisition, or deal the persona has been involved with.
+ */
+export interface PortfolioEntry {
+    company: string;
+    stage: string;
+    note: string;
+}
+
+/**
+ * A single LinkedIn-style stat card — clean numbers, no interpretation.
+ */
+export interface Stat {
+    label: string;
+    value: string;
+}
+
+/**
+ * A fully simulated LinkedIn-style investor profile.
+ *
+ * There are no explicit "thesis", "red flags", or "questions" fields.
+ * Everything a student needs to understand this person is embedded in
+ * the about section, experience descriptions, and portfolio notes.
+ * Students are expected to read carefully, pick up on characteristics,
+ * and adapt — that is the point of the exercise.
+ */
+export interface Persona {
+    name: string;
+    title: string;
+    company: string;
+    location: string;
+    /** Rich bio paragraph. Nickname, investing philosophy, and personality all live here — unlabeled. */
+    about: string;
+    education: Education[];
+    experience: Experience[];
+    portfolio: PortfolioEntry[];
+    stats: Stat[];
+}
+
+/**
+ * Full week configuration for The Founder's Track.
+ *
+ * CURRENT is the active persona live this week.
+ * QUEUED is the next persona — shown in preview mode before the swap.
+ * Swap manually every Thursday before coworking.
+ */
+export interface WeekConfig {
+    number: number;
+    title: string;
+    persona: Persona;
+}
+
+// ─── Week 1 ───────────────────────────────────────────────────────────────────
+
+const WEEK1: WeekConfig = {
+    number: 1,
+    title: 'Week 1',
+    persona: {
+        name: 'Orion Voss',
+        title: 'General Partner',
+        company: 'Apex Horizon Capital',
+        location: 'San Francisco, CA',
+        about: `Orion Voss — known in early VC circles as "Orbital Orion" for his habit of zooming so far out of a conversation that founders forget what product they were pitching — left a philosophy PhD at Oxford in 2007 to join a seed fund and has never looked back. He has backed three companies that are now household names and a dozen more that most people have never heard of, because they were simply too early for the world they were building toward. He does not consider this a failure. His office has a single quote on the wall, from Buckminster Fuller, and he genuinely means it.
+
+Orion does not invest in products. He has said this so many times it has become something of a catchphrase among his portfolio founders. What he invests in is harder to define — he once described it in an interview as "the specific gravity of someone's conviction," which his colleagues found either profound or insufferable depending on who you ask. He has passed on companies that went on to massive outcomes and he is at peace with every single one of those decisions, because in each case he did not feel what he was looking for in the room.
+
+He reads every application himself. He does not use analysts. He will know your background before you say a word.`,
+        education: [
+            {
+                school: 'University of Oxford',
+                degree: 'DPhil Philosophy (incomplete)',
+                years: '2005 – 2007',
+            },
+            {
+                school: 'Yale University',
+                degree: 'BA Philosophy & Mathematics',
+                years: '2001 – 2005',
+            },
+        ],
+        experience: [
+            {
+                company: 'Apex Horizon Capital',
+                role: 'General Partner',
+                years: '2014 – Present',
+                description:
+                    'Leads pre-seed and seed investments across Apex Horizon\'s $340M third fund. Sole decision-maker on all investments under $3M. Known for writing the longest partner memos in the firm and the shortest term sheets.',
+            },
+            {
+                company: 'Threshold Ventures',
+                role: 'Principal',
+                years: '2010 – 2014',
+                description:
+                    'Sourced and led 11 investments over four years. Three went on to unicorn valuations. Left after a disagreement with the managing partner about whether a company\'s TAM justified the check size — Orion thought the TAM question was the wrong question entirely.',
+            },
+            {
+                company: 'Kleiner Perkins',
+                role: 'Analyst',
+                years: '2008 – 2010',
+                description:
+                    'Entry-level role during the early mobile era. Spent two years watching partners make decisions and became convinced that the best investments had nothing to do with the spreadsheet in the room.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Aether Labs',
+                stage: 'Pre-seed, 2015',
+                note: 'Backed when the founder had a whiteboard and a conviction that ambient computing would replace the smartphone. Most people in the room thought it was too early. It was.',
+            },
+            {
+                company: 'Commonground',
+                stage: 'Seed, 2017',
+                note: 'Community infrastructure for distributed organizations. Orion wrote the first check the week after a 45-minute conversation in which the founder never once mentioned a feature — only the world she was trying to create.',
+            },
+            {
+                company: 'Solace Health',
+                stage: 'Seed, 2019',
+                note: 'Mental health infrastructure for underserved communities. Passed on three better-capitalized competitors in the same space the same year. His notes from the decision read: "wrong missionaries."',
+            },
+            {
+                company: 'Fieldwork AI',
+                stage: 'Pre-seed, 2022',
+                note: 'Agricultural intelligence platform. The founder came in having never pitched before. Orion made the decision before the meeting ended.',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size (Fund III)', value: '$340M' },
+            { label: 'Portfolio Companies', value: '47' },
+            { label: 'Unicorn Exits', value: '3' },
+            { label: 'Median First Check', value: '$1.2M' },
+            { label: 'Avg. Entry Valuation', value: '$8M' },
+            { label: 'Years Investing', value: '17' },
+        ],
+    },
+};
+
+// ─── Week 2 ───────────────────────────────────────────────────────────────────
+
+const WEEK2: WeekConfig = {
+    number: 2,
+    title: 'Week 2',
+    persona: {
+        name: 'Hector Payne',
+        title: 'Operating Partner',
+        company: 'Groundwork Ventures',
+        location: 'Chicago, IL',
+        about: `People who have sat across from Hector Payne in a pitch meeting tend to describe the experience the same way: they walked in thinking they were prepared, and walked out with a list of things they had never thought about. His portfolio founders call him "Hardboiled Hector" — a nickname he neither encourages nor disputes — because he has a way of asking questions that sound simple until you realize you do not have the answer.
+
+Hector spent 11 years building a logistics company from three people in a garage to 400 across six cities before selling it for $190M. He has hired people who did not work out, managed a payroll crisis in year six, lost a warehouse to a fire in year four, and rebuilt each time. He now runs the operating partner practice at Groundwork Ventures, where the fund's stated policy is that at least one founder must have shipped something real before they will write a check. This was Hector's idea.
+
+He is not interested in your vision. He has said publicly that he leaves the vision conversations to his partners. What he wants to know is whether the scaffolding underneath the vision can hold any weight — and he will find out within the first ten minutes whether it can.`,
+        education: [
+            {
+                school: 'Purdue University',
+                degree: 'BS Industrial Engineering',
+                years: '1998 – 2002',
+            },
+        ],
+        experience: [
+            {
+                company: 'Groundwork Ventures',
+                role: 'Operating Partner',
+                years: '2019 – Present',
+                description:
+                    'Works directly with portfolio companies on hiring plans, operational infrastructure, and crisis response. Has a personal rule he applies to every first meeting: no more than two slides before he asks to see the actual product or talk to someone who has used it.',
+            },
+            {
+                company: 'MoveGrid Logistics',
+                role: 'CEO & Co-founder',
+                years: '2008 – 2019',
+                description:
+                    'Built from zero to $38M ARR across six cities. Managed 400 employees at peak. Survived a payroll crisis (year 6), a warehouse fire (year 4), and two near-acquisitions that fell through at term sheet. Sold in 2019. Has a handwritten list on his desk of every operational mistake he made and what it cost.',
+            },
+            {
+                company: 'UPS Supply Chain Solutions',
+                role: 'Operations Manager, Midwest Region',
+                years: '2002 – 2008',
+                description:
+                    'Managed regional logistics infrastructure for the Midwest. Left after six years when he realized he was getting very good at optimizing a broken system instead of building a better one.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Stackform',
+                stage: 'Seed, 2020',
+                note: 'Construction project management software. Hector backed it after the founder walked him through exactly what breaks in their system at 3x load. He later said it was the most honest answer he had heard in a pitch meeting in years.',
+            },
+            {
+                company: 'Relay Ops',
+                stage: 'Series A, 2021',
+                note: 'Workforce scheduling for distributed teams. First meeting lasted three hours. Hector spent two of them asking about the hiring plan for the first ten employees.',
+            },
+            {
+                company: 'Coldchain Co.',
+                stage: 'Seed, 2022',
+                note: 'Temperature-controlled logistics for pharmaceuticals. Passed on two better-funded competitors. His note: "they know what breaks first."',
+            },
+        ],
+        stats: [
+            { label: 'Companies Built & Exited', value: '1 ($190M)' },
+            { label: 'Portfolio Boards', value: '9' },
+            { label: 'Peak Team Size Led', value: '400' },
+            { label: 'Years Operating Before Investing', value: '17' },
+            { label: 'Check Size Range', value: '$500K – $2M' },
+            { label: 'Avg. Hold Period', value: '4.2 years' },
+        ],
+    },
+};
+
+// ─── Week 3 ───────────────────────────────────────────────────────────────────
+
+const WEEK3: WeekConfig = {
+    number: 3,
+    title: 'Week 3',
+    persona: {
+        name: 'Pythia Stone',
+        title: 'Managing Director',
+        company: 'Axiom Capital Partners',
+        location: 'New York, NY',
+        about: `Pythia Stone studied applied mathematics at MIT, spent six years running volatility models at a quantitative hedge fund, and then joined Axiom Capital Partners, where she now leads their data-driven early-stage practice with $600M under management. Her colleagues at Axiom call her "Precise Pythia" — always behind her back, never to her face — because she has a reputation for finding the number inside a pitch that does not survive contact with a spreadsheet, and then asking about that number specifically.
+
+She has passed on four companies that her partners wanted to fund. Two of them later failed for exactly the reasons she flagged in her diligence notes. She does not bring this up herself, but she does not discourage others from bringing it up either.
+
+Pythia is not cold. She will tell you this herself if you ask. There is a difference, she says, between being cold and being precise — and she has found that founders who cannot tell the difference tend to also have difficulty with their unit economics. She has described exactly two things in her career as exciting: a particularly elegant market sizing methodology she encountered in 2018, and her daughter's first sentence.`,
+        education: [
+            {
+                school: 'MIT',
+                degree: 'BS Applied Mathematics',
+                years: '1999 – 2003',
+            },
+            {
+                school: 'University of Chicago',
+                degree: 'MS Financial Mathematics',
+                years: '2003 – 2004',
+            },
+        ],
+        experience: [
+            {
+                company: 'Axiom Capital Partners',
+                role: 'Managing Director',
+                years: '2016 – Present',
+                description:
+                    'Leads quantitative diligence and portfolio modeling across $600M AUM. Built the proprietary financial scoring model now used across all of Axiom\'s investments. Has final approval authority on any check where the unit economics do not meet the firm\'s threshold — a threshold she wrote.',
+            },
+            {
+                company: 'Meridian Quant Fund',
+                role: 'Senior Analyst',
+                years: '2010 – 2016',
+                description:
+                    'Built volatility and correlation models for emerging market fixed income. Developed a framework for detecting narrative-driven overvaluations that she later adapted — almost unchanged — for evaluating startup pitches.',
+            },
+            {
+                company: 'Goldman Sachs',
+                role: 'Analyst, Structured Products',
+                years: '2004 – 2010',
+                description:
+                    'Six years pricing instruments that most people in the building could not explain. Left because she wanted to work on things that did not yet exist. Still thinks about the counterparty risk frameworks she built there more often than she expected to.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Clausewright',
+                stage: 'Seed, 2017',
+                note: 'Legal contract automation. Pythia backed it after the founder produced a bottom-up TAM analysis in the meeting, unprompted, from memory. She made a note of the methodology.',
+            },
+            {
+                company: 'Densum Analytics',
+                stage: 'Series A, 2019',
+                note: 'Supply chain forecasting for mid-market manufacturers. Passed on three similar companies in the same year. Her notes on the others each contain a single line: "top-down TAM, no unit economics model."',
+            },
+            {
+                company: 'Fract',
+                stage: 'Seed, 2021',
+                note: 'Revenue-based financing for e-commerce. The founder knew their CAC, LTV, payback period, and net revenue retention to two decimal places in the first five minutes. Pythia sent a term sheet the next morning.',
+            },
+        ],
+        stats: [
+            { label: 'AUM', value: '$600M' },
+            { label: 'Portfolio Companies', value: '31' },
+            { label: 'Average Net IRR', value: '34%' },
+            { label: 'Deals Killed on Unit Economics', value: '4' },
+            { label: 'Check Size Range', value: '$2M – $8M' },
+            { label: 'Years in Quantitative Finance', value: '12' },
+        ],
+    },
+};
+
+// ─── Week 4 ───────────────────────────────────────────────────────────────────
+
+const WEEK4: WeekConfig = {
+    number: 4,
+    title: 'Week 4',
+    persona: {
+        name: 'Agatha Rowe',
+        title: 'Founding Partner',
+        company: 'Human First Fund',
+        location: 'Austin, TX',
+        about: `Before anyone called it UX research, Agatha Rowe was sitting in people's kitchens watching them struggle with technology and writing down everything they said. She spent a decade at IDEO and Nielsen Norman as an ethnographic researcher before founding Human First Fund in 2015 on a premise she has never wavered from: every startup that has ever failed did so because somebody, at some point, stopped listening to a real person.
+
+Her portfolio founders know her as "Attentive Agatha" — a nickname that sounds like a compliment and is also a warning. She listens to everything. She notices the moment a founder switches from describing a specific person they spoke with to describing a demographic. She has conducted over 3,000 user interviews in her career and she can hear the difference in about thirty seconds.
+
+Human First Fund requires a minimum of twenty documented user conversations before Agatha will consider writing a check. Not surveys. Not analytics dashboards. Conversations, with names attached. She has been asked whether this is an unusually high bar. She says it is the lowest bar she could justify.`,
+        education: [
+            {
+                school: 'University of Michigan',
+                degree: 'BA Anthropology & Sociology',
+                years: '1995 – 1999',
+            },
+            {
+                school: 'Stanford University',
+                degree: 'MA Human-Computer Interaction',
+                years: '2000 – 2002',
+            },
+        ],
+        experience: [
+            {
+                company: 'Human First Fund',
+                role: 'Founding Partner',
+                years: '2015 – Present',
+                description:
+                    'Leads a $120M early-stage fund with a single constraint: founders must demonstrate genuine, documented user insight before a term sheet is issued. Has personally conducted follow-up user interviews on behalf of portfolio companies after investment. Three of her portfolio companies have cited her post-investment research as the insight that changed their product direction.',
+            },
+            {
+                company: 'IDEO',
+                role: 'Senior Design Researcher',
+                years: '2008 – 2015',
+                description:
+                    'Led ethnographic research for Fortune 500 clients across healthcare, financial services, and consumer products. Pioneered a "day-in-the-life" research method that required researchers to spend a full working day with subjects before conducting a single formal interview. The method is still used across the firm.',
+            },
+            {
+                company: 'Nielsen Norman Group',
+                role: 'UX Researcher',
+                years: '2002 – 2008',
+                description:
+                    'Conducted usability studies and field research for enterprise software clients. Developed a personal conviction during this period that the most valuable product insights come from watching someone fail to use something, not succeed — a belief that has shaped every investment she has made since.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Caretaker',
+                stage: 'Pre-seed, 2016',
+                note: 'Home care coordination for aging parents. Agatha backed the founder after she described a specific woman named Carol, 71, from Lansing, and what happened when Carol tried to use the app for the first time. Agatha later met Carol.',
+            },
+            {
+                company: 'Loopback',
+                stage: 'Seed, 2018',
+                note: 'Customer feedback infrastructure for SMBs. The founder had spoken with 47 customers before the first pitch meeting. Agatha asked for the notes from all 47 conversations. She read all of them.',
+            },
+            {
+                company: 'Nearground',
+                stage: 'Seed, 2021',
+                note: 'Hyperlocal community platform. Passed on two similar companies in the same year. Her notes: "no named users in either pitch — personas only."',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$120M' },
+            { label: 'User Interviews Conducted', value: '3,000+' },
+            { label: 'Portfolio Companies', value: '22' },
+            { label: 'Min. User Conversations to Invest', value: '20 documented' },
+            { label: 'Avg. First Check', value: '$800K' },
+            { label: 'Post-Investment Research Projects', value: '3' },
+        ],
+    },
+};
+
+// ─── Week 5 ───────────────────────────────────────────────────────────────────
+
+const WEEK5: WeekConfig = {
+    number: 5,
+    title: 'Week 5',
+    persona: {
+        name: 'Eris Kane',
+        title: 'Managing Partner',
+        company: 'Dissonance Ventures',
+        location: 'New York, NY',
+        about: `Eris Kane has built her reputation by doing two things that most investors avoid: passing on companies everyone else was fighting over, and funding companies everyone else thought were stupid, too early, or already dead. She runs Dissonance Ventures on a thesis that she summarizes in a single question she asks herself before every investment decision — a question she has never published and does not share with founders, though many of her portfolio companies have tried to guess it.
+
+Her partners and founders refer to her as "Electric Eris," a nickname that emerged from her habit of staying completely still and completely silent in a room while asking questions that feel like they have a current running through them. She does not raise her voice. She does not show frustration. She simply waits for the answer and, if the answer does not satisfy her, asks again from a different angle.
+
+She is not contrarian for sport. She has said this in every profile ever written about her. What she believes — and has believed since her years at Andreessen Horowitz, where she was known internally as the partner who asked the questions nobody else wanted to ask — is that the most durable companies are the ones that have already survived the hardest version of every question about them. She considers it a service to founders to deliver those questions before the market does.`,
+        education: [
+            {
+                school: 'Columbia University',
+                degree: 'BA Economics & Philosophy',
+                years: '1997 – 2001',
+            },
+            {
+                school: 'London School of Economics',
+                degree: 'MSc Behavioural Economics',
+                years: '2001 – 2002',
+            },
+        ],
+        experience: [
+            {
+                company: 'Dissonance Ventures',
+                role: 'Managing Partner',
+                years: '2013 – Present',
+                description:
+                    'Runs a $280M growth fund with a thesis built around consensus-bucking investments. Has made 6 major investments in companies that every other firm passed on in the same round. Four of the six have outperformed the fund average. Keeps the two that did not on a printed sheet in her top drawer.',
+            },
+            {
+                company: 'Andreessen Horowitz',
+                role: 'Partner',
+                years: '2008 – 2013',
+                description:
+                    'Led investments in B2B SaaS and infrastructure. Known internally for being the last voice in any investment committee discussion — not because she was least important, but because she preferred to hear everyone else\'s conviction before testing it. Left to start her own fund when she realized the questions she wanted to ask required her own capital.',
+            },
+            {
+                company: 'Morgan Stanley',
+                role: 'Associate, Technology Investment Banking',
+                years: '2002 – 2008',
+                description:
+                    'Covered enterprise software and internet infrastructure. Resigned after advising on a deal she had publicly characterized as overvalued by 40%. She was asked to leave six months later. The company in question filed for bankruptcy protection in 2011.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Bastion',
+                stage: 'Seed, 2014',
+                note: 'Enterprise security infrastructure. Every other major firm passed in the same round. Eris\'s investment memo contained a single paragraph about why the consensus was wrong and three pages about why the founder would not give up.',
+            },
+            {
+                company: 'Verdant Systems',
+                stage: 'Series A, 2017',
+                note: 'Climate data infrastructure for insurers. Considered too niche, too early, and too regulatory-heavy by most of the firms that saw it. Eris led the round. Now the category leader.',
+            },
+            {
+                company: 'Pulsar',
+                stage: 'Seed, 2020',
+                note: 'Real-time data streaming for financial services. Three investors passed citing incumbent lock-in. Eris backed it after the founder spent twenty minutes explaining, without defensiveness, exactly why the incumbents would win in the short term and lose in the long one.',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$280M' },
+            { label: 'Consensus-Bucking Investments', value: '6 major' },
+            { label: 'Outperformers vs. Fund Average', value: '4 of 6' },
+            { label: 'Average Check Size', value: '$4M' },
+            { label: 'Years Investing', value: '17' },
+            { label: 'Investment Committees Dissented In', value: 'Won\'t say' },
+        ],
+    },
+};
+
+// ─── Week 6 ───────────────────────────────────────────────────────────────────
+
+const WEEK6: WeekConfig = {
+    number: 6,
+    title: 'Week 6',
+    persona: {
+        name: 'Dorian Foss',
+        title: 'VP Corporate Development',
+        company: 'Meridian Systems',
+        location: 'Seattle, WA',
+        about: `Dorian Foss is not a venture investor. This is the first thing he will tell you, and also the thing most founders forget halfway through a conversation with him. He runs Corporate Development at Meridian Systems, a $44B enterprise software company, and he has closed 14 acquisitions in eight years — ranging from $8M acqui-hires to a $1.2B platform deal in 2022. He has been called "Deal-Making Dorian" by colleagues and counterparties for long enough that he has stopped reacting to it.
+
+He approaches founder conversations with a warmth and curiosity that can take a while to recognize for what it is: a very organized form of intelligence gathering. He is genuinely interested in what you are building. He is also, simultaneously, evaluating whether you are worth buying, worth partnering with, or worth watching until you grow large enough to become a problem. He will not tell you which of the three he is doing. Sometimes it is all three at once.
+
+He has a habit — noted by several founders who have dealt with him — of mentioning, casually and without apparent malice, that Meridian could probably build what you are building internally in a quarter. He then watches what happens to the room.`,
+        education: [
+            {
+                school: 'Georgetown University',
+                degree: 'BA International Business',
+                years: '1996 – 2000',
+            },
+            {
+                school: 'Harvard Business School',
+                degree: 'MBA',
+                years: '2004 – 2006',
+            },
+        ],
+        experience: [
+            {
+                company: 'Meridian Systems',
+                role: 'VP Corporate Development',
+                years: '2016 – Present',
+                description:
+                    'Leads all M&A and strategic partnership activity for a $44B enterprise software company. Manages a team of 12 across strategy, diligence, and integration. Responsible for the build-vs-buy framework now used across all of Meridian\'s product lines. Closed the largest acquisition in company history in 2022.',
+            },
+            {
+                company: 'Salesforce',
+                role: 'Director, Corporate Development',
+                years: '2010 – 2016',
+                description:
+                    'Worked on 7 acquisitions, two of which became core Salesforce product lines still in use today. Built a proprietary framework for evaluating whether a startup\'s value lives in the product, the data, the team, or the customer relationships — a distinction he considers the most important question in any acquisition.',
+            },
+            {
+                company: 'McKinsey & Company',
+                role: 'Associate, Technology Practice',
+                years: '2006 – 2010',
+                description:
+                    'Advised Fortune 100 technology companies on M&A strategy and competitive positioning. Left after four years because he wanted to close deals, not advise on them. Has not regretted it.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Threadline (acquired)',
+                stage: 'Acqui-hire, 2018 — $22M',
+                note: 'Workflow automation tooling. Dorian identified the team as the asset eighteen months before the acquisition. Maintained a quarterly check-in with the founder for the entire period.',
+            },
+            {
+                company: 'Axon Data (acquired)',
+                stage: 'Strategic acquisition, 2020 — $180M',
+                note: 'Enterprise data lineage platform. The founder had a clear answer to why their data moat could not be replicated. Dorian later said it was the best answer to that question he had ever heard.',
+            },
+            {
+                company: 'Cartograph (strategic partnership)',
+                stage: 'Partnership, 2023',
+                note: 'Geospatial analytics for enterprise logistics. Not acquired — yet. Dorian has a standing quarterly call with the CEO.',
+            },
+        ],
+        stats: [
+            { label: 'Acquisitions Closed', value: '14' },
+            { label: 'Largest Deal', value: '$1.2B' },
+            { label: 'Smallest Deal', value: '$8M' },
+            { label: 'Parent Company Valuation', value: '$44B' },
+            { label: 'Avg. Integration Timeline', value: '9 months' },
+            { label: 'Active Strategic Partnerships', value: '31' },
+        ],
+    },
+};
+
+// ─── Week 7 ───────────────────────────────────────────────────────────────────
+
+const WEEK7: WeekConfig = {
+    number: 7,
+    title: 'Week 7',
+    persona: {
+        name: 'Cass Morin',
+        title: 'General Partner',
+        company: 'Watchdog Partners',
+        location: 'Washington, D.C.',
+        about: `Before she was an investor, Cass Morin was the person founders feared. She spent twelve years as an investigative technology journalist — first at ProPublica, then at The Atlantic and Wired — writing about the gap between what technology companies said they were doing and what they were actually doing. She won two National Magazine Awards. Three of her major investigative pieces preceded the collapse of the companies they covered. She does not consider this a coincidence.
+
+She pivoted to Watchdog Partners in 2018, a fund that specializes in companies operating in regulated, controversial, or ethically complex spaces — fintech, health, AI, data infrastructure. Her portfolio founders refer to her as "Cynical Cass," a nickname she finds slightly inaccurate. She would describe herself not as cynical but as prepared. Every company she backs goes through what she calls a red team session before the term sheet is signed: a conversation in which she brings the three strongest arguments against the company's existence and asks the founders to defeat them. Founders who have been through it describe the experience as either the most useful meeting they have ever had or the most uncomfortable one.
+
+She reads the trades in your industry every morning. She will know things about your space that you did not expect her to know.`,
+        education: [
+            {
+                school: 'Northwestern University',
+                degree: 'BA Journalism & Political Science',
+                years: '1999 – 2003',
+            },
+            {
+                school: 'Columbia University',
+                degree: 'MS Investigative Journalism',
+                years: '2003 – 2004',
+            },
+        ],
+        experience: [
+            {
+                company: 'Watchdog Partners',
+                role: 'General Partner',
+                years: '2018 – Present',
+                description:
+                    'Leads a $95M fund investing in companies operating in regulated and ethically complex spaces. Requires a red team session with every founder before issuing a term sheet. Nine of eighteen portfolio companies have navigated a major regulatory or public scrutiny event without material damage to the business.',
+            },
+            {
+                company: 'The Atlantic / Wired',
+                role: 'Senior Investigative Correspondent',
+                years: '2010 – 2018',
+                description:
+                    'Covered technology, surveillance, and corporate accountability. Wrote three major investigative pieces that preceded startup failures. Won two National Magazine Awards. Left journalism when she concluded she was more useful helping companies avoid the problems she had spent a decade reporting on.',
+            },
+            {
+                company: 'ProPublica',
+                role: 'Staff Reporter',
+                years: '2004 – 2010',
+                description:
+                    'Early career in data journalism and public records work. Developed a research methodology built around finding the document, person, or number that a subject hoped would not be found. Uses a version of this methodology in diligence to this day.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Meridian Health AI',
+                stage: 'Seed, 2019',
+                note: 'Clinical decision support for emergency departments. The founders arrived at the red team session with a 12-page document they had written themselves, anticipating every regulatory and ethical risk Cass raised before she raised it. She signed the term sheet the same day.',
+            },
+            {
+                company: 'Veritas ID',
+                stage: 'Series A, 2021',
+                note: 'Digital identity verification for financial services. Passed on two similar companies that year. Her notes on both: "founders had not considered the misuse case."',
+            },
+            {
+                company: 'Solace Data',
+                stage: 'Seed, 2022',
+                note: 'Patient data infrastructure for clinical trials. The founder opened the meeting by describing the three things that could go wrong with their product and what they had already built to prevent each one. Cass later said it was the best first five minutes she had experienced in a pitch meeting.',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$95M' },
+            { label: 'Portfolio Companies', value: '18' },
+            { label: 'Regulatory Events Navigated (Portfolio)', value: '9 of 18' },
+            { label: 'National Magazine Awards', value: '2' },
+            { label: 'Investigative Pieces Published', value: '200+' },
+            { label: 'Red Team Sessions Conducted', value: '18 (every investment)' },
+        ],
+    },
+};
+
+// ─── Week 8 ───────────────────────────────────────────────────────────────────
+
+const WEEK8: WeekConfig = {
+    number: 8,
+    title: 'Week 8',
+    persona: {
+        name: 'Chiron Blake',
+        title: 'Founding Partner',
+        company: 'Pedigree Capital',
+        location: 'Boston, MA',
+        about: `Chiron Blake has been investing for twenty-two years. He has backed forty-seven companies. He keeps a handwritten list of every founder he has passed on who went on to build something significant — there are currently eleven names on it — and he reviews the list every quarter. He does not do this as punishment. He does it because he believes his only job is to identify people, not ideas, and the list is evidence of how hard that job actually is.
+
+His fund, Pedigree Capital, operates on a thesis simple enough to fit on the back of a business card, which is where Chiron has been known to write it when meeting founders for the first time. His portfolio founders call him "Champion Chiron" — not because he is easy on them, but because the founders he backs tend to describe him as the person who believed in them before anyone else did, including sometimes themselves.
+
+He is the quietest person in most rooms he enters. He listens in a way that most people find either deeply comfortable or slightly unnerving, sometimes both. He does not interrupt. He does not fill silences. He asks questions that sound simple — the kind a curious stranger might ask — and the answers tend to reveal more than the person answering expected to give. Several of his portfolio founders have described leaving their first meeting with Chiron feeling like he understood them better than people who had known them for years. They are not sure whether to be grateful or unsettled by this, and Chiron does not help them decide.`,
+        education: [
+            {
+                school: 'Harvard University',
+                degree: 'BA Psychology & Economics',
+                years: '1993 – 1997',
+            },
+            {
+                school: 'MIT Sloan',
+                degree: 'MBA',
+                years: '2000 – 2002',
+            },
+        ],
+        experience: [
+            {
+                company: 'Pedigree Capital',
+                role: 'Founding Partner',
+                years: '2010 – Present',
+                description:
+                    'Runs a $220M fund with a single investment thesis he writes on the back of business cards and does not otherwise publish. Has backed 47 companies. Keeps the list of the ones he passed on who succeeded, reviews it quarterly, and has never removed a name from it.',
+            },
+            {
+                company: 'Sequoia Capital',
+                role: 'Partner',
+                years: '2004 – 2010',
+                description:
+                    'Led early-stage investments in enterprise and consumer. Known for the longest partner meeting prep notes and the most personal due diligence process in the firm. Once spent six hours with a founder in a single conversation that covered their childhood, their first failure, and their theory of how people make decisions under pressure. Made the investment the next morning.',
+            },
+            {
+                company: 'Matrix Partners',
+                role: 'Associate',
+                years: '2002 – 2004',
+                description:
+                    'First role after Sloan. Sourced deals, supported partners, and spent two years watching investment decisions get made. Concluded very quickly that the most interesting variable in any investment was never the idea.',
+            },
+        ],
+        portfolio: [
+            {
+                company: 'Ironframe',
+                stage: 'Pre-seed, 2011',
+                note: 'Construction technology. The founder had never pitched before. Chiron asked him one question at the end of the meeting: "What are you afraid of?" The founder answered honestly. Chiron called him that evening.',
+            },
+            {
+                company: 'Lantern',
+                stage: 'Seed, 2015',
+                note: 'Grief support platform. Passed on four companies with better metrics in the same category. His note on each: "right market, wrong person."',
+            },
+            {
+                company: 'Foundry',
+                stage: 'Seed, 2019',
+                note: 'Team operating system for early-stage startups. The co-founders came in having already worked through a serious disagreement about company direction — and could describe exactly how they resolved it, what each of them had been wrong about, and what they had learned. Chiron backed them the same week.',
+            },
+        ],
+        stats: [
+            { label: 'Fund Size', value: '$220M' },
+            { label: 'Total Investments', value: '47' },
+            { label: 'Years Investing', value: '22' },
+            { label: 'Passed-On Founders (Later Successful)', value: '11 (the list)' },
+            { label: 'Average First Check', value: '$1.8M' },
+            { label: 'Avg. Founder Relationship Length', value: '7.3 years' },
+        ],
+    },
+};
+
+// ─── Exports ──────────────────────────────────────────────────────────────────
+
+/** Active week — shown now. Swap every Thursday before coworking. */
+export const CURRENT: WeekConfig = WEEK1;
+
+/**
+ * Next week preview — shown in upper half of countdown before the swap.
+ * Set to null after Week 8 when the semester ends.
+ */
+export const QUEUED: WeekConfig | null = WEEK2;

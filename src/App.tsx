@@ -51,6 +51,7 @@ import Week7Activity from "./pages/classes/introduction-to-fundamentals/week-7/a
 import Week8Lecture1 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-1";
 import Week8Lecture2 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-2";
 import Week8Activity from "./pages/classes/introduction-to-fundamentals/week-8/activity";
+import TheFoundersTrack from "./pages/classes/the-founders-track";
 
 const queryClient = new QueryClient();
 
@@ -371,6 +372,16 @@ const App = () => (
                 element={
                   <ProtectedRoute isMember>
                     <GuideToLeetCode />
+                  </ProtectedRoute>
+                }
+              />
+
+              {/* The Founders Track class page */}
+              <Route
+                path="/classes/the-founders-track"
+                element={
+                  <ProtectedRoute isMember>
+                    <TheFoundersTrack />
                   </ProtectedRoute>
                 }
               />

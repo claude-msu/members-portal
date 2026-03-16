@@ -522,16 +522,6 @@ export default function GuideToLeetCode() {
                 </div>
             </div>
 
-            {/* ── Footer ── */}
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-xs text-muted-foreground text-center pb-4 pt-2 border-t border-border/60"
-            >
-                Questions sourced from LeetCode Premium · New batch every Sunday
-            </motion.p>
-
             {/* ── Modal ── */}
             <AnimatePresence>
                 {activeQuestion && (

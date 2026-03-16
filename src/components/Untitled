@@ -1,1 +1,0 @@
-[plugin:vite:css] [postcss] /Users/ankur/Coding-Projects/Claude Builder Club/members-portal/src/index.css:1:1: The `bg-page` class does not exist. If `bg-page` is a custom class, make sure it is defined within a `@layer` directive.
