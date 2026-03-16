@@ -333,7 +333,7 @@ export default function Week8Lecture2() {
             </div>
 
             <LectureCallout type="info">
-                This is the last lecture of the course. What comes next is building — real projects, real clients, real feedback loops. The CBC exists to close the gap between classroom CS and industry, and you've now seen the full picture of what industry looks like technically. The rest is reps.
+                This is the last lecture of the course. What comes next is building — real projects, real clients, real feedback loops.
             </LectureCallout>
 
             <LectureFooterNav
