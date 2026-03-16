@@ -415,7 +415,7 @@ export default function Week5Lecture2() {
 
             <LectureSubHeading title="Deploy your frontend" />
             <LectureP>
-                When you're ready to ship, run <code className={CODE_INLINE}>npm run build</code>. Vite compiles and bundles your app into a <code className={CODE_INLINE}>dist/</code> folder of static files. Use <code className={CODE_INLINE}>VITE_API_URL</code> (and other <code className={CODE_INLINE}>VITE_*</code> env vars) for the production API base URL; Vite inlines them at build time. Services like Vercel or Netlify can deploy from your repo and run the build step in CI — we cover pipelines in Week 8.
+                When you're ready to ship, run <code className={CODE_INLINE}>npm run build</code>. Vite compiles and bundles your app into a <code className={CODE_INLINE}>dist/</code> folder of static files. Use <code className={CODE_INLINE}>VITE_API_URL</code> (and other <code className={CODE_INLINE}>VITE_*</code> env vars) for the production API base URL; Vite inlines them at build time. Services like Vercel or Netlify can deploy from your repo and run the build step in CI — we cover pipelines in Week 6.
             </LectureP>
 
             <LectureFooterNav

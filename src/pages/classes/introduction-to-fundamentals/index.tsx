@@ -242,40 +242,40 @@ const WEEKS: Week[] = [
     },
     {
         number: 6,
-        theme: 'C++ & Object-Oriented Programming',
-        subtitle: 'Design software, not just functions',
-        icon: <Cpu className="h-5 w-5" />,
-        color: 'red',
+        theme: 'Sprint Review & Showcase',
+        subtitle: 'Ship it and reflect',
+        icon: <Workflow className="h-5 w-5" />,
+        color: 'indigo',
         sessions: [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'Classes, Encapsulation & Inheritance',
+                title: 'Scrum, Kanban & Sprint Cycles',
                 description:
-                    'C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible.',
+                    'The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives.',
                 duration: '90 min',
                 slug: 'week-6/lecture-1',
-                tags: ['classes', 'encapsulation', 'inheritance', 'virtual'],
+                tags: ['Scrum', 'Kanban', 'user stories', 'sprints', 'retro'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'Polymorphism, STL & System Design',
+                title: 'CI/CD, TDD & Engineering Culture',
                 description:
-                    'Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core.',
+                    'Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight.',
                 duration: '90 min',
                 slug: 'week-6/lecture-2',
-                tags: ['polymorphism', 'abstract classes', 'vector', 'unordered_map'],
+                tags: ['GitHub Actions', 'TDD', 'CI/CD', 'code review'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'CLI Phonebook — Part 1',
+                title: 'Sprint Simulation & Project Showcase',
                 description:
-                    'Build the OOP foundation of a CLI Phonebook in C++ — Contact class hierarchy, manager class, and a working add/list/delete interface.',
+                    'Close out your GitHub Project board, present your full-stack app as a sprint review demo, retrospective, and walk through what you would build next.',
                 duration: '90 min',
                 slug: 'week-6/activity',
-                tags: ['C++ classes', 'inheritance', 'STL', 'CLI'],
+                tags: ['sprint review', 'demo', 'retrospective', 'GitHub Projects'],
             },
         ],
     },
@@ -309,51 +309,51 @@ const WEEKS: Week[] = [
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'CLI Phonebook — Part 2',
+                title: 'Data Structures in Practice',
                 description:
-                    'Extend your Week 6 Phonebook with a BST for alphabetically sorted storage, a stack-based undo system, and O(1) search via an unordered_map index.',
+                    'Implement a BST, a MinStack, and hash-map patterns in Python — no new language, just the concepts from this week. Prep for applying the same ideas in C++ next week.',
                 duration: '90 min',
                 slug: 'week-7/activity',
-                tags: ['BST', 'in-order traversal', 'stack undo', 'unordered_map'],
+                tags: ['BST', 'in-order traversal', 'MinStack', 'two sum', 'hash map'],
             },
         ],
     },
     {
         number: 8,
-        theme: 'Sprint Review & Showcase',
-        subtitle: 'Ship it and reflect',
-        icon: <Workflow className="h-5 w-5" />,
-        color: 'indigo',
+        theme: 'C++ & Object-Oriented Programming',
+        subtitle: 'Design software, not just functions',
+        icon: <Cpu className="h-5 w-5" />,
+        color: 'red',
         sessions: [
             {
                 type: 'lecture',
                 label: 'Lecture 1',
-                title: 'Scrum, Kanban & Sprint Cycles',
+                title: 'Classes, Encapsulation & Inheritance',
                 description:
-                    'The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives.',
+                    'C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible.',
                 duration: '90 min',
                 slug: 'week-8/lecture-1',
-                tags: ['Scrum', 'Kanban', 'user stories', 'sprints', 'retro'],
+                tags: ['classes', 'encapsulation', 'inheritance', 'virtual'],
             },
             {
                 type: 'lecture',
                 label: 'Lecture 2',
-                title: 'CI/CD, TDD & Engineering Culture',
+                title: 'Polymorphism, STL & System Design',
                 description:
-                    'Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight.',
+                    'Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core.',
                 duration: '90 min',
                 slug: 'week-8/lecture-2',
-                tags: ['GitHub Actions', 'TDD', 'CI/CD', 'code review'],
+                tags: ['polymorphism', 'abstract classes', 'vector', 'unordered_map'],
             },
             {
                 type: 'activity',
                 label: 'Activity',
-                title: 'Sprint Simulation & Project Showcase',
+                title: 'CLI Phonebook',
                 description:
-                    'Close out your GitHub Project board, present your full-stack app as a sprint review demo, retrospective, and walk through what you would build next.',
+                    'Full C++ capstone: Part 1 — Contact and PhoneBook (add/delete/list). Part 2 — BST for sorted order, stack-based undo, and hash map for O(1) search by phone.',
                 duration: '90 min',
                 slug: 'week-8/activity',
-                tags: ['sprint review', 'demo', 'retrospective', 'GitHub Projects'],
+                tags: ['C++ classes', 'BST', 'stack', 'unordered_map', 'CLI'],
             },
         ],
     },
@@ -735,17 +735,6 @@ export default function IntroductionToFundamentals() {
                     />
                 ))}
             </div>
-
-            {/* ── Footer note ── */}
-            <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                className="text-xs text-muted-foreground text-center pb-4"
-            >
-                Sessions are added as the semester progresses. All content is reused each semester —
-                if a session isn't live yet, check back after the next class meeting.
-            </motion.p>
         </div>
     );
 }

@@ -11,6 +11,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
 // ── Three-areas diagram (unique to this lecture) ──────────────────────────────
@@ -180,7 +181,7 @@ export default function Week2Lecture1() {
                 Your <LectureTerm>working directory</LectureTerm> is just your file system — the actual files on your computer that you open and edit. When you change a file, Git notices, but it doesn't do anything yet. That change is <LectureTerm>untracked</LectureTerm>.
             </LectureP>
             <LectureP>
-                The <LectureTerm>staging area</LectureTerm> (also called the index) is where you deliberately place changes you want to include in your next commit. Think of it as composing a draft. You might have changed five files, but you only want to commit three of them because they're related. You add exactly those three and leave the others out. This gives you precise control over what goes into each commit.
+                The <LectureTermWithTip tip="Also called the index. A holding area for changes you've marked with git add — they become part of the next commit when you run git commit.">staging area</LectureTermWithTip> (also called the index) is where you deliberately place changes you want to include in your next commit. Think of it as composing a draft. You might have changed five files, but you only want to commit three of them because they're related. You add exactly those three and leave the others out. This gives you precise control over what goes into each commit.
             </LectureP>
             <LectureP>
                 The <LectureTerm>repository</LectureTerm> is the permanent record — the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code> folder inside your project. Every time you commit, a snapshot of everything in the staging area is saved permanently with a unique ID, timestamp, your name, and a message. That history never changes.
@@ -269,7 +270,7 @@ export default function Week2Lecture1() {
                 ]}
             />
             <LectureP>
-                Each entry shows a <LectureTerm>commit hash</LectureTerm> — a 40-character string like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">a3f92c1...</code>. This is a unique identifier for that exact snapshot. You'll use these hashes to reference specific commits when going back in time or comparing changes. The <LectureCmd tip="--oneline flag for git log: shows each commit as a single line with a shortened hash and message. Far more readable for most purposes.">--oneline</LectureCmd> flag shortens them to 7 characters, which is usually enough.
+                Each entry shows a <LectureTermWithTip tip="A unique SHA-1 checksum (40 hex characters) that identifies that exact commit. Git uses it to reference commits; --oneline shortens it to 7 characters.">commit hash</LectureTermWithTip> — a 40-character string like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">a3f92c1...</code>. This is a unique identifier for that exact snapshot. You'll use these hashes to reference specific commits when going back in time or comparing changes. The <LectureCmd tip="--oneline flag for git log: shows each commit as a single line with a shortened hash and message. Far more readable for most purposes.">--oneline</LectureCmd> flag shortens them to 7 characters, which is usually enough.
             </LectureP>
             <LectureCallout type="info">
                 <LectureCmd tip="git log --oneline --graph --all: shows all branches as an ASCII graph. --all includes branches you haven't checked out. Best command for understanding what's happening across multiple branches.">--graph --all</LectureCmd> is extremely useful once you start branching. It draws the commit history as a tree in your terminal so you can see exactly where branches diverged and merged.
@@ -279,7 +280,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="06" title="Branching" />
 
             <LectureP>
-                A <LectureTerm>branch</LectureTerm> is an independent line of development. Think of it as a parallel universe for your code. The default branch is called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. When you want to work on a new feature or fix a bug, you create a new branch. Your changes live there, completely isolated from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, until you decide to merge them in.
+                A <LectureTermWithTip tip="A movable pointer to a commit. Lets you work on a feature or fix in isolation; when ready, you merge the branch back into main.">branch</LectureTermWithTip> is an independent line of development. Think of it as a parallel universe for your code. The default branch is called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. When you want to work on a new feature or fix a bug, you create a new branch. Your changes live there, completely isolated from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, until you decide to merge them in.
             </LectureP>
             <LectureP>
                 This is how every professional team works. Nobody commits directly to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. You branch, work, and merge — so that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> always represents a working, stable version of the code.
@@ -320,7 +321,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="07" title="Merging" />
 
             <LectureP>
-                When your feature is ready, you <LectureTerm>merge</LectureTerm> it back into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. The rule is: <strong className="text-foreground">you merge into the branch you're currently on.</strong>
+                When your feature is ready, you <LectureTermWithTip tip="Integrate another branch's commits into the current branch. Often a fast-forward (just move the pointer) or a merge commit if histories diverged.">merge</LectureTermWithTip> it back into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. The rule is: <strong className="text-foreground">you merge into the branch you're currently on.</strong>
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -336,7 +337,7 @@ export default function Week2Lecture1() {
 
             <LectureSubHeading title="Merge conflicts" />
             <LectureP>
-                A <LectureTerm>merge conflict</LectureTerm> happens when two branches have changed the same part of the same file in different ways. Git doesn't know which version to keep, so it stops and asks you to decide. This sounds scary but it's completely normal — it happens on every active codebase.
+                A <LectureTermWithTip tip="Git stops and asks you to choose when the same lines were changed differently in two branches. You edit the file to remove conflict markers and keep the desired code.">merge conflict</LectureTermWithTip> happens when two branches have changed the same part of the same file in different ways. Git doesn't know which version to keep, so it stops and asks you to decide. This sounds scary but it's completely normal — it happens on every active codebase.
             </LectureP>
             <LectureP>
                 When a conflict occurs, Git marks the conflicting sections directly inside the file:
@@ -361,7 +362,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="08" title="Remote Repositories & GitHub" />
 
             <LectureP>
-                Everything so far has been local — on your machine only. A <LectureTerm>remote</LectureTerm> is a version of your repository stored somewhere else, typically GitHub. This is how you back up your work and collaborate with others.
+                Everything so far has been local — on your machine only. A <LectureTermWithTip tip="A named URL for another copy of the repo (e.g. on GitHub). 'origin' is the default name for the primary remote you push to and pull from.">remote</LectureTermWithTip> is a version of your repository stored somewhere else, typically GitHub. This is how you back up your work and collaborate with others.
             </LectureP>
             <LectureP>
                 Go to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">github.com</code>, create a new empty repository called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git-practice</code>, then come back to your terminal. GitHub will give you a URL like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">https://github.com/yourusername/git-practice.git</code>.
@@ -421,7 +422,7 @@ export default function Week2Lecture1() {
             <TerminalBlock
                 lines={[
                     { comment: 'see what changed in the last commit', cmd: 'git show HEAD' },
-                    { comment: 'create a new commit that undoes a previous commit (safe)', cmd: 'git revert a3f92c1' },
+                    { comment: 'create a new commit that undoes a previous commit — replace a3f92c1 with your actual commit hash from git log', cmd: 'git revert a3f92c1' },
                     { comment: 'view the reflog — a record of every action even after resets', cmd: 'git reflog' },
                 ]}
             />
@@ -450,7 +451,7 @@ export default function Week2Lecture1() {
                 Not everything in your project should be tracked by Git. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> can contain hundreds of thousands of files. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> files contain secret API keys that should never be committed. Build artifacts, log files, OS-specific files like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.DS_Store</code> — none of this belongs in your repository.
             </LectureP>
             <LectureP>
-                A <LectureTerm>.gitignore</LectureTerm> file tells Git which files and patterns to ignore entirely. Create it in the root of your project:
+                A <LectureTermWithTip tip="A file in the repo root listing glob patterns. Git ignores any file matching those patterns — e.g. node_modules/, .env, *.log. Never commit secrets.">.gitignore</LectureTermWithTip> file tells Git which files and patterns to ignore entirely. Create it in the root of your project:
             </LectureP>
             <TerminalBlock lines={[{ comment: 'create the gitignore file', cmd: 'touch .gitignore' }]} />
 

@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Workflow } from 'lucide-react';
+import { Cpu } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -10,151 +10,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-
-// ── Waterfall vs Agile ────────────────────────────────────────────────────────
-const WaterfallVsAgile = () => (
-    <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-2.5 bg-rose-50 dark:bg-rose-950/20 border-b border-border">
-                <p className="text-xs font-bold text-rose-600 dark:text-rose-400">Waterfall — plan everything upfront</p>
-            </div>
-            <div className="p-4">
-                <div className="space-y-1.5">
-                    {['Requirements', 'Design', 'Implementation', 'Testing', 'Deployment'].map((phase, i, arr) => (
-                        <div key={phase} className="space-y-1">
-                            <div className="rounded-md px-3 py-2 text-xs font-medium text-white text-center"
-                                style={{ backgroundColor: `hsl(${220 + i * 8}, 60%, ${40 + i * 4}%)` }}>
-                                {phase}
-                            </div>
-                            {i < arr.length - 1 && (
-                                <p className="text-center text-muted-foreground text-xs">↓</p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
-                    Each phase must complete before the next starts. Customer sees working software only at the very end — often a year later, often wrong.
-                </p>
-            </div>
-        </div>
-
-        <div className="rounded-xl border border-border overflow-hidden">
-            <div className="px-4 py-2.5 bg-emerald-50 dark:bg-emerald-950/20 border-b border-border">
-                <p className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Agile — ship small, learn fast</p>
-            </div>
-            <div className="p-4">
-                <div className="space-y-2">
-                    {[
-                        { label: 'Sprint 1', work: 'auth + dashboard', status: 'shipped ✓' },
-                        { label: 'Sprint 2', work: 'search + filters', status: 'shipped ✓' },
-                        { label: 'Sprint 3', work: 'notifications', status: 'in progress' },
-                        { label: 'Sprint 4', work: 'mobile polish', status: 'planned' },
-                    ].map((s) => (
-                        <div key={s.label}
-                            className="rounded-md border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/20 px-3 py-2 flex items-center justify-between">
-                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">{s.label}</span>
-                            <span className="text-xs text-muted-foreground">{s.work}</span>
-                            <span className={`text-xs font-medium ${s.status.includes('✓') ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground'}`}>{s.status}</span>
-                        </div>
-                    ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-4 leading-relaxed">
-                    Working software ships every 1–2 weeks. Customer gives feedback after each sprint — the plan adapts to what's actually needed.
-                </p>
-            </div>
-        </div>
-    </div>
-);
-
-// ── Sprint cycle diagram ──────────────────────────────────────────────────────
-const SprintCycle = () => {
-    const phases = [
-        {
-            title: 'Sprint Planning',
-            color: 'text-blue-600 dark:text-blue-400',
-            bg: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800',
-            desc: 'Team pulls stories from the backlog, estimates effort, and commits to a sprint goal. Output: a sprint backlog the team believes they can ship.',
-        },
-        {
-            title: 'Daily Standup',
-            color: 'text-orange-600 dark:text-orange-400',
-            bg: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800',
-            desc: 'Three questions, 15 minutes max, every day: What did I do yesterday? What will I do today? Any blockers? Blockers get resolved offline — standup is synchronization, not problem solving.',
-        },
-        {
-            title: 'Development',
-            color: 'text-emerald-600 dark:text-emerald-400',
-            bg: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
-            desc: 'Build, test, and review code. Stories move through the board: To Do → In Progress → In Review → Done. "Done" means tested, reviewed, and deployable — not just coded.',
-        },
-        {
-            title: 'Sprint Review',
-            color: 'text-purple-600 dark:text-purple-400',
-            bg: 'bg-purple-50 dark:bg-purple-950/20 border-purple-200 dark:border-purple-800',
-            desc: 'Demo working software to stakeholders. Gather real feedback. Update the backlog based on what you learned. This is the feedback loop that makes agile work.',
-        },
-        {
-            title: 'Retrospective',
-            color: 'text-rose-600 dark:text-rose-400',
-            bg: 'bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-800',
-            desc: 'Internal team meeting: What went well? What didn\'t? What do we commit to changing next sprint? The retrospective is where teams improve — skip it and you stagnate.',
-        },
-    ];
-    return (
-        <div className="my-8 space-y-2">
-            {phases.map((phase, i) => (
-                <div key={phase.title} className="flex items-stretch gap-3">
-                    <div className={`rounded-xl border flex-1 px-4 py-3 ${phase.bg}`}>
-                        <p className={`text-xs font-bold ${phase.color}`}>{phase.title}</p>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{phase.desc}</p>
-                    </div>
-                    {i < phases.length - 1 && (
-                        <div className="flex items-end pb-3 text-muted-foreground text-sm select-none">↓</div>
-                    )}
-                </div>
-            ))}
-            <p className="text-center text-xs text-muted-foreground pt-1 select-none">↺ &nbsp; repeat every 1–2 weeks</p>
-        </div>
-    );
-};
-
-// ── Kanban board ──────────────────────────────────────────────────────────────
-const KanbanBoard = () => {
-    const columns = [
-        {
-            title: 'Backlog', color: 'text-muted-foreground', bg: 'bg-muted/30',
-            cards: ['Add dark mode toggle', 'Improve search performance', 'Export to CSV'],
-        },
-        {
-            title: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20',
-            cards: ['User authentication', 'Dashboard layout'],
-        },
-        {
-            title: 'In Review', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20',
-            cards: ['Fix login redirect bug'],
-        },
-        {
-            title: 'Done', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-            cards: ['Project scaffolding', 'CI pipeline setup', 'Database schema'],
-        },
-    ];
-    return (
-        <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {columns.map((col) => (
-                <div key={col.title} className={`rounded-xl border border-border ${col.bg} p-3`}>
-                    <p className={`text-xs font-bold mb-2 ${col.color}`}>{col.title} <span className="text-muted-foreground font-normal">({col.cards.length})</span></p>
-                    <div className="space-y-2">
-                        {col.cards.map((card) => (
-                            <div key={card} className="rounded-lg border border-border bg-card px-2.5 py-2">
-                                <p className="text-xs text-foreground leading-relaxed">{card}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
+import { CppBlock } from '@/components/ui/cpp-block';
 
 export default function Week8Lecture1() {
     const navigate = useNavigate();
@@ -164,249 +20,242 @@ export default function Week8Lecture1() {
             <LectureHeader
                 week={8}
                 session="Lecture 1"
-                title="Scrum, Kanban & Sprint Cycles"
-                description="The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives."
-                icon={<Workflow className="h-4 w-4" />}
+                title="Classes, Encapsulation & Inheritance"
+                description="C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible."
+                icon={<Cpu className="h-4 w-4" />}
             />
 
-            {/* ── 01 WHY AGILE ────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Why Agile Exists" />
+            {/* ── 01 WHY C++ FOR OOP ──────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="Why C++ for OOP?" />
 
             <LectureP>
-                Software is uniquely hard to plan. Unlike building a bridge, you can't fully specify what you're building before you start — requirements change, users discover what they actually want only after using a prototype, and technology shifts under you mid-project. <LectureTerm>Waterfall</LectureTerm>, the dominant methodology before the 2000s, treated software like construction: plan everything, then execute. It failed constantly.
+                You've been writing Python and TypeScript. C++ gives you direct control over memory and a type system that makes object boundaries explicit. For systems code and technical interviews, C++ OOP — classes, access modifiers, constructors, inheritance — is the reference model. What you learn here maps to every language: Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">super()</code>, TypeScript's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">extends</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">implements</code>, and Java/C# classes all follow the same ideas. C++ makes the machinery visible so you see exactly when constructors run, when virtual dispatch happens, and what &quot;pass by reference&quot; means.
             </LectureP>
             <LectureP>
-                In 2001, seventeen software practitioners wrote the <LectureTerm>Agile Manifesto</LectureTerm> — four values that reoriented the entire industry. The core insight: working software beats comprehensive documentation, customer collaboration beats contract negotiation, and responding to change beats following a plan.
+                This lecture focuses on <strong className="text-foreground">classes, encapsulation, and inheritance</strong>. Next lecture we'll cover polymorphism, abstract base classes, and the STL. Compile with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall file.cpp -o file</code>; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-Wall</code> turns on warnings — treat them as bugs.
             </LectureP>
-
-            <WaterfallVsAgile />
 
             <LectureCallout type="info">
-                Agile isn't a specific process — it's a set of values. <LectureTerm>Scrum</LectureTerm> and <LectureTerm>Kanban</LectureTerm> are concrete frameworks that implement those values. Most real teams blend both, picking the ceremonies and artifacts that actually help them ship.
+                <strong className="text-foreground">Encapsulation</strong> means hiding internal state and exposing only a clear interface. It prevents callers from putting your object into an invalid state and lets you change implementation details without breaking the rest of the codebase.
             </LectureCallout>
 
-            {/* ── 02 SCRUM ────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Scrum" />
+            {/* ── 02 THE FOUR OOP PRINCIPLES ──────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="The Four OOP Principles" />
 
             <LectureP>
-                <LectureTerm>Scrum</LectureTerm> organizes work into fixed-length iterations called <LectureTerm>sprints</LectureTerm> — typically 1–2 weeks. Each sprint is a complete loop: plan, build, ship, learn, repeat. The three roles in Scrum are the <LectureTerm>Product Owner</LectureTerm> (decides what to build and in what order), the <LectureTerm>Scrum Master</LectureTerm> (removes blockers, protects the team), and the <LectureTerm>Development Team</LectureTerm> (builds the thing).
+                Object-Oriented Programming organizes software around objects — data bundled with the functions that operate on it. Four principles underpin OOP: <strong className="text-foreground">encapsulation</strong> (hide internal state), <strong className="text-foreground">inheritance</strong> (reuse and extend), <strong className="text-foreground">polymorphism</strong> (same interface, different behavior), and <strong className="text-foreground">abstraction</strong> (expose what, hide how). We focus on encapsulation and inheritance in this lecture.
             </LectureP>
 
-            <SprintCycle />
-
-            <LectureSubHeading title="User Stories" />
-            <LectureP>
-                Work in Scrum is expressed as <LectureTerm>user stories</LectureTerm> — short, plain-language descriptions of a feature from the perspective of the person who needs it. The canonical format: <em className="text-foreground">As a [type of user], I want [some goal] so that [some reason].</em> This keeps the team focused on value delivered to real people, not technical tasks divorced from purpose.
-            </LectureP>
-
-            <div className="my-6 space-y-2">
+            <div className="my-6 space-y-4">
                 {[
-                    {
-                        story: 'As a member, I want to search for books by title so that I can find what I\'m looking for without browsing the whole catalog.',
-                        points: 3,
-                        acceptance: ['Search returns results within 200ms', 'Partial matches are included', 'Results show availability status'],
-                    },
-                    {
-                        story: 'As a librarian, I want to see all overdue loans in one view so that I can follow up with members who haven\'t returned items.',
-                        points: 2,
-                        acceptance: ['List shows patron name, item title, and days overdue', 'Sortable by days overdue descending', 'Exportable to CSV'],
-                    },
-                ].map((s, i) => (
-                    <div key={i} className="rounded-xl border border-border bg-card overflow-hidden">
-                        <div className="px-4 py-3 border-b border-border flex items-start justify-between gap-3">
-                            <p className="text-xs text-foreground leading-relaxed italic">"{s.story}"</p>
-                            <div className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary shrink-0">{s.points} pts</div>
+                    { principle: 'Encapsulation', color: 'text-blue-600 dark:text-blue-400', border: 'border-blue-200 dark:border-blue-800', bg: 'bg-blue-50 dark:bg-blue-950/20', def: 'Bundle data and methods together. Hide internal state — expose only what users of the class need.', why: 'Prevents external code from putting an object into an invalid state.' },
+                    { principle: 'Inheritance', color: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', bg: 'bg-emerald-50 dark:bg-emerald-950/20', def: 'A derived class gets the data and methods of its base class and can extend or override them.', why: 'Eliminates duplication for related types (e.g. Dog and Cat extending Animal).' },
+                    { principle: 'Polymorphism', color: 'text-orange-600 dark:text-orange-400', border: 'border-orange-200 dark:border-orange-800', bg: 'bg-orange-100 dark:bg-orange-950/20', def: 'The same interface works for different types. Call speak() on any Animal — each responds differently.', why: 'Next lecture: virtual methods and abstract base classes.' },
+                    { principle: 'Abstraction', color: 'text-purple-600 dark:text-purple-400', border: 'border-purple-200 dark:border-purple-800', bg: 'bg-purple-50 dark:bg-purple-950/20', def: 'Expose what a class does, hide how. Users of std::vector don\'t need to know about resizing.', why: 'Reduces cognitive load; good APIs are abstract.' },
+                ].map((item) => (
+                    <div key={item.principle} className={`rounded-xl border ${item.border} overflow-hidden`}>
+                        <div className={`px-4 py-2.5 ${item.bg}`}>
+                            <p className={`text-xs font-black uppercase tracking-widest ${item.color}`}>{item.principle}</p>
+                            <p className="text-xs text-foreground mt-1">{item.def}</p>
                         </div>
                         <div className="px-4 py-2.5">
-                            <p className="text-xs font-semibold text-muted-foreground mb-1.5">Acceptance criteria</p>
-                            <div className="space-y-1">
-                                {s.acceptance.map((a) => (
-                                    <div key={a} className="flex items-start gap-2">
-                                        <span className="text-emerald-500 text-xs mt-0.5 shrink-0">✓</span>
-                                        <p className="text-xs text-muted-foreground">{a}</p>
-                                    </div>
-                                ))}
-                            </div>
+                            <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Why:</span> {item.why}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <LectureCallout type="tip">
-                <LectureTerm>Story points</LectureTerm> measure relative effort, not hours. A 2-point story is roughly twice as complex as a 1-point story — the team calibrates their own scale. Common sequences: 1, 2, 3, 5, 8 (Fibonacci). The key insight: estimate in points, not time. Teams are bad at estimating hours; they're better at estimating relative complexity.
-            </LectureCallout>
-
-            {/* ── 03 AGILE ARTIFACTS ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Agile Artifacts" />
+            {/* ── 03 ACCESS MODIFIERS — PUBLIC, PRIVATE, PROTECTED ────────────── */}
+            <LectureSectionHeading number="03" title="Access Modifiers — Public, Private, Protected" />
 
             <LectureP>
-                Three artifacts keep everyone aligned on what's being built and how much is left.
+                C++ gives you explicit control over who can see what. By default, a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> has private members until you say otherwise; a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> has public members by default. The only difference is that default — use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> for plain data (POD, no invariants) and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> when you're building an abstraction with an interface.
             </LectureP>
-
-            <div className="my-6 space-y-3">
-                {[
-                    {
-                        name: 'Product Backlog',
-                        color: 'text-blue-600 dark:text-blue-400',
-                        bg: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800',
-                        desc: 'The master ordered list of everything that might go into the product. Owned by the Product Owner. Constantly refined — stories at the top are detailed and ready; stories at the bottom are rough ideas. The backlog is never "done."',
-                        example: 'Everything from "add dark mode" to "rebuild the search engine" — all in one prioritized list.',
-                    },
-                    {
-                        name: 'Sprint Backlog',
-                        color: 'text-orange-600 dark:text-orange-400',
-                        bg: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800',
-                        desc: 'The subset of the product backlog the team commits to completing in the current sprint. Owned by the team. Once the sprint starts, scope is locked — new requests go to the product backlog for the next sprint.',
-                        example: 'The 5–8 stories the team pulled into Sprint 3, with tasks broken out under each.',
-                    },
-                    {
-                        name: 'Burndown Chart',
-                        color: 'text-emerald-600 dark:text-emerald-400',
-                        bg: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
-                        desc: 'A graph showing remaining story points vs. days remaining in the sprint. The ideal line slopes from total points to zero. If the actual line is above the ideal, the team is behind. If below, they\'re ahead.',
-                        example: 'Sprint starts with 24 points. By day 5, ideal = 12 remaining; actual = 15 remaining. Slightly behind — worth discussing in standup.',
-                    },
-                ].map((a) => (
-                    <div key={a.name} className={`rounded-xl border ${a.bg} overflow-hidden`}>
-                        <div className="px-4 py-2.5 border-b border-inherit">
-                            <p className={`text-xs font-bold ${a.color}`}>{a.name}</p>
-                        </div>
-                        <div className="px-4 py-3 space-y-1.5">
-                            <p className="text-xs text-muted-foreground leading-relaxed">{a.desc}</p>
-                            <p className="text-xs text-foreground"><span className="font-semibold text-muted-foreground">Example: </span>{a.example}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── 04 KANBAN ───────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Kanban" />
-
-            <LectureP>
-                <LectureTerm>Kanban</LectureTerm> is a flow-based alternative to Scrum's sprints. Instead of time-boxed iterations, work flows continuously through a board of columns. The core principle is <LectureTerm>WIP limits</LectureTerm> (Work In Progress limits) — you cap how many items can be in each column at once. If "In Progress" is full, you can't start something new until you finish something in progress. This forces the team to finish work rather than start more.
-            </LectureP>
-
-            <KanbanBoard />
 
             <div className="my-6 rounded-xl border border-border overflow-hidden">
-                <div className="grid grid-cols-2 divide-x divide-border text-xs">
-                    <div className="p-4">
-                        <p className="font-semibold text-foreground mb-2">Choose Scrum when</p>
-                        <div className="space-y-1.5">
-                            {[
-                                'Building a product with evolving requirements',
-                                'Team is new and needs structure',
-                                'Stakeholders want regular demos and feedback loops',
-                                'Work can be broken into sprint-sized chunks',
-                            ].map((point) => (
-                                <div key={point} className="flex gap-2">
-                                    <span className="text-blue-500 shrink-0">→</span>
-                                    <p className="text-muted-foreground">{point}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="p-4">
-                        <p className="font-semibold text-foreground mb-2">Choose Kanban when</p>
-                        <div className="space-y-1.5">
-                            {[
-                                'Work arrives unpredictably (bug fixes, support tickets)',
-                                'Team is experienced and self-organizing',
-                                'Continuous delivery matters more than sprint goals',
-                                'Items vary wildly in size and can\'t be sprint-scoped',
-                            ].map((point) => (
-                                <div key={point} className="flex gap-2">
-                                    <span className="text-emerald-500 shrink-0">→</span>
-                                    <p className="text-muted-foreground">{point}</p>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
+                <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                    <p className="text-xs font-semibold text-foreground">Who can access what</p>
                 </div>
-            </div>
-
-            {/* ── 05 GITHUB PROJECTS ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="GitHub Projects — Agile in Practice" />
-
-            <LectureP>
-                GitHub Projects is where most engineering teams actually live — it combines issues, pull requests, and project boards in the same tool as your code. No context switching between Jira and GitHub. For the club's projects and for your own work, GitHub Projects is the right default.
-            </LectureP>
-
-            <div className="my-6 space-y-3">
-                {[
-                    {
-                        step: '01',
-                        title: 'Create a Project',
-                        desc: 'Go to your GitHub repo → Projects tab → New Project. Choose "Board" view for Kanban or "Roadmap" for timeline planning. Add columns: Backlog, Sprint, In Progress, In Review, Done.',
-                    },
-                    {
-                        step: '02',
-                        title: 'Write Issues as User Stories',
-                        desc: 'Every feature is a GitHub Issue. Title: the story in one line. Body: full user story format + acceptance criteria. Add labels (feature, bug, chore) and estimates via custom fields.',
-                    },
-                    {
-                        step: '03',
-                        title: 'Link PRs to Issues',
-                        desc: 'In your PR description, write "Closes #42" — GitHub auto-closes the issue and moves the card to Done when the PR merges. The board stays current with zero manual updates.',
-                    },
-                    {
-                        step: '04',
-                        title: 'Use Milestones for Sprints',
-                        desc: 'Create a Milestone called "Sprint 1" with a due date. Assign issues to it. The milestone progress bar becomes your burndown chart — issues closed vs. total assigned.',
-                    },
-                ].map((item) => (
-                    <div key={item.step} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
-                        <span className="text-2xl font-black text-primary/70 shrink-0 select-none">{item.step}</span>
-                        <div>
-                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
-                        </div>
+                <div className="divide-y divide-border">
+                    <div className="px-4 py-3">
+                        <p className="text-xs font-medium text-foreground">public:</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Anyone can call or read. Your API — constructors, getters, methods that change state in valid ways.</p>
                     </div>
-                ))}
-            </div>
-
-            {/* ── 06 THE RETROSPECTIVE ────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="The Retrospective — How Teams Actually Improve" />
-
-            <LectureP>
-                The retrospective is the most skipped and most valuable ceremony in agile. Teams skip it when they feel busy — which is exactly when they need it most. Without retrospectives, teams repeat the same mistakes sprint after sprint.
-            </LectureP>
-            <LectureP>
-                The classic format is <LectureTerm>Start / Stop / Continue</LectureTerm>: what should we start doing that we aren't? What should we stop doing that isn't working? What's working well that we should keep? Each item leads to a concrete action with an owner — not just a vague intention to "communicate better."
-            </LectureP>
-
-            <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden">
-                <div className="grid grid-cols-3 divide-x divide-border text-xs">
-                    {[
-                        { label: 'Start', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20', items: ['Writing tests before code', 'PR descriptions with context', 'Dedicated code review time Fridays'] },
-                        { label: 'Stop', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/20', items: ['Merging without review', 'Scope creep mid-sprint', 'Standup going 30+ minutes'] },
-                        { label: 'Continue', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20', items: ['Monday planning sessions', 'Pair programming on blockers', 'Friday demos to stakeholders'] },
-                    ].map((col) => (
-                        <div key={col.label} className={`p-4 ${col.bg}`}>
-                            <p className={`font-bold mb-3 ${col.color}`}>{col.label}</p>
-                            <div className="space-y-2">
-                                {col.items.map((item) => (
-                                    <div key={item} className="rounded-lg border border-border bg-card px-2.5 py-2">
-                                        <p className="text-xs text-muted-foreground leading-relaxed">{item}</p>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    ))}
+                    <div className="px-4 py-3">
+                        <p className="text-xs font-medium text-foreground">private:</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Only this class. Derived classes cannot see private members. Use for implementation details and invariants.</p>
+                    </div>
+                    <div className="px-4 py-3">
+                        <p className="text-xs font-medium text-foreground">protected:</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">This class and derived classes. Lets subclasses access or extend internal state without exposing it to the world. Use sparingly — it tightens coupling between base and derived.</p>
+                    </div>
                 </div>
             </div>
 
             <LectureCallout type="tip">
-                The best retrospectives are psychologically safe — team members can say what's actually wrong without fear of blame. If your retrospective only produces "good job everyone," something's wrong. The facilitator's job is to make it safe to say hard things.
+                Prefer <strong className="text-foreground">private</strong> unless you have a clear reason for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">protected</code>. Protected members become part of your inheritance contract; changing them can break every derived class.
             </LectureCallout>
+
+            {/* ── 04 OOP IN C++ — CLASSES, CONSTRUCTORS, INHERITANCE ───────────── */}
+            <LectureSectionHeading number="04" title="OOP in C++ — Classes, Constructors & Inheritance" />
+
+            <LectureP>
+                A <LectureTerm>class</LectureTerm> bundles data (member variables) and behavior (member functions). Constructors initialize the object; use the <strong className="text-foreground">initializer list</strong> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to set members before the body runs — it's required for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> members and references, and often more efficient.
+            </LectureP>
+
+            <CppBlock
+                title="encapsulation — Book class with private state"
+                lines={[
+                    'class Book {',
+                    'private:',
+                    '    string title;',
+                    '    string author;',
+                    '    bool checkedOut = false;',
+                    '',
+                    'public:',
+                    '    // Constructor — initializer list : title(t), author(a)',
+                    '    Book(string t, string a) : title(t), author(a) {}',
+                    '',
+                    '    string getTitle()  const { return title; }',
+                    '    string getAuthor() const { return author; }',
+                    '    bool isAvailable() const { return !checkedOut; }',
+                    '',
+                    '    bool checkout() {',
+                    '        if (checkedOut) return false;',
+                    '        checkedOut = true;',
+                    '        return true;',
+                    '    }',
+                    '    void returnBook() { checkedOut = false; }',
+                    '};',
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                Use the <strong className="text-foreground">constructor initializer list</strong> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to initialize members. It runs before the constructor body and is required for const members and references.
+            </LectureCallout>
+
+            <LectureSubHeading title="Initializer list order" />
+            <LectureP>
+                Members are always initialized in the <strong className="text-foreground">order they are declared in the class</strong>, not the order you list them in the initializer list. If your list order doesn't match declaration order, you can get subtle bugs (e.g. member A is initialized using member B, but B isn't initialized yet). Keep declaration order and list order the same, and put base class and members in a logical order (base first, then members top to bottom).
+            </LectureP>
+
+            <LectureSubHeading title="Const correctness" />
+            <LectureP>
+                Mark member functions that don't modify the object with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> at the end: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string getTitle() const;</code>. That's a promise: "this function won't change any member." Getters and inspectors should be const. Const objects can only call const member functions. When you take a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const LibraryItem&amp;</code>, you're promising not to modify it — so only const methods are callable. Getting const right from the start makes APIs easier to use and prevents accidental mutations.
+            </LectureP>
+
+            <LectureP>
+                <LectureTerm>Inheritance</LectureTerm> lets a derived class reuse and extend a base class. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> so that calls through a base pointer invoke the derived class's override. A <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> destructor in the base is required when you delete through a base pointer — otherwise the derived destructor won't run.
+            </LectureP>
+
+            <CppBlock
+                title="inheritance + virtual methods"
+                lines={[
+                    'class LibraryItem {',
+                    'public:',
+                    '    string id, title;',
+                    '    LibraryItem(string i, string t) : id(i), title(t) {}',
+                    '    virtual string getType() const { return "Item"; }',
+                    '    virtual int getLoanDays() const = 0;  // pure virtual — must override',
+                    '    virtual ~LibraryItem() {}  // required for correct cleanup',
+                    '};',
+                    '',
+                    'class Book : public LibraryItem {',
+                    'public:',
+                    '    Book(string i, string t) : LibraryItem(i, t) {}',
+                    '    string getType() const override { return "Book"; }',
+                    '    int getLoanDays() const override { return 21; }',
+                    '};',
+                    '',
+                    '// Polymorphism: same code works for any LibraryItem',
+                    'void printInfo(const LibraryItem& item) {',
+                    '    cout << item.getType() << " — " << item.getLoanDays() << " days" << endl;',
+                    '}',
+                ]}
+            />
+
+            <LectureCallout type="warning">
+                <strong className="text-foreground">Slicing:</strong> assigning a derived object to a base by value copies only the base part; the derived data is "sliced off." Always pass base classes by reference or pointer (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const LibraryItem&</code>) to preserve polymorphic behavior.
+            </LectureCallout>
+
+            <LectureSubHeading title="Constructor and destructor order" />
+            <LectureP>
+                When you create a derived object, the base constructor runs first, then the derived constructor. When it's destroyed (e.g. goes out of scope or you <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code> a base pointer), the derived destructor runs first, then the base. So: base builds the foundation, derived builds on top; on teardown, derived cleans up first, then base. That's why a non-virtual destructor in the base is dangerous — only the base destructor runs when you delete through a base pointer, and the derived part is never cleaned up.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                Always declare destructors <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> in base classes that have virtual methods. Without it, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> only runs the base destructor — the derived destructor won't run, leaking resources.
+            </LectureCallout>
+
+            {/* ── 05 COMPOSITION VS INHERITANCE ─────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Composition vs Inheritance" />
+
+            <LectureP>
+                Inheritance models an <strong className="text-foreground">is-a</strong> relationship: a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Book</code> is a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem</code>. Composition models <strong className="text-foreground">has-a</strong>: a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Library</code> has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector&lt;LibraryItem*&gt;</code> and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code> for loans. Prefer composition when you're reusing behavior or data without needing to substitute one type for another through a common interface. Prefer inheritance when you have a true subtype: multiple classes that share an interface and can be used interchangeably (e.g. passed to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">printInfo(const LibraryItem&)</code>).
+            </LectureP>
+
+            <LectureP>
+                Deep inheritance hierarchies (A → B → C → D) are hard to maintain and test. If you find yourself going beyond one level of derivation, ask whether composition or a flatter design would work. "Favor composition over inheritance" is a design guideline, not a law — use inheritance where polymorphism is the goal, composition everywhere else.
+            </LectureP>
+
+            {/* ── 06 RULE OF THREE & RESOURCE MANAGEMENT ───────────────────────── */}
+            <LectureSectionHeading number="06" title="Rule of Three & Resource Management" />
+
+            <LectureP>
+                If your class manages a resource (raw pointer, file handle, etc.), the compiler-generated copy constructor and copy-assignment operator do a <strong className="text-foreground">shallow copy</strong> — they copy the pointer, not what it points to. Then two objects think they own the same resource; when one is destroyed, it frees the memory and the other is left with a dangling pointer. The <strong className="text-foreground">rule of three</strong>: if you define one of destructor, copy constructor, or copy-assignment operator, you usually need to define all three (or explicitly delete the copies and use move semantics). For now, prefer STL containers and smart pointers so the compiler-generated behavior is correct; when you write a class that holds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector</code> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string</code>, the default copy is deep and correct.
+            </LectureP>
+
+            <LectureCallout type="info">
+                In C++11 and later, the &quot;rule of five&quot; adds move constructor and move assignment. For interview-level code and most application logic, stick to values and STL types and you rarely need to implement these yourself.
+            </LectureCallout>
+
+            {/* ── 07 ANOTHER EXAMPLE — INVARIANTS IN PRACTICE ─────────────────── */}
+            <LectureSectionHeading number="07" title="Another Example — Invariants in Practice" />
+
+            <LectureP>
+                Encapsulation is about enforcing <strong className="text-foreground">invariants</strong> — conditions that are always true for your object. A bank account balance should never be negative; a connection handle should never be used after close. Expose only operations that preserve the invariant.
+            </LectureP>
+
+            <CppBlock
+                title="BankAccount — balance never goes negative"
+                lines={[
+                    'class BankAccount {',
+                    'private:',
+                    '    double balance = 0.0;   // invariant: balance >= 0',
+                    '',
+                    'public:',
+                    '    bool deposit(double amount) {',
+                    '        if (amount <= 0) return false;',
+                    '        balance += amount;',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    bool withdraw(double amount) {',
+                    '        if (amount <= 0 || amount > balance) return false;',
+                    '        balance -= amount;',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    double getBalance() const { return balance; }  // const: does not modify',
+                    '};',
+                    '',
+                    '// Callers cannot set balance directly — only deposit/withdraw.',
+                    '// So the invariant "balance >= 0" is always maintained.',
+                ]}
+            />
+
+            <LectureSubHeading title="Common pitfalls to avoid" />
+            <LectureP>
+                <strong className="text-foreground">Virtual destructor:</strong> Base class with virtual methods must have a virtual destructor; otherwise <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> leaks the derived part. <strong className="text-foreground">Slicing:</strong> Passing or assigning by value copies only the base; use reference or pointer. <strong className="text-foreground">Const:</strong> Mark getters and read-only methods <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> so they work on const objects. <strong className="text-foreground">Initializer list:</strong> Use it for all members when possible; required for const and reference members. <strong className="text-foreground">Protected vs private:</strong> Prefer private; use protected only when derived classes genuinely need access.
+            </LectureP>
 
             <LectureFooterNav
                 prev={{
-                    label: 'CLI Phonebook — Part 2',
+                    label: 'Data Structures in Practice',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/activity'),
                 }}
                 next={{
-                    label: 'CI/CD, TDD & Engineering Culture',
+                    label: 'Polymorphism, STL & System Design',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-2'),
                 }}
             />

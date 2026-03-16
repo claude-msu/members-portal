@@ -11,6 +11,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
 // ── Props flow diagram ────────────────────────────────────────────────────────
@@ -84,14 +85,14 @@ export default function Week5Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                React doesn't update the real DOM directly — it maintains a <LectureTerm>Virtual DOM</LectureTerm>, a lightweight in-memory representation of the UI. When state changes, React builds a new virtual DOM tree, compares it to the previous one (called <LectureTerm>diffing</LectureTerm>), and applies only the minimal set of real DOM changes needed. This is why React is fast even for complex UIs.
+                React doesn't update the real DOM directly — it maintains a <LectureTermWithTip tip="A lightweight copy of the DOM in memory. React compares the new virtual DOM to the previous one and updates only what changed in the real DOM.">Virtual DOM</LectureTermWithTip>, a lightweight in-memory representation of the UI. When state changes, React builds a new virtual DOM tree, compares it to the previous one (called <LectureTermWithTip tip="The algorithm that compares two virtual DOM trees and computes the minimal set of real DOM updates. Makes React efficient.">diffing</LectureTermWithTip>), and applies only the minimal set of real DOM changes needed. This is why React is fast even for complex UIs.
             </LectureCallout>
 
             {/* ── 02 COMPONENTS ───────────────────────────────────────────────── */}
             <LectureSectionHeading number="02" title="Components" />
 
             <LectureP>
-                A <LectureTerm>component</LectureTerm> is a JavaScript function that returns JSX — a syntax that looks like HTML but is actually JavaScript. Components are the building blocks of every React application. You compose them together like Lego pieces to build complex UIs.
+                A <LectureTermWithTip tip="A reusable piece of UI: a function that returns JSX. Components can receive props and hold state. You compose them to build the full interface.">component</LectureTermWithTip> is a JavaScript function that returns JSX — a syntax that looks like HTML but is actually JavaScript. Components are the building blocks of every React application. You compose them together like Lego pieces to build complex UIs.
             </LectureP>
             <LectureP>
                 Every React component follows two rules: the function name must start with a capital letter, and it must return something React can render (JSX, a string, a number, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">null</code>).
@@ -119,7 +120,7 @@ export default function Week5Lecture1() {
 
             <LectureSubHeading title="JSX rules" />
             <LectureP>
-                JSX looks like HTML but has a few important differences. Every element must be closed. Multiple elements must be wrapped in a single parent (or a <LectureTerm>Fragment</LectureTerm>: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'<> </>'}</code>). JavaScript expressions go inside curly braces. And <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> becomes <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">className</code> because <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> is a reserved word in JavaScript.
+                JSX looks like HTML but has a few important differences. Every element must be closed. Multiple elements must be wrapped in a single parent (or a <LectureTermWithTip tip="A React built-in that groups children without adding an extra DOM node. Syntax: <>...</> or <React.Fragment>.">Fragment</LectureTermWithTip>: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'<> </>'}</code>). JavaScript expressions go inside curly braces. And <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> becomes <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">className</code> because <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> is a reserved word in JavaScript.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
@@ -155,7 +156,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="03" title="Props" />
 
             <LectureP>
-                <LectureTerm>Props</LectureTerm> (short for properties) are how you pass data into a component. They're the arguments to your component function. A component with no props is a static piece of UI — the same every time. A component that accepts props is configurable and reusable.
+                <LectureTermWithTip tip="Inputs to a component, passed as attributes. Read-only; the parent owns the data. Props flow down the component tree.">Props</LectureTermWithTip> (short for properties) are how you pass data into a component. They're the arguments to your component function. A component with no props is a static piece of UI — the same every time. A component that accepts props is configurable and reusable.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
@@ -200,7 +201,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="04" title="State with useState" />
 
             <LectureP>
-                <LectureTerm>State</LectureTerm> is data that can change over time and, when it changes, causes the component to re-render. The <LectureCmd tip="useState — the most fundamental React hook. Takes an initial value and returns a pair: the current state value and a setter function. When you call the setter, React re-renders the component with the new value.">useState</LectureCmd> hook is how you add state to a functional component.
+                <LectureTermWithTip tip="Data owned by the component that can change. When state updates (via useState setter), React re-renders the component and updates the UI.">State</LectureTermWithTip> is data that can change over time and, when it changes, causes the component to re-render. The <LectureCmd tip="useState — the most fundamental React hook. Takes an initial value and returns a pair: the current state value and a setter function. When you call the setter, React re-renders the component with the new value.">useState</LectureCmd> hook is how you add state to a functional component.
             </LectureP>
 
             <UseStateDiagram />
@@ -268,7 +269,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="05" title="Side Effects with useEffect" />
 
             <LectureP>
-                <LectureCmd tip="useEffect — runs code after React renders the component. Used for anything that needs to happen 'outside' of rendering: fetching data, setting up subscriptions, updating the document title, timers. Takes a function and a dependency array.">useEffect</LectureCmd> runs code after a component renders. It's how you handle <LectureTerm>side effects</LectureTerm> — anything that reaches outside the component: fetching data from an API, setting up a timer, syncing with localStorage.
+                <LectureCmd tip="useEffect — runs code after React renders the component. Used for anything that needs to happen 'outside' of rendering: fetching data, setting up subscriptions, updating the document title, timers. Takes a function and a dependency array.">useEffect</LectureCmd> runs code after a component renders. It's how you handle <LectureTermWithTip tip="Anything that affects the outside world: API calls, timers, subscriptions, DOM updates. Not part of the render; run after render via useEffect.">side effects</LectureTermWithTip> — anything that reaches outside the component: fetching data from an API, setting up a timer, syncing with localStorage.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
@@ -370,7 +371,7 @@ export default function Week5Lecture1() {
 
             <LectureSubHeading title="Rendering lists" />
             <LectureP>
-                To render a list of items, use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.map()</code> to transform an array of data into an array of JSX elements. Each element in the list needs a unique <LectureTerm>key</LectureTerm> prop — React uses this to efficiently update the DOM when the list changes.
+                To render a list of items, use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.map()</code> to transform an array of data into an array of JSX elements. Each element in the list needs a unique <LectureTermWithTip tip="A special prop (string or number) that identifies each list item. Helps React match items across re-renders so it can update only what changed. Use a stable ID, not the array index.">key</LectureTermWithTip> prop — React uses this to efficiently update the DOM when the list changes.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">

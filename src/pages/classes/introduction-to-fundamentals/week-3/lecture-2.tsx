@@ -11,6 +11,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
 // ── VM vs Container diagram ───────────────────────────────────────────────────
@@ -76,14 +77,14 @@ export default function Week3Lecture2() {
                 This is the environment problem. Software doesn't run in isolation — it depends on the OS, the runtime version, installed libraries, environment variables, and dozens of other things. Getting all of those to match between development, staging, and production is hard. Doing it reliably across a team is even harder.
             </LectureP>
             <LectureP>
-                Docker solves this by bundling your application together with its entire environment into a <LectureTerm>container</LectureTerm>. The container includes the OS libraries, the runtime, the dependencies, the config — everything. You ship the container, and it runs identically on any machine that has Docker installed.
+                Docker solves this by bundling your application together with its entire environment into a <LectureTermWithTip tip="A runnable instance of a Docker image. Isolated from the host and other containers; shares the host kernel. Start with docker run.">container</LectureTermWithTip>. The container includes the OS libraries, the runtime, the dependencies, the config — everything. You ship the container, and it runs identically on any machine that has Docker installed.
             </LectureP>
 
             {/* ── 02 CONTAINERS VS VMs ────────────────────────────────────────── */}
             <LectureSectionHeading number="02" title="Containers vs. Virtual Machines" />
 
             <LectureP>
-                Before Docker, the standard solution to the environment problem was <LectureTerm>virtual machines</LectureTerm>. A VM emulates an entire computer — including a full operating system — on top of your physical hardware. This works, but it's expensive: each VM needs gigabytes of disk space and takes minutes to start.
+                Before Docker, the standard solution to the environment problem was <LectureTermWithTip tip="Software that emulates a full computer and runs a complete guest OS. Heavier than containers; each VM has its own kernel and boot process.">virtual machines</LectureTermWithTip>. A VM emulates an entire computer — including a full operating system — on top of your physical hardware. This works, but it's expensive: each VM needs gigabytes of disk space and takes minutes to start.
             </LectureP>
             <LectureP>
                 Containers take a different approach. Instead of emulating hardware and running a full OS, containers share the host machine's OS kernel and isolate only the application and its dependencies. They're faster to start (milliseconds instead of minutes), use far less memory, and you can run dozens on a single machine where you might only run 3–4 VMs.
@@ -102,7 +103,7 @@ export default function Week3Lecture2() {
                 Two terms you need to keep straight:
             </LectureP>
             <LectureP>
-                A <LectureTerm>Docker image</LectureTerm> is a read-only template — a snapshot of a filesystem with all the software and files needed to run an application. It's like a class definition or a blueprint. It doesn't run. It just describes what a running container should look like. Images are built from a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> and stored in a registry like Docker Hub.
+                A <LectureTermWithTip tip="A read-only template built from a Dockerfile. Contains the filesystem and metadata needed to run an app. You build images, then run containers from them.">Docker image</LectureTermWithTip> is a read-only template — a snapshot of a filesystem with all the software and files needed to run an application. It's like a class definition or a blueprint. It doesn't run. It just describes what a running container should look like. Images are built from a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> and stored in a registry like Docker Hub.
             </LectureP>
             <LectureP>
                 A <LectureTerm>container</LectureTerm> is a running instance of an image. You can run many containers from the same image simultaneously, each isolated from the others. It's like instantiating multiple objects from a class.

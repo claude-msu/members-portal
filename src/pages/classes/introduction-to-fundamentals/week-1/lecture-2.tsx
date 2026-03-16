@@ -65,8 +65,9 @@ export default function Week1Lecture2() {
 
             <TerminalBlock
                 lines={[
-                    { comment: 'create the script', cmd: 'touch backup.sh' },
-                    { comment: 'add the shebang and script content (open backup.sh in nano, vim, or your IDE)', cmd: 'chmod +x backup.sh' },
+                    { comment: 'create the script file', cmd: 'touch backup.sh' },
+                    { comment: 'open backup.sh in nano, vim, or your IDE and add the shebang (#!/bin/bash) plus the cp command from the example above; save and exit', cmd: '' },
+                    { comment: 'make the script executable', cmd: 'chmod +x backup.sh' },
                     { comment: 'run it from the current directory', cmd: './backup.sh' },
                 ]}
             />

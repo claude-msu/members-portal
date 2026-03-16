@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Cpu } from 'lucide-react';
+import { Workflow } from 'lucide-react';
 import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
@@ -8,42 +8,10 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
-
-// ── BST diagram ───────────────────────────────────────────────────────────────
-const BstDiagram = () => (
-    <div className="my-8 rounded-xl border border-border bg-muted/30 p-5 font-mono text-xs">
-        <p className="text-muted-foreground text-xs mb-4">Binary Search Tree — left child &lt; parent &lt; right child</p>
-        <div className="flex flex-col items-center gap-1 select-none">
-            <div className="flex justify-center">
-                <div className="rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/40 px-4 py-2 text-blue-700 dark:text-blue-300 font-bold">8</div>
-            </div>
-            <div className="flex justify-center gap-24 relative">
-                <span className="text-muted-foreground text-lg">↙</span>
-                <span className="text-muted-foreground text-lg">↘</span>
-            </div>
-            <div className="flex justify-center gap-16">
-                <div className="rounded-lg border border-border bg-card px-4 py-2 text-foreground font-bold">3</div>
-                <div className="rounded-lg border border-border bg-card px-4 py-2 text-foreground font-bold">10</div>
-            </div>
-            <div className="flex justify-center gap-2 relative">
-                <span className="text-muted-foreground">↙ ↘</span>
-                <span className="text-muted-foreground ml-12">↘</span>
-            </div>
-            <div className="flex justify-center gap-4">
-                <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-muted-foreground text-xs">1</div>
-                <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-muted-foreground text-xs">6</div>
-                <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-muted-foreground text-xs ml-4">14</div>
-            </div>
-        </div>
-        <div className="mt-4 space-y-1 text-muted-foreground">
-            <p>Search 6: start at 8 → go left (6 &lt; 8) → reach 3 → go right (6 &gt; 3) → found. <span className="text-emerald-500">O(log n)</span></p>
-            <p>In-order traversal (left → root → right): 1, 3, 6, 8, 10, 14 — always sorted.</p>
-        </div>
-    </div>
-);
+import { CodeBlock } from '@/components/ui/code-block';
+import { FlowDiagram } from '@/components/ui/flow-diagram';
 
 export default function Week6Lecture2() {
     const navigate = useNavigate();
@@ -53,264 +21,328 @@ export default function Week6Lecture2() {
             <LectureHeader
                 week={6}
                 session="Lecture 2"
-                title="Polymorphism, STL & System Design"
-                description="Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core."
-                icon={<Cpu className="h-4 w-4" />}
+                title="CI/CD, TDD & Engineering Culture"
+                description="Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight."
+                icon={<Workflow className="h-4 w-4" />}
             />
 
-            {/* ── 01 POLYMORPHISM — FROM LECTURE 1 TO HERE ────────────────────── */}
-            <LectureSectionHeading number="01" title="Polymorphism — From Lecture 1 to Here" />
+            {/* ── 01 CI/CD ────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="CI/CD — Continuous Integration & Continuous Delivery" />
 
             <LectureP>
-                Lecture 1 introduced the four OOP principles: encapsulation, inheritance, polymorphism, and abstraction. This lecture focuses on <strong className="text-foreground">polymorphism</strong> in C++ — the same interface (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getType()</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code>) working for different types (Book, DVD, Magazine). We'll use virtual and pure virtual methods to build abstract base classes, then survey the STL and a problem-solving framework for interviews.
+                <LectureTermWithTip tip="CI: every push triggers an automated build and test. Broken code is caught before it reaches main. Runs in a clean environment (e.g. GitHub Actions runner).">Continuous Integration</LectureTermWithTip> (CI) means every code change is automatically built and tested the moment it's pushed. <LectureTermWithTip tip="CD: if CI passes, the build is deployable — automatically or with one click. Reduces manual release steps and deployment risk.">Continuous Delivery</LectureTermWithTip> (CD) means that if those tests pass, the change can be deployed to production automatically — or with a single click. Together, CI/CD turns deployment from a stressful quarterly event into a routine daily activity.
+            </LectureP>
+            <LectureP>
+                The business case is simple: small, frequent deployments are safer than large, infrequent ones. A change that touches 50 lines is easy to debug when something breaks. A change that touches 5,000 lines deployed once a quarter is a nightmare. CI/CD enforces small, reviewed, tested increments.
             </LectureP>
 
-            {/* ── 02 OOP IN C++ — VIRTUAL & PURE VIRTUAL ──────────────────────── */}
-            <LectureSectionHeading number="02" title="OOP in C++ — Virtual & Pure Virtual" />
+            <FlowDiagram
+                stages={[
+                    { label: 'Push', icon: '↑', desc: 'Developer pushes to GitHub', color: 'text-zinc-500', bg: 'bg-muted/50 border-border' },
+                    { label: 'Lint', icon: '✦', desc: 'ESLint / tsc check', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' },
+                    { label: 'Test', icon: '✓', desc: 'Unit + integration tests', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800' },
+                    { label: 'Build', icon: '⬡', desc: 'Compile + bundle', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/30 border-purple-200 dark:border-purple-800' },
+                    { label: 'Deploy', icon: '→', desc: 'Ship to production', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' },
+                ]}
+                description="Any stage failing blocks deployment automatically. A broken lint check is as much a blocker as a broken test — the pipeline enforces standards without relying on human memory."
+            />
 
-            <CppBlock
-                title="encapsulation — Book class with private state"
+            <LectureSubHeading title="GitHub Actions — CI/CD in your repo" />
+            <LectureP>
+                GitHub Actions is the most common CI/CD tool for projects hosted on GitHub. Workflows live in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/workflows/</code> as YAML files and run on GitHub's infrastructure — free for public repos, 2,000 minutes/month for free tier private repos.
+            </LectureP>
+
+            <CodeBlock
+                title=".github/workflows/ci.yml — complete pipeline"
                 lines={[
-                    'class Book {',
-                    'private:',
-                    '    string title;',
-                    '    string author;',
-                    '    bool checkedOut = false;',
-                    '',
-                    'public:',
-                    '    // Constructor',
-                    '    Book(string t, string a) : title(t), author(a) {}',
-                    '',
-                    '    // Getters — read-only access to private data',
-                    '    string getTitle()  const { return title; }',
-                    '    string getAuthor() const { return author; }',
-                    '    bool isAvailable() const { return !checkedOut; }',
-                    '',
-                    '    // Methods that enforce valid state transitions',
-                    '    bool checkout() {',
-                    '        if (checkedOut) return false;  // already out',
-                    '        checkedOut = true;',
-                    '        return true;',
-                    '    }',
-                    '    void returnBook() { checkedOut = false; }',
-                    '};',
+                    { text: 'name: CI' },
+                    { text: '' },
+                    { text: 'on:' },
+                    { text: '  push:' },
+                    { text: '    branches: [main, develop]' },
+                    { text: '  pull_request:' },
+                    { text: '    branches: [main]' },
+                    { text: '' },
+                    { text: 'jobs:' },
+                    { text: '  ci:' },
+                    { text: '    runs-on: ubuntu-latest' },
+                    { text: '    steps:' },
+                    { text: '      - uses: actions/checkout@v4' },
+                    { text: '' },
+                    { text: '      - name: Setup Node.js' },
+                    { text: '        uses: actions/setup-node@v4' },
+                    { text: '        with:' },
+                    { text: '          node-version: \'20\'' },
+                    { text: '          cache: \'npm\'' },
+                    { text: '' },
+                    { text: '      - name: Install dependencies' },
+                    { text: '        run: npm ci' },
+                    { text: '' },
+                    { text: '      - name: Type check' },
+                    { text: '        run: npm run tsc --noEmit' },
+                    { text: '' },
+                    { text: '      - name: Lint' },
+                    { text: '        run: npm run lint' },
+                    { text: '' },
+                    { text: '      - name: Test' },
+                    { text: '        run: npm run test -- --coverage' },
+                    { text: '' },
+                    { text: '      - name: Build' },
+                    { text: '        run: npm run build' },
                 ]}
             />
 
-            <CppBlock
-                title="inheritance + polymorphism — virtual methods"
-                lines={[
-                    'class LibraryItem {',
-                    'public:',
-                    '    string id;',
-                    '    string title;',
-                    '    LibraryItem(string i, string t) : id(i), title(t) {}',
-                    '',
-                    '    // virtual = can be overridden by derived classes',
-                    '    virtual string getType() const { return "Item"; }',
-                    '    virtual int getLoanDays() const = 0;  // pure virtual = must override',
-                    '',
-                    '    // virtual destructor — always needed with inheritance',
-                    '    virtual ~LibraryItem() {}',
-                    '};',
-                    '',
-                    'class Book : public LibraryItem {',
-                    'public:',
-                    '    Book(string i, string t) : LibraryItem(i, t) {}',
-                    '    string getType()  const override { return "Book"; }',
-                    '    int getLoanDays() const override { return 21; }',
-                    '};',
-                    '',
-                    'class DVD : public LibraryItem {',
-                    'public:',
-                    '    DVD(string i, string t) : LibraryItem(i, t) {}',
-                    '    string getType()  const override { return "DVD"; }',
-                    '    int getLoanDays() const override { return 7; }',
-                    '};',
-                    '',
-                    '// Polymorphism in action — same code works for any LibraryItem',
-                    'void printInfo(const LibraryItem& item) {',
-                    '    cout << item.getType() << ": " << item.title',
-                    '         << " — " << item.getLoanDays() << " day loan" << endl;',
-                    '}',
-                    '',
-                    '// Usage:',
-                    '// Book b("001", "Clean Code");',
-                    '// DVD d("002", "Inception");',
-                    '// printInfo(b);  → "Book: Clean Code — 21 day loan"',
-                    '// printInfo(d);  → "DVD: Inception — 7 day loan"',
-                ]}
-            />
-
-            <LectureCallout type="tip">
-                Always declare destructors <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> in base classes that have virtual methods. Without it, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> will only call the base destructor — the derived class's destructor won't run, leaking memory.
+            <LectureCallout type="info">
+                Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm ci</code> (not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code>) in CI pipelines. It installs exactly what's in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> without modifying it, runs faster, and fails if the lockfile is out of sync — preventing "works on my machine" dependency drift.
             </LectureCallout>
 
-            <LectureSubHeading title="Abstract base classes" />
-            <LectureP>
-                A <LectureTerm>pure virtual</LectureTerm> method is declared with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">= 0</code> and has no implementation in the base class. A class with at least one pure virtual method is <strong className="text-foreground">abstract</strong> — you cannot instantiate it (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem item;</code> is illegal). You can only create concrete derived types (Book, DVD) and use them through pointers or references to the base. Abstract base classes define a contract: "any LibraryItem must implement getLoanDays()." That's the essence of interface-based design in C++.
-            </LectureP>
-
-            {/* ── 03 STL CONTAINERS ───────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="STL Containers — Your Toolbox" />
+            {/* ── 02 BRANCH PROTECTION ────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Branch Protection Rules" />
 
             <LectureP>
-                The C++ Standard Template Library ships production-grade implementations of every data structure you'll need. Know these cold:
+                A CI pipeline is only effective if merging broken code is actually prevented. <LectureTermWithTip tip="Repo settings that lock a branch (e.g. main): require PRs, require status checks to pass, optional required reviews. Prevents direct push and merge of failing code.">Branch protection rules</LectureTermWithTip> on GitHub enforce this: certain branches (typically <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>) can only receive code through pull requests, and only after all required checks pass.
             </LectureP>
 
-            <div className="my-6 rounded-xl border border-border overflow-hidden">
+            <div className="my-6 space-y-2">
                 {[
-                    { container: 'vector<T>', use: 'Dynamic array. Use for ordered sequences, random access, iteration.', when: 'Default choice for a list of things.' },
-                    { container: 'unordered_map<K,V>', use: 'Hash map. O(1) avg lookup/insert by key.', when: 'Counting frequencies, caching computed values, fast key lookup.' },
-                    { container: 'unordered_set<T>', use: 'Hash set. O(1) avg membership test.', when: 'Deduplication, cycle detection, seen-before checks.' },
-                    { container: 'map<K,V>', use: 'Sorted map (red-black tree). O(log n) ops. Keys always sorted.', when: 'Need keys in sorted order, range queries.' },
-                    { container: 'stack<T>', use: 'LIFO adapter over deque. push/pop/top.', when: 'Parentheses matching, DFS, undo stacks.' },
-                    { container: 'queue<T>', use: 'FIFO adapter. push/pop/front.', when: 'BFS, processing items in arrival order.' },
-                    { container: 'priority_queue<T>', use: 'Max-heap by default. O(log n) push/pop.', when: 'Top-k elements, Dijkstra\'s algorithm, scheduling.' },
-                ].map(row => (
-                    <div key={row.container} className="flex items-start gap-4 px-4 py-3 border-b border-border last:border-b-0">
-                        <code className="text-orange-600 dark:text-orange-400 text-xs font-bold shrink-0 w-44">{row.container}</code>
+                    { rule: 'Require pull request before merging', why: 'No direct pushes to main. Every change gets reviewed.' },
+                    { rule: 'Require status checks to pass', why: 'CI must go green — lint, tests, build — before the merge button is clickable.' },
+                    { rule: 'Require at least 1 approving review', why: 'A second pair of eyes catches bugs and knowledge silos. Reviewers learn the codebase as a side effect.' },
+                    { rule: 'Dismiss stale reviews on new commits', why: 'A new push after approval invalidates old approvals — you have to re-review the updated diff.' },
+                    { rule: 'Require branches to be up to date', why: 'Can\'t merge a branch that\'s behind main — prevents "merge race" bugs where two PRs conflict only after both land.' },
+                ].map((item) => (
+                    <div key={item.rule} className="flex items-start gap-3 rounded-xl border border-border bg-card p-3">
+                        <span className="text-emerald-500 shrink-0 mt-0.5 text-sm">✓</span>
                         <div>
-                            <p className="text-xs text-foreground">{row.use}</p>
-                            <p className="text-xs text-muted-foreground mt-0.5"><span className="font-semibold">Reach for it when:</span> {row.when}</p>
+                            <p className="text-xs font-semibold text-foreground">{item.rule}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.why}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <LectureP>
-                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"map<K,V>"}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"set<T>"}</code> are implemented as balanced binary search trees (typically red-black). Understanding a BST makes O(log n) and &quot;keys always sorted&quot; intuitive:
-            </LectureP>
-            <BstDiagram />
+            {/* ── 03 TDD ──────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Test-Driven Development" />
 
-            <LectureSubHeading title="STL in action — a quick example" />
             <LectureP>
-                Real code leans on the STL for iteration, sorting, and lookups. Here's a typical pattern: fill a vector, sort it, and use a map for counts or caching.
+                <LectureTermWithTip tip="Red-Green-Refactor: write a failing test, write minimal code to pass, then refactor. Produces testable design and high coverage by construction.">Test-Driven Development</LectureTermWithTip> (TDD) inverts the usual order: write the test first, watch it fail, then write the code to make it pass. The loop is: <span className="text-rose-500 font-semibold">Red</span> (test fails) → <span className="text-emerald-500 font-semibold">Green</span> (make it pass) → <span className="text-blue-500 font-semibold">Refactor</span> (clean up without breaking it).
             </LectureP>
-            <CppBlock
-                title="vector, sort, map — common STL usage"
+            <LectureP>
+                TDD sounds backwards. It feels backwards at first. The payoff: you write exactly as much code as the tests require — no more. Your design emerges from usage, not speculation. And you end up with a test suite that covers every feature by construction, because you never wrote a feature without a test.
+            </LectureP>
+
+            <div className="my-6 flex items-center justify-center gap-4">
+                {[
+                    { label: '① Red', sub: 'Write a failing test', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/30 border-rose-200 dark:border-rose-800' },
+                    { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                    { label: '② Green', sub: 'Make it pass', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' },
+                    { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
+                    { label: '③ Refactor', sub: 'Clean without breaking', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' },
+                ].map((item, i) => (
+                    item.bg ? (
+                        <div key={i} className={`rounded-xl border px-4 py-3 text-center ${item.bg}`}>
+                            <p className={`text-xs font-bold ${item.color}`}>{item.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{item.sub}</p>
+                        </div>
+                    ) : (
+                        <span key={i} className={`text-lg font-bold ${item.color} select-none`}>{item.label}</span>
+                    )
+                ))}
+            </div>
+
+            <LectureSubHeading title="Writing tests with Vitest" />
+
+            <CodeBlock
+                title="src/lib/cart.test.ts — TDD style: test first"
                 lines={[
-                    '#include <vector>',
-                    '#include <algorithm>',
-                    '#include <map>',
-                    '#include <string>',
-                    'using namespace std;',
-                    '',
-                    'int main() {',
-                    '    vector<int> nums = {3, 1, 4, 1, 5};',
-                    '    sort(nums.begin(), nums.end());   // in-place: 1, 1, 3, 4, 5',
-                    '',
-                    '    map<string, int> count;            // keys sorted lexicographically',
-                    '    for (const auto& s : {"apple", "banana", "apple"}) {',
-                    '        count[s]++;                    // count["apple"] == 2, count["banana"] == 1',
-                    '    }',
-                    '',
-                    '    // Range-for over map: pairs (key, value)',
-                    '    for (const auto& [key, val] : count)',
-                    '        cout << key << ": " << val << endl;',
-                    '',
-                    '    return 0;',
-                    '}',
+                    { text: 'import { describe, it, expect } from \'vitest\'' },
+                    { text: 'import { Cart } from \'./cart\'' },
+                    { text: '' },
+                    { text: 'describe(\'Cart\', () => {' },
+                    { text: '  it(\'starts empty\', () => {' },
+                    { text: '    const cart = new Cart()' },
+                    { text: '    expect(cart.total()).toBe(0)' },
+                    { text: '    expect(cart.items()).toHaveLength(0)' },
+                    { text: '  })' },
+                    { text: '' },
+                    { text: '  it(\'adds items and updates total\', () => {' },
+                    { text: '    const cart = new Cart()' },
+                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
+                    { text: '    cart.add({ id: \'b\', name: \'Pen\', price: 1.50 })' },
+                    { text: '    expect(cart.total()).toBeCloseTo(14.49)' },
+                    { text: '    expect(cart.items()).toHaveLength(2)' },
+                    { text: '  })' },
+                    { text: '' },
+                    { text: '  it(\'removes items\', () => {' },
+                    { text: '    const cart = new Cart()' },
+                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
+                    { text: '    cart.remove(\'a\')' },
+                    { text: '    expect(cart.items()).toHaveLength(0)' },
+                    { text: '  })' },
+                    { text: '' },
+                    { text: '  it(\'does not add duplicates — increases quantity instead\', () => {' },
+                    { text: '    const cart = new Cart()' },
+                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
+                    { text: '    cart.add({ id: \'a\', name: \'Book\', price: 12.99 })' },
+                    { text: '    expect(cart.items()).toHaveLength(1)' },
+                    { text: '    expect(cart.items()[0].quantity).toBe(2)' },
+                    { text: '  })' },
+                    { text: '})' },
                 ]}
             />
 
-            <LectureSubHeading title="Iterators — what begin() and end() are" />
-            <LectureP>
-                STL containers expose <strong className="text-foreground">iterators</strong>: objects that let you refer to an element and move to the next. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">v.begin()</code> points to the first element; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">v.end()</code> points one past the last (so a loop <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> covers every element). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sort(nums.begin(), nums.end())</code> takes two iterators and sorts that range. Range-for (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">for (const auto&amp; x : v)</code>) is syntactic sugar: it uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> under the hood. Many <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;algorithm&gt;</code> functions take iterator pairs to work on a range.
-            </LectureP>
-
-            <LectureSubHeading title="&lt;algorithm&gt; — functions you'll use every day" />
-            <LectureP>
-                Include <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">#include &lt;algorithm&gt;</code> and use: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sort(begin, end)</code> — in-place sort; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">find(begin, end, value)</code> — returns iterator to first match or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end</code>; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">count(begin, end, value)</code> — number of occurrences; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">lower_bound(begin, end, value)</code> — first position where value could be inserted (binary search on sorted range); <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_element(begin, end)</code> / <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">max_element(begin, end)</code> — iterator to min/max. All take half-open ranges <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[begin, end)</code>.
-            </LectureP>
-
             <LectureCallout type="tip">
-                <strong className="text-foreground">set vs unordered_set:</strong> Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set</code> when you need keys in sorted order or range queries; use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_set</code> when you only need O(1) membership and don't care about order. Same idea for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">map</code> vs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code>.
+                The test names are the spec. Read them top to bottom and you understand exactly what <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Cart</code> is supposed to do — without reading the implementation. Good test names are documentation that never goes out of date.
             </LectureCallout>
 
-            {/* ── 04 TIME & SPACE COMPLEXITY — WHAT BIG-O MEANS IN PRACTICE ──── */}
-            <LectureSectionHeading number="04" title="Time & Space Complexity — What Big-O Means in Practice" />
+            <LectureSubHeading title="What to test — and what not to" />
+
+            <div className="my-6 rounded-xl border border-border overflow-hidden text-xs">
+                <div className="grid grid-cols-2 divide-x divide-border">
+                    <div className="p-4">
+                        <p className="font-semibold text-foreground mb-2.5">✅ Test this</p>
+                        <div className="space-y-2">
+                            {[
+                                'Business logic — calculation, transformation, validation',
+                                'Edge cases — empty input, nulls, boundary values',
+                                'Error paths — what happens when things go wrong',
+                                'Public API of a module — the interface, not internals',
+                            ].map((item) => <p key={item} className="text-muted-foreground leading-relaxed">{item}</p>)}
+                        </div>
+                    </div>
+                    <div className="p-4">
+                        <p className="font-semibold text-foreground mb-2.5">❌ Don't test this</p>
+                        <div className="space-y-2">
+                            {[
+                                'Implementation details — private methods, internal state',
+                                'Third-party libraries — they have their own tests',
+                                'Simple getters/setters with no logic',
+                                'Things that require complex mocking to set up — usually a design smell',
+                            ].map((item) => <p key={item} className="text-muted-foreground leading-relaxed">{item}</p>)}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* ── 04 CODE REVIEW ──────────────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Code Review — The Most Underrated Practice" />
 
             <LectureP>
-                Interviewers expect you to state and justify complexity. Here's the cheat sheet: <strong className="text-foreground">O(1)</strong> — constant (hash lookup, array index). <strong className="text-foreground">O(log n)</strong> — logarithmic (binary search, balanced tree ops; doubles in size add one step). <strong className="text-foreground">O(n)</strong> — linear (one pass over input). <strong className="text-foreground">O(n log n)</strong> — linearithmic (e.g. comparison sort). <strong className="text-foreground">O(n²)</strong> — quadratic (nested loops over the same data). <strong className="text-foreground">O(2ⁿ)</strong> or <strong className="text-foreground">O(n!)</strong> — exponential or factorial (naive recursion; usually a signal to optimize with DP or pruning). For space, same notation applies to extra memory (e.g. a hash map of n elements is O(n) space).
+                Code review is the primary mechanism for knowledge transfer on a team. It's how junior engineers learn from seniors, how seniors learn the codebase, and how the team maintains shared standards. A team that skips code review is a team where knowledge siloes form, where bugs ship that a second pair of eyes would have caught, and where no one grows.
             </LectureP>
 
-            <LectureCallout type="info">
-                In interviews, say &quot;O of n squared&quot; and state both time and space. If you use a hash map of size n, that's O(n) space. If you sort in place, that's O(1) extra space (ignoring the sort's own stack/log n for recursion).
-            </LectureCallout>
+            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="rounded-xl border border-border bg-card overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-border bg-muted/30">
+                        <p className="text-xs font-bold text-foreground">Writing good PRs</p>
+                    </div>
+                    <div className="px-4 py-3 space-y-2">
+                        {[
+                            { title: 'Keep them small', desc: 'Under 400 lines of diff. Reviewers lose focus on large PRs — bugs slip through.' },
+                            { title: 'Write a description', desc: 'What changed, why, and how to test it. A PR with no description gets superficial review.' },
+                            { title: 'Link the issue', desc: '"Closes #42" — connects the PR to the user story it implements.' },
+                            { title: 'Self-review first', desc: 'Read your own diff before requesting review. You\'ll catch 30% of issues yourself.' },
+                        ].map((item) => (
+                            <div key={item.title}>
+                                <p className="text-xs font-semibold text-foreground">{item.title}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+                <div className="rounded-xl border border-border bg-card overflow-hidden">
+                    <div className="px-4 py-2.5 border-b border-border bg-muted/30">
+                        <p className="text-xs font-bold text-foreground">Giving good reviews</p>
+                    </div>
+                    <div className="px-4 py-3 space-y-2">
+                        {[
+                            { title: 'Ask questions, not accusations', desc: '"What happens if this list is empty?" not "You forgot to handle empty lists."' },
+                            { title: 'Distinguish blocking vs non-blocking', desc: '"Nit: rename this variable" vs "This will crash in production — must fix."' },
+                            { title: 'Explain the why', desc: 'Don\'t just say "use a map here." Say why a map is better for this use case.' },
+                            { title: 'Approve and learn', desc: 'You don\'t have to understand every line before approving. But ask about what you don\'t understand.' },
+                        ].map((item) => (
+                            <div key={item.title}>
+                                <p className="text-xs font-semibold text-foreground">{item.title}</p>
+                                <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{item.desc}</p>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </div>
 
-            <LectureSubHeading title="Rough rule of thumb: n = 10⁵" />
+            {/* ── 05 ENGINEERING CULTURE ──────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Engineering Culture" />
+
             <LectureP>
-                In contest or interview problems, n is often 10⁵ or 10⁶. A rule of thumb: O(n²) does about 10¹⁰ operations for n = 10⁵, which is usually too slow in C++; O(n log n) is around 2×10⁶, which is fine. So if your brute force is O(n²), look for a linear pass with a hash map, or sort and use two pointers, or another structure that gets you to O(n) or O(n log n).
+                Every technical practice in this lecture — CI/CD, TDD, code review, retrospectives — only works in a team culture that supports it. Culture isn't a values statement on the wall. It's what actually happens when a deadline is tight and someone proposes skipping tests "just this once."
             </LectureP>
 
-            <LectureSubHeading title="Recursion in 60 seconds" />
-            <LectureP>
-                A recursive function has a <strong className="text-foreground">base case</strong> (when to stop) and a <strong className="text-foreground">recurrence</strong> (how the result depends on smaller inputs). Example: Fibonacci, tree traversal, backtracking. Danger: no base case → infinite recursion; overlapping subproblems without memoization → exponential time. Many tree and graph problems are naturally recursive (DFS); if the same subproblem is solved many times, add memoization or switch to DP.
-            </LectureP>
-
-            <LectureSubHeading title="Trees and graphs — the big picture" />
-            <LectureP>
-                A <strong className="text-foreground">tree</strong> is a connected acyclic graph; we'll implement one in the Week 6 activity (library catalog). Traversal: in-order (left, root, right) gives sorted order in a BST; pre-order and post-order for expression trees or structure. A <strong className="text-foreground">graph</strong> has nodes and edges; represent with adjacency list (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<vector<int>>"}</code> or map of neighbors). <strong className="text-foreground">BFS</strong> (queue) gives shortest path in unweighted graphs and level order; <strong className="text-foreground">DFS</strong> (stack or recursion) for cycle detection, topological sort, exploring connected components. You'll practice these in the activity and in Week 7.
-            </LectureP>
-
-            {/* ── 05 SYSTEM DESIGN & A FRAMEWORK FOR SOLVING PROBLEMS ─────────── */}
-            <LectureSectionHeading number="05" title="System Design & a Framework for Solving Problems" />
-
-            <LectureP>
-                Technical interviews aren't just about knowing the right algorithm — they're about demonstrating a systematic thinking process. Here's the framework that works:
-            </LectureP>
-
-            <LectureSubHeading title="Classic DSA patterns" />
-            <LectureP>
-                Most problems reduce to a few patterns. <strong className="text-foreground">Two pointers</strong> — two indices moving in one or opposite directions; great for sorted arrays (pair with sum, remove duplicates). <strong className="text-foreground">Sliding window</strong> — a contiguous subarray of fixed or variable size; for "longest substring with at most k distinct" or "max sum of k consecutive." <strong className="text-foreground">Hash map for lookups</strong> — store seen values or counts to turn O(n²) into O(n) (Two Sum, anagrams). <strong className="text-foreground">Stack</strong> — last-in-first-out for matching (parentheses, valid BST), DFS, or undo. <strong className="text-foreground">Queue / BFS</strong> — level-order, shortest path in unweighted graph. <strong className="text-foreground">Binary search</strong> — not just on arrays; binary search on the answer when you have a monotonic condition. <strong className="text-foreground">Recursion + memo / DP</strong> — overlapping subproblems; define state, recurrence, base case. Spotting the pattern is half the battle.
-            </LectureP>
-
-            <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden">
+            <div className="my-6 space-y-3">
                 {[
-                    { step: '01', title: 'Understand the problem', desc: 'Repeat it back in your own words. Ask for clarifying questions: what are the input types? Can there be duplicates? What are the constraints on n? What should I return for edge cases (empty input, single element)?' },
-                    { step: '02', title: 'Work through examples by hand', desc: 'Take the given example and trace through it manually before writing a single line of code. Then come up with your own edge case and trace that too.' },
-                    { step: '03', title: 'State the brute force', desc: 'Describe the simplest possible solution, even if it\'s O(n²). State its time and space complexity. This shows you understand the problem and establishes a baseline.' },
-                    { step: '04', title: 'Optimize', desc: 'Ask: what\'s the bottleneck? Is there repeated work a hash map could cache? Could sorting unlock a two-pointer approach? Does the problem have overlapping subproblems (DP)?' },
-                    { step: '05', title: 'Code it up cleanly', desc: 'Write the solution with readable variable names. Use helper functions for clarity. Handle edge cases explicitly. Don\'t optimize the code itself until it\'s correct.' },
-                    { step: '06', title: 'Test and trace', desc: 'Walk through your code with the given example. Then test at least one edge case. State the final time and space complexity.' },
+                    {
+                        title: 'Blameless post-mortems',
+                        color: 'text-blue-600 dark:text-blue-400',
+                        desc: 'When something breaks in production, the question isn\'t "who screwed up" — it\'s "how did our system allow this to happen?" The goal is to fix the system, not punish the person. Blame-based cultures hide failures; blameless cultures learn from them.',
+                    },
+                    {
+                        title: 'Psychological safety',
+                        color: 'text-emerald-600 dark:text-emerald-400',
+                        desc: 'Team members should be able to say "I don\'t understand this," "I think this is wrong," or "I made a mistake" without fear. Google\'s Project Aristotle found psychological safety was the single biggest predictor of team effectiveness — more important than individual talent.',
+                    },
+                    {
+                        title: 'Done means done',
+                        color: 'text-orange-600 dark:text-orange-400',
+                        desc: '"Done" doesn\'t mean "coded." It means tested, reviewed, merged, and deployed. A feature that\'s 90% done and sitting in a PR branch has zero value to users. Finishing matters more than starting.',
+                    },
+                    {
+                        title: 'Leave the codebase better than you found it',
+                        color: 'text-purple-600 dark:text-purple-400',
+                        desc: 'The Boy Scout Rule: whenever you touch a file, clean up one small thing nearby. Rename the confusing variable. Add the missing test. Remove the dead code. Codebases don\'t decay all at once — they decay in small ignored moments.',
+                    },
                 ].map((item) => (
-                    <div key={item.step} className="flex items-start gap-4 p-4 border-b border-border last:border-b-0">
-                        <span className="text-2xl font-black text-primary/70 shrink-0 select-none">{item.step}</span>
+                    <div key={item.title} className="rounded-xl border border-border bg-card p-4">
+                        <p className={`text-xs font-bold mb-1 ${item.color}`}>{item.title}</p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                    </div>
+                ))}
+            </div>
+
+            {/* ── 06 YOUR FIRST JOB ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="What to Expect on Day One" />
+
+            <LectureP>
+                You've now covered the full stack of a modern software engineer: terminal fluency, version control, containerization, frontend, backend, databases, data structures, and software engineering practices. Here's what actually matters when you start a real job.
+            </LectureP>
+
+            <div className="my-6 space-y-2">
+                {[
+                    { label: 'Read before writing', desc: 'Spend your first two weeks understanding the existing codebase — the patterns, the conventions, the why. Code first, ask questions later is the fastest path to revert.' },
+                    { label: 'Small PRs from day one', desc: 'Your first PR should be tiny and unambiguously correct. Build trust before making large changes. Ask for review, ask questions in review comments.' },
+                    { label: 'Ask questions early, not late', desc: 'Asking "how does X work?" on day 3 is expected. Asking on day 30 after spinning for a week is costly. No one expects you to know everything on day one.' },
+                    { label: 'Write things down', desc: 'Document what you learn about the system — in wikis, in PR descriptions, in comments. Future-you and your teammates will thank you.' },
+                    { label: 'Ship something in week one', desc: 'Even if it\'s tiny. Fixing a typo in the docs. Adding a missing test. The goal is to complete the full cycle — branch, PR, review, merge, deploy — early. Everything after is iteration.' },
+                ].map((item, i) => (
+                    <div key={item.label} className="flex items-start gap-4 rounded-xl border border-border bg-card p-4">
+                        <span className="text-2xl font-black text-primary/70 shrink-0 select-none">{String(i + 1).padStart(2, '0')}</span>
                         <div>
-                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
+                            <p className="text-sm font-semibold text-foreground">{item.label}</p>
                             <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <LectureSubHeading title="Example: clarifying Two Sum" />
-            <LectureP>
-                &quot;Given an array of integers and a target, return indices of two numbers that add up to target.&quot; Before coding, clarify: Can the same element be used twice? (Usually no.) Is the array sorted? (If yes, two pointers; if no, hash map.) Are there multiple valid pairs? (Return any one.) What if there's no solution? (Return empty or throw.) Can there be duplicates? (Hash map still works — store index and overwrite or check before.) Stating these shows you think about edge cases and constraints.
-            </LectureP>
-
-            <LectureSubHeading title="Worked example: Valid Parentheses" />
-            <LectureP>
-                Problem: given a string of brackets <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">()[]{}</code>, determine if they're balanced. <strong className="text-foreground">(1) Understand:</strong> Only brackets; empty string is valid. <strong className="text-foreground">(2) Example:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"([])"</code> → push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">(</code>, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[</code>, see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">]</code> pop and match. <strong className="text-foreground">(3) Brute force:</strong> repeatedly find and remove matching pairs until string empty or unchanged — O(n²). <strong className="text-foreground">(4) Optimize:</strong> one pass with a stack — push opening brackets, on closing pop and check match; if stack empty when we need to pop, or non-empty at end, invalid. O(n) time, O(n) space. <strong className="text-foreground">(5) Code:</strong> loop over chars, switch on char, push/pop accordingly. <strong className="text-foreground">(6) Test:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">""</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"([)]"</code> (invalid), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"()[]{}"</code> (valid). This is the full framework in action.
-            </LectureP>
-
-            <LectureSubHeading title="Interview mindset" />
-            <LectureP>
-                <strong className="text-foreground">Talk out loud:</strong> Explain what you're thinking. &quot;I'll use a hash map to store what we've seen so we can look up the complement in O(1).&quot; <strong className="text-foreground">Start simple:</strong> Get a working brute force first; then optimize. <strong className="text-foreground">Test with your own example:</strong> Walk through your code with the sample input and an edge case (empty, single element, duplicates). <strong className="text-foreground">State complexity:</strong> Before and after optimizing, say time and space. Interviewers are evaluating how you think, not just whether you know the trick.
-            </LectureP>
-
             <LectureCallout type="info">
-                The NeetCode 150 is the gold standard problem set for interview prep. It covers every pattern you need: Arrays & Hashing, Two Pointers, Sliding Window, Stack, Binary Search, Linked List, Trees, Tries, Heap, Backtracking, Graphs, Dynamic Programming. Work through it category by category, not randomly — the patterns build on each other.
+                This is the last lecture of the course. What comes next is building — real projects, real clients, real feedback loops.
             </LectureCallout>
 
             <LectureFooterNav
                 prev={{
-                    label: 'Classes, Encapsulation & Inheritance',
+                    label: 'Scrum, Kanban & Sprint Cycles',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
                 }}
                 next={{
-                    label: 'CLI Phonebook — Part 1',
+                    label: 'Sprint Simulation & Project Showcase',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
                 }}
             />

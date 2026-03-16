@@ -10,6 +10,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
 // ── Relational table diagram ──────────────────────────────────────────────────
@@ -104,10 +105,10 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="01" title="Relational Databases" />
 
             <LectureP>
-                A <LectureTerm>relational database</LectureTerm> stores data in <LectureTerm>tables</LectureTerm> — rows and columns, like a spreadsheet. Each table represents one type of thing (users, notes, orders). Rows are individual records. Columns are the attributes of those records.
+                A <LectureTermWithTip tip="Data stored in tables (rows and columns) with relationships between tables. You query with SQL. Examples: SQLite, PostgreSQL, MySQL.">relational database</LectureTermWithTip> stores data in <LectureTermWithTip tip="A set of rows with the same columns. Like a spreadsheet sheet; each row is one record, each column is an attribute.">tables</LectureTermWithTip> — rows and columns, like a spreadsheet. Each table represents one type of thing (users, notes, orders). Rows are individual records. Columns are the attributes of those records.
             </LectureP>
             <LectureP>
-                What makes relational databases powerful is the ability to <LectureTerm>join</LectureTerm> tables together. Instead of duplicating user data into every note, you store users in one table and notes in another, linked by a <LectureTerm>foreign key</LectureTerm>. When you need the full picture, you join them in your query.
+                What makes relational databases powerful is the ability to <LectureTermWithTip tip="Combine rows from two or more tables based on a related column. SQL JOIN clauses (INNER, LEFT, etc.) do this in a single query.">join</LectureTermWithTip> tables together. Instead of duplicating user data into every note, you store users in one table and notes in another, linked by a <LectureTermWithTip tip="A column that references the primary key of another table. Enforces referential integrity and enables joins.">foreign key</LectureTermWithTip>. When you need the full picture, you join them in your query.
             </LectureP>
 
             <RelationalDiagram />
@@ -222,7 +223,7 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="04" title="SQLAlchemy — Python's Database Toolkit" />
 
             <LectureP>
-                Writing raw SQL strings in Python works but gets messy fast — no type safety, no autocomplete, and SQL injection risk if you're not careful. <LectureTerm>SQLAlchemy</LectureTerm> is Python's most widely used database library. It can be used as a pure query builder (Core) or as a full <LectureTerm>ORM</LectureTerm> (Object Relational Mapper) that maps Python classes to database tables.
+                Writing raw SQL strings in Python works but gets messy fast — no type safety, no autocomplete, and SQL injection risk if you're not careful. <LectureTermWithTip tip="A Python library for talking to databases. Provides an ORM (map classes to tables) and a Core API for raw SQL. Works with SQLite, PostgreSQL, MySQL, etc.">SQLAlchemy</LectureTermWithTip> is Python's most widely used database library. It can be used as a pure query builder (Core) or as a full <LectureTermWithTip tip="Object Relational Mapper. Maps Python classes to tables; you work with objects and the ORM generates SQL. Reduces boilerplate and helps avoid SQL injection.">ORM</LectureTermWithTip> (Object Relational Mapper) that maps Python classes to database tables.
             </LectureP>
             <LectureP>
                 With the ORM, you define your tables as Python classes. SQLAlchemy translates operations on those classes into SQL. You interact with Python objects — SQLAlchemy handles the database communication.

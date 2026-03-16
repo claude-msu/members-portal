@@ -19,203 +19,137 @@ export default function Week7Activity() {
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
-                week={7}
-                session="Activity"
-                title="CLI Phonebook — Part 2"
-                description="Your OOP foundation from Week 6 is solid. Now add the data structures on top — a BST for alphabetically sorted lookups, a stack for undo, and an unordered_map for O(1) search."
-                icon={<Binary className="h-4 w-4" />}
-            />
+                    week={7}
+                    session="Activity"
+                    title="Data Structures in Practice"
+                    description="Implement core data structures and patterns in Python — no new language, just the concepts from this week's lectures. BST, stack, and hash map; you'll use these in C++ next week."
+                    icon={<Binary className="h-4 w-4" />}
+                />
 
-            <LectureCallout type="info">
-                Open your Week 6 phonebook project. Every challenge in this activity extends that codebase — do not start from scratch. Compile after every challenge: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall phonebook.cpp -o phonebook && ./phonebook</code>
-            </LectureCallout>
+                <LectureCallout type="info">
+                    Use Python (or JavaScript if you prefer). Create a folder <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">week7-dsa</code> and one file per challenge. Run with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python bst.py</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python min_stack.py</code>, etc.
+                </LectureCallout>
 
-            {/* ── 01 BST FOR ALPHABETICAL STORAGE ─────────────────────────────── */}
-            <LectureSectionHeading number="01" title="BST for Alphabetical Storage" />
+                {/* ── 01 BINARY SEARCH TREE ───────────────────────────────────── */}
+                <LectureSectionHeading number="01" title="Binary Search Tree" />
 
-            <LectureP>
-                Right now your contacts are stored in a vector — insertion order, not sorted order. Replace the storage layer with a BST so that listing all contacts always comes out alphabetically without sorting.
-            </LectureP>
+                <LectureP>
+                    Implement a BST that stores integers. You need insert and in-order traversal. No standard-library tree — build the nodes and links yourself so the structure is explicit.
+                </LectureP>
 
-            {/* BST diagram */}
-            <div className="my-6 rounded-xl border border-border bg-muted/30 p-5 space-y-3">
-                <p className="text-xs text-muted-foreground mb-4">BST structure showing how contacts are organized:</p>
-                <div className="flex justify-center">
-                    <div className="text-center">
-                        <div className="rounded-lg border border-border bg-card px-4 py-2 font-semibold text-sm">Johnson</div>
-                        <div className="flex justify-center gap-8 mt-3 text-muted-foreground">
-                            <span>↙</span>
-                            <span>↘</span>
-                        </div>
-                        <div className="flex justify-around mt-2 max-w-sm mx-auto">
-                            <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm">Davis</div>
-                            <div className="rounded-lg border border-border bg-card px-3 py-1.5 text-sm">Martinez</div>
-                        </div>
-                        <div className="flex justify-around mt-2 max-w-sm mx-auto text-xs text-muted-foreground">
-                            <div>
-                                <div>↙</div>
-                                <div className="rounded-lg border border-border bg-card px-2 py-1 mt-1">Chen</div>
-                            </div>
-                            <div>
-                                <div>↘</div>
-                                <div className="rounded-lg border border-border bg-card px-2 py-1 mt-1">Wilson</div>
-                            </div>
-                        </div>
+                <ActivityChallenge
+                    number="1.1"
+                    title="Node and Tree"
+                    description="Define the structure."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bst.py</code> with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Node</code> class: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">val</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">right</code> (all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code> by default)</ActivityTask>
+                        <ActivityTask>Create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BST</code> class with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root</code> attribute (initially <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>)</ActivityTask>
                     </div>
-                </div>
-            </div>
+                </ActivityChallenge>
 
-            <ActivityChallenge
-                number="1.1"
-                title="Define the BST Node"
-                description="Create the foundation for tree-based storage."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* data</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* right</code>, a constructor that initializes all three</ActivityTask>
-                    <ActivityTask>Do not delete the Contact class — ContactNode wraps it</ActivityTask>
-                </div>
-            </ActivityChallenge>
+                <ActivityChallenge
+                    number="1.2"
+                    title="Insert"
+                    description="Recursive insert: smaller values go left, larger go right."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(self, val)</code> on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BST</code></ActivityTask>
+                        <ActivityTask>If <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root is None</code>, set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root = Node(val)</code></ActivityTask>
+                        <ActivityTask>Otherwise call a helper <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">_insert(node, val)</code>: if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">val &lt; node.val</code> go left (create node if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node.left is None</code>), else go right</ActivityTask>
+                        <ActivityTask>Test: insert 5, 2, 8, 1, 3 and verify the tree shape in the debugger or with a small print helper</ActivityTask>
+                    </div>
 
-            <ActivityChallenge
-                number="1.2"
-                title="BST Insert"
-                description="Replace vector storage with recursive tree insertion."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(ContactNode* node, Contact* contact)</code> recursive method to your PhoneBook class</ActivityTask>
-                    <ActivityTask>Compare by last name (case-insensitive)</ActivityTask>
-                    <ActivityTask>Replace your vector with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* root</code> initialized to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code></ActivityTask>
-                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code> method to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert</code></ActivityTask>
-                </div>
+                    <ActivityHint label="recursive insert">
+                        <code className="bg-muted px-1 rounded text-xs">def _insert(node, val): if val &lt; node.val: node.left = Node(val) if node.left is None else _insert(node.left, val). Else same for right.</code>
+                    </ActivityHint>
+                </ActivityChallenge>
 
-                <ActivityHint label="recursive insert pattern">
-                    <code className="bg-muted px-1 rounded text-xs">Base case: if (node == nullptr) return new ContactNode(contact). Recursive: if (contact name &lt; node name) node-&gt;left = insert(node-&gt;left, contact). Else node-&gt;right = insert(node-&gt;right, contact).</code>
-                </ActivityHint>
-            </ActivityChallenge>
+                <ActivityChallenge
+                    number="1.3"
+                    title="In-Order Traversal"
+                    description="Left → root → right gives sorted order."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inorder(self)</code> that returns a list of values in ascending order</ActivityTask>
+                        <ActivityTask>Use a helper <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">_inorder(node, result)</code>: if node is None return; recurse left; append node.val; recurse right</ActivityTask>
+                        <ActivityTask>Run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">print(bst.inorder())</code> after inserts — you should see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[1, 2, 3, 5, 8]</code></ActivityTask>
+                    </div>
+                </ActivityChallenge>
 
-            <ActivityChallenge
-                number="1.3"
-                title="In-Order Traversal"
-                description="Print contacts in alphabetical order."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inOrder(ContactNode* node)</code> — left, visit, right</ActivityTask>
-                    <ActivityTask>Call it from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">listAll()</code></ActivityTask>
-                    <ActivityTask>Verify that adding contacts in random order still prints them alphabetically</ActivityTask>
-                </div>
+                {/* ── 02 MIN STACK ────────────────────────────────────────────── */}
+                <LectureSectionHeading number="02" title="Min Stack" />
 
-                <LectureCallout type="info">
-                    <span title="Visits a BST in left → root → right order. For a BST sorted by key, this always produces keys in ascending sorted order — which is why it is the standard way to print a BST.">in-order traversal</span> is the standard way to print a BST in sorted order.
+                <LectureP>
+                    A stack that supports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">push</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pop</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">top</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_min</code> — all in O(1) time. The trick: a second stack (or list) that tracks the minimum at each level.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="2.1"
+                    title="Implement MinStack"
+                    description="Use two lists: one for values, one for minimums."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_stack.py</code> with a class <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">MinStack</code></ActivityTask>
+                        <ActivityTask>Internal: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self.stack = []</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self.mins = []</code></ActivityTask>
+                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">push(val)</code>: append to stack. If mins is empty or val &lt;= mins[-1], append val to mins</ActivityTask>
+                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pop()</code>: pop from stack; if that value equals mins[-1], pop from mins</ActivityTask>
+                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">top()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_min()</code>: return stack[-1] and mins[-1] (handle empty if you want)</ActivityTask>
+                        <ActivityTask>Test: push 3, 1, 2; get_min → 1; pop; get_min → 1; pop; get_min → 3</ActivityTask>
+                    </div>
+
+                    <ActivityHint label="why track mins">
+                        When you pop, you need to know what the minimum was before the value you added. The mins stack mirrors the minimum at each stack level.
+                    </ActivityHint>
+                </ActivityChallenge>
+
+                {/* ── 03 HASH MAP PATTERNS ────────────────────────────────────── */}
+                <LectureSectionHeading number="03" title="Hash Map Practice" />
+
+                <LectureP>
+                    Two classic problems that rely on hash maps for O(n) time. Implement both in a file <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">hashing.py</code>.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="3.1"
+                    title="Two Sum"
+                    description="Return indices of two numbers that add up to target."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Function <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">two_sum(nums: list[int], target: int) -&gt; list[int]</code></ActivityTask>
+                        <ActivityTask>Use a dict mapping <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">value → index</code></ActivityTask>
+                        <ActivityTask>One pass: for each <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">num</code>, check if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">target - num</code> is in the dict; if yes return [that index, current index]; else store num and its index</ActivityTask>
+                        <ActivityTask>Assume exactly one solution exists</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="3.2"
+                    title="First Repeating Character"
+                    description="Return the first character that appears more than once."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Function <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">first_repeat(s: str) -&gt; str | None</code></ActivityTask>
+                        <ActivityTask>Use a set (or dict) to record characters seen so far</ActivityTask>
+                        <ActivityTask>First pass: count occurrences (or use a set and check "if char in seen" then return char; else add char)</ActivityTask>
+                        <ActivityTask>Return the first character that has count &gt; 1 (or that you see again)</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <LectureCallout type="tip">
+                    These patterns — BST, stack-with-extra-invariant, and hash map for O(1) lookup — show up in Week 8 when you build the C++ Phonebook. Here you get the logic without the syntax; next week you apply the same ideas in C++.
                 </LectureCallout>
-            </ActivityChallenge>
 
-            {/* ── 02 STACK-BASED UNDO ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="Stack-Based Undo" />
-
-            <LectureP>
-                Every add and delete operation should be reversible. A stack is the right structure — last action undone.
-            </LectureP>
-
-            <ActivityChallenge
-                number="2.1"
-                title="Define the Action Stack"
-                description="Create a record of every change."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Create an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action</code> struct with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string type</code> ("add" or "delete"), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact contactSnapshot</code> (a copy of the contact at time of action)</ActivityTask>
-                    <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stack&lt;Action&gt; history</code> to PhoneBook using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::stack</code></ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="2.2"
-                title="Push on Add and Delete"
-                description="Record every operation."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>: after inserting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action{"{"}"add", *newContact{"}"}</code> onto history</ActivityTask>
-                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>: before deleting, push <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Action{"{"}"delete", *contactToDelete{"}"}</code> onto history</ActivityTask>
-                    <ActivityTask>Compile and verify the stack size grows as you add contacts</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="2.3"
-                title="Implement Undo"
-                description="Reverse the most recent operation."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void undo()</code> to PhoneBook</ActivityTask>
-                    <ActivityTask>If history is empty, print "Nothing to undo." and return</ActivityTask>
-                    <ActivityTask>Otherwise pop the top action</ActivityTask>
-                    <ActivityTask>If type == "add", delete the contact you just added</ActivityTask>
-                    <ActivityTask>If type == "delete", re-add the contact from the snapshot</ActivityTask>
-                    <ActivityTask>Add "undo" as a menu option in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code></ActivityTask>
-                </div>
-
-                <ActivityHint label="why a stack and not a queue">
-                    Undo is always the most recent action first. A stack's LIFO order matches this exactly. A queue would undo your oldest action first — the opposite of what you want.
-                </ActivityHint>
-            </ActivityChallenge>
-
-            {/* ── 03 HASH MAP FOR O(1) SEARCH ─────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Hash Map for O(1) Search" />
-
-            <LectureP>
-                BST search is O(log n). For a phonebook that might have thousands of contacts, you also want O(1) lookup by phone number.
-            </LectureP>
-
-            <ActivityChallenge
-                number="3.1"
-                title="Add the Index"
-                description="Create a secondary index for phone number lookups."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Add a private <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map&lt;string, Contact*&gt; phoneIndex</code> to PhoneBook where the key is the phone number string</ActivityTask>
-                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">addContact</code>, also insert into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
-                    <ActivityTask>In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code>, also erase from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
-                </div>
-
-                <LectureCallout type="info">
-                    <span title="Constant time — the operation takes the same amount of time regardless of how many contacts are in the phonebook. Hash maps achieve this by computing a hash of the key and jumping directly to the bucket.">O(1) lookup</span> means instant access no matter how large your data gets.
-                </LectureCallout>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="3.2"
-                title="Search by Phone Number"
-                description="Implement instant phone number lookups."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* findByPhone(string number)</code> that checks <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">phoneIndex</code></ActivityTask>
-                    <ActivityTask>If found, return the pointer</ActivityTask>
-                    <ActivityTask>If not, return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">nullptr</code></ActivityTask>
-                    <ActivityTask>Add "search by phone" as a menu option</ActivityTask>
-                    <ActivityTask>Print the full contact details if found, or "Not found." if not</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <ActivityChallenge
-                number="3.3"
-                title="Final Menu"
-                description="Put it all together."
-            >
-                <div className="space-y-1">
-                    <ActivityTask>Your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main()</code> menu should now offer: 1) Add contact, 2) Delete contact, 3) List all (alphabetical), 4) Search by phone, 5) Undo last action, 6) Quit</ActivityTask>
-                    <ActivityTask>Compile the full program and run through all 6 options to verify everything works together</ActivityTask>
-                </div>
-            </ActivityChallenge>
-
-            <LectureFooterNav
-                prev={{
-                    label: 'Hash Maps, Complexity & Interview Patterns',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
-                }}
-                next={{
-                    label: 'Scrum, Kanban & Sprint Cycles',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
-                }}
-            />
+                <LectureFooterNav
+                    prev={{
+                        label: 'Hash Maps, Complexity & Interview Patterns',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
+                    }}
+                    next={{
+                        label: 'Classes, Encapsulation & Inheritance',
+                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
+                    }}
+                />
             </LectureLayout>
         </ActivityTaskListProvider>
     );
