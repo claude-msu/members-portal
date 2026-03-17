@@ -2,18 +2,21 @@ import { Button } from "@/components/ui/button";
 import { Instagram, Linkedin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import InteractiveLogo from "@/components/InteractiveLogo";
 import NetworkMap from "@/components/NetworkMap";
 
 const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const heroRef = useRef<HTMLDivElement>(null);
+  const titleText = "Claude Builder Club";
+  const [typedTitle, setTypedTitle] = useState("");
+  const [isTypingComplete, setIsTypingComplete] = useState(false);
+  const [revealStarted, setRevealStarted] = useState(false);
 
   const fadeInUp = {
-    hidden: { opacity: 0, y: 60 },
+    hidden: { opacity: 0, y: 30 },
     visible: {
       opacity: 1,
       y: 0,
@@ -32,12 +35,153 @@ const Index = () => {
     }
   };
 
+  const supportReveal = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.08,
+        delayChildren: 0.08,
+      },
+    },
+  };
+
+  const supportRevealItem = {
+    hidden: { opacity: 0, y: 15 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.8 },
+    },
+  };
+
+  const logoFloatVariants = {
+    floating: {
+      y: [0, -15, 0],
+    },
+  };
+
+  const sideRailReveal = {
+    hidden: { opacity: 0, x: 28 },
+    visible: {
+      opacity: 1,
+      x: 0,
+      transition: { duration: 0.45, delay: 0.12 },
+    },
+  };
+
+  useEffect(() => {
+    let index = 0;
+    const timer = window.setInterval(() => {
+      index += 1;
+      setTypedTitle(titleText.slice(0, index));
+
+      if (index >= titleText.length) {
+        window.clearInterval(timer);
+        setIsTypingComplete(true);
+      }
+    }, 90);
+
+    return () => window.clearInterval(timer);
+  }, [titleText]);
+
+  useEffect(() => {
+    if (!isTypingComplete) return;
+    const t = setTimeout(() => setRevealStarted(true), 300);
+    return () => clearTimeout(t);
+  }, [isTypingComplete]);
+
   return (
-    <div className="min-h-screen relative bg-background">
+    <div className="min-h-screen relative bg-[hsl(33,100%,97%)]">
+      <motion.aside
+        initial="hidden"
+        animate={revealStarted ? "visible" : "hidden"}
+        variants={sideRailReveal}
+        className="fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 md:flex md:flex-col md:gap-3"
+      >
+        <motion.a
+          href="https://www.instagram.com/claudemsu"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Claude Builder Club Instagram"
+          whileHover={{
+            scale: 1.12,
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--on-primary))",
+            y: -3,
+          }}
+          whileTap={{ scale: 1.04 }}
+          transition={{
+            duration: 0.22,
+            ease: "easeOut",
+            backgroundColor: { duration: 0.44 },
+            color: { duration: 0.44 },
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-lg font-black lowercase text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          style={{
+            boxShadow:
+              "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
+          }}
+        >
+          ig
+        </motion.a>
+        <motion.a
+          href="https://www.linkedin.com/company/claude-msu/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Claude Builder Club LinkedIn"
+          whileHover={{
+            scale: 1.12,
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--on-primary))",
+            y: -3,
+          }}
+          whileTap={{ scale: 1.04 }}
+          transition={{
+            duration: 0.22,
+            ease: "easeOut",
+            backgroundColor: { duration: 0.44 },
+            color: { duration: 0.44 },
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-lg font-black lowercase text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          style={{
+            boxShadow:
+              "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
+          }}
+        >
+          in
+        </motion.a>
+        <motion.button
+          type="button"
+          aria-label="Open signup"
+          onClick={() => navigate("/auth#signup")}
+          whileHover={{
+            scale: 1.12,
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--on-primary))",
+            y: -3,
+          }}
+          whileTap={{ scale: 1.04 }}
+          transition={{
+            duration: 0.22,
+            ease: "easeOut",
+            backgroundColor: { duration: 0.44 },
+            color: { duration: 0.44 },
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-lg font-black text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          style={{
+            boxShadow:
+              "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
+          }}
+        >
+          ..
+        </motion.button>
+      </motion.aside>
+
       {/* Content */}
       <div className="relative">
         {/* Hero Section - light */}
-        <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-secondary to-background">
+        <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[hsl(33,100%,97%)] via-[hsl(30,100%,95%)] to-[hsl(33,100%,97%)]">
           {/* Blob canvas - desktop only */}
           {!isMobile && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
@@ -47,55 +191,112 @@ const Index = () => {
             </div>
           )}
           <div className={`relative z-10 container mx-auto px-4 ${isMobile ? 'py-6' : 'py-20'}`}>
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-10'}`}
-            >
-              <InteractiveLogo />
-
+            <div className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-14'}`}>
               <motion.div
-                variants={fadeInUp}
-                className={isMobile ? "space-y-6" : "space-y-10"}
+                initial="hidden"
+                animate={revealStarted ? "visible" : "hidden"}
+                variants={supportReveal}
               >
-                <h1 className={`${isMobile ? 'text-4xl' : 'md:text-7xl lg:text-8xl'} font-black text-primary leading-tight`}>
-                  Claude Builder Club
-                </h1>
-                <div className="flex items-center justify-center gap-3">
-                  <img src="/msu-logo.png" alt="MSU" className={`${isMobile ? 'h-8 w-8' : 'h-10 w-10'}`} />
-                  <p className={`${isMobile ? 'text-xl' : 'text-2xl md:text-3xl'} font-bold text-green-600`}>
-                    Michigan State University
-                  </p>
-                </div>
+                <motion.div variants={supportRevealItem}>
+                  <div className="flex justify-center mb-8 py-10">
+                    <motion.button
+                      type="button"
+                      className="relative group rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                      aria-label="Go to login"
+                      onClick={() => navigate("/auth#login")}
+                      initial={{ scale: 0, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ duration: 0.8, type: "spring", delay: 0.2 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      <motion.div
+                        className="relative flex flex-col items-center"
+                        variants={logoFloatVariants}
+                        animate="floating"
+                        transition={{
+                          duration: 5,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                      >
+                        <div className="absolute inset-0 rounded-full blur-2xl bg-gradient-to-r from-orange-400 to-orange-600 opacity-30" />
+                        <img
+                          src="/claude-logo.png"
+                          alt="Claude Logo"
+                          className="relative object-contain transition-all duration-200 group-hover:drop-shadow-[0_0_22px_rgba(255,122,14,0.45)] drop-shadow-2xl w-[4.5rem] h-[4.5rem] md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-[9.25rem] xl:h-[9.25rem]"
+                        />
+                        <span className="text-center font-medium whitespace-nowrap text-gray-600 mt-3 text-xs md:text-sm lg:text-base">
+                          Click to login
+                        </span>
+                      </motion.div>
+                    </motion.button>
+                  </div>
+                </motion.div>
               </motion.div>
 
-              <motion.p
-                variants={fadeInUp}
-                className={`${isMobile ? 'text-base' : 'text-xl md:text-2xl'} text-muted-foreground max-w-3xl mx-auto leading-relaxed`}
-              >
-              A club like no other. Internships, research, mentorship—we don't just talk. We get you there.
-              </motion.p>
+              <div className={isMobile ? "space-y-6" : "space-y-8"}>
+                <h1 className="lg:text-7xl xl:text-8xl text-5xl font-black text-primary leading-tight">
+                  <span className="relative inline-block">
+                    <span className="invisible">{titleText}</span>
+                    <span className="absolute inset-0">
+                      {typedTitle}
+                      {!isTypingComplete && (
+                        <span
+                          aria-hidden="true"
+                          className="ml-1 inline-block h-[0.95em] w-[2px] translate-y-[0.06em] bg-primary align-middle animate-cursor-blink"
+                        />
+                      )}
+                    </span>
+                  </span>
+                </h1>
+                <motion.div
+                  initial="hidden"
+                  animate={revealStarted ? "visible" : "hidden"}
+                  variants={supportReveal}
+                >
+                  <motion.div variants={supportRevealItem} className="flex items-center justify-center gap-3">
+                    <img src="/msu-logo.png" alt="MSU" className={`${isMobile ? 'h-8 w-8' : 'h-10 w-10'}`} />
+                    <p className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-green-600">
+                      Michigan State University
+                    </p>
+                  </motion.div>
+                </motion.div>
+
+                <motion.div
+                  initial="hidden"
+                  animate={revealStarted ? "visible" : "hidden"}
+                  variants={supportReveal}
+                >
+                  <motion.p
+                    variants={supportRevealItem}
+                    className={`${isMobile ? 'text-base' : 'text-xl md:text-2xl'} text-gray-600 max-w-3xl mx-auto leading-relaxed`}
+                  >
+                    A club like no other. Internships, research, mentorship—we don't just talk. We get you there.
+                  </motion.p>
+                </motion.div>
+              </div>
+
 
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 1 }}
+                initial="hidden"
+                animate={revealStarted ? "visible" : "hidden"}
+                variants={supportReveal}
                 className={`${isMobile ? 'pt-6' : 'pt-12'}`}
               >
-                <div className="inline-flex flex-col items-center gap-2 text-muted-foreground">
+                <motion.div variants={supportRevealItem} className="inline-flex flex-col items-center gap-2 text-gray-600">
                   <span className="text-sm font-medium">Scroll to explore</span>
                   <motion.div
-                    animate={{ y: [0, 10, 0] }}
-                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    animate={{ y: [0, 6, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
                     </svg>
                   </motion.div>
-                </div>
+                </motion.div>
               </motion.div>
-            </motion.div>
+            </div>
           </div>
         </section>
 

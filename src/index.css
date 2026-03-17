@@ -49,6 +49,8 @@ All colors MUST be HSL.
     --input: 30 30% 88%;
     --ring: 25 95% 53%;
 
+    --msu-green: 166 42% 22%;
+
     --radius: 0.75rem;
 
     --sidebar-background: 33 100% 98%;
@@ -95,6 +97,8 @@ All colors MUST be HSL.
     --sidebar-primary-foreground: 33 100% 97%;
     --sidebar-border: 24 15% 20%;
     --sidebar-ring: 25 95% 53%;
+
+    --msu-green: 166 42% 22%;
   }
 }
 
@@ -180,6 +184,21 @@ All colors MUST be HSL.
       opacity: 1;
       transform: scale(1.15);
     }
+  }
+
+  @keyframes cursor-blink {
+    0%,
+    50% {
+      opacity: 1;
+    }
+    51%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .animate-cursor-blink {
+    animation: cursor-blink 0.6s step-end infinite;
   }
 
   .application-dot-current {

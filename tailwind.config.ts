@@ -28,6 +28,7 @@ export default {
         page: "hsl(var(--page))",
         foreground: "hsl(var(--foreground))",
         cream: "hsl(var(--cream))",
+        "msu-green": "hsl(var(--msu-green))",
         "claude-peach": "hsl(var(--claude-peach))",
         "on-primary": "hsl(var(--on-primary))",
         primary: {
@@ -104,11 +105,16 @@ export default {
             transform: "translate(0px, 0px) scale(1)",
           },
         },
+        "cursor-blink": {
+          "0%, 50%": { opacity: "1" },
+          "51%, 100%": { opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         blob: "blob 7s infinite",
+        "cursor-blink": "cursor-blink 0.6s step-end infinite",
       },
     },
   },
