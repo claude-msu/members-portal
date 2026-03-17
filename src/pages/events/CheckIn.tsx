@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Trophy } from 'lucide-react';
 
-const Checkin = () => {
+const CheckIn = () => {
     const { token } = useParams<{ token: string }>();
     const { user, loading, refreshProfile } = useAuth();
     const navigate = useNavigate();
@@ -141,4 +141,4 @@ const Checkin = () => {
     );
 };
 
-export default Checkin;
+export default CheckIn;

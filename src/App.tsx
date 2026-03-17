@@ -1,6 +1,4 @@
 import React, { useEffect } from "react";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -9,6 +7,8 @@ import { BrowserRouter, Routes, Route, Navigate, useSearchParams, useNavigate } 
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { TooltipProvider } from "./components/ui/tooltip";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 
 import Index from "./pages/Index";
 import Auth from "./pages/common/Auth";
@@ -23,7 +23,7 @@ import Projects from "./pages/Projects";
 import Members from "./pages/Members";
 import Profile from "./pages/Profile";
 import Prospects from "./pages/Prospects";
-import Checkin from "./pages/events/CheckIn";
+import CheckIn from "./pages/events/CheckIn";
 import ApplicationViewerPage from "@/pages/applications/ApplicationViewer";
 
 // Class imports
@@ -145,6 +145,9 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <Toaster />
     <Sonner />
+    <Analytics />
+    <SpeedInsights />
+
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <AuthProvider>
         <TooltipProvider delayDuration={150} skipDelayDuration={100}>
@@ -252,7 +255,7 @@ const App = () => (
                 path="/events/checkin/:token"
                 element={
                   <ProtectedRoute>
-                    <Checkin />
+                    <CheckIn />
                   </ProtectedRoute>
                 }
               />
