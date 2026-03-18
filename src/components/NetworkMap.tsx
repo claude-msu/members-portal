@@ -33,7 +33,9 @@ const ROUTES: [number, number][][] = LOCATIONS.filter((l) => !l.isHome).map(
   ]
 );
 
-const ROUTE_COLOR = "#cbd5e1"; // very faint gray (slate-300)
+const ROUTE_COLOR = "#94a3b8"; // lighter gray (slate-400)
+const WATER_COLOR = "#cbd5e1"; // very faint gray (slate-300)
+const CREAM_COLOR = "#FFFDF9"; // very light cream
 
 const DESKTOP_ZOOM = 3;
 const MOBILE_ZOOM = 1.8;
@@ -47,6 +49,23 @@ function DesktopZoomToBounds() {
     if (!isLoaded || !map || isMobile) return;
     map.flyTo({ center: CENTER, zoom: DESKTOP_ZOOM, duration: 0 });
   }, [isLoaded, map, isMobile]);
+  return null;
+}
+
+/** Sets water color, and base land (background) to cream (Carto positron style). */
+function SetMapPaintProperties() {
+  const { map, isLoaded } = useMap();
+  useEffect(() => {
+    if (!isLoaded || !map) return;
+    // Water: fill layer uses "fill-color"
+    if (map.getLayer("water")) {
+      map.setPaintProperty("water", "fill-color", WATER_COLOR);
+    }
+    // Base land is the "background" layer (not "land"); it uses "background-color"
+    if (map.getLayer("background")) {
+      map.setPaintProperty("background", "background-color", CREAM_COLOR);
+    }
+  }, [map, isLoaded]);
   return null;
 }
 
@@ -68,13 +87,14 @@ export default function NetworkMap() {
           className="h-[400px] md:h-[480px] w-full"
         >
           <DesktopZoomToBounds />
+          <SetMapPaintProperties />
           {ROUTES.map((coords, i) => (
             <MapRoute
               key={i}
               coordinates={coords}
               color={ROUTE_COLOR}
               width={3.5}
-              opacity={0.5}
+              opacity={0.55}
               dashArray={[2, 2]}
             />
           ))}
