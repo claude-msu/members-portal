@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import {
   Map,
   MapMarker,
@@ -9,6 +9,7 @@ import {
   useMap,
 } from "@/components/ui/map";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { RotateCcw } from "lucide-react";
 
 const LOCATIONS = [
   { name: "East Lansing", longitude: -84.482988, latitude: 42.72656, isHome: true },
@@ -69,6 +70,34 @@ function SetMapPaintProperties() {
   return null;
 }
 
+/** Reset-view button styled like FamilyTree zoom rocker (top right, no zoom rocker). */
+function ResetViewButton() {
+  const { map, isLoaded } = useMap();
+  const isMobile = useIsMobile();
+
+  const handleReset = useCallback(() => {
+    if (!map || !isLoaded) return;
+    const zoom = isMobile ? MOBILE_ZOOM : DESKTOP_ZOOM;
+    map.flyTo({ center: CENTER, zoom, bearing: 0, pitch: 0, duration: 600 });
+  }, [map, isLoaded, isMobile]);
+
+  if (!isLoaded) return null;
+
+  return (
+    <div className="absolute top-3 right-3 z-10 flex flex-col rounded-lg border border-border bg-card/95 shadow-sm overflow-hidden pointer-events-auto">
+      <button
+        type="button"
+        onClick={handleReset}
+        className="p-2 hover:bg-muted transition-colors text-muted-foreground hover:text-foreground"
+        title="Return to default view"
+        aria-label="Return to default view"
+      >
+        <RotateCcw className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export default function NetworkMap() {
   return (
     <div className="relative w-full rounded-3xl overflow-hidden border border-border/80 bg-background shadow-xl shadow-black/5 ring-1 ring-black/[0.04]">
@@ -88,6 +117,7 @@ export default function NetworkMap() {
         >
           <DesktopZoomToBounds />
           <SetMapPaintProperties />
+          <ResetViewButton />
           {ROUTES.map((coords, i) => (
             <MapRoute
               key={i}

@@ -1,10 +1,12 @@
 import { Button } from "@/components/ui/button";
-import { Instagram, Linkedin, Map, Users } from "lucide-react";
+import { Instagram, Linkedin, Map, Users, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NetworkMap from "@/components/NetworkMap";
+import PipelineDiagram from "@/components/PipelineDiagram";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 const lightModeTokenOverrides = {
   "--cream": "33 100% 97%",
@@ -43,6 +45,7 @@ const Index = () => {
   const glowSectionsRef = useRef<HTMLElement[]>([]);
   const networkSectionRef = useRef<HTMLElement | null>(null);
   const foundationsSectionRef = useRef<HTMLElement | null>(null);
+  const pipelineSectionRef = useRef<HTMLElement | null>(null);
   const titleText = "Claude Builder Club";
   const [typedTitle, setTypedTitle] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -245,106 +248,97 @@ const Index = () => {
         variants={sideRailReveal}
         className="fixed right-4 top-1/2 z-50 hidden md:flex md:flex-col md:gap-3"
       >
-        <motion.button
-          type="button"
-          aria-label="Go to network map section"
-          onClick={() => scrollToSection(networkSectionRef)}
-          whileHover={{
-            scale: 1.12,
-            backgroundColor: "hsl(var(--primary))",
-            color: "hsl(var(--on-primary))",
-            y: -3,
-          }}
-          whileTap={{ scale: 1.04 }}
-          transition={{
-            duration: 0.22,
-            ease: "easeOut",
-            backgroundColor: { duration: 0.44 },
-            color: { duration: 0.44 },
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-          style={{
-            boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)",
-          }}
-        >
-          <Map className="h-5 w-5" />
-        </motion.button>
-        <motion.button
-          type="button"
-          aria-label="Go to foundations section"
-          onClick={() => scrollToSection(foundationsSectionRef)}
-          whileHover={{
-            scale: 1.12,
-            backgroundColor: "hsl(var(--primary))",
-            color: "hsl(var(--on-primary))",
-            y: -3,
-          }}
-          whileTap={{ scale: 1.04 }}
-          transition={{
-            duration: 0.22,
-            ease: "easeOut",
-            backgroundColor: { duration: 0.44 },
-            color: { duration: 0.44 },
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-          style={{
-            boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)",
-          }}
-        >
-          <Users className="h-5 w-5" />
-        </motion.button>
-        <motion.a
-          href="https://www.instagram.com/claudemsu"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Claude Builder Club Instagram"
-          whileHover={{
-            scale: 1.12,
-            backgroundColor: "hsl(var(--primary))",
-            color: "hsl(var(--on-primary))",
-            y: -3,
-          }}
-          whileTap={{ scale: 1.04 }}
-          transition={{
-            duration: 0.22,
-            ease: "easeOut",
-            backgroundColor: { duration: 0.44 },
-            color: { duration: 0.44 },
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-          style={{
-            boxShadow:
-              "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
-          }}
-        >
-          <Instagram className="h-5 w-5" />
-        </motion.a>
-        <motion.a
-          href="https://www.linkedin.com/company/claude-msu/"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="Claude Builder Club LinkedIn"
-          whileHover={{
-            scale: 1.12,
-            backgroundColor: "hsl(var(--primary))",
-            color: "hsl(var(--on-primary))",
-            y: -3,
-          }}
-          whileTap={{ scale: 1.04 }}
-          transition={{
-            duration: 0.22,
-            ease: "easeOut",
-            backgroundColor: { duration: 0.44 },
-            color: { duration: 0.44 },
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-          style={{
-            boxShadow:
-              "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
-          }}
-        >
-          <Linkedin className="h-5 w-5" />
-        </motion.a>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <motion.button
+              type="button"
+              aria-label="Go to pipeline section"
+              onClick={() => scrollToSection(pipelineSectionRef)}
+              whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
+              whileTap={{ scale: 1.04 }}
+              transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
+            >
+              <RefreshCw className="h-5 w-5" />
+            </motion.button>
+          </TooltipTrigger>
+          <TooltipContent side="left">The Pipeline</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <motion.button
+              type="button"
+              aria-label="Go to foundations section"
+              onClick={() => scrollToSection(foundationsSectionRef)}
+              whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
+              whileTap={{ scale: 1.04 }}
+              transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
+            >
+              <Users className="h-5 w-5" />
+            </motion.button>
+          </TooltipTrigger>
+          <TooltipContent side="left">Our Family</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <motion.button
+              type="button"
+              aria-label="Go to network map section"
+              onClick={() => scrollToSection(networkSectionRef)}
+              whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
+              whileTap={{ scale: 1.04 }}
+              transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
+            >
+              <Map className="h-5 w-5" />
+            </motion.button>
+          </TooltipTrigger>
+          <TooltipContent side="left">The Network</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <motion.a
+              href="https://www.instagram.com/claudemsu"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Claude Builder Club Instagram"
+              whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
+              whileTap={{ scale: 1.04 }}
+              transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
+            >
+              <Instagram className="h-5 w-5" />
+            </motion.a>
+          </TooltipTrigger>
+          <TooltipContent side="left">@claudemsu</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <motion.a
+              href="https://www.linkedin.com/company/claude-msu/"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Claude Builder Club LinkedIn"
+              whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
+              whileTap={{ scale: 1.04 }}
+              transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
+            >
+              <Linkedin className="h-5 w-5" />
+            </motion.a>
+          </TooltipTrigger>
+          <TooltipContent side="left">@claude-msu</TooltipContent>
+        </Tooltip>
       </motion.aside>
 
       {/* Content */}
@@ -355,14 +349,14 @@ const Index = () => {
           className="relative min-h-screen flex items-center justify-center overflow-hidden bg-transparent"
         >
           <div className={`relative z-10 container mx-auto px-4 ${isMobile ? 'py-6' : 'py-20'}`}>
-            <div className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-14'}`}>
+            <div className="max-w-5xl mx-auto text-center space-y-14">
               <motion.div
                 initial="hidden"
                 animate={revealStarted ? "visible" : "hidden"}
                 variants={supportReveal}
               >
                 <motion.div variants={supportRevealItem}>
-                  <div className="flex justify-center mb-8 py-10">
+                  <div className="flex justify-center">
                     <motion.button
                       type="button"
                       className="relative group rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
@@ -388,7 +382,7 @@ const Index = () => {
                         <img
                           src="/claude-logo.png"
                           alt="Claude Logo"
-                          className="relative object-contain transition-all duration-200 group-hover:drop-shadow-[0_0_22px_rgba(255,122,14,0.45)] drop-shadow-2xl w-[4.5rem] h-[4.5rem] md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-[9.25rem] xl:h-[9.25rem]"
+                          className="relative object-contain transition-all duration-200 group-hover:drop-shadow-[0_0_22px_rgba(255,122,14,0.45)] drop-shadow-2xl w-[7rem] h-[7rem] md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-[9.25rem] xl:h-[9.25rem]"
                         />
                         <span className="text-center font-medium whitespace-nowrap mt-3 text-xs md:text-xs lg:text-sm">
                           click to login
@@ -400,7 +394,7 @@ const Index = () => {
               </motion.div>
 
               <div className={isMobile ? "space-y-6" : "space-y-8"}>
-                <h1 className="lg:text-7xl xl:text-8xl text-5xl font-black text-primary leading-tight">
+                <h1 className="lg:text-7xl xl:text-8xl text-4xl font-black text-primary leading-tight">
                   <span className="relative inline-block">
                     <span className="invisible">{titleText}</span>
                     <span className="absolute inset-0">
@@ -446,7 +440,6 @@ const Index = () => {
                 initial="hidden"
                 animate={revealStarted ? "visible" : "hidden"}
                 variants={supportReveal}
-                className={`${isMobile ? 'pt-6' : 'pt-12'}`}
               >
                 <motion.div variants={supportRevealItem} className="inline-flex flex-col items-center gap-2 text-gray-600">
                   <span className="text-sm font-medium">Scroll to explore</span>
@@ -464,10 +457,10 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Our network ranges far - Map section */}
+        {/* Pipeline - abstract circular flow diagram */}
         <section
-          ref={networkSectionRef}
-          data-glow-tone="warm"
+          ref={pipelineSectionRef}
+          data-glow-tone="cream"
           className="relative py-32 bg-transparent"
         >
           <div className="container mx-auto px-4">
@@ -479,12 +472,38 @@ const Index = () => {
               className="max-w-6xl mx-auto"
             >
               <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
-                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
-                  A network like no other.
+                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black text-gray-900`}>
+                  The Pipeline.
                 </h2>
               </motion.div>
-              <motion.div variants={fadeInUp} className="w-full">
-                <NetworkMap />
+              <motion.div variants={fadeInUp} className="w-full flex flex-col items-center">
+                <div className={`relative w-full aspect-square mx-auto overflow-hidden ${isMobile ? "w-full" : "max-w-[min(94vw,820px)] md:max-w-[880px]"}`}>
+                  <PipelineDiagram />
+                  {!isMobile && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <motion.p
+                        className="text-sm md:text-base text-gray-600 leading-snug max-w-[280px] font-medium text-center px-4"
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                      >
+                        Intro to Fundamentals, project-based classes, resume workshops, mock interviews, and LeetCode prep. We connect you to internships and research.
+                      </motion.p>
+                    </div>
+                  )}
+                </div>
+                {isMobile && (
+                  <motion.p
+                    className="mt-6 text-base text-gray-600 leading-snug max-w-[340px] font-medium text-center px-4"
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                  >
+                    We set you up—workshops, prep, and real support.
+                  </motion.p>
+                )}
               </motion.div>
             </motion.div>
           </div>
@@ -533,38 +552,28 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Internships & research - arrow diagram */}
-        <section data-glow-tone="cream" className="relative py-24 md:py-32 bg-transparent overflow-hidden">
+        {/* Our network ranges far - Map section */}
+        <section
+          ref={networkSectionRef}
+          data-glow-tone="warm"
+          className="relative py-32 bg-transparent"
+        >
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: "-80px" }}
+              viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
-              className="max-w-4xl mx-auto"
+              className="max-w-6xl mx-auto"
             >
-              <motion.h2 variants={fadeInUp} className={`${isMobile ? 'text-3xl' : 'text-4xl md:text-5xl'} font-black text-gray-900 text-center mb-16 md:mb-20`}>
-                We get you there
-              </motion.h2>
-              {/* Diagram: You → Classes → Projects → Research → Internships */}
-              <motion.div variants={fadeInUp} className="relative flex flex-col md:flex-row items-center justify-center gap-4 md:gap-2 flex-wrap md:flex-nowrap w-full">
-                <div className="rounded-full bg-gray-200 px-5 py-2.5 text-sm font-bold text-gray-800 shrink-0 shadow-sm">You</div>
-                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                <div className="md:hidden text-primary" aria-hidden>↓</div>
-                <div className="rounded-full bg-primary/15 border-2 border-primary/40 px-4 py-2.5 text-sm font-bold text-gray-900 shrink-0">Classes</div>
-                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                <div className="md:hidden text-primary" aria-hidden>↓</div>
-                <div className="rounded-full bg-primary/15 border-2 border-primary/40 px-4 py-2.5 text-sm font-bold text-gray-900 shrink-0">Projects</div>
-                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                <div className="md:hidden text-primary" aria-hidden>↓</div>
-                <div className="rounded-full bg-primary/15 border-2 border-primary/40 px-4 py-2.5 text-sm font-bold text-gray-900 shrink-0">Research</div>
-                <svg className="hidden md:block w-8 h-5 shrink-0 text-primary" fill="none" viewBox="0 0 40 20" aria-hidden><path d="M0 10h22M22 6l6 4-6 4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
-                <div className="md:hidden text-primary" aria-hidden>↓</div>
-                <div className="rounded-full bg-primary px-5 py-2.5 text-sm font-bold text-white shrink-0 shadow-lg ring-2 ring-primary/30">Internships</div>
+              <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
+                <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
+                  A network like no other.
+                </h2>
               </motion.div>
-              <motion.p variants={fadeInUp} className="text-center text-lg md:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto mt-14">
-                We built the pipeline; you go through it. Resume workshops. Mock interviews. LeetCode prep. We don't just pass you the ball—we give you an alley-oop.
-              </motion.p>
+              <motion.div variants={fadeInUp} className="w-full">
+                <NetworkMap />
+              </motion.div>
             </motion.div>
           </div>
         </section>
