@@ -469,15 +469,15 @@ const Index = () => {
               whileInView="visible"
               viewport={{ once: true, margin: "-100px" }}
               variants={staggerContainer}
-              className="max-w-6xl mx-auto"
+
             >
-              <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
+              <motion.div variants={fadeInUp} className="text-center">
                 <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black text-gray-900`}>
                   The Pipeline.
                 </h2>
               </motion.div>
               <motion.div variants={fadeInUp} className="w-full flex flex-col items-center">
-                <div className={`relative w-full aspect-square mx-auto overflow-hidden ${isMobile ? "w-full" : "max-w-[min(94vw,820px)] md:max-w-[880px]"}`}>
+                <div className={`relative w-full mx-auto ${isMobile ? "w-full" : "max-w-[min(94vw,820px)] md:max-w-[880px]"}`}>
                   <PipelineDiagram />
                   {!isMobile && (
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

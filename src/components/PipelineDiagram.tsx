@@ -97,18 +97,35 @@ export default function PipelineDiagram() {
     ];
   }, []);
 
-  // Capture wheel so it never reaches React Flow; allow default (page scroll)
   const allowPageScroll = (e: React.WheelEvent) => {
     e.stopPropagation();
   };
 
   return (
     <div
-      className="absolute inset-0 w-full h-full [&_.react-flow__pane]:bg-transparent [&_.react-flow]:!min-h-0 [&_.react-flow__renderer]:overflow-visible"
+      className="pipeline-diagram-root w-full aspect-square min-w-0 overflow-hidden"
       onWheelCapture={allowPageScroll}
+      style={{ contain: "layout" }}
     >
+      <style>{`
+        .pipeline-diagram-root .react-flow,
+        .pipeline-diagram-root .react-flow__container,
+        .pipeline-diagram-root .react-flow__pane,
+        .pipeline-diagram-root .react-flow__viewport,
+        .pipeline-diagram-root .react-flow__renderer {
+          min-height: 0 !important;
+          height: 100% !important;
+          width: 100% !important;
+        }
+        .pipeline-diagram-root .react-flow {
+          position: absolute;
+          inset: 0;
+        }
+        .pipeline-diagram-root .react-flow__pane {
+          background: transparent;
+        }
+      `}</style>
       <ReactFlow
-        className="!min-h-0"
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
