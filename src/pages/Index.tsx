@@ -2,14 +2,35 @@ import { Button } from "@/components/ui/button";
 import { Instagram, Linkedin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NetworkMap from "@/components/NetworkMap";
+
+const lightModeTokenOverrides = {
+  "--cream": "33 100% 97%",
+  "--page": "33 100% 97%",
+  "--foreground": "24 10% 15%",
+  "--card": "0 0% 100%",
+  "--card-foreground": "24 10% 15%",
+  "--popover": "0 0% 100%",
+  "--popover-foreground": "24 10% 15%",
+  "--primary": "14 69% 60%",
+  "--on-primary": "33 100% 97%",
+  "--secondary": "30 100% 95%",
+  "--secondary-foreground": "24 10% 15%",
+  "--muted": "30 40% 93%",
+  "--muted-foreground": "24 8% 45%",
+  "--border": "30 30% 88%",
+  "--input": "30 30% 88%",
+  "--ring": "25 95% 53%",
+  "--msu-green": "166 42% 22%",
+} as CSSProperties;
 
 const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const heroRef = useRef<HTMLDivElement>(null);
+  const mouseGlowRef = useRef<HTMLDivElement>(null);
   const titleText = "Claude Builder Club";
   const [typedTitle, setTypedTitle] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -91,13 +112,31 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [isTypingComplete]);
 
+  const updateHeroGlow = (clientX: number, clientY: number) => {
+    if (!heroRef.current || !mouseGlowRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
+    mouseGlowRef.current.style.opacity = "1";
+    mouseGlowRef.current.style.background = `radial-gradient(circle 500px at ${x}px ${y}px, rgba(209, 116, 87, 0.15), transparent 80%)`;
+  };
+
+  const handleHeroMouseMove = (event: React.MouseEvent<HTMLElement>) => {
+    updateHeroGlow(event.clientX, event.clientY);
+  };
+
+  const handleHeroMouseLeave = () => {
+    if (!mouseGlowRef.current) return;
+    mouseGlowRef.current.style.opacity = "0";
+  };
+
   return (
-    <div className="min-h-screen relative bg-[hsl(33,100%,97%)]">
+    <div className="min-h-screen relative bg-[hsl(33,100%,97%)]" style={lightModeTokenOverrides}>
       <motion.aside
         initial="hidden"
-        animate={revealStarted ? "visible" : "hidden"}
+        animate="visible"
         variants={sideRailReveal}
-        className="fixed right-4 top-1/2 z-30 hidden -translate-y-1/2 md:flex md:flex-col md:gap-3"
+        className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 md:flex md:flex-col md:gap-3"
       >
         <motion.a
           href="https://www.instagram.com/claudemsu"
@@ -179,17 +218,29 @@ const Index = () => {
       </motion.aside>
 
       {/* Content */}
-      <div className="relative">
+      <div className="relative z-30">
         {/* Hero Section - light */}
-        <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[hsl(33,100%,97%)] via-[hsl(30,100%,95%)] to-[hsl(33,100%,97%)]">
-          {/* Blob canvas - desktop only */}
-          {!isMobile && (
-            <div className="absolute inset-0 pointer-events-none overflow-hidden" aria-hidden>
-              <div className="absolute top-20 left-20 w-96 h-96 bg-primary/20 rounded-full filter blur-3xl animate-blob" />
-              <div className="absolute top-40 right-20 w-80 h-80 bg-orange-500/15 rounded-full filter blur-3xl animate-blob animation-delay-2000" />
-              <div className="absolute bottom-20 left-40 w-80 h-80 bg-amber-500/10 rounded-full filter blur-3xl animate-blob animation-delay-4000" />
-            </div>
-          )}
+        <section
+          ref={heroRef}
+          onMouseMove={handleHeroMouseMove}
+          onMouseLeave={handleHeroMouseLeave}
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[hsl(33,100%,97%)] via-[hsl(30,100%,95%)] to-[hsl(33,100%,97%)]"
+        >
+          {/* Soft blurred background field */}
+          <div
+            className="absolute inset-0 pointer-events-none"
+            aria-hidden
+            style={{
+              background:
+                "radial-gradient(60% 55% at 50% 48%, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.05) 35%, transparent 72%)",
+              filter: "blur(18px)",
+            }}
+          />
+          <div
+            ref={mouseGlowRef}
+            className="absolute inset-0 pointer-events-none z-[1] opacity-0 transition-opacity duration-200 mix-blend-multiply"
+            aria-hidden
+          />
           <div className={`relative z-10 container mx-auto px-4 ${isMobile ? 'py-6' : 'py-20'}`}>
             <div className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-14'}`}>
               <motion.div
@@ -211,7 +262,7 @@ const Index = () => {
                       whileTap={{ scale: 0.98 }}
                     >
                       <motion.div
-                        className="relative flex flex-col items-center"
+                        className="relative flex flex-col items-center text-gray-600/60 hover:text-primary"
                         variants={logoFloatVariants}
                         animate="floating"
                         transition={{
@@ -226,7 +277,7 @@ const Index = () => {
                           alt="Claude Logo"
                           className="relative object-contain transition-all duration-200 group-hover:drop-shadow-[0_0_22px_rgba(255,122,14,0.45)] drop-shadow-2xl w-[4.5rem] h-[4.5rem] md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-[9.25rem] xl:h-[9.25rem]"
                         />
-                        <span className="text-center font-medium whitespace-nowrap text-gray-600 mt-3 text-xs md:text-sm lg:text-base">
+                        <span className="text-center font-medium whitespace-nowrap mt-3 text-xs md:text-xs lg:text-sm">
                           Click to login
                         </span>
                       </motion.div>
@@ -244,7 +295,7 @@ const Index = () => {
                       {!isTypingComplete && (
                         <span
                           aria-hidden="true"
-                          className="ml-1 inline-block h-[0.95em] w-[2px] translate-y-[0.06em] bg-primary align-middle animate-cursor-blink"
+                          className="ml-1 inline-block h-[0.95em] w-[8px] translate-y-[-0.16em] bg-primary align-middle animate-cursor-blink"
                         />
                       )}
                     </span>
@@ -312,7 +363,7 @@ const Index = () => {
             >
               <motion.div variants={fadeInUp} className={`text-center ${isMobile ? 'mb-10' : 'mb-14'}`}>
                 <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-6xl'} font-black bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent`}>
-                  A network like no other
+                  A network like no other.
                 </h2>
               </motion.div>
               <motion.div variants={fadeInUp} className="w-full">
