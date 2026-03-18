@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Instagram, Linkedin } from "lucide-react";
+import { Instagram, Linkedin, Map, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
@@ -26,11 +26,23 @@ const lightModeTokenOverrides = {
   "--msu-green": "166 42% 22%",
 } as CSSProperties;
 
+type GlowTone = "cream" | "warm" | "dark" | "primary";
+
+const glowToneMap: Record<GlowTone, { rgb: [number, number, number]; inner: number; mid: number; outer: number }> = {
+  // Cream sections intentionally glow with primary tone
+  cream: { rgb: [209, 116, 87], inner: 0.26, mid: 0.16, outer: 0.08 },
+  warm: { rgb: [200, 140, 102], inner: 0.22, mid: 0.14, outer: 0.07 },
+  dark: { rgb: [70, 84, 112], inner: 0.34, mid: 0.22, outer: 0.12 },
+  primary: { rgb: [170, 86, 63], inner: 0.3, mid: 0.2, outer: 0.1 },
+};
+
 const Index = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const heroRef = useRef<HTMLDivElement>(null);
   const mouseGlowRef = useRef<HTMLDivElement>(null);
+  const glowSectionsRef = useRef<HTMLElement[]>([]);
+  const networkSectionRef = useRef<HTMLElement | null>(null);
+  const foundationsSectionRef = useRef<HTMLElement | null>(null);
   const titleText = "Claude Builder Club";
   const [typedTitle, setTypedTitle] = useState("");
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -83,10 +95,11 @@ const Index = () => {
   };
 
   const sideRailReveal = {
-    hidden: { opacity: 0, x: 28 },
+    hidden: { opacity: 0, x: 28, y: "-50%" },
     visible: {
       opacity: 1,
       x: 0,
+      y: "-50%",
       transition: { duration: 0.45, delay: 0.12 },
     },
   };
@@ -112,32 +125,174 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [isTypingComplete]);
 
-  const updateHeroGlow = (clientX: number, clientY: number) => {
-    if (!heroRef.current || !mouseGlowRef.current) return;
-    const rect = heroRef.current.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-    mouseGlowRef.current.style.opacity = "1";
-    mouseGlowRef.current.style.background = `radial-gradient(circle 500px at ${x}px ${y}px, rgba(209, 116, 87, 0.15), transparent 80%)`;
+  const getBlendedTone = (clientY: number) => {
+    const sections = glowSectionsRef.current;
+    if (!sections.length) return glowToneMap.cream;
+
+    const sigma = 240; // Higher = smoother color transition across section boundaries
+    const toneWeights: Record<GlowTone, number> = {
+      cream: 0.0001,
+      warm: 0.0001,
+      dark: 0.0001,
+      primary: 0.0001,
+    };
+
+    for (const section of sections) {
+      const toneAttr = section.dataset.glowTone as GlowTone | undefined;
+      if (!toneAttr || !glowToneMap[toneAttr]) continue;
+      const rect = section.getBoundingClientRect();
+      const inside = clientY >= rect.top && clientY <= rect.bottom;
+      const edgeDistance = inside
+        ? 0
+        : Math.min(Math.abs(clientY - rect.top), Math.abs(clientY - rect.bottom));
+
+      const proximityWeight = Math.exp(-(edgeDistance * edgeDistance) / (2 * sigma * sigma));
+      toneWeights[toneAttr] += proximityWeight + (inside ? 0.9 : 0);
+    }
+
+    const totalWeight = toneWeights.cream + toneWeights.warm + toneWeights.dark + toneWeights.primary;
+    const normalized = {
+      cream: toneWeights.cream / totalWeight,
+      warm: toneWeights.warm / totalWeight,
+      dark: toneWeights.dark / totalWeight,
+      primary: toneWeights.primary / totalWeight,
+    };
+
+    const mixChannel = (index: 0 | 1 | 2) =>
+      Math.round(
+        glowToneMap.cream.rgb[index] * normalized.cream +
+        glowToneMap.warm.rgb[index] * normalized.warm +
+        glowToneMap.dark.rgb[index] * normalized.dark +
+        glowToneMap.primary.rgb[index] * normalized.primary
+      );
+
+    const mixAlpha = (key: "inner" | "mid" | "outer") =>
+      glowToneMap.cream[key] * normalized.cream +
+      glowToneMap.warm[key] * normalized.warm +
+      glowToneMap.dark[key] * normalized.dark +
+      glowToneMap.primary[key] * normalized.primary;
+
+    return {
+      rgb: [mixChannel(0), mixChannel(1), mixChannel(2)] as [number, number, number],
+      inner: mixAlpha("inner"),
+      mid: mixAlpha("mid"),
+      outer: mixAlpha("outer"),
+    };
   };
 
-  const handleHeroMouseMove = (event: React.MouseEvent<HTMLElement>) => {
-    updateHeroGlow(event.clientX, event.clientY);
-  };
-
-  const handleHeroMouseLeave = () => {
+  const updatePageGlow = (clientX: number, clientY: number) => {
     if (!mouseGlowRef.current) return;
-    mouseGlowRef.current.style.opacity = "0";
+    const { rgb, inner, mid, outer } = getBlendedTone(clientY);
+    mouseGlowRef.current.style.background = `
+      radial-gradient(circle 360px at ${clientX}px ${clientY}px, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${inner}) 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${mid}) 34%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0) 76%),
+      radial-gradient(circle 760px at ${clientX}px ${clientY}px, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${outer}) 0%, rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, 0) 88%)
+    `;
+  };
+
+  useEffect(() => {
+    glowSectionsRef.current = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-glow-tone]")
+    );
+    // Set a default glow at the center before pointer movement.
+    updatePageGlow(window.innerWidth / 2, window.innerHeight / 2);
+  }, []);
+
+  const handlePageMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    updatePageGlow(event.clientX, event.clientY);
+  };
+
+  const scrollToSection = (targetRef: React.RefObject<HTMLElement | null>) => {
+    targetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="min-h-screen relative bg-[hsl(33,100%,97%)]" style={lightModeTokenOverrides}>
+    <div
+      className="min-h-screen relative bg-[hsl(33,100%,97%)]"
+      style={lightModeTokenOverrides}
+      onMouseMove={handlePageMouseMove}
+    >
+      {/* Continuous blurred canvas behind entire page */}
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" aria-hidden>
+        <motion.div
+          className="absolute -inset-[20%] opacity-60 blur-[95px]"
+          style={{
+            background: `
+              linear-gradient(120deg, hsl(var(--primary) / 0.18) 0%, transparent 36%, hsl(var(--msu-green) / 0.12) 66%, transparent 100%),
+              linear-gradient(250deg, hsl(28 85% 72% / 0.14) 0%, transparent 42%, hsl(var(--primary) / 0.12) 100%),
+              linear-gradient(180deg, hsl(33 100% 97% / 0.84), hsl(33 100% 97% / 0.76))
+            `,
+          }}
+          animate={{
+            x: ["-3%", "2%", "-1%", "0%"],
+            y: ["-1%", "1.5%", "-2%", "0%"],
+            scale: [1, 1.03, 1.01, 1],
+          }}
+          transition={{
+            duration: 24,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+        />
+      </div>
+      <div
+        ref={mouseGlowRef}
+        className="fixed top-0 left-0 w-screen h-screen pointer-events-none z-20 mix-blend-multiply transition-[background] duration-150"
+        aria-hidden
+      />
       <motion.aside
         initial="hidden"
         animate="visible"
         variants={sideRailReveal}
-        className="fixed right-4 top-1/2 z-50 hidden -translate-y-1/2 md:flex md:flex-col md:gap-3"
+        className="fixed right-4 top-1/2 z-50 hidden md:flex md:flex-col md:gap-3"
       >
+        <motion.button
+          type="button"
+          aria-label="Go to network map section"
+          onClick={() => scrollToSection(networkSectionRef)}
+          whileHover={{
+            scale: 1.12,
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--on-primary))",
+            y: -3,
+          }}
+          whileTap={{ scale: 1.04 }}
+          transition={{
+            duration: 0.22,
+            ease: "easeOut",
+            backgroundColor: { duration: 0.44 },
+            color: { duration: 0.44 },
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          style={{
+            boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)",
+          }}
+        >
+          <Map className="h-5 w-5" />
+        </motion.button>
+        <motion.button
+          type="button"
+          aria-label="Go to foundations section"
+          onClick={() => scrollToSection(foundationsSectionRef)}
+          whileHover={{
+            scale: 1.12,
+            backgroundColor: "hsl(var(--primary))",
+            color: "hsl(var(--on-primary))",
+            y: -3,
+          }}
+          whileTap={{ scale: 1.04 }}
+          transition={{
+            duration: 0.22,
+            ease: "easeOut",
+            backgroundColor: { duration: 0.44 },
+            color: { duration: 0.44 },
+          }}
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          style={{
+            boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)",
+          }}
+        >
+          <Users className="h-5 w-5" />
+        </motion.button>
         <motion.a
           href="https://www.instagram.com/claudemsu"
           target="_blank"
@@ -156,13 +311,13 @@ const Index = () => {
             backgroundColor: { duration: 0.44 },
             color: { duration: 0.44 },
           }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-lg font-black lowercase text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           style={{
             boxShadow:
               "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
           }}
         >
-          ig
+          <Instagram className="h-5 w-5" />
         </motion.a>
         <motion.a
           href="https://www.linkedin.com/company/claude-msu/"
@@ -182,65 +337,23 @@ const Index = () => {
             backgroundColor: { duration: 0.44 },
             color: { duration: 0.44 },
           }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-lg font-black lowercase text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
           style={{
             boxShadow:
               "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
           }}
         >
-          in
+          <Linkedin className="h-5 w-5" />
         </motion.a>
-        <motion.button
-          type="button"
-          aria-label="Open signup"
-          onClick={() => navigate("/auth#signup")}
-          whileHover={{
-            scale: 1.12,
-            backgroundColor: "hsl(var(--primary))",
-            color: "hsl(var(--on-primary))",
-            y: -3,
-          }}
-          whileTap={{ scale: 1.04 }}
-          transition={{
-            duration: 0.22,
-            ease: "easeOut",
-            backgroundColor: { duration: 0.44 },
-            color: { duration: 0.44 },
-          }}
-          className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-lg font-black text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
-          style={{
-            boxShadow:
-              "0 2px 8px 0 rgba(31, 41, 55, 0.20)", // reduced shadow
-          }}
-        >
-          ..
-        </motion.button>
       </motion.aside>
 
       {/* Content */}
       <div className="relative z-30">
         {/* Hero Section - light */}
         <section
-          ref={heroRef}
-          onMouseMove={handleHeroMouseMove}
-          onMouseLeave={handleHeroMouseLeave}
-          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-[hsl(33,100%,97%)] via-[hsl(30,100%,95%)] to-[hsl(33,100%,97%)]"
+          data-glow-tone="cream"
+          className="relative min-h-screen flex items-center justify-center overflow-hidden bg-transparent"
         >
-          {/* Soft blurred background field */}
-          <div
-            className="absolute inset-0 pointer-events-none"
-            aria-hidden
-            style={{
-              background:
-                "radial-gradient(60% 55% at 50% 48%, hsl(var(--primary) / 0.12) 0%, hsl(var(--primary) / 0.05) 35%, transparent 72%)",
-              filter: "blur(18px)",
-            }}
-          />
-          <div
-            ref={mouseGlowRef}
-            className="absolute inset-0 pointer-events-none z-[1] opacity-0 transition-opacity duration-200 mix-blend-multiply"
-            aria-hidden
-          />
           <div className={`relative z-10 container mx-auto px-4 ${isMobile ? 'py-6' : 'py-20'}`}>
             <div className={`max-w-5xl mx-auto text-center ${isMobile ? 'space-y-6' : 'space-y-14'}`}>
               <motion.div
@@ -278,7 +391,7 @@ const Index = () => {
                           className="relative object-contain transition-all duration-200 group-hover:drop-shadow-[0_0_22px_rgba(255,122,14,0.45)] drop-shadow-2xl w-[4.5rem] h-[4.5rem] md:w-28 md:h-28 lg:w-32 lg:h-32 xl:w-[9.25rem] xl:h-[9.25rem]"
                         />
                         <span className="text-center font-medium whitespace-nowrap mt-3 text-xs md:text-xs lg:text-sm">
-                          Click to login
+                          click to login
                         </span>
                       </motion.div>
                     </motion.button>
@@ -352,7 +465,11 @@ const Index = () => {
         </section>
 
         {/* Our network ranges far - Map section */}
-        <section className="relative py-32 bg-gradient-to-br from-orange-50/30 via-cream to-orange-50/30">
+        <section
+          ref={networkSectionRef}
+          data-glow-tone="warm"
+          className="relative py-32 bg-transparent"
+        >
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -374,7 +491,11 @@ const Index = () => {
         </section>
 
         {/* Big/Little - foundation */}
-        <section className="relative py-24 md:py-32 bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 overflow-hidden">
+        <section
+          ref={foundationsSectionRef}
+          data-glow-tone="dark"
+          className="relative py-24 md:py-32 bg-black/45 overflow-hidden"
+        >
           {/* Large decorative "3" - centered, bigger on mobile */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none" aria-hidden>
             <span className="block text-[90vw] md:text-[min(40vw,32rem)] font-black text-white select-none leading-[0.85] translate-y-[-3%]" style={{ opacity: 0.08 }} aria-hidden>
@@ -413,7 +534,7 @@ const Index = () => {
         </section>
 
         {/* Internships & research - arrow diagram */}
-        <section className="relative py-24 md:py-32 bg-cream overflow-hidden">
+        <section data-glow-tone="cream" className="relative py-24 md:py-32 bg-transparent overflow-hidden">
           <div className="container mx-auto px-4">
             <motion.div
               initial="hidden"
@@ -448,62 +569,8 @@ const Index = () => {
           </div>
         </section>
 
-        {/* Final CTA Section */}
-        <section className={`relative ${isMobile ? 'py-20' : 'py-32'} bg-gradient-to-br from-primary via-primary/80 to-primary text-white overflow-hidden`}>
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 left-0 w-full h-full" style={{
-              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
-            }}></div>
-          </div>
-
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            variants={fadeInUp}
-            className="container mx-auto px-4 relative z-10"
-          >
-            <div className="max-w-4xl mx-auto text-center space-y-12">
-              <h2 className={`${isMobile ? 'text-4xl' : 'text-5xl md:text-7xl'} font-black leading-tight`}>
-                Spread the Joy of CS
-              </h2>
-              <p className={`${isMobile ? 'text-lg' : 'text-xl md:text-2xl'} opacity-95 max-w-2xl mx-auto leading-relaxed`}>
-                Join the club that goes all in. Three families, real prep, and a network like no other.
-              </p>
-
-              <div className={`flex items-center justify-center gap-6 pt-8 ${isMobile ? 'flex-col' : 'flex-row'}`}>
-                <Button
-                  size="lg"
-                  onClick={() => window.open('https://www.instagram.com/claudemsu', '_blank')}
-                  className={`bg-white text-primary hover:bg-cream font-bold shadow-2xl hover:scale-105 transition-transform ${isMobile ? 'text-base px-8 py-6 w-full max-w-xs' : 'text-lg px-10 py-7'}`}
-                >
-                  <Instagram className={`${isMobile ? 'h-5 w-5 mr-2' : 'h-6 w-6 mr-3'}`} />
-                  Instagram
-                </Button>
-
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/auth#signup')}
-                  className={`bg-white text-primary hover:bg-cream font-bold shadow-2xl hover:scale-110 transition-transform border-4 border-white/50 ${isMobile ? 'text-lg px-12 py-7 w-full max-w-xs' : 'text-xl px-16 py-8'}`}
-                >
-                  Apply Now
-                </Button>
-
-                <Button
-                  size="lg"
-                  onClick={() => window.open('https://www.linkedin.com/company/claude-msu/', '_blank')}
-                  className={`bg-white text-primary hover:bg-cream font-bold shadow-2xl hover:scale-105 transition-transform ${isMobile ? 'text-base px-8 py-6 w-full max-w-xs' : 'text-lg px-10 py-7'}`}
-                >
-                  <Linkedin className={`${isMobile ? 'h-5 w-5 mr-2' : 'h-6 w-6 mr-3'}`} />
-                  LinkedIn
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        </section>
-
         {/* Footer */}
-        <footer className="relative bg-cream py-12">
+        <footer data-glow-tone="cream" className="relative bg-transparent py-12">
           <div className="container mx-auto px-4 text-center">
             <div className="flex items-center justify-center gap-3 mb-4">
               <img src="/claude-logo-transparent.png" alt="Claude Logo" className="h-8 w-8" />
