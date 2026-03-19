@@ -205,7 +205,7 @@ const Index = () => {
   };
 
   const scrollToSection = (targetRef: React.RefObject<HTMLElement | null>) => {
-    targetRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    targetRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
   };
 
   return (
@@ -312,7 +312,7 @@ const Index = () => {
               whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
               whileTap={{ scale: 1.04 }}
               transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
-              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-[#E4405F] backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
             >
               <Instagram className="h-5 w-5" />
@@ -331,7 +331,7 @@ const Index = () => {
               whileHover={{ scale: 1.12, backgroundColor: "hsl(var(--primary))", color: "hsl(var(--on-primary))", y: -3 }}
               whileTap={{ scale: 1.04 }}
               transition={{ duration: 0.22, ease: "easeOut", backgroundColor: { duration: 0.44 }, color: { duration: 0.44 } }}
-              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-gray-500 backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className="flex h-12 w-12 items-center justify-center rounded-full border-0 bg-white/70 text-[#0A66C2] backdrop-blur-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-white"
               style={{ boxShadow: "0 2px 8px 0 rgba(31, 41, 55, 0.20)" }}
             >
               <Linkedin className="h-5 w-5" />
@@ -393,7 +393,7 @@ const Index = () => {
                 </motion.div>
               </motion.div>
 
-              <div className={isMobile ? "space-y-6" : "space-y-8"}>
+              <div className={isMobile ? "space-y-6" : "space-y-8 md:py-6"}>
                 <h1 className="lg:text-7xl xl:text-8xl text-4xl font-black text-primary leading-tight">
                   <span className="relative inline-block">
                     <span className="invisible">{titleText}</span>

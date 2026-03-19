@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef, useState } from "react";
 import {
   Map,
   MapMarker,
@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/map";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { RotateCcw } from "lucide-react";
+
+/** Duration for one full conveyor cycle (dashes moving along the line). */
+const ROUTE_CONVEYOR_CYCLE_MS = 1200;
 
 const LOCATIONS = [
   { name: "East Lansing", longitude: -84.482988, latitude: 42.72656, isHome: true },
@@ -70,6 +73,59 @@ function SetMapPaintProperties() {
   return null;
 }
 
+/** Continuous conveyor-style dash phase (0→1, loops); full route always visible. */
+function useConveyorPhase(isActive: boolean) {
+  const [phase, setPhase] = useState(0);
+  const rafRef = useRef<number>(0);
+  const startTimeRef = useRef<number>(0);
+
+  useEffect(() => {
+    if (!isActive) return;
+
+    const tick = (timestamp: number) => {
+      if (startTimeRef.current === 0) startTimeRef.current = timestamp;
+      let elapsed = timestamp - startTimeRef.current;
+      if (elapsed >= ROUTE_CONVEYOR_CYCLE_MS) {
+        startTimeRef.current = timestamp;
+        elapsed %= ROUTE_CONVEYOR_CYCLE_MS;
+      }
+      setPhase(elapsed / ROUTE_CONVEYOR_CYCLE_MS);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [isActive]);
+
+  return phase;
+}
+
+/** Renders full route lines with conveyor-belt style marching dashes toward each point. */
+function AnimatedRoutes() {
+  const { isLoaded } = useMap();
+  const dashPhase = useConveyorPhase(!!isLoaded);
+
+  if (!isLoaded) return null;
+
+  return (
+    <>
+      {ROUTES.map((coords, i) => (
+        <MapRoute
+          key={i}
+          coordinates={coords}
+          color={ROUTE_COLOR}
+          width={3.5}
+          opacity={0.55}
+          dashArray={[2, 2]}
+          dashPhase={dashPhase}
+        />
+      ))}
+    </>
+  );
+}
+
 /** Reset-view button styled like FamilyTree zoom rocker (top right, no zoom rocker). */
 function ResetViewButton() {
   const { map, isLoaded } = useMap();
@@ -118,16 +174,7 @@ export default function NetworkMap() {
           <DesktopZoomToBounds />
           <SetMapPaintProperties />
           <ResetViewButton />
-          {ROUTES.map((coords, i) => (
-            <MapRoute
-              key={i}
-              coordinates={coords}
-              color={ROUTE_COLOR}
-              width={3.5}
-              opacity={0.55}
-              dashArray={[2, 2]}
-            />
-          ))}
+          <AnimatedRoutes />
           {LOCATIONS.map((loc) => (
             <MapMarker
               key={loc.name}

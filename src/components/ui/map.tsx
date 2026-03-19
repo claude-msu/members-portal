@@ -1037,6 +1037,8 @@ type MapRouteProps = {
   opacity?: number;
   /** Dash pattern [dash length, gap length] for dashed lines */
   dashArray?: [number, number];
+  /** Phase 0–1 to animate dashes along the line (e.g. conveyor effect); used with dashArray */
+  dashPhase?: number;
   /** Callback when the route line is clicked */
   onClick?: () => void;
   /** Callback when mouse enters the route line */
@@ -1047,6 +1049,19 @@ type MapRouteProps = {
   interactive?: boolean;
 };
 
+function getEffectiveDashArray(
+  dashArray: [number, number],
+  phase: number
+): [number, number] {
+  const [dash, gap] = dashArray;
+  const p = phase % 1;
+  if (p < 0) return dashArray;
+  return [
+    dash * (1 - p) + gap * p,
+    dash * p + gap * (1 - p),
+  ];
+}
+
 function MapRoute({
   id: propId,
   coordinates,
@@ -1054,6 +1069,7 @@ function MapRoute({
   width = 3,
   opacity = 0.8,
   dashArray,
+  dashPhase,
   onClick,
   onMouseEnter,
   onMouseLeave,
@@ -1078,6 +1094,10 @@ function MapRoute({
       },
     });
 
+    const effectiveDash =
+      dashArray && dashPhase !== undefined
+        ? getEffectiveDashArray(dashArray, dashPhase)
+        : dashArray;
     map.addLayer({
       id: layerId,
       type: "line",
@@ -1087,7 +1107,7 @@ function MapRoute({
         "line-color": color,
         "line-width": width,
         "line-opacity": opacity,
-        ...(dashArray && { "line-dasharray": dashArray }),
+        ...(effectiveDash && { "line-dasharray": effectiveDash }),
       },
     });
 
@@ -1116,18 +1136,23 @@ function MapRoute({
     }
   }, [isLoaded, map, coordinates, sourceId]);
 
+  const effectiveDash =
+    dashArray && dashPhase !== undefined
+      ? getEffectiveDashArray(dashArray, dashPhase)
+      : dashArray;
+
   useEffect(() => {
     if (!isLoaded || !map || !map.getLayer(layerId)) return;
 
     map.setPaintProperty(layerId, "line-color", color);
     map.setPaintProperty(layerId, "line-width", width);
     map.setPaintProperty(layerId, "line-opacity", opacity);
-    if (dashArray) {
+    if (effectiveDash) {
       map.setLayoutProperty(layerId, "line-cap", "round");
       map.setLayoutProperty(layerId, "line-join", "round");
-      map.setPaintProperty(layerId, "line-dasharray", dashArray);
+      map.setPaintProperty(layerId, "line-dasharray", effectiveDash);
     }
-  }, [isLoaded, map, layerId, color, width, opacity, dashArray]);
+  }, [isLoaded, map, layerId, color, width, opacity, effectiveDash]);
 
   // Handle click and hover events
   useEffect(() => {
