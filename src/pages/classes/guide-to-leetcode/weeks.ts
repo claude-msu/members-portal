@@ -22,9 +22,6 @@ export interface Question {
 }
 
 /**
- * Section of a concept sheet containing learning materials or lists.
- *
-/**
  * Week config and questions.
  *
  * Current week is determined by getCurrent() from the active semester (index.tsx).
