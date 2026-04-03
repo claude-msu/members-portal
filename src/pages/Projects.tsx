@@ -457,11 +457,6 @@ const Projects = () => {
 
     if (!status) return null;
 
-    // Check if project has started (semester start date is in the past)
-    const projectHasStarted = project.semesters?.start_date
-      ? new Date(project.semesters.start_date) <= new Date()
-      : false;
-
     const badges = [];
     if (isMember && !isMobile) {
       badges.push(
@@ -540,7 +535,7 @@ const Projects = () => {
     }
 
     // Only show GitHub button if project has started
-    if (projectHasStarted) {
+    if (project.github_project_id && !isMobile) {
       actions.push({
         label: 'View on GitHub',
         onClick: () => window.open(`https://github.com/orgs/claude-msu/projects/${project.github_project_id}`, '_blank'),
