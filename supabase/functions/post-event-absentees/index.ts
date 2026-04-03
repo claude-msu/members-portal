@@ -8,10 +8,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 const SLACK_BOT_TOKEN = Deno.env.get('SLACK_BOT_TOKEN')!
-
-// Channel name to post reports to (no # prefix).
-// Override via: supabase secrets set SLACK_ADMIN_CHANNEL_NAME=your-channel
-const SLACK_ADMIN_CHANNEL_NAME = Deno.env.get('SLACK_ADMIN_CHANNEL_NAME') ?? 'admin-board'
+const SLACK_EVENTS_CHANNEL_NAME = Deno.env.get('SLACK_EVENTS_CHANNEL_NAME')!
 
 // Same timestamp format as process-start-automation (Postgres-friendly).
 function toPgTimestamp(d: Date): string {
@@ -385,7 +382,7 @@ serve(async (req) => {
 
     try {
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
-        const adminChannelId = await lookupChannelIdByName(SLACK_ADMIN_CHANNEL_NAME)
+        const adminChannelId = await lookupChannelIdByName(SLACK_EVENTS_CHANNEL_NAME)
 
         const { rangeStart, rangeEnd } = getLast24HoursRange()
         const { data: events, error: eventsError } = await supabase
