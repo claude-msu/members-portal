@@ -10,7 +10,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── BST diagram ───────────────────────────────────────────────────────────────
 const BstDiagram = () => (
@@ -68,7 +68,7 @@ export default function Week3Lecture2() {
             {/* ── 02 OOP IN C++ — VIRTUAL & PURE VIRTUAL ──────────────────────── */}
             <LectureSectionHeading number="02" title="OOP in C++ — Virtual & Pure Virtual" />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="encapsulation — Book class with private state"
                 lines={[
                     'class Book {',
@@ -97,7 +97,7 @@ export default function Week3Lecture2() {
                 ]}
             />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="inheritance + polymorphism — virtual methods"
                 lines={[
                     'class LibraryItem {',
@@ -187,7 +187,7 @@ export default function Week3Lecture2() {
             <LectureP>
                 Real code leans on the STL for iteration, sorting, and lookups. Here's a typical pattern: fill a vector, sort it, and use a map for counts or caching.
             </LectureP>
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="vector, sort, map — common STL usage"
                 lines={[
                     '#include <vector>',

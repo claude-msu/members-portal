@@ -25,11 +25,9 @@ const TAILWIND_PALETTE: Record<string, Record<number, string>> = {
 const SHADES = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950] as const;
 const PALETTE_COLORS = ['slate', 'orange', 'blue', 'emerald', 'rose', 'amber'] as const;
 
-// Shared class strings to satisfy Tailwind linter (no duplicate-utility warnings)
+import { CodeBlock } from '@/components/ui/code-block';
+
 const CODE_INLINE = 'text-xs bg-muted px-1.5 py-0.5 rounded border';
-const CODE_BLOCK_ROOT = 'my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs';
-const CODE_BLOCK_HEADER = 'bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none';
-const CODE_BLOCK_BODY = 'bg-zinc-950 px-4 py-4 space-y-1 select-none';
 
 // ── Live class preview card ───────────────────────────────────────────────────
 const TailwindPreview = ({
@@ -76,27 +74,23 @@ export default function Week7Lecture2() {
                 Every Tailwind class does exactly one thing. <code className={CODE_INLINE}>p-4</code> adds padding. <code className={CODE_INLINE}>text-blue-500</code> sets the text color. <code className={CODE_INLINE}>rounded-lg</code> rounds the corners. You describe a component's appearance by stacking these utilities together.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    traditional CSS vs Tailwind
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-4 select-none">
-                    <div>
-                        <p className="text-rose-400 mb-2">{`// Traditional — write CSS in a separate file, apply a class name`}</p>
-                        <p className="text-zinc-500">{`.card {`}</p>
-                        <p className="text-zinc-500 pl-4">{`background: white;`}</p>
-                        <p className="text-zinc-500 pl-4">{`border-radius: 8px;`}</p>
-                        <p className="text-zinc-500 pl-4">{`padding: 16px;`}</p>
-                        <p className="text-zinc-500 pl-4">{`box-shadow: 0 1px 3px rgba(0,0,0,0.1);`}</p>
-                        <p className="text-zinc-500">{`}`}</p>
-                        <p className="text-emerald-300 mt-1">{`<div class="card">...</div>`}</p>
-                    </div>
-                    <div>
-                        <p className="text-emerald-400 mb-2">{`// Tailwind — styles live directly in the element`}</p>
-                        <p className="text-emerald-300">{`<div class="bg-white rounded-lg p-4 shadow-sm">...</div>`}</p>
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="css"
+                title="traditional CSS vs Tailwind"
+                lines={[
+                    '/* Traditional — write CSS in a separate file, apply a class name */',
+                    '.card {',
+                    '    background: white;',
+                    '    border-radius: 8px;',
+                    '    padding: 16px;',
+                    '    box-shadow: 0 1px 3px rgba(0,0,0,0.1);',
+                    '}',
+                    '/* applied as: <div class="card">...</div> */',
+                    '',
+                    '/* Tailwind — styles live directly in the element */',
+                    '<div class="bg-white rounded-lg p-4 shadow-sm">...</div>',
+                ]}
+            />
 
             <LectureP>
                 The tradeoff is real: Tailwind markup is more verbose. But you get enormous benefits in return. No naming things (notoriously hard). No stylesheet bloat — unused classes are automatically purged from your production build. No context-switching between files. And no specificity wars — utility classes have the same specificity, so the one you write last wins.
@@ -311,32 +305,25 @@ export default function Week7Lecture2() {
                 Combining Tailwind with React state lets you style components dynamically. The key rule: <strong className="text-foreground">always write complete class names</strong>. Don't try to construct them from fragments at runtime — Tailwind's build tool scans for complete class strings, and if it never sees <code className={CODE_INLINE}>text-red-500</code> written out fully, it won't include it in the output.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    dynamic classes — right vs wrong
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-4 select-none">
-                    <div>
-                        <p className="text-rose-400 mb-1">{`// ❌ Broken — Tailwind never sees the full class name`}</p>
-                        <p className="text-zinc-400">{`const color = isError ? 'red' : 'green'`}</p>
-                        <p className="text-zinc-400">{`<p className={\`text-\${color}-500\`}>`}</p>
-                    </div>
-                    <div>
-                        <p className="text-emerald-400 mb-1">{`// ✅ Correct — full class names are always present in source`}</p>
-                        <p className="text-zinc-400">{`<p className={isError ? 'text-red-500' : 'text-green-500'}>`}</p>
-                    </div>
-                    <div>
-                        <p className="text-emerald-400 mb-1">{`// ✅ Also correct — use cn() for complex conditional merging`}</p>
-                        <p className="text-zinc-400">{`import { cn } from '@/lib/utils'`}</p>
-                        <p className="text-zinc-400 mt-1">{`<button className={cn(`}</p>
-                        <p className="text-zinc-400 pl-4">{`'px-4 py-2 rounded font-medium',`}</p>
-                        <p className="text-zinc-400 pl-4">{`variant === 'primary' && 'bg-orange-500 text-white',`}</p>
-                        <p className="text-zinc-400 pl-4">{`variant === 'ghost' && 'bg-transparent hover:bg-muted',`}</p>
-                        <p className="text-zinc-400 pl-4">{`disabled && 'opacity-50 cursor-not-allowed'`}</p>
-                        <p className="text-zinc-400">{`)}>`}</p>
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="tsx"
+                title="dynamic classes — right vs wrong"
+                lines={[
+                    '// ❌ Broken — Tailwind never sees the full class name',
+                    "const color = isError ? 'red' : 'green'",
+                    '<p className={`text-${color}-500`}>',
+                    '// ✅ Correct — full class names are always present in source',
+                    "<p className={isError ? 'text-red-500' : 'text-green-500'}>",
+                    '// ✅ Also correct — use cn() for complex conditional merging',
+                    "import { cn } from '@/lib/utils'",
+                    '<button className={cn(',
+                    "    'px-4 py-2 rounded font-medium',",
+                    "    variant === 'primary' && 'bg-orange-500 text-white',",
+                    "    variant === 'ghost' && 'bg-transparent hover:bg-muted',",
+                    "    disabled && 'opacity-50 cursor-not-allowed'",
+                    ')}>',
+                ]}
+            />
 
             <LectureP>
                 The <LectureCmd tip="cn() — a utility function from @/lib/utils that combines clsx (conditional class joining) and tailwind-merge (deduplication of conflicting Tailwind classes). The standard pattern for dynamic Tailwind classes in a React + shadcn project.">cn()</LectureCmd> function (from <code className={CODE_INLINE}>@/lib/utils</code>) is already in this project and is the standard way to handle dynamic classes. It merges class strings and intelligently resolves conflicts — so if you pass both <code className={CODE_INLINE}>px-4</code> and <code className={CODE_INLINE}>px-8</code>, <code className={CODE_INLINE}>px-8</code> wins.
@@ -349,32 +336,31 @@ export default function Week7Lecture2() {
                 Here's what a fully styled task card looks like combining everything from this lecture. Study the class breakdown before the activity.
             </LectureP>
 
-            <div className={CODE_BLOCK_ROOT}>
-                <div className={CODE_BLOCK_HEADER}>
-                    TaskCard.tsx — fully styled with Tailwind
-                </div>
-                <div className={CODE_BLOCK_BODY}>
-                    <p><span className="text-blue-400">interface </span><span className="text-emerald-400">TaskCardProps </span><span className="text-zinc-400">{'{ title: string; done: boolean; onToggle: () => void }'}</span></p>
-                    <p className="mt-2"><span className="text-blue-400">export function </span><span className="text-emerald-400">TaskCard</span><span className="text-zinc-400">{'({ title, done, onToggle }: TaskCardProps) {'}</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-zinc-400">{'('}</span></p>
-                    <p className="pl-8"><span className="text-zinc-500">{`{/* card container */}`}</span></p>
-                    <p className="pl-8"><span className="text-emerald-300">{'<div'}</span><span className="text-sky-300"> className</span><span className="text-zinc-400">=</span><span className="text-amber-400">"group flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow"</span><span className="text-emerald-300">{'>'}</span></p>
-                    <p className="pl-12"><span className="text-zinc-500">{`{/* checkbox */}`}</span></p>
-                    <p className="pl-12"><span className="text-emerald-300">{'<button'}</span></p>
-                    <p className="pl-16"><span className="text-sky-300">onClick</span><span className="text-zinc-400">={'{onToggle}'}</span></p>
-                    <p className="pl-16"><span className="text-sky-300">className</span><span className="text-zinc-400">=</span><span className="text-amber-400">"w-5 h-5 rounded border-2 border-muted-foreground/30 shrink-0 flex items-center justify-center hover:border-orange-500 transition-colors"</span></p>
-                    <p className="pl-12"><span className="text-emerald-300">{'>'}</span></p>
-                    <p className="pl-16"><span className="text-zinc-400">{'{'}</span><span className="text-sky-300">done</span><span className="text-zinc-400"> && <span className="text-emerald-300">{'<Check'}</span><span className="text-sky-300"> className</span><span className="text-zinc-400">=</span><span className="text-amber-400">"h-3 w-3 text-orange-500"</span><span className="text-emerald-300"> {'/>'}</span>{'}'}</span></p>
-                    <p className="pl-12"><span className="text-emerald-300">{'</button>'}</span></p>
-                    <p className="pl-12"><span className="text-zinc-500">{`{/* title */}`}</span></p>
-                    <p className="pl-12"><span className="text-emerald-300">{'<p'}</span><span className="text-sky-300"> className</span><span className="text-zinc-400">={'{cn('}</span><span className="text-amber-400">'text-sm flex-1'</span><span className="text-zinc-400">, </span><span className="text-sky-300">done</span><span className="text-zinc-400"> && </span><span className="text-amber-400">'line-through text-muted-foreground'</span><span className="text-zinc-400">{')}'}</span><span className="text-emerald-300">{'>'}</span></p>
-                    <p className="pl-16"><span className="text-zinc-400">{'{'}</span><span className="text-sky-300">title</span><span className="text-zinc-400">{'}'}</span></p>
-                    <p className="pl-12"><span className="text-emerald-300">{'</p>'}</span></p>
-                    <p className="pl-8"><span className="text-emerald-300">{'</div>'}</span></p>
-                    <p className="pl-4"><span className="text-zinc-400">{')'}</span></p>
-                    <p><span className="text-zinc-400">{'}'}</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="tsx"
+                title="TaskCard.tsx — fully styled with Tailwind"
+                lines={[
+                    'interface TaskCardProps { title: string; done: boolean; onToggle: () => void }',
+                    'export function TaskCard({ title, done, onToggle }: TaskCardProps) {',
+                    '    return (',
+                    '        {/* card container */}',
+                    '        <div className="group flex items-center gap-3 rounded-xl border border-border bg-card p-4 hover:shadow-md transition-shadow">',
+                    '            {/* checkbox */}',
+                    '            <button',
+                    '                onClick={onToggle}',
+                    '                className="w-5 h-5 rounded border-2 border-muted-foreground/30 shrink-0 flex items-center justify-center hover:border-orange-500 transition-colors"',
+                    '            >',
+                    '                {done && <Check className="h-3 w-3 text-orange-500" />}',
+                    '            </button>',
+                    '            {/* title */}',
+                    "            <p className={cn('text-sm flex-1', done && 'line-through text-muted-foreground')}>",
+                    '                {title}',
+                    '            </p>',
+                    '        </div>',
+                    '    )',
+                    '}',
+                ]}
+            />
 
             <LectureP>
                 Notice how each class is purposeful: <code className={CODE_INLINE}>group</code> enables child hover targeting, <code className={CODE_INLINE}>flex items-center gap-3</code> lays out the row, <code className={CODE_INLINE}>transition-shadow</code> makes the hover effect smooth, and <code className={CODE_INLINE}>cn()</code> handles the conditional strikethrough. No custom CSS written anywhere.
@@ -391,19 +377,18 @@ export default function Week7Lecture2() {
                 Your React app runs in the browser; your FastAPI backend runs on a server. To get data, the frontend sends an <LectureTerm>HTTP request</LectureTerm> (usually with <code className={CODE_INLINE}>fetch</code>) and the backend returns JSON. You trigger the request when the component mounts using <code className={CODE_INLINE}>useEffect</code>, store the result in <code className={CODE_INLINE}>useState</code>, and render it.
             </LectureP>
 
-            <div className={CODE_BLOCK_ROOT}>
-                <div className={CODE_BLOCK_HEADER}>
-                    fetching data on mount
-                </div>
-                <div className={CODE_BLOCK_BODY}>
-                    <p><span className="text-blue-400">const </span><span className="text-zinc-400">[</span><span className="text-sky-300">tasks</span><span className="text-zinc-400">, </span><span className="text-sky-300">setTasks</span><span className="text-zinc-400">] = </span><span className="text-emerald-400">useState</span><span className="text-zinc-400">{'<Task[]>([])'}</span></p>
-                    <p><span className="text-blue-400">useEffect</span><span className="text-zinc-400">{'(() => {'}</span></p>
-                    <p className="pl-4"><span className="text-zinc-400">{'fetch('}</span><span className="text-amber-400">{"'http://localhost:8000/api/tasks'"}</span><span className="text-zinc-400">{')'}</span></p>
-                    <p className="pl-8"><span className="text-zinc-400">.then(res =&gt; res.json())</span></p>
-                    <p className="pl-8"><span className="text-zinc-400">.then(setTasks)</span></p>
-                    <p className="pl-4"><span className="text-zinc-400">{'}, [])'}</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="tsx"
+                title="fetching data on mount"
+                lines={[
+                    'const [tasks, setTasks] = useState<Task[]>([])',
+                    'useEffect(() => {',
+                    "    fetch('http://localhost:8000/api/tasks')",
+                    '        .then(res => res.json())',
+                    '        .then(setTasks)',
+                    '}, [])',
+                ]}
+            />
 
             <LectureCallout type="info">
                 If your API is on a different origin (e.g. frontend on <code className={CODE_INLINE}>localhost:5173</code>, backend on <code className={CODE_INLINE}>localhost:8000</code>), the browser enforces <LectureTerm>CORS</LectureTerm>. Your FastAPI app must send <code className={CODE_INLINE}>Access-Control-Allow-Origin</code> (e.g. via <code className={CODE_INLINE}>CORSMiddleware</code>). Otherwise the browser will block the response.

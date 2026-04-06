@@ -9,7 +9,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── BFS vs DFS diagram ────────────────────────────────────────────────────────
 const BfsDfsDiagram = () => (
@@ -88,7 +88,7 @@ export default function Week2Lecture1() {
                 This is why recursion <em>is</em> DFS. A recursive tree traversal doesn't manage an explicit stack — it uses the call stack. The two are mechanically identical. Understanding this means you can always convert a recursive DFS to an iterative one using an explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::stack</code> — and vice versa.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="recursive DFS vs iterative DFS — same result, different mechanism"
                 lines={[
                     '// Recursive — uses the call stack implicitly',
@@ -129,7 +129,7 @@ export default function Week2Lecture1() {
 
             <BfsDfsDiagram />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="BFS — level-order traversal with a queue"
                 lines={[
                     '#include <queue>',
@@ -164,7 +164,7 @@ export default function Week2Lecture1() {
                 Graphs are typically represented as an <LectureTerm>adjacency list</LectureTerm> — a map from each node to its neighbors. For a graph with n nodes and e edges, this uses O(n + e) space, far better than the O(n²) adjacency matrix for sparse graphs.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="graph BFS — shortest path in an unweighted graph"
                 lines={[
                     '#include <queue>',
@@ -195,7 +195,7 @@ export default function Week2Lecture1() {
                 ]}
             />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="graph DFS — find if path exists between two nodes"
                 lines={[
                     'bool dfsHasPath(Graph& g, int curr, int target, unordered_set<int>& visited) {',
@@ -224,7 +224,7 @@ export default function Week2Lecture1() {
                 A <LectureTerm>connected component</LectureTerm> is a subgraph where every node is reachable from every other node, but no node is connected to any node outside the component. Counting components is a classic interview problem — the pattern is: iterate over all nodes, and for any unvisited node, run DFS/BFS to mark everything reachable from it as one component.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="count connected components — O(n + e)"
                 lines={[
                     'int countComponents(int n, Graph& g) {',
@@ -250,7 +250,7 @@ export default function Week2Lecture1() {
                 Detecting cycles in a graph is essential for dependency resolution (does this package import itself?), deadlock detection, and validating DAGs. The approach differs for directed vs. undirected graphs.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="cycle detection in a directed graph — DFS with state tracking"
                 lines={[
                     '// Three states per node:',
@@ -286,7 +286,7 @@ export default function Week2Lecture1() {
                 The most common implementation uses <LectureTerm>Kahn's algorithm</LectureTerm> (BFS-based): repeatedly remove nodes with no incoming edges, adding them to the result. If you can remove all nodes, the graph is acyclic and you have a valid ordering. If nodes remain, there's a cycle.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="topological sort — Kahn's algorithm (BFS)"
                 lines={[
                     '#include <queue>',
@@ -327,7 +327,7 @@ export default function Week2Lecture1() {
                 A <LectureTerm>monotonic stack</LectureTerm> is a stack that maintains elements in sorted order (either always increasing or always decreasing). It's the key insight behind a family of problems that ask "what's the next greater/smaller element?" — problems that look O(n²) at first but become O(n) with this pattern.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="next greater element — O(n) with monotonic stack"
                 lines={[
                     '// For each element, find the next element to its right that is greater.',

@@ -10,7 +10,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week3Lecture1() {
     const navigate = useNavigate();
@@ -103,7 +103,7 @@ export default function Week3Lecture1() {
                 A <LectureTerm>class</LectureTerm> bundles data (member variables) and behavior (member functions). Constructors initialize the object; use the <strong className="text-foreground">initializer list</strong> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to set members before the body runs — it's required for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> members and references, and often more efficient.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="encapsulation — Book class with private state"
                 lines={[
                     'class Book {',
@@ -148,7 +148,7 @@ export default function Week3Lecture1() {
                 <LectureTerm>Inheritance</LectureTerm> lets a derived class reuse and extend a base class. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> so that calls through a base pointer invoke the derived class's override. A <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> destructor in the base is required when you delete through a base pointer — otherwise the derived destructor won't run.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="inheritance + virtual methods"
                 lines={[
                     'class LibraryItem {',
@@ -216,7 +216,7 @@ export default function Week3Lecture1() {
                 Encapsulation is about enforcing <strong className="text-foreground">invariants</strong> — conditions that are always true for your object. A bank account balance should never be negative; a connection handle should never be used after close. Expose only operations that preserve the invariant.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="BankAccount — balance never goes negative"
                 lines={[
                     'class BankAccount {',

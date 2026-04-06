@@ -105,15 +105,13 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           navigate={navigate}
           isMobile={isMobile}
         />
-        <div className="flex w-screen flex-col">
-          <header className="h-[5vh] border-b border-border flex items-center justify-between px-4 bg-page">
+        {/* flex-1 min-w-0 min-h-0: column shares row height with sidebar and allows nested overflow-y-auto to scroll */}
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <header className="h-[5vh] shrink-0 border-b border-border flex items-center justify-between px-4 bg-page">
             <SidebarTrigger />
             <ThemeToggle />
           </header>
-          <main
-            className={`flex w-full overflow-y-scroll overflow-auto bg-muted/10 ${isMobile ? "flex-1" : "h-[95vh]"
-              }`}
-          >
+          <main className="min-h-0 flex-1 overflow-y-auto bg-muted/10 w-full">
             {children}
           </main>
         </div>

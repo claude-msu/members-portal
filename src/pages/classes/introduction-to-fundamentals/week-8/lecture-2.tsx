@@ -13,6 +13,7 @@ import {
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week10Lecture2() {
     const navigate = useNavigate();
@@ -45,39 +46,37 @@ export default function Week10Lecture2() {
             <LectureP>
                 Put this file at <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/workflows/test.yml</code>. It runs on every push and pull request to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. Adjust <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node-version</code> and the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">run</code> commands to match your project (e.g. add a backend job that runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pytest</code>).
             </LectureP>
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700">
-                    .github/workflows/test.yml
-                </div>
-                <pre className="bg-zinc-950 p-5 overflow-x-auto text-zinc-300 leading-relaxed whitespace-pre-wrap">
-{`name: Test
-
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run tests
-        run: npm test
-`}
-                </pre>
-            </div>
+            <CodeBlock
+                language="yaml"
+                title=".github/workflows/test.yml"
+                lines={[
+                    'name: Test',
+                    '',
+                    'on:',
+                    '  push:',
+                    '    branches: [main]',
+                    '  pull_request:',
+                    '    branches: [main]',
+                    '',
+                    'jobs:',
+                    '  test:',
+                    '    runs-on: ubuntu-latest',
+                    '    steps:',
+                    '      - uses: actions/checkout@v4',
+                    '',
+                    '      - name: Setup Node',
+                    '        uses: actions/setup-node@v4',
+                    '        with:',
+                    '          node-version: "20"',
+                    '          cache: "npm"',
+                    '',
+                    '      - name: Install dependencies',
+                    '        run: npm ci',
+                    '',
+                    '      - name: Run tests',
+                    '        run: npm test',
+                ]}
+            />
             <TerminalBlock
                 title="bash — create the workflow file"
                 lines={[

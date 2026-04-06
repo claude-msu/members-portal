@@ -12,6 +12,7 @@ import {
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week10Lecture1() {
     const navigate = useNavigate();
@@ -65,44 +66,42 @@ export default function Week10Lecture1() {
             <LectureP>
                 Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test_main.py</code> (or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">tests/test_main.py</code>) next to your app. The example below tests a public endpoint and a protected one. Replace <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">app</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/notes</code>, and login logic with your own.
             </LectureP>
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700">
-                    test_main.py
-                </div>
-                <pre className="bg-zinc-950 p-5 overflow-x-auto text-zinc-300 leading-relaxed whitespace-pre-wrap">
-{`from fastapi.testclient import TestClient
-from main import app
-
-client = TestClient(app)
-
-def test_read_notes_empty():
-    response = client.get("/notes")
-    assert response.status_code == 200
-    assert response.json() == []
-
-def test_create_note():
-    response = client.post(
-        "/notes",
-        json={"title": "Test", "content": "Hello", "published": False},
-    )
-    assert response.status_code == 201
-    data = response.json()
-    assert data["title"] == "Test"
-    assert "id" in data
-
-def test_protected_route_without_token():
-    response = client.get("/me")
-    assert response.status_code == 401
-
-def test_protected_route_with_token():
-    login = client.post("/login", json={"email": "test@test.com", "password": "test"})
-    assert login.status_code == 200
-    token = login.json().get("access_token")
-    response = client.get("/me", headers={"Authorization": f"Bearer {token}"})
-    assert response.status_code == 200
-`}
-                </pre>
-            </div>
+            <CodeBlock
+                language="python"
+                title="test_main.py"
+                lines={[
+                    'from fastapi.testclient import TestClient',
+                    'from main import app',
+                    '',
+                    'client = TestClient(app)',
+                    '',
+                    'def test_read_notes_empty():',
+                    '    response = client.get("/notes")',
+                    '    assert response.status_code == 200',
+                    '    assert response.json() == []',
+                    '',
+                    'def test_create_note():',
+                    '    response = client.post(',
+                    '        "/notes",',
+                    '        json={"title": "Test", "content": "Hello", "published": False},',
+                    '    )',
+                    '    assert response.status_code == 201',
+                    '    data = response.json()',
+                    '    assert data["title"] == "Test"',
+                    '    assert "id" in data',
+                    '',
+                    'def test_protected_route_without_token():',
+                    '    response = client.get("/me")',
+                    '    assert response.status_code == 401',
+                    '',
+                    'def test_protected_route_with_token():',
+                    '    login = client.post("/login", json={"email": "test@test.com", "password": "test"})',
+                    '    assert login.status_code == 200',
+                    "    token = login.json().get('access_token')",
+                    '    response = client.get("/me", headers={"Authorization": f"Bearer {token}"})',
+                    '    assert response.status_code == 200',
+                ]}
+            />
             <LectureSubHeading title="Testing auth" />
             <LectureP>
                 For protected endpoints, get a token first (e.g. call your login endpoint with test credentials) and pass it in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization</code> header. Assert that without the token you get 401, and with it you get the expected 200 and data.
@@ -125,37 +124,35 @@ def test_protected_route_with_token():
             <LectureP>
                 In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vite.config.ts</code>, add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test</code> block with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">environment: "jsdom"</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">globals: true</code> if you want to use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">describe</code>/<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">it</code> without importing. Add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"test": "vitest"</code> to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> scripts.
             </LectureP>
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700">
-                    src/App.test.tsx
-                </div>
-                <pre className="bg-zinc-950 p-5 overflow-x-auto text-zinc-300 leading-relaxed whitespace-pre-wrap">
-{`import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
-import App from "./App";
-
-describe("App", () => {
-  it("renders the app title", () => {
-    render(<App />);
-    expect(screen.getByText(/my app/i)).toBeInTheDocument();
-  });
-
-  it("shows login when user is null", () => {
-    render(<App />);
-    expect(screen.getByRole("button", { name: /log in/i })).toBeInTheDocument();
-  });
-
-  it("calls API when submit is clicked", () => {
-    const mockFetch = vi.fn().mockResolvedValue({ ok: true, json: () => ({ token: "fake" }) });
-    vi.stubGlobal("fetch", mockFetch);
-    render(<App />);
-    fireEvent.click(screen.getByRole("button", { name: /log in/i }));
-    expect(mockFetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ method: "POST" }));
-  });
-});
-`}
-                </pre>
-            </div>
+            <CodeBlock
+                language="tsx"
+                title="src/App.test.tsx"
+                lines={[
+                    'import { describe, it, expect, vi } from "vitest";',
+                    'import { render, screen, fireEvent } from "@testing-library/react";',
+                    'import App from "./App";',
+                    '',
+                    'describe("App", () => {',
+                    '  it("renders the app title", () => {',
+                    '    render(<App />);',
+                    '    expect(screen.getByText(/my app/i)).toBeInTheDocument();',
+                    '  });',
+                    '',
+                    '  it("shows login when user is null", () => {',
+                    '    render(<App />);',
+                    '    expect(screen.getByRole("button", { name: /log in/i })).toBeInTheDocument();',
+                    '  });',
+                    '',
+                    '  it("calls API when submit is clicked", () => {',
+                    '    const mockFetch = vi.fn().mockResolvedValue({ ok: true, json: () => ({ token: "fake" }) });',
+                    '    vi.stubGlobal("fetch", mockFetch);',
+                    '    render(<App />);',
+                    '    fireEvent.click(screen.getByRole("button", { name: /log in/i }));',
+                    '    expect(mockFetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ method: "POST" }));',
+                    '  });',
+                    '});',
+                ]}
+            />
             <LectureP>
                 Mock <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fetch</code> (or your API client) so tests don't hit the real backend. That keeps tests fast and deterministic. In integration tests you can point at a test instance of your API if you have one.
             </LectureP>

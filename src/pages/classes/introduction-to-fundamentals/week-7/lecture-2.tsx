@@ -12,6 +12,7 @@ import {
     LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── Relational table diagram ──────────────────────────────────────────────────
 const RelationalDiagram = () => (
@@ -73,20 +74,6 @@ const RelationalDiagram = () => (
     </div>
 );
 
-// ── SQL code block ────────────────────────────────────────────────────────────
-const SqlBlock = ({ title, lines }: { title: string; lines: { comment?: string; sql: string }[] }) => (
-    <div className="my-4 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">{title}</div>
-        <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
-            {lines.map((line, i) => (
-                <div key={i}>
-                    {line.comment && <p className="text-zinc-500 mb-0.5">{`-- ${line.comment}`}</p>}
-                    <p className="text-zinc-300">{line.sql}</p>
-                </div>
-            ))}
-        </div>
-    </div>
-);
 
 export default function Week6Lecture2() {
     const navigate = useNavigate();
@@ -126,39 +113,48 @@ export default function Week6Lecture2() {
 
             <LectureSubHeading title="Creating tables" />
 
-            <SqlBlock
+            <CodeBlock
+                language="sql"
                 title="DDL — defining the schema"
                 lines={[
-                    { comment: 'CREATE TABLE defines the structure. Run once when setting up.', sql: '' },
-                    { sql: 'CREATE TABLE users (' },
-                    { sql: '    id         INTEGER PRIMARY KEY AUTOINCREMENT,' },
-                    { sql: '    name       TEXT    NOT NULL,' },
-                    { sql: '    email      TEXT    NOT NULL UNIQUE,' },
-                    { sql: '    created_at TEXT    NOT NULL DEFAULT (datetime(\'now\'))' },
-                    { sql: ');' },
-                    { sql: '' },
-                    { sql: 'CREATE TABLE notes (' },
-                    { sql: '    id         INTEGER PRIMARY KEY AUTOINCREMENT,' },
-                    { sql: '    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,' },
-                    { sql: '    title      TEXT    NOT NULL,' },
-                    { sql: '    content    TEXT    NOT NULL,' },
-                    { sql: '    created_at TEXT    NOT NULL DEFAULT (datetime(\'now\'))' },
-                    { sql: ');' },
+                    '-- CREATE TABLE defines the structure. Run once when setting up.',
+                    'CREATE TABLE users (',
+                    '    id         INTEGER PRIMARY KEY AUTOINCREMENT,',
+                    '    name       TEXT    NOT NULL,',
+                    '    email      TEXT    NOT NULL UNIQUE,',
+                    "    created_at TEXT    NOT NULL DEFAULT (datetime('now'))",
+                    ');',
+                    '',
+                    'CREATE TABLE notes (',
+                    '    id         INTEGER PRIMARY KEY AUTOINCREMENT,',
+                    '    user_id    INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,',
+                    '    title      TEXT    NOT NULL,',
+                    '    content    TEXT    NOT NULL,',
+                    "    created_at TEXT    NOT NULL DEFAULT (datetime('now'))",
+                    ');',
                 ]}
             />
 
             <LectureSubHeading title="Reading data — SELECT" />
 
-            <SqlBlock
+            <CodeBlock
+                language="sql"
                 title="SELECT — the most important SQL statement"
                 lines={[
-                    { comment: 'Get everything from a table', sql: 'SELECT * FROM notes;' },
-                    { comment: 'Get specific columns', sql: 'SELECT id, title FROM notes;' },
-                    { comment: 'Filter with WHERE', sql: "SELECT * FROM notes WHERE user_id = 1;" },
-                    { comment: 'Multiple conditions', sql: "SELECT * FROM notes WHERE user_id = 1 AND title LIKE '%SQL%';" },
-                    { comment: 'Sort results', sql: 'SELECT * FROM notes ORDER BY created_at DESC;' },
-                    { comment: 'Limit results (pagination)', sql: 'SELECT * FROM notes ORDER BY created_at DESC LIMIT 10 OFFSET 20;' },
-                    { comment: 'Count rows', sql: 'SELECT COUNT(*) FROM notes WHERE user_id = 1;' },
+                    '-- Get everything from a table',
+                    'SELECT * FROM notes;',
+                    '-- Get specific columns',
+                    'SELECT id, title FROM notes;',
+                    '-- Filter with WHERE',
+                    'SELECT * FROM notes WHERE user_id = 1;',
+                    '-- Multiple conditions',
+                    "SELECT * FROM notes WHERE user_id = 1 AND title LIKE '%SQL%';",
+                    '-- Sort results',
+                    'SELECT * FROM notes ORDER BY created_at DESC;',
+                    '-- Limit results (pagination)',
+                    'SELECT * FROM notes ORDER BY created_at DESC LIMIT 10 OFFSET 20;',
+                    '-- Count rows',
+                    'SELECT COUNT(*) FROM notes WHERE user_id = 1;',
                 ]}
             />
 
@@ -168,29 +164,34 @@ export default function Week6Lecture2() {
                 A <LectureTerm>JOIN</LectureTerm> combines rows from two tables based on a related column. The most common kind is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">INNER JOIN</code> — it returns only rows where the join condition matches in both tables.
             </LectureP>
 
-            <SqlBlock
+            <CodeBlock
+                language="sql"
                 title="JOIN — get notes with their author's name"
                 lines={[
-                    { sql: 'SELECT' },
-                    { sql: '    notes.id,' },
-                    { sql: '    notes.title,' },
-                    { sql: '    users.name AS author_name,' },
-                    { sql: '    notes.created_at' },
-                    { sql: 'FROM notes' },
-                    { sql: 'INNER JOIN users ON notes.user_id = users.id' },
-                    { sql: 'WHERE users.email = \'alice@msu.edu\'' },
-                    { sql: 'ORDER BY notes.created_at DESC;' },
+                    'SELECT',
+                    '    notes.id,',
+                    '    notes.title,',
+                    '    users.name AS author_name,',
+                    '    notes.created_at',
+                    'FROM notes',
+                    'INNER JOIN users ON notes.user_id = users.id',
+                    "WHERE users.email = 'alice@msu.edu'",
+                    'ORDER BY notes.created_at DESC;',
                 ]}
             />
 
             <LectureSubHeading title="Writing data — INSERT, UPDATE, DELETE" />
 
-            <SqlBlock
+            <CodeBlock
+                language="sql"
                 title="DML — modifying data"
                 lines={[
-                    { comment: 'INSERT — add a new row', sql: "INSERT INTO notes (user_id, title, content) VALUES (1, 'New note', 'Hello SQL');" },
-                    { comment: 'UPDATE — modify existing rows (ALWAYS include WHERE or you update everything)', sql: "UPDATE notes SET title = 'Updated title' WHERE id = 3;" },
-                    { comment: 'DELETE — remove rows (ALWAYS include WHERE or you delete everything)', sql: 'DELETE FROM notes WHERE id = 3;' },
+                    '-- INSERT — add a new row',
+                    "INSERT INTO notes (user_id, title, content) VALUES (1, 'New note', 'Hello SQL');",
+                    '-- UPDATE — modify existing rows (ALWAYS include WHERE or you update everything)',
+                    "UPDATE notes SET title = 'Updated title' WHERE id = 3;",
+                    '-- DELETE — remove rows (ALWAYS include WHERE or you delete everything)',
+                    'DELETE FROM notes WHERE id = 3;',
                 ]}
             />
 
@@ -205,17 +206,21 @@ export default function Week6Lecture2() {
                 Aggregate functions compute a single value from a set of rows. Combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">GROUP BY</code>, you can compute statistics per group — notes per user, revenue per product, signups per day.
             </LectureP>
 
-            <SqlBlock
+            <CodeBlock
+                language="sql"
                 title="aggregates with GROUP BY"
                 lines={[
-                    { comment: 'Count notes per user', sql: 'SELECT user_id, COUNT(*) AS note_count' },
-                    { sql: 'FROM notes' },
-                    { sql: 'GROUP BY user_id' },
-                    { sql: 'ORDER BY note_count DESC;' },
-                    { comment: 'Only include users with more than 5 notes (HAVING filters groups, WHERE filters rows)', sql: 'SELECT user_id, COUNT(*) AS note_count' },
-                    { sql: 'FROM notes' },
-                    { sql: 'GROUP BY user_id' },
-                    { sql: 'HAVING COUNT(*) > 5;' },
+                    '-- Count notes per user',
+                    'SELECT user_id, COUNT(*) AS note_count',
+                    'FROM notes',
+                    'GROUP BY user_id',
+                    'ORDER BY note_count DESC;',
+                    '',
+                    '-- Only include users with more than 5 notes (HAVING filters groups, WHERE filters rows)',
+                    'SELECT user_id, COUNT(*) AS note_count',
+                    'FROM notes',
+                    'GROUP BY user_id',
+                    'HAVING COUNT(*) > 5;',
                 ]}
             />
 
@@ -229,57 +234,61 @@ export default function Week6Lecture2() {
                 With the ORM, you define your tables as Python classes. SQLAlchemy translates operations on those classes into SQL. You interact with Python objects — SQLAlchemy handles the database communication.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    database.py — connection setup
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy </span><span className="text-blue-400">import </span><span className="text-zinc-400">create_engine</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">sessionmaker, DeclarativeBase</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># SQLite for development — just a file, zero config</span></p>
-                    <p><span className="text-sky-300">DATABASE_URL </span><span className="text-zinc-400">= </span><span className="text-amber-400">"sqlite:///./notes.db"</span></p>
-                    <p className="mt-1"><span className="text-zinc-500"># Switch to Postgres in production — only this line changes</span></p>
-                    <p><span className="text-zinc-500"># DATABASE_URL = "postgresql://user:pass@localhost/notesdb"</span></p>
-                    <p className="mt-2"><span className="text-sky-300">engine </span><span className="text-zinc-400">= create_engine(DATABASE_URL, connect_args={'{"check_same_thread": False'}{'}'})  </span><span className="text-zinc-500"># SQLite only</span></p>
-                    <p><span className="text-sky-300">SessionLocal </span><span className="text-zinc-400">= sessionmaker(autocommit=</span><span className="text-blue-400">False</span><span className="text-zinc-400">, autoflush=</span><span className="text-blue-400">False</span><span className="text-zinc-400">, bind=engine)</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">Base</span><span className="text-zinc-400">(DeclarativeBase): </span><span className="text-blue-400">pass</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Dependency — gives each request its own DB session, then closes it</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_db</span><span className="text-zinc-400">():</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db </span><span className="text-zinc-400">= SessionLocal()</span></p>
-                    <p className="pl-4"><span className="text-blue-400">try</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-blue-400">yield </span><span className="text-sky-300">db</span></p>
-                    <p className="pl-4"><span className="text-blue-400">finally</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-sky-300">db</span><span className="text-zinc-400">.close()</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="database.py — connection setup"
+                lines={[
+                    'from sqlalchemy import create_engine',
+                    'from sqlalchemy.orm import sessionmaker, DeclarativeBase',
+                    '',
+                    '# SQLite for development — just a file, zero config',
+                    'DATABASE_URL = "sqlite:///./notes.db"',
+                    '# Switch to Postgres in production — only this line changes',
+                    '# DATABASE_URL = "postgresql://user:pass@localhost/notesdb"',
+                    '',
+                    'engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})  # SQLite only',
+                    'SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)',
+                    '',
+                    'class Base(DeclarativeBase): pass',
+                    '',
+                    '# Dependency — gives each request its own DB session, then closes it',
+                    'def get_db():',
+                    '    db = SessionLocal()',
+                    '    try:',
+                    '        yield db',
+                    '    finally:',
+                    '        db.close()',
+                ]}
+            />
 
             <LectureCallout type="tip">
                 In production with Postgres or MySQL, use <LectureTerm>connection pooling</LectureTerm> (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">create_engine(..., pool_size=10, max_overflow=20)</code>) so the app reuses connections instead of opening a new one per request. SQLite doesn't need pooling for typical dev use.
             </LectureCallout>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    models.py — SQLAlchemy ORM models
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy </span><span className="text-blue-400">import </span><span className="text-zinc-400">Integer, String, Boolean, ForeignKey, func</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">mapped_column, Mapped, relationship</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">.database </span><span className="text-blue-400">import </span><span className="text-zinc-400">Base</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">User</span><span className="text-zinc-400">(Base):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">__tablename__ </span><span className="text-zinc-400">= </span><span className="text-amber-400">"users"</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(Integer, primary_key=</span><span className="text-blue-400">True</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">name</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">email</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, unique=</span><span className="text-blue-400">True</span><span className="text-zinc-400">, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">notes</span><span className="text-zinc-400">: Mapped[list[</span><span className="text-emerald-400">"Note"</span><span className="text-zinc-400">]] = relationship(back_populates=</span><span className="text-amber-400">"author"</span><span className="text-zinc-400">)</span></p>
-                    <p className="mt-2"><span className="text-blue-400">class </span><span className="text-emerald-400">Note</span><span className="text-zinc-400">(Base):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">__tablename__ </span><span className="text-zinc-400">= </span><span className="text-amber-400">"notes"</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(Integer, primary_key=</span><span className="text-blue-400">True</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">user_id</span><span className="text-zinc-400">: Mapped[int] = mapped_column(ForeignKey(</span><span className="text-amber-400">"users.id"</span><span className="text-zinc-400">))</span></p>
-                    <p className="pl-4"><span className="text-sky-300">title</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">content</span><span className="text-zinc-400">: Mapped[str] = mapped_column(String, nullable=</span><span className="text-blue-400">False</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">author</span><span className="text-zinc-400">: Mapped[</span><span className="text-emerald-400">"User"</span><span className="text-zinc-400">] = relationship(back_populates=</span><span className="text-amber-400">"notes"</span><span className="text-zinc-400">)</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="models.py — SQLAlchemy ORM models"
+                lines={[
+                    'from sqlalchemy import Integer, String, Boolean, ForeignKey, func',
+                    'from sqlalchemy.orm import mapped_column, Mapped, relationship',
+                    'from .database import Base',
+                    '',
+                    'class User(Base):',
+                    '    __tablename__ = "users"',
+                    '    id: Mapped[int] = mapped_column(Integer, primary_key=True)',
+                    '    name: Mapped[str] = mapped_column(String, nullable=False)',
+                    '    email: Mapped[str] = mapped_column(String, unique=True, nullable=False)',
+                    '    notes: Mapped[list["Note"]] = relationship(back_populates="author")',
+                    '',
+                    'class Note(Base):',
+                    '    __tablename__ = "notes"',
+                    '    id: Mapped[int] = mapped_column(Integer, primary_key=True)',
+                    '    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))',
+                    '    title: Mapped[str] = mapped_column(String, nullable=False)',
+                    '    content: Mapped[str] = mapped_column(String, nullable=False)',
+                    '    author: Mapped["User"] = relationship(back_populates="notes")',
+                ]}
+            />
 
             {/* ── 05 FASTAPI + SQLALCHEMY ─────────────────────────────────────── */}
             <LectureSectionHeading number="05" title="Wiring FastAPI to SQLAlchemy" />
@@ -288,36 +297,39 @@ export default function Week6Lecture2() {
                 FastAPI uses <LectureTerm>Depends</LectureTerm> to inject dependencies into route handlers. The database session is a perfect use case: each request gets its own session (from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code>), uses it, and the session is closed after the response is sent.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    main.py — full CRUD with SQLAlchemy
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">fastapi </span><span className="text-blue-400">import </span><span className="text-zinc-400">FastAPI, Depends, HTTPException</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">sqlalchemy.orm </span><span className="text-blue-400">import </span><span className="text-zinc-400">Session</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">. </span><span className="text-blue-400">import </span><span className="text-zinc-400">models, schemas</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">.database </span><span className="text-blue-400">import </span><span className="text-zinc-400">engine, get_db</span></p>
-                    <p className="mt-2"><span className="text-sky-300">models</span><span className="text-zinc-400">.Base.metadata.create_all(bind=engine)  </span><span className="text-zinc-500"># create tables if they don't exist</span></p>
-                    <p><span className="text-sky-300">app </span><span className="text-zinc-400">= FastAPI()</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=list[schemas.NoteResponse])</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">db</span><span className="text-zinc-400">.query(models.Note).offset(skip).limit(limit).all()</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.post(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=schemas.NoteResponse, status_code=201)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">create_note</span><span className="text-zinc-400">(note: schemas.NoteCreate, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db_note </span><span className="text-zinc-400">= models.Note(**note.model_dump())</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.add(db_note)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.commit()</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.refresh(db_note)  </span><span className="text-zinc-500"># load the auto-generated id from DB</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">db_note</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.delete(</span><span className="text-amber-400">"/notes/{'{note_id}'}"</span><span className="text-zinc-400">, status_code=204)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">delete_note</span><span className="text-zinc-400">(note_id: int, db: Session = Depends(get_db)):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">note </span><span className="text-zinc-400">= db.query(models.Note).filter(models.Note.id == note_id).first()</span></p>
-                    <p className="pl-4"><span className="text-blue-400">if not </span><span className="text-sky-300">note</span><span className="text-zinc-400">:</span></p>
-                    <p className="pl-8"><span className="text-blue-400">raise </span><span className="text-zinc-400">HTTPException(status_code=404, detail=</span><span className="text-amber-400">"Note not found"</span><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.delete(note)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">db</span><span className="text-zinc-400">.commit()</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="main.py — full CRUD with SQLAlchemy"
+                lines={[
+                    'from fastapi import FastAPI, Depends, HTTPException',
+                    'from sqlalchemy.orm import Session',
+                    'from . import models, schemas',
+                    'from .database import engine, get_db',
+                    '',
+                    "models.Base.metadata.create_all(bind=engine)  # create tables if they don't exist",
+                    'app = FastAPI()',
+                    '',
+                    '@app.get("/notes", response_model=list[schemas.NoteResponse])',
+                    'def get_notes(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):',
+                    '    return db.query(models.Note).offset(skip).limit(limit).all()',
+                    '',
+                    '@app.post("/notes", response_model=schemas.NoteResponse, status_code=201)',
+                    'def create_note(note: schemas.NoteCreate, db: Session = Depends(get_db)):',
+                    '    db_note = models.Note(**note.model_dump())',
+                    '    db.add(db_note)',
+                    '    db.commit()',
+                    '    db.refresh(db_note)  # load the auto-generated id from DB',
+                    '    return db_note',
+                    '',
+                    '@app.delete("/notes/{note_id}", status_code=204)',
+                    'def delete_note(note_id: int, db: Session = Depends(get_db)):',
+                    '    note = db.query(models.Note).filter(models.Note.id == note_id).first()',
+                    '    if not note:',
+                    '        raise HTTPException(status_code=404, detail="Note not found")',
+                    '    db.delete(note)',
+                    '    db.commit()',
+                ]}
+            />
 
             <LectureP>
                 The <LectureCmd tip="Depends() — FastAPI's dependency injection system. Pass a function to Depends() and FastAPI will call it for you and inject the result as the parameter value. Used for database sessions, authentication, config, and any shared logic that routes need.">Depends(get_db)</LectureCmd> annotation is FastAPI's dependency injection system. FastAPI calls <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db()</code> before the handler runs, injects the session, and runs the generator's cleanup (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db.close()</code>) after the response is sent. You never manage session lifecycle manually.
@@ -334,13 +346,18 @@ export default function Week6Lecture2() {
                 Without an index, a database has to scan every row to find matching records — a <LectureTerm>full table scan</LectureTerm>. For a table with 1M rows, that's 1M comparisons per query. An <LectureTerm>index</LectureTerm> is a data structure (usually a B-tree) that lets the database jump directly to matching rows. The cost: more disk space and slightly slower writes. The benefit: reads that would take seconds become milliseconds.
             </LectureP>
 
-            <SqlBlock
+            <CodeBlock
+                language="sql"
                 title="indexing common query patterns"
                 lines={[
-                    { comment: "Add an index on any column you filter by frequently", sql: 'CREATE INDEX idx_notes_user_id ON notes(user_id);' },
-                    { comment: "Unique index — enforces uniqueness AND speeds up lookups", sql: 'CREATE UNIQUE INDEX idx_users_email ON users(email);' },
-                    { comment: "Composite index — useful when you always filter by both columns together", sql: 'CREATE INDEX idx_notes_user_created ON notes(user_id, created_at DESC);' },
-                    { comment: "Check if a query is using an index (SQLite)", sql: 'EXPLAIN QUERY PLAN SELECT * FROM notes WHERE user_id = 1;' },
+                    '-- Add an index on any column you filter by frequently',
+                    'CREATE INDEX idx_notes_user_id ON notes(user_id);',
+                    '-- Unique index — enforces uniqueness AND speeds up lookups',
+                    'CREATE UNIQUE INDEX idx_users_email ON users(email);',
+                    '-- Composite index — useful when you always filter by both columns together',
+                    'CREATE INDEX idx_notes_user_created ON notes(user_id, created_at DESC);',
+                    '-- Check if a query is using an index (SQLite)',
+                    'EXPLAIN QUERY PLAN SELECT * FROM notes WHERE user_id = 1;',
                 ]}
             />
 

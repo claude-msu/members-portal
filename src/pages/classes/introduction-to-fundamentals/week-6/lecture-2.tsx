@@ -6,6 +6,7 @@ import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { LectureCmd } from '@/components/ui/lecture-cmd';
+import { CodeBlock } from '@/components/ui/code-block';
 import {
     LectureSectionHeading,
     LectureSubHeading,
@@ -182,41 +183,26 @@ export default function Week5Lecture2() {
                 Here is a Dockerfile for a simple Node.js application, annotated line by line:
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    Dockerfile
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
-                    <div>
-                        <p className="text-zinc-500"># Start from the official Node.js 20 image (Alpine = minimal Linux, ~5MB)</p>
-                        <p className="text-blue-400">FROM <span className="text-emerald-400">node:20-alpine</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500"># Set the working directory inside the container</p>
-                        <p className="text-blue-400">WORKDIR <span className="text-emerald-400">/app</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500"># Copy package files first (for layer caching — explained below)</p>
-                        <p className="text-blue-400">COPY <span className="text-emerald-400">package*.json ./</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500"># Install dependencies</p>
-                        <p className="text-blue-400">RUN <span className="text-emerald-400">npm ci --only=production</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500"># Copy the rest of the application code</p>
-                        <p className="text-blue-400">COPY <span className="text-emerald-400">. .</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500"># Tell Docker this container listens on port 3000</p>
-                        <p className="text-blue-400">EXPOSE <span className="text-emerald-400">3000</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500"># The command that runs when the container starts</p>
-                        <p className="text-blue-400">CMD <span className="text-emerald-400">["node", "server.js"]</span></p>
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="docker"
+                title="Dockerfile"
+                lines={[
+                    '# Start from the official Node.js 20 image (Alpine = minimal Linux, ~5MB)',
+                    'FROM node:20-alpine',
+                    '# Set the working directory inside the container',
+                    'WORKDIR /app',
+                    '# Copy package files first (for layer caching — explained below)',
+                    'COPY package*.json ./',
+                    '# Install dependencies',
+                    'RUN npm ci --only=production',
+                    '# Copy the rest of the application code',
+                    'COPY . .',
+                    '# Tell Docker this container listens on port 3000',
+                    'EXPOSE 3000',
+                    '# The command that runs when the container starts',
+                    'CMD ["node", "server.js"]',
+                ]}
+            />
 
             <LectureSubHeading title="Dockerfile instructions" />
             <LectureP>
@@ -262,20 +248,19 @@ export default function Week5Lecture2() {
                 Just like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code>, a <LectureTerm>.dockerignore</LectureTerm> file tells Docker which files to exclude from the build context — the files sent to the Docker engine when you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code>. Always exclude <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code>, and any secrets.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    .dockerignore
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p className="text-zinc-500"># Never copy these into the image</p>
-                    <p className="text-emerald-400">node_modules</p>
-                    <p className="text-emerald-400">.git</p>
-                    <p className="text-emerald-400">.env</p>
-                    <p className="text-emerald-400">*.log</p>
-                    <p className="text-emerald-400">dist</p>
-                    <p className="text-emerald-400">build</p>
-                </div>
-            </div>
+            <CodeBlock
+                language="bash"
+                title=".dockerignore"
+                lines={[
+                    '# Never copy these into the image',
+                    'node_modules',
+                    '.git',
+                    '.env',
+                    '*.log',
+                    'dist',
+                    'build',
+                ]}
+            />
 
             {/* ── 07 DOCKER COMPOSE ───────────────────────────────────────────── */}
             <LectureSectionHeading number="07" title="Docker Compose" />
@@ -287,35 +272,33 @@ export default function Week5Lecture2() {
                 Compose lets you define a multi-container application in a single <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code> file and start everything with one command.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    docker-compose.yml
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-2 select-none">
-                    <p className="text-blue-400">services<span className="text-zinc-400">:</span></p>
-
-                    <p className="text-emerald-400 pl-4">app<span className="text-zinc-400">:</span></p>
-                    <p className="text-zinc-400 pl-8">build<span className="text-zinc-500">: .</span></p>
-                    <p className="text-zinc-400 pl-8">ports<span className="text-zinc-500">:</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">"3000:3000"</span></p>
-                    <p className="text-zinc-400 pl-8">environment<span className="text-zinc-500">:</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">DATABASE_URL=postgres://user:pass@db:5432/mydb</span></p>
-                    <p className="text-zinc-400 pl-8">depends_on<span className="text-zinc-500">:</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">db</span></p>
-
-                    <p className="text-emerald-400 pl-4 mt-2">db<span className="text-zinc-400">:</span></p>
-                    <p className="text-zinc-400 pl-8">image<span className="text-zinc-500">: </span><span className="text-amber-400">postgres:16-alpine</span></p>
-                    <p className="text-zinc-400 pl-8">environment<span className="text-zinc-500">:</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">POSTGRES_USER=user</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">POSTGRES_PASSWORD=pass</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">POSTGRES_DB=mydb</span></p>
-                    <p className="text-zinc-400 pl-8">volumes<span className="text-zinc-500">:</span></p>
-                    <p className="text-zinc-500 pl-10">- <span className="text-amber-400">postgres_data:/var/lib/postgresql/data</span></p>
-
-                    <p className="text-blue-400 mt-2">volumes<span className="text-zinc-400">:</span></p>
-                    <p className="text-zinc-400 pl-4">postgres_data<span className="text-zinc-500">:</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="yaml"
+                title="docker-compose.yml"
+                lines={[
+                    'services:',
+                    '  app:',
+                    '    build: .',
+                    '    ports:',
+                    '      - "3000:3000"',
+                    '    environment:',
+                    '      - DATABASE_URL=postgres://user:pass@db:5432/mydb',
+                    '    depends_on:',
+                    '      - db',
+                    '',
+                    '  db:',
+                    '    image: postgres:16-alpine',
+                    '    environment:',
+                    '      - POSTGRES_USER=user',
+                    '      - POSTGRES_PASSWORD=pass',
+                    '      - POSTGRES_DB=mydb',
+                    '    volumes:',
+                    '      - postgres_data:/var/lib/postgresql/data',
+                    '',
+                    'volumes:',
+                    '  postgres_data:',
+                ]}
+            />
 
             <TerminalBlock
                 lines={[

@@ -10,7 +10,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── Design pattern cards ──────────────────────────────────────────────────────
 const PatternCards = () => (
@@ -177,7 +177,7 @@ export default function Week2Lecture2() {
 
             <LectureSubHeading title="Singleton in C++" />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="Singleton — thread-safe with static local (C++11+)"
                 lines={[
                     'class Logger {',
@@ -206,7 +206,7 @@ export default function Week2Lecture2() {
 
             <LectureSubHeading title="Observer in C++" />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="Observer — event subscription and notification"
                 lines={[
                     '// Abstract observer — anything that wants to be notified',
@@ -240,7 +240,7 @@ export default function Week2Lecture2() {
 
             <LectureSubHeading title="Factory in C++" />
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="Factory — create objects without specifying the concrete class"
                 lines={[
                     '// Without factory: the caller knows too much',
@@ -271,7 +271,7 @@ export default function Week2Lecture2() {
                 C++ has no <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">interface</code> keyword — interfaces are implemented as classes where every method is pure virtual. This is the primary tool for the Dependency Inversion Principle: your high-level code depends on the interface, not the concrete implementation.
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="interface pattern — swappable implementations"
                 lines={[
                     '// The interface — what Library cares about',
@@ -318,7 +318,7 @@ export default function Week2Lecture2() {
                 Raw pointers (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">new</code> / <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code>) are error-prone. Forget to delete and you leak memory. Delete twice and you crash. C++11 introduced <LectureTerm>smart pointers</LectureTerm> that manage memory automatically through RAII (Resource Acquisition Is Initialization).
             </LectureP>
 
-            <CppBlock
+            <CodeBlock language="cpp"
                 title="unique_ptr and shared_ptr — prefer over raw pointers"
                 lines={[
                     '#include <memory>',
