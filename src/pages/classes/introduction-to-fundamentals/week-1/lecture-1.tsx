@@ -293,27 +293,17 @@ export default function Week1Lecture1() {
                 <LectureTermWithTip tip="Installs, updates, removes software. One command — download, verify, install, dependencies. No install wizards.">Package managers</LectureTermWithTip>: one command, everything handled.
             </LectureP>
 
-            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {[
-                    { name: 'apt', os: 'Ubuntu / Debian', cmd: 'apt install nginx', tip: "Advanced Package Tool — Debian/Ubuntu. Most servers use it. Always run apt update first." },
-                    { name: 'brew', os: 'macOS', cmd: 'brew install node', tip: "Homebrew — macOS package manager. Installs what Apple doesn't ship." },
-                    { name: 'npm', os: 'Node.js', cmd: 'npm install react', tip: "Node Package Manager — JavaScript libs and tools. You'll use it constantly." },
-                    { name: 'pip', os: 'Python', cmd: 'pip install fastapi', tip: "Pip Installs Packages — Python's standard. FastAPI, NumPy, etc." },
-                ].map((pkg) => (
-                    <div key={pkg.name} className="rounded-lg border border-border bg-card p-4">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                            <LectureCmd tip={pkg.tip}>{pkg.name}</LectureCmd>
-                            <span className="text-xs text-muted-foreground">{pkg.os}</span>
-                        </div>
-                        <code
-                            className="text-xs text-emerald-600 dark:text-emerald-400 bg-muted px-2 py-1 rounded block select-none"
-                            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-                        >
-                            $ {pkg.cmd}
-                        </code>
-                    </div>
-                ))}
-            </div>
+            <LectureP>
+                <LectureCmd tip="Advanced Package Tool — Debian/Ubuntu. Most servers use it. Always run apt update first.">apt</LectureCmd> (Ubuntu/Debian), <LectureCmd tip="Homebrew — macOS package manager. Installs what Apple doesn't ship.">brew</LectureCmd> (macOS), <LectureCmd tip="Node Package Manager — JavaScript libs and tools. You'll use it constantly.">npm</LectureCmd> (Node.js), <LectureCmd tip="Pip Installs Packages — Python's standard. FastAPI, NumPy, etc.">pip</LectureCmd> (Python):
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'Ubuntu/Debian — apt', cmd: 'apt install nginx' },
+                    { comment: 'macOS — brew', cmd: 'brew install node' },
+                    { comment: 'Node.js — npm', cmd: 'npm install react' },
+                    { comment: 'Python — pip', cmd: 'pip install fastapi' },
+                ]}
+            />
 
             <LectureSubHeading title="Installing software with apt" />
             <LectureP>

@@ -24,7 +24,7 @@ export default function Week1Activity() {
                 week={1}
                 session="Activity"
                 title="Linux & Shell Scripting Gauntlet"
-                description="Apply what you learned in Lecture 1 (Linux & Command Line) and Lecture 2 (Shell Scripting & Permissions): terminal navigation, file operations, permissions, and scripting. Challenges 01 focus on Linux; sections 02–03 preview Git and are optional — you'll cover Version Control in depth in Week 2."
+                description="Apply what you learned in Lecture 1 (Linux & Command Line) and Lecture 2 (Shell Scripting & Permissions): terminal navigation, file operations, permissions, and scripting. Challenges 01 focus on Linux; sections 02–03 preview Git and are optional — you'll cover Version Control in depth in Week 4."
                 icon={<Zap className="h-4 w-4" />}
             />
 
@@ -137,7 +137,7 @@ export default function Week1Activity() {
                         { comment: 'create some fake source files with content', cmd: 'echo "function login() { // TODO: add validation }" > components/auth.js' },
                         { cmd: 'echo "function logout() { console.log(\'user logged out\') }" >> components/auth.js' },
                         { cmd: 'echo "const API_URL = \'https://api.example.com\'" > utils/config.js' },
-                        { cmd: 'echo "// TODO: handle errors\\nconst fetchUser = () => {}" >> utils/config.js' },
+                        { cmd: 'echo -e "// TODO: handle errors\\nconst fetchUser = () => {}" >> utils/config.js' },
                     ]}
                 />
 
@@ -159,7 +159,7 @@ export default function Week1Activity() {
             <LectureSectionHeading number="02" title="Git in Practice (optional preview)" />
 
             <LectureCallout type="info">
-                Version Control with Git is the focus of <strong className="text-foreground">Week 2 Lecture 1</strong>. The challenges below are an optional preview — try them if you have time, or skip to the next activity and return after Week 2.
+                Version Control with Git is the focus of <strong className="text-foreground">Week 4 Lecture 1</strong>. The challenges below are an optional preview — try them if you have time, or skip to the next activity and return after Week 4.
             </LectureCallout>
 
             <LectureP>
@@ -327,7 +327,7 @@ export default function Week1Activity() {
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-2'),
                 }}
                 next={{
-                    label: 'Version Control with Git',
+                    label: 'Trees, Stacks & Queues',
                     onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
                 }}
             />
