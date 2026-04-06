@@ -7,10 +7,7 @@ import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
-import {
-    LectureSectionHeading,
-    LectureP,
-} from '@/components/ui/lecture-typography';
+import { LectureSectionHeading } from '@/components/ui/lecture-typography';
 
 export default function Week9Activity() {
     const navigate = useNavigate();

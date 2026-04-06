@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 /**
  * Represents a LeetCode-style coding question for the guide.
  *

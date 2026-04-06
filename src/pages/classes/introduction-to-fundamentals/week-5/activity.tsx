@@ -6,10 +6,7 @@ import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
-import {
-    LectureSectionHeading,
-    LectureP,
-} from '@/components/ui/lecture-typography';
+import { LectureSectionHeading } from '@/components/ui/lecture-typography';
 
 export default function Week5Activity() {
     const navigate = useNavigate();
