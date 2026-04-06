@@ -98,6 +98,10 @@ export default function Week3Activity() {
                     </div>
                 </ActivityChallenge>
 
+                <LectureCallout type="warning">
+                    <strong className="text-foreground">Memory management with raw pointers:</strong> When you use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact*</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">new Contact(...)</code>, you own that memory. Every <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">new</code> must eventually have a matching <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code>. When you remove a node from the BST, delete both the Contact and the ContactNode. A production codebase would use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unique_ptr</code> (covered in Lecture 2, section 06) to avoid manual memory management. For this activity, raw pointers are fine — just be mindful of cleanup.
+                </LectureCallout>
+
                 <ActivityChallenge
                     number="2.2"
                     title="BST Insert and In-Order List"
@@ -112,6 +116,26 @@ export default function Week3Activity() {
 
                     <ActivityHint label="recursive insert">
                         Base case: if (node == nullptr) return new ContactNode(contact). Else if (name &lt; node's name) node-&gt;left = insert(node-&gt;left, contact); else node-&gt;right = insert(node-&gt;right, contact). Return node.
+                    </ActivityHint>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="2.3"
+                    title="BST Deletion"
+                    description="Remove a contact from the BST by name."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ContactNode* remove(ContactNode* node, string lastName)</code> — a recursive function that finds and removes the node</ActivityTask>
+                        <ActivityTask>Handle all three cases: leaf node, node with one child, node with two children</ActivityTask>
+                        <ActivityTask>For two children: find the in-order successor (smallest node in the right subtree), copy its data, then recursively delete the successor</ActivityTask>
+                        <ActivityTask>Update <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deleteContact</code> to call <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root = remove(root, lastName)</code></ActivityTask>
+                        <ActivityTask>Test: add three contacts, delete the middle one (alphabetically), list — verify the remaining two are still sorted</ActivityTask>
+                    </div>
+
+                    <ActivityHint label="BST deletion — the three cases">
+                        <strong>Case 1 — leaf node:</strong> The node has no children. Just delete it and return nullptr.{' '}
+                        <strong>Case 2 — one child:</strong> The node has exactly one child (left or right). Replace the node with its child — return the non-null child.{' '}
+                        <strong>Case 3 — two children:</strong> Find the <em>in-order successor</em> (go right once, then go left as far as possible). Copy the successor's contact data into the current node, then recursively delete the successor from the right subtree. Pseudocode: <code className="bg-muted px-1 rounded">node-&gt;data = successor-&gt;data; node-&gt;right = remove(node-&gt;right, successor-&gt;data-&gt;lastName);</code>
                     </ActivityHint>
                 </ActivityChallenge>
 
@@ -136,6 +160,10 @@ export default function Week3Activity() {
                         <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">void undo()</code>: if history empty print "Nothing to undo."; else pop top — if "add" remove that contact, if "delete" re-add from snapshot</ActivityTask>
                         <ActivityTask>Add "Undo" as a menu option</ActivityTask>
                     </div>
+
+                    <ActivityHint label="undo logic">
+                        Pop the top Action. Check its <code className="bg-muted px-1 rounded">type</code> string: if it's <code className="bg-muted px-1 rounded">"add"</code>, the undo is a delete — find and remove that contact from the BST. If it's <code className="bg-muted px-1 rounded">"delete"</code>, the undo is a re-add — create a new Contact from the snapshot and insert it back into the BST. Print what was undone so the user gets confirmation. Don't forget to update the phoneIndex (Part 4) in both cases.
+                    </ActivityHint>
                 </ActivityChallenge>
 
                 {/* ── PART 2: HASH MAP FOR O(1) SEARCH ─────────────────────────── */}
@@ -157,6 +185,10 @@ export default function Week3Activity() {
                         <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Contact* findByPhone(string number)</code> — return phoneIndex[number] or nullptr</ActivityTask>
                         <ActivityTask>Add "Search by phone" to the menu; print contact or "Not found."</ActivityTask>
                     </div>
+
+                    <ActivityHint label="unordered_map basics">
+                        Use <code className="bg-muted px-1 rounded">phoneIndex[phone] = contactPtr</code> to insert. Use <code className="bg-muted px-1 rounded">phoneIndex.count(phone)</code> to check if a key exists (returns 0 or 1). Use <code className="bg-muted px-1 rounded">phoneIndex.erase(phone)</code> to remove. Remember to update the map in <em>both</em> addContact and deleteContact, and also in undo — if you undo an add, erase the phone; if you undo a delete, re-insert it.
+                    </ActivityHint>
                 </ActivityChallenge>
 
                 <ActivityChallenge
@@ -169,6 +201,68 @@ export default function Week3Activity() {
                         <ActivityTask>Compile and run through all options to verify the full phonebook works</ActivityTask>
                     </div>
                 </ActivityChallenge>
+
+                <LectureSectionHeading number="05" title="Expected Output" />
+
+                <LectureP>
+                    A complete phonebook session should look something like this. Your formatting can differ, but the behavior should match:
+                </LectureP>
+
+                <div className="my-4 rounded-xl border border-border bg-zinc-950 p-4 font-mono text-xs text-green-400 space-y-0.5 overflow-x-auto">
+                    <p>=== Phonebook Menu ===</p>
+                    <p>1) Add contact</p>
+                    <p>2) Delete contact</p>
+                    <p>3) List all (alphabetical)</p>
+                    <p>4) Search by phone</p>
+                    <p>5) Undo</p>
+                    <p>0) Quit</p>
+                    <p className="text-white">&gt; 1</p>
+                    <p>First name: <span className="text-white">Alice</span></p>
+                    <p>Last name: <span className="text-white">Smith</span></p>
+                    <p>Phone: <span className="text-white">555-1234</span></p>
+                    <p>✓ Added Alice Smith.</p>
+                    <p />
+                    <p className="text-white">&gt; 1</p>
+                    <p>First name: <span className="text-white">Bob</span></p>
+                    <p>Last name: <span className="text-white">Jones</span></p>
+                    <p>Phone: <span className="text-white">555-5678</span></p>
+                    <p>✓ Added Bob Jones.</p>
+                    <p />
+                    <p className="text-white">&gt; 3</p>
+                    <p>--- All Contacts (alphabetical) ---</p>
+                    <p>  Jones, Bob — 555-5678</p>
+                    <p>  Smith, Alice — 555-1234</p>
+                    <p />
+                    <p className="text-white">&gt; 4</p>
+                    <p>Phone number: <span className="text-white">555-1234</span></p>
+                    <p>Found: Smith, Alice — 555-1234</p>
+                    <p />
+                    <p className="text-white">&gt; 5</p>
+                    <p>Undid: add Bob Jones</p>
+                    <p />
+                    <p className="text-white">&gt; 3</p>
+                    <p>--- All Contacts (alphabetical) ---</p>
+                    <p>  Smith, Alice — 555-1234</p>
+                    <p />
+                    <p className="text-white">&gt; 0</p>
+                    <p>Goodbye!</p>
+                </div>
+
+                <LectureCallout type="info">
+                    <strong className="text-foreground">Success criteria — your phonebook is complete when:</strong>
+                    <ul className="mt-2 space-y-1 text-xs list-disc list-inside">
+                        <li>Add, delete, and list work correctly with the BST (contacts listed alphabetically).</li>
+                        <li>BST deletion handles all three cases: leaf, one child, two children (in-order successor).</li>
+                        <li>Undo reverses the last add (by deleting) or last delete (by re-adding) using the stack.</li>
+                        <li>Search by phone returns the correct contact in O(1) using the unordered_map.</li>
+                        <li>The phone index stays in sync — adding inserts into the map, deleting erases from it, undo updates it.</li>
+                        <li>The program compiles with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall</code> with zero warnings.</li>
+                    </ul>
+                </LectureCallout>
+
+                <LectureP>
+                    To demonstrate your completed phonebook: run it and walk through the full cycle — add two or three contacts, list them (verify alphabetical order), search by phone, delete one, undo the delete, list again. Paste the terminal session as your submission.
+                </LectureP>
 
                 <LectureFooterNav
                     prev={{
