@@ -37,6 +37,7 @@ export interface CodeBlockProps {
     language: CodeLanguage;
     title: string;
     lines: string[];
+    copyable?: boolean;
 }
 
 const highlighterStyle: CSSProperties = {
@@ -56,7 +57,7 @@ const noCopy: CSSProperties = {
     WebkitUserSelect: 'none',
 };
 
-export function CodeBlock({ language, title, lines }: CodeBlockProps) {
+export function CodeBlock({ language, title, lines, copyable = false }: CodeBlockProps) {
     const code = lines.join('\n');
 
     return (
@@ -69,7 +70,7 @@ export function CodeBlock({ language, title, lines }: CodeBlockProps) {
                     language={language}
                     style={vscDarkPlus}
                     customStyle={highlighterStyle}
-                    codeTagProps={{ style: noCopy }}
+                    codeTagProps={{ style: copyable ? undefined : noCopy }}
                     PreTag="div"
                     wrapLongLines={false}
                 >
