@@ -155,7 +155,15 @@ export default function Week1Activity() {
                 </ActivityHint>
             </ActivityChallenge>
 
-            {/* ── 02 GIT IN PRACTICE (PREVIEW — FULL COVERAGE IN WEEK 2) ──────── */}
+            <LectureCallout type="info">
+                <strong className="text-foreground">You've completed the required portion</strong> of this activity when you can: (1) build a directory tree from a spec using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">mkdir -p</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">touch</code>, (2) set file permissions with numeric <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod</code>, (3) find and kill a process by PID and by name, and (4) search a codebase with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">grep</code>. Section 01 is the minimum — sections 02–03 are an optional Git preview.
+            </LectureCallout>
+
+            <LectureP>
+                To verify your work, run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ls -laR ~/gauntlet</code> and check that the full directory structure, file permissions, and file contents match what the challenges asked for. Show the output to your instructor/TA, or screenshot it for your own records.
+            </LectureP>
+
+            {/* ── 02 GIT IN PRACTICE (PREVIEW — FULL COVERAGE IN WEEK 4) ──────── */}
             <LectureSectionHeading number="02" title="Git in Practice (optional preview)" />
 
             <LectureCallout type="info">

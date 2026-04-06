@@ -66,7 +66,7 @@ export default function Week1Lecture2() {
             <TerminalBlock
                 lines={[
                     { comment: 'create the script file', cmd: 'touch backup.sh' },
-                    { comment: 'open backup.sh in nano, vim, or your IDE and add the shebang (#!/bin/bash) plus the cp command from the example above; save and exit', cmd: '' },
+                    { comment: 'open backup.sh in your editor and add the shebang + cp command above', cmd: 'nano backup.sh' },
                     { comment: 'make the script executable', cmd: 'chmod +x backup.sh' },
                     { comment: 'run it from the current directory', cmd: './backup.sh' },
                 ]}
@@ -102,6 +102,32 @@ export default function Week1Lecture2() {
                 In scripts, unquoted variables can break on spaces or empty values. Prefer <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'"$VAR"'}</code> (quoted) so a path like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/home/my project</code> is treated as one argument, not two.
             </LectureCallout>
 
+            <LectureSubHeading title="Script arguments" />
+            <LectureP>
+                Scripts can accept input from the command line. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./script.sh Alice Bob</code>, the shell sets special variables: <LectureTermWithTip tip="The first argument passed to the script. $2 is the second, and so on.">$1</LectureTermWithTip> is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Alice</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">$2</code> is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Bob</code>, <LectureTermWithTip tip="All arguments as a single string. Useful for passing everything along to another command.">$@</LectureTermWithTip> is all arguments, and <LectureTermWithTip tip="The number of arguments passed. Useful for validation: check that the user provided enough inputs.">$#</LectureTermWithTip> is the count.
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="greet.sh"
+                lines={[
+                    '#!/bin/bash',
+                    'echo "Hello, $1!"',
+                    'echo "You passed $# argument(s): $@"',
+                ]}
+            />
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'run with one argument', cmd: './greet.sh Alice' },
+                    { comment: 'run with multiple arguments', cmd: './greet.sh Alice Bob Charlie' },
+                ]}
+            />
+
+            <LectureCallout type="info">
+                Always quote <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'"$1"'}</code> in scripts — if the user passes a path with spaces (like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./deploy.sh "my project"</code>), unquoted <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">$1</code> splits it into two words. The same quoting rule from variables applies to all arguments.
+            </LectureCallout>
+
             {/* ── 04 CONDITIONALS AND EXIT CODES ─────────────────────────────── */}
             <LectureSectionHeading number="04" title="Conditionals and Exit Codes" />
 
@@ -129,6 +155,89 @@ export default function Week1Lecture2() {
                 Put <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set -e</code> at the top of a script to make it exit immediately if any command fails. Without it, the script keeps going after a failure, which can cause dangerous follow-up actions (e.g. deploying broken code). In production scripts, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set -e</code> is standard.
             </LectureCallout>
 
+            <LectureSubHeading title="else and elif" />
+            <LectureP>
+                Most real scripts need more than one branch. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">else</code> handles the fallback; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">elif</code> adds additional conditions without nesting.
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="check-env.sh"
+                lines={[
+                    '#!/bin/bash',
+                    'if [ "$1" = "prod" ]; then',
+                    '  echo "Deploying to PRODUCTION — are you sure?"',
+                    'elif [ "$1" = "staging" ]; then',
+                    '  echo "Deploying to staging"',
+                    'elif [ "$1" = "dev" ]; then',
+                    '  echo "Deploying to dev"',
+                    'else',
+                    '  echo "Unknown environment: $1"',
+                    '  echo "Usage: ./check-env.sh [dev|staging|prod]"',
+                    '  exit 1',
+                    'fi',
+                ]}
+            />
+
+            <LectureP>
+                Notice: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">elif</code> is just "else if" compressed. You can chain as many as needed. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">else</code> at the bottom catches anything that didn't match — always include one for unexpected inputs.
+            </LectureP>
+
+            <LectureSubHeading title="Test operators" />
+            <LectureP>
+                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[ ]</code> syntax (called <LectureTerm>test</LectureTerm>) is how bash compares values. Spaces around the brackets are required. There are three families of operators:
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="test-operators.sh — string, number, and file tests"
+                lines={[
+                    '#!/bin/bash',
+                    '',
+                    '# String comparisons',
+                    'if [ "$NAME" = "admin" ]; then echo "Welcome, admin"; fi',
+                    'if [ "$NAME" != "admin" ]; then echo "Access denied"; fi',
+                    'if [ -z "$NAME" ]; then echo "NAME is empty"; fi',
+                    'if [ -n "$NAME" ]; then echo "NAME is set"; fi',
+                    '',
+                    '# Numeric comparisons',
+                    'if [ "$COUNT" -eq 0 ]; then echo "Zero"; fi',
+                    'if [ "$COUNT" -gt 10 ]; then echo "More than 10"; fi',
+                    'if [ "$COUNT" -lt 5 ]; then echo "Less than 5"; fi',
+                    '',
+                    '# File tests',
+                    'if [ -f "config.env" ]; then echo "Config exists"; fi',
+                    'if [ -d "src" ]; then echo "src/ is a directory"; fi',
+                    'if [ ! -f ".env" ]; then echo ".env missing!"; exit 1; fi',
+                ]}
+            />
+
+            <LectureP>
+                <strong className="text-foreground">Strings:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">=</code> equal, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">!=</code> not equal, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-z</code> empty, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-n</code> not empty.{' '}
+                <strong className="text-foreground">Numbers:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-eq</code> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-ne</code> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-lt</code> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-gt</code> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-le</code> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-ge</code>.{' '}
+                <strong className="text-foreground">Files:</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-f</code> exists (file), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-d</code> exists (directory), <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">!</code> negates any test.
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="validate.sh — practical argument validation"
+                lines={[
+                    '#!/bin/bash',
+                    'if [ $# -eq 0 ]; then',
+                    '  echo "Error: no file provided"',
+                    '  echo "Usage: ./validate.sh <filename>"',
+                    '  exit 1',
+                    'fi',
+                    '',
+                    'if [ ! -f "$1" ]; then',
+                    '  echo "Error: $1 does not exist or is not a file"',
+                    '  exit 1',
+                    'fi',
+                    '',
+                    'echo "File $1 is valid — $(wc -l < "$1") lines"',
+                ]}
+            />
+
             {/* ── 05 LOOPS ────────────────────────────────────────────────────── */}
             <LectureSectionHeading number="05" title="Loops" />
 
@@ -152,34 +261,115 @@ export default function Week1Lecture2() {
                 <LectureCmd tip="Find files and run a command on each. -type f = files only; -name '*.sh' = match pattern.">{'find . -name "*.sh" -exec chmod +x {} \\;'}</LectureCmd> is a robust way to make all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.sh</code> files in a tree executable without breaking on spaces in names.
             </LectureCallout>
 
-            {/* ── 06 PERMISSIONS IN DEPTH ─────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Permissions in Depth" />
-
+            <LectureSubHeading title="while loops" />
             <LectureP>
-                Every file and directory has three permission classes: <LectureTerm>owner</LectureTerm>, <LectureTerm>group</LectureTerm>, and <LectureTerm>others</LectureTerm>. Each class can have <strong className="text-foreground">r</strong>ead, <strong className="text-foreground">w</strong>rite, and <strong className="text-foreground">x</strong>ecute. For a script to run, it must have execute (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">x</code>) for the user running it.
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">while</code> repeats as long as a condition is true. Useful for countdowns, retries, and reading input.
             </LectureP>
 
-            <div className="my-6 rounded-xl border border-border bg-muted/30 p-5 font-mono text-sm">
-                <div className="flex items-start gap-3 flex-wrap">
-                    {[
-                        { chars: '-', label: 'type', color: 'text-foreground' },
-                        { chars: 'rwx', label: 'owner', color: 'text-orange-500' },
-                        { chars: 'r-x', label: 'group', color: 'text-blue-500' },
-                        { chars: 'r--', label: 'others', color: 'text-emerald-500' },
-                    ].map((item, i) => (
-                        <div key={i} className="flex items-center gap-3">
-                            {i > 0 && <span className="text-muted-foreground">|</span>}
-                            <div className="text-center">
-                                <div className={`font-bold text-lg ${item.color}`}>{item.chars}</div>
-                                <div className="text-xs text-muted-foreground mt-1">{item.label}</div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-                <p className="text-xs text-muted-foreground mt-4">
-                    <strong>r</strong> read · <strong>w</strong> write · <strong>x</strong> execute · <strong>-</strong> none. First char: <strong>-</strong> file, <strong>d</strong> dir, <strong>l</strong> link.
-                </p>
-            </div>
+            <CodeBlock
+                language="bash"
+                title="countdown.sh"
+                lines={[
+                    '#!/bin/bash',
+                    'count=5',
+                    'while [ $count -gt 0 ]; do',
+                    '  echo "$count..."',
+                    '  count=$((count - 1))',
+                    'done',
+                    'echo "Go!"',
+                ]}
+            />
+
+            <LectureSubHeading title="Reading files line by line" />
+            <LectureP>
+                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">while read</code> pattern is the standard way to process a file one line at a time. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'< file'}</code> at the end feeds the file's contents into the loop.
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="process-lines.sh"
+                lines={[
+                    '#!/bin/bash',
+                    '# Process each line of a config file',
+                    'while IFS= read -r line; do',
+                    '  # Skip empty lines and comments',
+                    '  [ -z "$line" ] && continue',
+                    '  [[ "$line" == \\#* ]] && continue',
+                    '  echo "Processing: $line"',
+                    'done < config.txt',
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">IFS=</code> preserves leading whitespace. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-r</code> prevents backslash interpretation. Together they ensure each line is read exactly as it appears in the file. This is the safe way to process files line-by-line.
+            </LectureCallout>
+
+            {/* ── 06 FUNCTIONS ─────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Functions" />
+
+            <LectureP>
+                Functions let you name and reuse blocks of logic inside a script. Instead of copying the same five lines in three places, define a function once and call it by name. This makes scripts readable, testable, and maintainable.
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="deploy-helpers.sh"
+                lines={[
+                    '#!/bin/bash',
+                    '',
+                    'log() {',
+                    '  echo "[$(date +%H:%M:%S)] $1"',
+                    '}',
+                    '',
+                    'check_dependency() {',
+                    '  if ! which "$1" > /dev/null 2>&1; then',
+                    '    log "ERROR: $1 is not installed"',
+                    '    return 1',
+                    '  fi',
+                    '  log "$1 found at $(which "$1")"',
+                    '}',
+                    '',
+                    'check_dependency "node"',
+                    'check_dependency "docker"',
+                    'log "All checks passed"',
+                ]}
+            />
+
+            <LectureP>
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">return</code> sets the exit code of the function — not the script. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">return 1</code> means the function failed; the script continues unless you check it with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set -e</code> or an explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">if</code>.
+            </LectureP>
+
+            <LectureSubHeading title="Local variables" />
+            <LectureP>
+                By default, variables inside a function are <strong className="text-foreground">global</strong> — they leak into the rest of the script. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">local</code> to scope a variable to the function.
+            </LectureP>
+
+            <CodeBlock
+                language="bash"
+                title="local variables"
+                lines={[
+                    'build_path() {',
+                    '  local dir="$1"',
+                    '  local name="$2"',
+                    '  echo "$dir/$name"',
+                    '}',
+                    '',
+                    'result=$(build_path "/home/you" "project")',
+                    'echo "$result"  # /home/you/project',
+                    '# $dir and $name are not accessible here',
+                ]}
+            />
+
+            <LectureCallout type="info">
+                Functions + arguments + conditionals = scripts that are readable, testable, and reusable. If you find yourself writing the same logic twice, extract it into a function. This is the same principle as functions in any programming language.
+            </LectureCallout>
+
+            {/* ── 07 PERMISSIONS IN DEPTH ─────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Permissions in Depth" />
+
+            <LectureP>
+                Recall the permission string from Lecture 1: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-rwxr-xr--</code> — the first character is the type (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-</code> file, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">d</code> directory), then three groups of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">rwx</code> for <LectureTerm>owner</LectureTerm>, <LectureTerm>group</LectureTerm>, and <LectureTerm>others</LectureTerm>. Here we go deeper: numeric permissions, ownership commands, and the special role of execute on directories.
+            </LectureP>
 
             <LectureSubHeading title="Numeric permissions" />
             <LectureP>
@@ -207,8 +397,8 @@ export default function Week1Lecture2() {
                 Directories need execute (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">x</code>) for you to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cd</code> into them. So directory permissions are often <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">755</code> (owner full, others can enter and list) or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">711</code> (others can enter but not list contents — useful for restricted areas).
             </LectureCallout>
 
-            {/* ── 07 CRON ────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Scheduling with cron" />
+            {/* ── 08 CRON ────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Scheduling with cron" />
 
             <LectureP>
                 <LectureTermWithTip tip="Cron runs commands on a schedule: every minute, every day at 2am, etc. The cron daemon reads crontab files.">cron</LectureTermWithTip> runs commands at fixed times. Edit your user's crontab with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">crontab -e</code>. Each line is: minute, hour, day-of-month, month, day-of-week, then the command.
@@ -234,27 +424,57 @@ export default function Week1Lecture2() {
                 End cron entries with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>> /var/log/my-script.log 2>&1'}</code> to capture both stdout and stderr. Otherwise failed runs leave no trace unless you've set up separate logging.
             </LectureCallout>
 
-            {/* ── 08 PUTTING IT TOGETHER ──────────────────────────────────────── */}
-            <LectureSectionHeading number="08" title="Putting It Together" />
+            {/* ── 09 PUTTING IT TOGETHER ──────────────────────────────────────── */}
+            <LectureSectionHeading number="09" title="Putting It Together" />
 
             <LectureP>
-                A typical deploy or backup script: set up a safe environment, check prerequisites, then run the real work. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set -e</code> so the script stops on any failure.
+                A real deploy script uses everything from this lecture: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set -e</code>, functions, arguments, conditionals, and clear logging. Here's the pattern you'll see in production:
             </LectureP>
 
             <CodeBlock
                 language="bash"
-                title="deploy.sh — minimal safe pattern"
+                title="deploy.sh — production-style pattern"
                 lines={[
                     '#!/bin/bash',
                     'set -e',
-                    '# Exit on any command failure',
+                    '',
+                    'log() { echo "[$(date +%H:%M:%S)] $1"; }',
+                    '',
+                    'require() {',
+                    '  if ! which "$1" > /dev/null 2>&1; then',
+                    '    log "ERROR: $1 is not installed"',
+                    '    exit 1',
+                    '  fi',
+                    '}',
+                    '',
+                    '# Validate environment argument',
+                    'if [ -z "$1" ]; then',
+                    '  echo "Usage: ./deploy.sh [dev|staging|prod]"',
+                    '  exit 1',
+                    'fi',
+                    '',
+                    'ENV="$1"',
                     'cd "$(dirname "$0")"',
-                    '# Run from script directory',
-                    'echo "Starting deploy..."',
+                    '',
+                    '# Check prerequisites',
+                    'require "node"',
+                    'require "npm"',
+                    '',
+                    'log "Deploying to $ENV..."',
                     'npm run build',
-                    'echo "Deploy complete."',
+                    '',
+                    'if [ "$ENV" = "prod" ]; then',
+                    '  log "Running production checks..."',
+                    '  npm test',
+                    'fi',
+                    '',
+                    'log "Deploy to $ENV complete."',
                 ]}
             />
+
+            <LectureP>
+                This script validates its input, checks dependencies, branches on the environment, and logs every step. Compare it to the three-line <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backup.sh</code> from section 02 — same language, dramatically more capable.
+            </LectureP>
 
             <LectureCallout type="warning">
                 Avoid <LectureCmd tip="Recursive force delete. No undo. In a script, a wrong variable or path can wipe the wrong directory." warn>rm -rf</LectureCmd> in scripts unless the path is fixed and you're certain. Prefer moving to a trash directory or using a flag that requires confirmation. One typo in a variable used with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">rm -rf $VAR</code> has destroyed production systems.

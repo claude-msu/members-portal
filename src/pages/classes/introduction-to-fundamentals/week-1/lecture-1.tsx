@@ -99,6 +99,21 @@ export default function Week1Lecture1() {
                 <LectureTermWithTip tip="Start typing a path or filename and hit Tab — shell completes it. Tab twice for multiple matches. Saves thousands of keystrokes.">Tab</LectureTermWithTip> autocompletes. Use it.
             </LectureCallout>
 
+            <LectureSubHeading title="Getting help" />
+            <LectureP>
+                Every command has a built-in manual. <LectureCmd tip="Full manual for any command. man ls, man grep, man chmod. q to quit. When in doubt, man it out.">man</LectureCmd> shows it. Use it any time you forget flags or want to know what a command can do.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'open the manual for ls — scroll with arrows, q to quit', cmd: 'man ls' },
+                    { comment: 'look up grep flags', cmd: 'man grep' },
+                    { comment: 'check what chmod options exist', cmd: 'man chmod' },
+                ]}
+            />
+            <LectureCallout type="info">
+                When in doubt, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">man</code> it out. You don't need to memorize every flag — you need to know where to look.
+            </LectureCallout>
+
             {/* ── 03 FILE MANIPULATION ────────────────────────────────────────── */}
             <LectureSectionHeading number="03" title="Creating and Manipulating Files" />
 
@@ -142,6 +157,22 @@ export default function Week1Lecture1() {
             </ul>
             <LectureP>
                 If Git or another tool opens vim and you're stuck, press <LectureCmd tip="Leave insert mode.">Esc</LectureCmd> then type <LectureCmd tip="Save and quit.">:wq</LectureCmd> and Enter.
+            </LectureP>
+
+            <LectureSubHeading title="Writing content with echo" />
+            <LectureP>
+                <LectureCmd tip="Print text to the terminal — or redirect it into a file. The simplest way to create a file with content in one command.">echo</LectureCmd> prints text. Combined with <LectureTermWithTip tip="Send a command's output to a file instead of the screen. > overwrites, >> appends.">redirection</LectureTermWithTip>, it creates files with content in one shot — no editor needed.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'print text to the terminal', cmd: 'echo "hello world"' },
+                    { comment: 'write text into a file (creates it if it doesn\'t exist, overwrites if it does)', cmd: 'echo "# My Project" > README.md' },
+                    { comment: 'append a second line without erasing the first', cmd: 'echo "Work in progress" >> README.md' },
+                    { comment: 'verify the contents', cmd: 'cat README.md' },
+                ]}
+            />
+            <LectureP>
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>'}</code> overwrites the file. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>>'}</code> appends. You'll use this pattern constantly — section 05 covers redirection and pipes in full.
             </LectureP>
 
             <LectureSubHeading title="Copying and moving" />
@@ -207,8 +238,58 @@ export default function Week1Lecture1() {
                 <LectureCmd tip="Recursive grep through a codebase — often faster than IDE search.">grep -r</LectureCmd> in a project to find where something's defined or used.
             </LectureCallout>
 
-            {/* ── 05 PERMISSIONS ──────────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Permissions" />
+            {/* ── 05 PIPES AND REDIRECTION ─────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Pipes and Redirection" />
+
+            <LectureP>
+                The real power of the command line comes from <LectureTermWithTip tip="Connecting commands together so the output of one becomes the input of the next. The foundation of Unix philosophy: small tools that do one thing, combined into powerful chains.">combining commands</LectureTermWithTip>. Two mechanisms make this work: <strong className="text-foreground">pipes</strong> connect commands together, and <strong className="text-foreground">redirection</strong> sends output to files.
+            </LectureP>
+
+            <LectureSubHeading title="The pipe operator" />
+            <LectureP>
+                <LectureCmd tip="Pipe — takes the output of the command on the left and feeds it as input to the command on the right. Chain as many as you need.">|</LectureCmd> connects two commands: the left command's output becomes the right command's input. You can chain as many as you need.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'search a log file for errors', cmd: 'cat server.log | grep "error"' },
+                    { comment: 'find a specific process by name', cmd: 'ps aux | grep node' },
+                    { comment: 'show only the first 5 files in a long listing', cmd: 'ls -la | head -5' },
+                    { comment: 'chain three commands: find 404 errors and count them', cmd: 'cat access.log | grep 404 | wc -l' },
+                ]}
+            />
+            <LectureP>
+                Each <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">|</code> takes the full output of the previous command and feeds it into the next. <LectureCmd tip="Word count. -l = count lines only. Combined with pipes, it counts how many matches grep found.">wc -l</LectureCmd> counts lines — combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">grep</code>, it tells you how many matches exist.
+            </LectureP>
+
+            <LectureSubHeading title="Output redirection" />
+            <LectureP>
+                You already used <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>'}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>>'}</code> with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">echo</code> in section 03. They work with <em>any</em> command — anything that prints to the terminal can be redirected to a file instead.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'save a directory listing to a file (overwrites)', cmd: 'ls -la > listing.txt' },
+                    { comment: 'append grep results to an existing file', cmd: 'grep -r "TODO" ./src >> todos.txt' },
+                    { comment: 'save the output of a piped chain', cmd: 'ps aux | grep node > running-node.txt' },
+                ]}
+            />
+
+            <LectureSubHeading title="Redirecting errors" />
+            <LectureP>
+                Programs have two output streams: <LectureTermWithTip tip="Standard output — normal program output. File descriptor 1. Where echo, ls, grep send their results.">stdout</LectureTermWithTip> (normal output, file descriptor <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">1</code>) and <LectureTermWithTip tip="Standard error — error messages and warnings. File descriptor 2. Separate from stdout so you can capture or suppress errors independently.">stderr</LectureTermWithTip> (errors, file descriptor <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">2</code>). By default both print to your terminal. You can redirect them separately.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'send errors to a file, keep normal output on screen', cmd: 'grep -r "pattern" /etc 2> errors.log' },
+                    { comment: 'send both stdout and stderr to the same file', cmd: 'npm run build > build.log 2>&1' },
+                    { comment: 'throw away errors entirely (send to /dev/null)', cmd: 'find / -name "*.conf" 2> /dev/null' },
+                ]}
+            />
+            <LectureCallout type="tip">
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'2>&1'}</code> means "send stderr to wherever stdout is going." You'll see this in cron jobs, CI pipelines, and deployment scripts — anywhere you want a single log file capturing everything.
+            </LectureCallout>
+
+            {/* ── 06 PERMISSIONS ──────────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Permissions" />
 
             <LectureP>
                 Every file has <LectureTermWithTip tip="Who can read, write, or execute. Misconfigured permissions = bugs and security issues.">permissions</LectureTermWithTip>. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ls -la</code> shows them.
@@ -252,8 +333,8 @@ export default function Week1Lecture1() {
                 <LectureCmd tip="Make a file executable. Every .sh script needs this before you can run it.">chmod +x</LectureCmd> on scripts — you'll use it constantly.
             </LectureCallout>
 
-            {/* ── 06 PROCESSES ────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Processes" />
+            {/* ── 07 PROCESSES ────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Processes" />
 
             <LectureP>
                 A <LectureTermWithTip tip="A running program. The OS gives each one a unique Process ID (PID).">process</LectureTermWithTip> is a running program. See what's running, find what's eating CPU, or stop a stuck server.
@@ -286,8 +367,8 @@ export default function Week1Lecture1() {
                 <LectureTermWithTip tip="Sends interrupt to the foreground process. Standard way to stop npm run dev, Python servers, etc.">Ctrl + C</LectureTermWithTip> stops whatever's running in the terminal.
             </LectureCallout>
 
-            {/* ── 07 PACKAGE MANAGERS ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Package Managers" />
+            {/* ── 08 PACKAGE MANAGERS ─────────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Package Managers" />
 
             <LectureP>
                 <LectureTermWithTip tip="Installs, updates, removes software. One command — download, verify, install, dependencies. No install wizards.">Package managers</LectureTermWithTip>: one command, everything handled.
@@ -325,11 +406,26 @@ export default function Week1Lecture1() {
                 <LectureCmd tip="Full system access. Can break the OS or create security holes. Only use when needed; understand what you run." warn>sudo</LectureCmd> — know what the command does before you run it.
             </LectureCallout>
 
-            {/* ── 08 PUTTING IT TOGETHER ──────────────────────────────────────── */}
-            <LectureSectionHeading number="08" title="Putting It All Together" />
+            <LectureSubHeading title="Finding installed programs" />
+            <LectureP>
+                <LectureCmd tip="Shows the full path to a program's binary. Useful to check if something is installed and which version the shell will use.">which</LectureCmd> tells you where a program lives on disk — or whether it's installed at all.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'find where node is installed', cmd: 'which node' },
+                    { comment: 'check if python3 is available', cmd: 'which python3' },
+                    { comment: 'find the brew binary on macOS', cmd: 'which brew' },
+                ]}
+            />
+            <LectureP>
+                If <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">which</code> prints nothing, the program isn't in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PATH</code> — either it's not installed, or the shell can't find it. Useful when you have multiple versions of a tool and want to verify which one the system will use.
+            </LectureP>
+
+            {/* ── 09 PUTTING IT TOGETHER ──────────────────────────────────────── */}
+            <LectureSectionHeading number="09" title="Putting It All Together" />
 
             <LectureP>
-                Full toolkit. One scenario: set up a project on a fresh server.
+                Full toolkit. One scenario: set up a project on a fresh server. This uses navigation, file creation, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">echo</code>, permissions, pipes, and package management — everything from sections 01–08.
             </LectureP>
             <TerminalBlock
                 title="bash — fresh server"
@@ -338,22 +434,19 @@ export default function Week1Lecture1() {
                     { comment: 'create a project folder with a src subdirectory', cmd: 'mkdir -p projects/my-app/src' },
                     { comment: 'navigate into it', cmd: 'cd projects/my-app' },
                     { comment: 'confirm where you are', cmd: 'pwd' },
-                    { comment: 'create a README', cmd: 'touch README.md' },
-                    { comment: 'create a start script', cmd: 'touch start.sh' },
-                    { comment: 'edit start.sh in vim — i to type, Esc then :wq Enter to save and quit', cmd: 'vim start.sh' },
+                    { comment: 'create a README with a heading', cmd: 'echo "# My App" > README.md' },
+                    { comment: 'append a description', cmd: 'echo "A sample project" >> README.md' },
+                    { comment: 'create a start script', cmd: 'echo "#!/bin/bash" > start.sh' },
+                    { comment: 'add the start command to the script', cmd: 'echo "node src/index.js" >> start.sh' },
                     { comment: 'make it executable', cmd: 'chmod +x start.sh' },
-                    { comment: 'verify the permissions look right', cmd: 'ls -la' },
-                    { comment: 'update package list', cmd: 'sudo apt update' },
-                    { comment: 'install node', cmd: 'sudo apt install nodejs npm' },
-                    { comment: 'confirm node is installed', cmd: 'node --version' },
+                    { comment: 'verify the script has execute permission', cmd: 'ls -la | grep start' },
+                    { comment: 'update package list and install node', cmd: 'sudo apt update && sudo apt install nodejs npm' },
+                    { comment: 'confirm node is installed and find its path', cmd: 'which node && node --version' },
                 ]}
             />
             <LectureP>
-                Navigate, create structure, edit with vim, install, verify. First five minutes on a new server.
+                Navigate, create structure, write content with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">echo</code>, set permissions, pipe commands together, install software, verify. First five minutes on a new server.
             </LectureP>
-            <LectureCallout type="tip">
-                <LectureCmd tip="Full manual for any command. man ls, man grep, man chmod. q to quit. When in doubt, man it out.">man</LectureCmd> — built-in docs for every Unix command.
-            </LectureCallout>
 
             <LectureFooterNav
                 next={{
