@@ -6,12 +6,13 @@ import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
     LectureSectionHeading,
+    LectureSubHeading,
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
 import { CodeBlock } from '@/components/ui/code-block';
 
-// ── BFS vs DFS diagram ────────────────────────────────────────────────────────
+// ── BFS vs DFS comparison diagram ────────────────────────────────────────────
 const BfsDfsDiagram = () => (
     <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
@@ -20,21 +21,21 @@ const BfsDfsDiagram = () => (
                 color: 'text-blue-600 dark:text-blue-400',
                 border: 'border-blue-200 dark:border-blue-800',
                 header: 'bg-blue-50 dark:bg-blue-950/30',
-                order: ['1 (root)', '2, 3', '4, 5, 6, 7'],
+                order: ['Visit root (level 0)', 'Visit all children (level 1)', 'Visit all grandchildren (level 2)'],
                 orderLabel: 'Visit order by level',
                 structure: 'Queue (FIFO)',
-                use: 'Shortest path, level-order problems',
-                note: 'Explores all nodes at depth d before any at depth d+1.',
+                use: 'Shortest path, level-order traversal, "nearest" problems',
+                note: 'Explores all nodes at depth d before any node at depth d+1.',
             },
             {
                 label: 'DFS — Depth-First Search',
                 color: 'text-orange-600 dark:text-orange-400',
                 border: 'border-orange-200 dark:border-orange-800',
                 header: 'bg-orange-50 dark:bg-orange-950/30',
-                order: ['1 (root)', '2 → 4 → 5', 'back to 3 → 6 → 7'],
+                order: ['Visit root', 'Go all the way down the left branch', 'Backtrack and explore the right branch'],
                 orderLabel: 'Visit order (pre-order)',
                 structure: 'Stack / call stack (recursion)',
-                use: 'Path existence, cycle detection, topological sort',
+                use: 'Path existence, backtracking, tree serialization',
                 note: 'Goes as deep as possible down one branch before backtracking.',
             },
         ].map((item) => (
@@ -78,282 +79,414 @@ export default function Week2Lecture1() {
                 icon={<Binary className="h-4 w-4" />}
             />
 
-            {/* ── 01 THE CALL STACK IS A STACK ────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="The Call Stack Is Literally a Stack" />
+            {/* ── 01 WHAT IS A DATA STRUCTURE? ──────────────────────────────── */}
+            <LectureSectionHeading number="01" title="What Is a Data Structure?" />
 
             <LectureP>
-                Before diving into tree algorithms, there's an insight worth making explicit: your program's own execution uses a stack. Every time you call a function, a <LectureTerm>stack frame</LectureTerm> is pushed — containing the function's local variables, parameters, and the return address. When the function returns, the frame is popped.
+                You have already used data structures — Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">list</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dict</code> are data structures. A <LectureTerm>data structure</LectureTerm> is a way of organizing data so that specific operations — insert, search, delete, sort — are efficient. Different structures optimize for different operations, and choosing the right one is often the difference between a solution that works and one that's fast.
             </LectureP>
             <LectureP>
-                This is why recursion <em>is</em> DFS. A recursive tree traversal doesn't manage an explicit stack — it uses the call stack. The two are mechanically identical. Understanding this means you can always convert a recursive DFS to an iterative one using an explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::stack</code> — and vice versa.
+                Data structures fall into two families. <LectureTerm>Linear</LectureTerm> structures arrange elements in a sequence: arrays, linked lists, stacks, and queues. <LectureTerm>Non-linear</LectureTerm> structures arrange elements in hierarchies or networks: trees and graphs. This lecture covers the core structures from both families that appear in virtually every technical interview and production codebase.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="recursive DFS vs iterative DFS — same result, different mechanism"
-                lines={[
-                    '// Recursive — uses the call stack implicitly',
-                    'void dfsRecursive(TreeNode* node) {',
-                    '    if (!node) return;',
-                    '    cout << node->val << " ";   // pre-order: process before children',
-                    '    dfsRecursive(node->left);',
-                    '    dfsRecursive(node->right);',
-                    '}',
-                    '',
-                    '// Iterative — uses an explicit stack',
-                    'void dfsIterative(TreeNode* root) {',
-                    '    if (!root) return;',
-                    '    stack<TreeNode*> st;',
-                    '    st.push(root);',
-                    '    while (!st.empty()) {',
-                    '        TreeNode* node = st.top(); st.pop();',
-                    '        cout << node->val << " ";',
-                    '        // push right first so left is processed first',
-                    '        if (node->right) st.push(node->right);',
-                    '        if (node->left)  st.push(node->left);',
-                    '    }',
-                    '}',
-                    '// Both produce the same pre-order output: root → left → right',
-                ]}
-            />
-
-            <LectureCallout type="tip">
-                When a recursive solution causes a stack overflow (very deep trees or graphs), convert it to iterative with an explicit stack. The logic is the same — you just manage memory yourself instead of letting the runtime do it.
+            <LectureCallout type="info">
+                The theme of this week: the right data structure turns an O(n²) solution into an O(n) one. Every section below introduces a structure, explains <em>what</em> it's good at, and shows <em>when</em> to reach for it. Lecture 2 formalizes this with Big-O notation.
             </LectureCallout>
 
-            {/* ── 02 BFS VS DFS ───────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="BFS vs. DFS — Choosing the Right One" />
+            {/* ── 02 STACKS ────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Stacks — Last In, First Out" />
 
             <LectureP>
-                BFS and DFS are the two fundamental graph traversal strategies. The choice between them isn't arbitrary — each is optimal for different classes of problems. The key difference is the data structure: BFS uses a <LectureTerm>queue</LectureTerm> (processes nodes level by level), DFS uses a <LectureTerm>stack</LectureTerm> (goes deep before wide).
+                A <LectureTerm>stack</LectureTerm> works like a stack of plates: you can only add to the top and remove from the top. The last item you put on is the first item you take off — <LectureTerm>LIFO</LectureTerm> (Last In, First Out). There are four operations, and all of them are O(1):
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">push</strong> adds an element to the top. <strong className="text-foreground">pop</strong> removes and returns the top element. <strong className="text-foreground">peek</strong> returns the top element without removing it. <strong className="text-foreground">is_empty</strong> checks whether the stack has any elements.
             </LectureP>
 
-            <BfsDfsDiagram />
-
-            <CodeBlock language="cpp"
-                title="BFS — level-order traversal with a queue"
+            <CodeBlock language="python"
+                title="stack.py — stack implementation using a Python list"
                 lines={[
-                    '#include <queue>',
+                    'class Stack:',
+                    '    def __init__(self):',
+                    '        self._items = []',
                     '',
-                    'void bfs(TreeNode* root) {',
-                    '    if (!root) return;',
-                    '    queue<TreeNode*> q;',
-                    '    q.push(root);',
-                    '    while (!q.empty()) {',
-                    '        int levelSize = q.size();  // snapshot: nodes at this level',
-                    '        for (int i = 0; i < levelSize; i++) {',
-                    '            TreeNode* node = q.front(); q.pop();',
-                    '            cout << node->val << " ";',
-                    '            if (node->left)  q.push(node->left);',
-                    '            if (node->right) q.push(node->right);',
-                    '        }',
-                    '        cout << endl;  // new line between levels',
-                    '    }',
-                    '}',
-                    '// Guarantees shortest path in unweighted graphs',
+                    '    def push(self, val):',
+                    '        self._items.append(val)',
+                    '',
+                    '    def pop(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("pop from empty stack")',
+                    '        return self._items.pop()',
+                    '',
+                    '    def peek(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("peek at empty stack")',
+                    '        return self._items[-1]',
+                    '',
+                    '    def is_empty(self):',
+                    '        return len(self._items) == 0',
+                    '',
+                    '    def __len__(self):',
+                    '        return len(self._items)',
+                    '',
+                    '',
+                    '# Usage',
+                    's = Stack()',
+                    's.push(10)',
+                    's.push(20)',
+                    's.push(30)',
+                    'print(s.peek())   # 30 — top of stack',
+                    'print(s.pop())    # 30 — removed from top',
+                    'print(s.peek())   # 20 — new top',
                 ]}
             />
 
-            {/* ── 03 GRAPHS ───────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Graphs — The General Case" />
+            <LectureSubHeading title="The call stack" />
 
             <LectureP>
-                A <LectureTerm>tree</LectureTerm> is a special case of a <LectureTerm>graph</LectureTerm>: a connected, acyclic graph with n nodes and n-1 edges. Real-world problems often involve general graphs: social networks, road maps, dependency systems. The same BFS and DFS algorithms apply — with one critical addition: a <LectureTerm>visited</LectureTerm> set to prevent infinite loops on cycles.
+                Your program already uses a stack. Every time Python calls a function, it pushes a <LectureTerm>stack frame</LectureTerm> onto the <LectureTerm>call stack</LectureTerm> — containing the function's local variables, parameters, and the return address. When the function returns, the frame is popped. This is why recursion works: each recursive call adds a frame, and each return removes one. It is also why infinite recursion crashes with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">RecursionError: maximum recursion depth exceeded</code> — the stack ran out of space.
             </LectureP>
+
+            <LectureCallout type="tip">
+                Real-world stacks: your browser's back button is a stack of visited pages. An undo system (Ctrl+Z) is a stack of actions. Expression parsers use a stack to match opening and closing brackets. Any time you need "most recent first," think stack.
+            </LectureCallout>
+
+            {/* ── 03 QUEUES ────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Queues — First In, First Out" />
 
             <LectureP>
-                Graphs are typically represented as an <LectureTerm>adjacency list</LectureTerm> — a map from each node to its neighbors. For a graph with n nodes and e edges, this uses O(n + e) space, far better than the O(n²) adjacency matrix for sparse graphs.
+                A <LectureTerm>queue</LectureTerm> works like a line at a coffee shop: the first person in line is the first person served — <LectureTerm>FIFO</LectureTerm> (First In, First Out). Like stacks, queues have four core operations, all O(1) when implemented correctly:
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">enqueue</strong> adds an element to the back. <strong className="text-foreground">dequeue</strong> removes and returns the front element. <strong className="text-foreground">peek</strong> returns the front element without removing it. <strong className="text-foreground">is_empty</strong> checks whether the queue has any elements.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="graph BFS — shortest path in an unweighted graph"
+            <CodeBlock language="python"
+                title="queue.py — queue implementation using collections.deque"
                 lines={[
-                    '#include <queue>',
-                    '#include <unordered_map>',
-                    '#include <unordered_set>',
+                    'from collections import deque',
                     '',
-                    '// Adjacency list: node → list of neighbors',
-                    'using Graph = unordered_map<int, vector<int>>;',
                     '',
-                    '// Returns shortest distance from start to target (-1 if unreachable)',
-                    'int bfsShortestPath(Graph& g, int start, int target) {',
-                    '    unordered_set<int> visited;',
-                    '    queue<pair<int, int>> q;  // {node, distance}',
-                    '    q.push({start, 0});',
-                    '    visited.insert(start);',
-                    '    while (!q.empty()) {',
-                    '        auto [node, dist] = q.front(); q.pop();',
-                    '        if (node == target) return dist;',
-                    '        for (int neighbor : g[node]) {',
-                    '            if (!visited.count(neighbor)) {',
-                    '                visited.insert(neighbor);',
-                    '                q.push({neighbor, dist + 1});',
-                    '            }',
-                    '        }',
-                    '    }',
-                    '    return -1;  // target unreachable',
-                    '}',
+                    'class Queue:',
+                    '    def __init__(self):',
+                    '        self._items = deque()',
+                    '',
+                    '    def enqueue(self, val):',
+                    '        self._items.append(val)',
+                    '',
+                    '    def dequeue(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("dequeue from empty queue")',
+                    '        return self._items.popleft()',
+                    '',
+                    '    def peek(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("peek at empty queue")',
+                    '        return self._items[0]',
+                    '',
+                    '    def is_empty(self):',
+                    '        return len(self._items) == 0',
+                    '',
+                    '    def __len__(self):',
+                    '        return len(self._items)',
+                    '',
+                    '',
+                    '# Usage',
+                    'q = Queue()',
+                    'q.enqueue("Alice")',
+                    'q.enqueue("Bob")',
+                    'q.enqueue("Charlie")',
+                    'print(q.dequeue())  # "Alice" — first in, first out',
+                    'print(q.peek())     # "Bob" — next in line',
                 ]}
             />
 
-            <CodeBlock language="cpp"
-                title="graph DFS — find if path exists between two nodes"
-                lines={[
-                    'bool dfsHasPath(Graph& g, int curr, int target, unordered_set<int>& visited) {',
-                    '    if (curr == target) return true;',
-                    '    visited.insert(curr);',
-                    '    for (int neighbor : g[curr]) {',
-                    '        if (!visited.count(neighbor)) {',
-                    '            if (dfsHasPath(g, neighbor, target, visited)) return true;',
-                    '        }',
-                    '    }',
-                    '    return false;',
-                    '}',
-                    '',
-                    '// Entry point',
-                    'bool hasPath(Graph& g, int start, int target) {',
-                    '    unordered_set<int> visited;',
-                    '    return dfsHasPath(g, start, target, visited);',
-                    '}',
-                ]}
-            />
-
-            {/* ── 04 CONNECTED COMPONENTS ─────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Connected Components" />
+            <LectureCallout type="warning">
+                Do not use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">list.pop(0)</code> as a queue — it is O(n) because every remaining element must shift left by one index. Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">collections.deque</code> gives O(1) <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">popleft()</code> using a doubly-linked list internally. Always use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deque</code> for queues.
+            </LectureCallout>
 
             <LectureP>
-                A <LectureTerm>connected component</LectureTerm> is a subgraph where every node is reachable from every other node, but no node is connected to any node outside the component. Counting components is a classic interview problem — the pattern is: iterate over all nodes, and for any unvisited node, run DFS/BFS to mark everything reachable from it as one component.
+                Real-world queues: task schedulers process jobs in order. BFS uses a queue to explore level-by-level (you will see this later in this lecture). Print queues, message queues (Kafka, RabbitMQ), and HTTP request pipelines are all FIFO structures.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="count connected components — O(n + e)"
-                lines={[
-                    'int countComponents(int n, Graph& g) {',
-                    '    unordered_set<int> visited;',
-                    '    int components = 0;',
-                    '    for (int node = 0; node < n; node++) {',
-                    '        if (!visited.count(node)) {',
-                    '            // Found an unvisited node — new component',
-                    '            dfsHasPath(g, node, -1, visited);  // -1 = no target, just flood fill',
-                    '            components++;',
-                    '        }',
-                    '    }',
-                    '    return components;',
-                    '}',
-                    '// Same pattern works for: islands in a grid, union-find problems',
-                ]}
-            />
-
-            {/* ── 05 CYCLE DETECTION ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Cycle Detection" />
+            {/* ── 04 TREES FROM FIRST PRINCIPLES ───────────────────────────── */}
+            <LectureSectionHeading number="04" title="Trees From First Principles" />
 
             <LectureP>
-                Detecting cycles in a graph is essential for dependency resolution (does this package import itself?), deadlock detection, and validating DAGs. The approach differs for directed vs. undirected graphs.
+                A <LectureTerm>tree</LectureTerm> is a non-linear data structure where elements are arranged in a hierarchy. Every tree has a single <LectureTerm>root</LectureTerm> node at the top. Each node can have zero or more <LectureTerm>children</LectureTerm>. A node with no children is called a <LectureTerm>leaf</LectureTerm>. The connection between a parent and child is called an <LectureTerm>edge</LectureTerm>.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="cycle detection in a directed graph — DFS with state tracking"
-                lines={[
-                    '// Three states per node:',
-                    '// 0 = unvisited, 1 = currently in stack (gray), 2 = fully processed (black)',
-                    'bool dfsCycleCheck(int node, Graph& g, vector<int>& state) {',
-                    '    state[node] = 1;  // mark as in-progress',
-                    '    for (int neighbor : g[node]) {',
-                    '        if (state[neighbor] == 1) return true;  // back edge = cycle',
-                    '        if (state[neighbor] == 0) {',
-                    '            if (dfsCycleCheck(neighbor, g, state)) return true;',
-                    '        }',
-                    '    }',
-                    '    state[node] = 2;  // mark as done',
-                    '    return false;',
-                    '}',
-                    '',
-                    'bool hasCycle(int n, Graph& g) {',
-                    '    vector<int> state(n, 0);',
-                    '    for (int i = 0; i < n; i++)',
-                    '        if (state[i] == 0 && dfsCycleCheck(i, g, state)) return true;',
-                    '    return false;',
-                    '}',
-                ]}
-            />
-
-            {/* ── 06 TOPOLOGICAL SORT ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Topological Sort" />
+            <LectureSubHeading title="Key terminology" />
 
             <LectureP>
-                <LectureTerm>Topological sort</LectureTerm> orders the nodes of a <LectureTerm>DAG</LectureTerm> (Directed Acyclic Graph) so that every edge points from earlier to later in the ordering. It's the algorithm behind course prerequisites, build systems, and package dependency resolution: "you must install A before B, and B before C."
-            </LectureP>
-            <LectureP>
-                The most common implementation uses <LectureTerm>Kahn's algorithm</LectureTerm> (BFS-based): repeatedly remove nodes with no incoming edges, adding them to the result. If you can remove all nodes, the graph is acyclic and you have a valid ordering. If nodes remain, there's a cycle.
+                The <LectureTerm>depth</LectureTerm> of a node is how many edges separate it from the root (the root has depth 0). The <LectureTerm>height</LectureTerm> of a tree is the depth of its deepest leaf. A <LectureTerm>subtree</LectureTerm> is a node plus all of its descendants — every node in a tree is the root of its own subtree. Nodes that share the same parent are <LectureTerm>siblings</LectureTerm>.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="topological sort — Kahn's algorithm (BFS)"
+            <LectureSubHeading title="Binary trees" />
+
+            <LectureP>
+                A <LectureTerm>binary tree</LectureTerm> is a tree where every node has at most two children: a <strong className="text-foreground">left</strong> child and a <strong className="text-foreground">right</strong> child. Binary trees are the most commonly tested tree structure in interviews. Not all trees are binary — file systems are n-ary trees (folders contain any number of subfolders), the HTML DOM is a tree where each element can have many children, and JSON is a tree-structured format.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="tree_node.py — binary tree node"
                 lines={[
-                    '#include <queue>',
+                    'class TreeNode:',
+                    '    def __init__(self, val):',
+                    '        self.val = val',
+                    '        self.left = None',
+                    '        self.right = None',
                     '',
-                    'vector<int> topoSort(int n, Graph& g) {',
-                    '    // Count incoming edges for each node',
-                    '    vector<int> inDegree(n, 0);',
-                    '    for (auto& [node, neighbors] : g)',
-                    '        for (int nb : neighbors) inDegree[nb]++;',
                     '',
-                    '    // Start with all nodes that have no prerequisites',
-                    '    queue<int> q;',
-                    '    for (int i = 0; i < n; i++)',
-                    '        if (inDegree[i] == 0) q.push(i);',
-                    '',
-                    '    vector<int> order;',
-                    '    while (!q.empty()) {',
-                    '        int node = q.front(); q.pop();',
-                    '        order.push_back(node);',
-                    '        for (int nb : g[node]) {',
-                    '            if (--inDegree[nb] == 0) q.push(nb);  // neighbor ready',
-                    '        }',
-                    '    }',
-                    '    // If order.size() != n, there was a cycle',
-                    '    return order.size() == n ? order : vector<int>{};',
-                    '}',
+                    '# Build a small tree by hand:',
+                    '#        5',
+                    '#       / \\',
+                    '#      3    8',
+                    '#     / \\',
+                    '#    1   4',
+                    'root = TreeNode(5)',
+                    'root.left = TreeNode(3)',
+                    'root.right = TreeNode(8)',
+                    'root.left.left = TreeNode(1)',
+                    'root.left.right = TreeNode(4)',
                 ]}
             />
 
             <LectureCallout type="info">
-                Topological sort only works on DAGs. The cycle detection and topological sort algorithms are closely related — if Kahn's algorithm can't process all nodes, the remaining nodes form a cycle. Course Schedule II on LeetCode is the canonical problem.
+                Trees are everywhere: your file system is a tree (directories contain subdirectories). The HTML DOM is a tree. Databases use B-trees for indexing. Compilers parse code into an Abstract Syntax Tree (AST). JSON and XML are tree-structured. When you see nested, hierarchical relationships — think tree.
             </LectureCallout>
 
-            {/* ── 07 MONOTONIC STACK ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Monotonic Stack" />
+            {/* ── 05 BINARY SEARCH TREES ────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Binary Search Trees" />
 
             <LectureP>
-                A <LectureTerm>monotonic stack</LectureTerm> is a stack that maintains elements in sorted order (either always increasing or always decreasing). It's the key insight behind a family of problems that ask "what's the next greater/smaller element?" — problems that look O(n²) at first but become O(n) with this pattern.
+                A <LectureTerm>Binary Search Tree</LectureTerm> (BST) is a binary tree with one critical rule: for every node, all values in the left subtree are <strong className="text-foreground">smaller</strong> and all values in the right subtree are <strong className="text-foreground">larger</strong>. This invariant turns search from O(n) to O(log n) — at each node you eliminate half the remaining values, just like binary search on a sorted array.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="next greater element — O(n) with monotonic stack"
+            <LectureSubHeading title="Insertion" />
+
+            <LectureP>
+                To insert a value, start at the root and compare. If the value is less than the current node, go left. If greater, go right. When you reach <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>, that is where the new node goes. This is naturally recursive: each step reduces the problem to "insert into the left or right subtree."
+            </LectureP>
+
+            <LectureSubHeading title="Search" />
+
+            <LectureP>
+                Search follows the exact same pattern: compare, go left or right, repeat. If you reach <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>, the value is not in the tree. If you find a match, return it. The BST invariant guarantees you never need to search both subtrees.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="bst.py — binary search tree with insert and search"
                 lines={[
-                    '// For each element, find the next element to its right that is greater.',
-                    '// Result[i] = next greater element for nums[i], or -1 if none.',
-                    'vector<int> nextGreaterElement(vector<int>& nums) {',
-                    '    int n = nums.size();',
-                    '    vector<int> result(n, -1);',
-                    '    stack<int> st;  // stores indices, maintains decreasing order of values',
+                    'class TreeNode:',
+                    '    def __init__(self, val):',
+                    '        self.val = val',
+                    '        self.left = None',
+                    '        self.right = None',
                     '',
-                    '    for (int i = 0; i < n; i++) {',
-                    '        // Pop all elements smaller than nums[i]',
-                    '        // nums[i] is their "next greater element"',
-                    '        while (!st.empty() && nums[st.top()] < nums[i]) {',
-                    '            result[st.top()] = nums[i];',
-                    '            st.pop();',
-                    '        }',
-                    '        st.push(i);',
-                    '    }',
-                    '    return result;  // remaining indices in stack have no next greater',
-                    '}',
-                    '// [2,1,2,4,3] → [4,2,4,-1,-1]',
+                    '',
+                    'class BST:',
+                    '    def __init__(self):',
+                    '        self.root = None',
+                    '',
+                    '    def insert(self, val):',
+                    '        if self.root is None:',
+                    '            self.root = TreeNode(val)',
+                    '        else:',
+                    '            self._insert(self.root, val)',
+                    '',
+                    '    def _insert(self, node, val):',
+                    '        if val < node.val:',
+                    '            if node.left is None:',
+                    '                node.left = TreeNode(val)',
+                    '            else:',
+                    '                self._insert(node.left, val)',
+                    '        else:',
+                    '            if node.right is None:',
+                    '                node.right = TreeNode(val)',
+                    '            else:',
+                    '                self._insert(node.right, val)',
+                    '',
+                    '    def search(self, val):',
+                    '        return self._search(self.root, val)',
+                    '',
+                    '    def _search(self, node, val):',
+                    '        if node is None:',
+                    '            return False',
+                    '        if val == node.val:',
+                    '            return True',
+                    '        if val < node.val:',
+                    '            return self._search(node.left, val)',
+                    '        return self._search(node.right, val)',
+                    '',
+                    '',
+                    '# Usage',
+                    'tree = BST()',
+                    'for v in [5, 2, 8, 1, 3]:',
+                    '    tree.insert(v)',
+                    '',
+                    'print(tree.search(3))   # True',
+                    'print(tree.search(7))   # False',
+                ]}
+            />
+
+            <LectureCallout type="warning">
+                If you insert already-sorted data (1, 2, 3, 4, 5), the BST degrades into a linked list — every node has only a right child. Search becomes O(n) instead of O(log n). Self-balancing BSTs (AVL trees, Red-Black trees) automatically restructure after insertion to prevent this. They are beyond this course, but databases and language standard libraries use them internally.
+            </LectureCallout>
+
+            {/* ── 06 TREE TRAVERSALS ────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Tree Traversals" />
+
+            <LectureP>
+                <LectureTerm>Traversal</LectureTerm> means visiting every node in the tree exactly once. There are four standard traversals, and each produces a different ordering. The first three are depth-first (they go deep before going wide); the fourth is breadth-first (level by level).
+            </LectureP>
+
+            <LectureSubHeading title="In-order (left → node → right)" />
+            <LectureP>
+                Visit the left subtree, then the current node, then the right subtree. For a BST, in-order traversal always produces values in <strong className="text-foreground">sorted ascending order</strong>. This is the most important traversal for BSTs and the one the Activity will ask you to implement.
+            </LectureP>
+
+            <LectureSubHeading title="Pre-order (node → left → right)" />
+            <LectureP>
+                Visit the current node first, then the left subtree, then the right subtree. Pre-order is useful for <strong className="text-foreground">copying or serializing</strong> a tree — recording values in pre-order lets you reconstruct the exact tree shape later.
+            </LectureP>
+
+            <LectureSubHeading title="Post-order (left → right → node)" />
+            <LectureP>
+                Visit both subtrees first, then the current node. Post-order is useful for <strong className="text-foreground">deletion or cleanup</strong> — you process all children before the parent, ensuring nothing references deleted data.
+            </LectureP>
+
+            <LectureSubHeading title="Level-order / BFS (breadth-first)" />
+            <LectureP>
+                Visit all nodes at depth 0, then all at depth 1, then depth 2, and so on. This is a breadth-first traversal and it uses a <strong className="text-foreground">queue</strong>: enqueue the root, then repeatedly dequeue a node, process it, and enqueue its children.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="traversals.py — all four tree traversals"
+                lines={[
+                    'from collections import deque',
+                    '',
+                    '',
+                    'def inorder(node):',
+                    '    """Left -> Node -> Right. Produces sorted order for BST."""',
+                    '    if node is None:',
+                    '        return []',
+                    '    return inorder(node.left) + [node.val] + inorder(node.right)',
+                    '',
+                    '',
+                    'def preorder(node):',
+                    '    """Node -> Left -> Right. Good for copying/serializing."""',
+                    '    if node is None:',
+                    '        return []',
+                    '    return [node.val] + preorder(node.left) + preorder(node.right)',
+                    '',
+                    '',
+                    'def postorder(node):',
+                    '    """Left -> Right -> Node. Good for deletion/cleanup."""',
+                    '    if node is None:',
+                    '        return []',
+                    '    return postorder(node.left) + postorder(node.right) + [node.val]',
+                    '',
+                    '',
+                    'def level_order(root):',
+                    '    """Level by level using a queue (BFS)."""',
+                    '    if root is None:',
+                    '        return []',
+                    '    result = []',
+                    '    queue = deque([root])',
+                    '    while queue:',
+                    '        node = queue.popleft()',
+                    '        result.append(node.val)',
+                    '        if node.left:',
+                    '            queue.append(node.left)',
+                    '        if node.right:',
+                    '            queue.append(node.right)',
+                    '    return result',
+                    '',
+                    '',
+                    '# Given BST with inserts [5, 2, 8, 1, 3]:',
+                    '#        5',
+                    '#       / \\',
+                    '#      2    8',
+                    '#     / \\',
+                    '#    1   3',
+                    'print(inorder(tree.root))      # [1, 2, 3, 5, 8]  — sorted!',
+                    'print(preorder(tree.root))     # [5, 2, 1, 3, 8]',
+                    'print(postorder(tree.root))    # [1, 3, 2, 8, 5]',
+                    'print(level_order(tree.root))  # [5, 2, 8, 1, 3]  — level by level',
                 ]}
             />
 
             <LectureCallout type="tip">
-                The monotonic stack pattern solves: Next Greater Element, Daily Temperatures, Largest Rectangle in Histogram, and Trapping Rain Water. Recognize the pattern: "for each element, find the nearest element satisfying some comparison." That's a monotonic stack.
+                The key insight: in-order traversal of a BST always produces sorted output. This is why BSTs power database indexes — an in-order scan gives you all records in sorted order without a separate sort step. When an interviewer asks you to "print a BST in sorted order," the answer is always in-order traversal.
+            </LectureCallout>
+
+            {/* ── 07 BFS VS DFS ─────────────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="BFS vs. DFS — Choosing the Right One" />
+
+            <LectureP>
+                BFS and DFS are the two fundamental traversal strategies. They apply to trees, graphs, and any structure you can explore by "visiting neighbors." The choice between them is determined by the <strong className="text-foreground">shape of the answer</strong> you are looking for.
+            </LectureP>
+
+            <BfsDfsDiagram />
+
+            <LectureP>
+                <strong className="text-foreground">Use BFS</strong> when you need the <em>shortest</em> or <em>nearest</em> something — shortest path, minimum depth, nearest node satisfying a condition. BFS explores level by level, so the first match it finds is guaranteed to be the closest.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">Use DFS</strong> when you need to explore <em>all possibilities</em> or check if <em>any path</em> satisfies a condition — "does a path from root to leaf sum to target?", "enumerate all combinations." DFS is also the natural choice when the problem is recursive: "solve the left subtree, solve the right subtree, combine results."
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="bfs_vs_dfs.py — same tree, different traversal order"
+                lines={[
+                    'from collections import deque',
+                    '',
+                    '',
+                    'def dfs_iterative(root):',
+                    '    """DFS using an explicit stack (pre-order)."""',
+                    '    if root is None:',
+                    '        return []',
+                    '    result = []',
+                    '    stack = [root]',
+                    '    while stack:',
+                    '        node = stack.pop()',
+                    '        result.append(node.val)',
+                    '        if node.right:              # push right first so left',
+                    '            stack.append(node.right) # is processed first',
+                    '        if node.left:',
+                    '            stack.append(node.left)',
+                    '    return result',
+                    '',
+                    '',
+                    'def bfs(root):',
+                    '    """BFS using a queue (level-order)."""',
+                    '    if root is None:',
+                    '        return []',
+                    '    result = []',
+                    '    queue = deque([root])',
+                    '    while queue:',
+                    '        node = queue.popleft()',
+                    '        result.append(node.val)',
+                    '        if node.left:',
+                    '            queue.append(node.left)',
+                    '        if node.right:',
+                    '            queue.append(node.right)',
+                    '    return result',
+                    '',
+                    '',
+                    '# Same tree — different order',
+                    'print(dfs_iterative(tree.root))  # [5, 2, 1, 3, 8] — depth first',
+                    'print(bfs(tree.root))            # [5, 2, 8, 1, 3] — breadth first',
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                Every recursive solution is implicitly DFS — it uses the call stack. Converting recursive DFS to iterative DFS means replacing the call stack with an explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stack</code> data structure. The logic is identical; only the mechanism changes. This is a common interview follow-up: "can you do it without recursion?"
+            </LectureCallout>
+
+            <LectureCallout type="info">
+                Trees are a special case of a more general structure called a <LectureTerm>graph</LectureTerm>. In a graph, nodes can connect to any other nodes — not just parents and children — and cycles are allowed. Social networks, road maps, and dependency systems are all graphs. The same BFS and DFS strategies you learned above apply to graphs, with one addition: a "visited" set to prevent infinite loops on cycles. You will encounter graph algorithms in dedicated algorithms coursework and in later weeks of this course.
             </LectureCallout>
 
             <LectureFooterNav

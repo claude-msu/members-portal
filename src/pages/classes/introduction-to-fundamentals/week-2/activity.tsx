@@ -136,6 +136,14 @@ export default function Week2Activity() {
                     </div>
                 </ActivityChallenge>
 
+                <LectureCallout type="info">
+                    You have completed the Activity when all six challenges produce correct output: (1) BST insert builds the correct tree shape, (2) in-order traversal prints <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[1, 2, 3, 5, 8]</code>, (3) MinStack returns the correct minimum after each push/pop, (4) Two Sum returns valid index pairs, (5) First Repeating Character returns the correct character (or None), and (6) all edge cases pass (empty inputs, single elements, no solution).
+                </LectureCallout>
+
+                <LectureP>
+                    To demonstrate completion, run each file and paste the output. Your instructor or TA will verify the results match the expected values listed in each challenge. If you finish early, try adding BST deletion or implementing the challenges in a second language.
+                </LectureP>
+
                 <LectureCallout type="tip">
                     These patterns — BST, stack-with-extra-invariant, and hash map for O(1) lookup — show up in Week 3 when you build the C++ Phonebook. Here you get the logic without the syntax; next week you apply the same ideas in C++.
                 </LectureCallout>

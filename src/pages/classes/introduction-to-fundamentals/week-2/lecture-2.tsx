@@ -12,55 +12,6 @@ import {
 } from '@/components/ui/lecture-typography';
 import { CodeBlock } from '@/components/ui/code-block';
 
-// ── Design pattern cards ──────────────────────────────────────────────────────
-const PatternCards = () => (
-    <div className="my-6 grid grid-cols-1 sm:grid-cols-3 gap-3">
-        {[
-            {
-                name: 'Singleton',
-                category: 'Creational',
-                color: 'text-blue-600 dark:text-blue-400',
-                bg: 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800',
-                problem: 'You need exactly one instance of a class — a database connection, a config manager, a logger.',
-                signal: 'When you find yourself passing the same object everywhere, or using global variables to share state.',
-            },
-            {
-                name: 'Observer',
-                category: 'Behavioral',
-                color: 'text-emerald-600 dark:text-emerald-400',
-                bg: 'bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800',
-                problem: 'One object changes state and multiple other objects need to be notified automatically.',
-                signal: 'Event systems, UI state changes, notification systems. React\'s useState is Observer at the framework level.',
-            },
-            {
-                name: 'Factory',
-                category: 'Creational',
-                color: 'text-orange-600 dark:text-orange-400',
-                bg: 'bg-orange-50 dark:bg-orange-950/20 border-orange-200 dark:border-orange-800',
-                problem: 'You need to create objects without specifying the exact class — the type is determined at runtime.',
-                signal: 'When you have if/else or switch on a type to decide which object to create. Replace that with a factory.',
-            },
-        ].map((p) => (
-            <div key={p.name} className={`rounded-xl border ${p.bg} overflow-hidden`}>
-                <div className="px-4 py-3 border-b border-inherit">
-                    <p className={`text-xs font-black ${p.color}`}>{p.name}</p>
-                    <p className="text-xs text-muted-foreground">{p.category}</p>
-                </div>
-                <div className="px-4 py-3 space-y-2.5">
-                    <div>
-                        <p className="text-xs font-semibold text-foreground mb-0.5">Problem it solves</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{p.problem}</p>
-                    </div>
-                    <div>
-                        <p className="text-xs font-semibold text-foreground mb-0.5">Recognize it when</p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{p.signal}</p>
-                    </div>
-                </div>
-            </div>
-        ))}
-    </div>
-);
-
 export default function Week2Lecture2() {
     const navigate = useNavigate();
 
@@ -74,301 +25,520 @@ export default function Week2Lecture2() {
                 icon={<Binary className="h-4 w-4" />}
             />
 
-            {/* ── 01 DESIGN BEFORE CODE ───────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Design Before Code" />
+            {/* ── 01 HASH MAPS ─────────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="Hash Maps — The O(1) Lookup" />
 
             <LectureP>
-                The most expensive bugs in software are design bugs — wrong abstractions, wrong relationships between classes, wrong assumptions about what will change. A design bug found in the planning phase costs an hour to fix. Found in production, it costs weeks of refactoring.
-            </LectureP>
-            <LectureP>
-                Good OOP design starts with three questions: <strong className="text-foreground">What are the entities?</strong> (nouns → classes), <strong className="text-foreground">What do they do?</strong> (verbs → methods), and <strong className="text-foreground">What changes, and what stays the same?</strong> The answer to the third question determines where you use interfaces and abstraction.
+                A <LectureTerm>hash map</LectureTerm> (also called a hash table, dictionary, or associative array) stores key-value pairs and lets you look up any value by its key in <strong className="text-foreground">average O(1) time</strong>. This is the single most useful data structure in programming — it powers caches, database indexes, routers, compilers, and roughly half of all interview solutions.
             </LectureP>
 
-            <div className="my-6 rounded-xl border border-border bg-muted/30 p-5 space-y-3">
-                <p className="text-xs font-semibold text-foreground">Design exercise: Library Management System</p>
-                {[
-                    { q: 'What are the entities?', a: 'Book, DVD, Magazine, Member, Loan, Library — each becomes a class' },
-                    { q: 'What do they do?', a: 'checkout(), returnItem(), search(), addMember(), getLoanHistory() — these become methods' },
-                    { q: 'What changes?', a: 'New item types will be added. Loan durations differ per type. New payment methods might be added for fines.' },
-                    { q: 'What stays the same?', a: 'The checkout/return flow is always the same regardless of item type. This is the interface.' },
-                ].map((row) => (
-                    <div key={row.q} className="rounded-lg border border-border bg-card p-3">
-                        <p className="text-xs font-semibold text-orange-600 dark:text-orange-400">{row.q}</p>
-                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{row.a}</p>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── 02 SOLID PRINCIPLES ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="SOLID — The Five Design Principles" />
+            <LectureSubHeading title="How it works" />
 
             <LectureP>
-                <LectureTerm>SOLID</LectureTerm> is the standard vocabulary for OOP design quality. You'll hear these in code reviews and design discussions throughout your career. You don't need to memorize the names — you need to recognize the problems they solve.
+                A hash map uses a <LectureTerm>hash function</LectureTerm> to convert a key into an array index (called a <LectureTerm>bucket</LectureTerm>). The value is stored at that index. When you look up a key, the hash function computes the same index, and retrieval is instant — no searching required.
+            </LectureP>
+            <LectureP>
+                When two different keys hash to the same bucket, that is a <LectureTerm>collision</LectureTerm>. Hash maps resolve collisions through <em>chaining</em> (each bucket holds a linked list of entries) or <em>open addressing</em> (probe for the next available slot). You do not need to implement collision resolution — Python handles it — but understanding the mechanism explains why O(1) is the <em>average</em> case, not a guarantee. In the worst case (all keys collide), every operation degrades to O(n).
             </LectureP>
 
-            <div className="my-6 space-y-3">
-                {[
-                    {
-                        letter: 'S',
-                        name: 'Single Responsibility',
-                        rule: 'A class should have one reason to change.',
-                        bad: 'A User class that handles authentication, database persistence, AND email sending.',
-                        good: 'UserAuth, UserRepository, EmailService — each focused, independently changeable.',
-                    },
-                    {
-                        letter: 'O',
-                        name: 'Open/Closed',
-                        rule: 'Open for extension, closed for modification.',
-                        bad: 'Adding a new item type requires editing a switch statement inside Library.',
-                        good: 'New item type inherits from LibraryItem — no existing code changes.',
-                    },
-                    {
-                        letter: 'L',
-                        name: 'Liskov Substitution',
-                        rule: 'A derived class must be substitutable for its base class without breaking the program.',
-                        bad: 'A Square inheriting Rectangle and overriding setWidth to also set height — breaks Rectangle callers.',
-                        good: 'DVD and Book both work anywhere a LibraryItem is expected, no surprises.',
-                    },
-                    {
-                        letter: 'I',
-                        name: 'Interface Segregation',
-                        rule: 'Don\'t force classes to implement methods they don\'t use.',
-                        bad: 'A Printable interface with print(), fax(), and scan() — most classes only need print().',
-                        good: 'Separate Printable, Faxable, Scannable interfaces — implement only what applies.',
-                    },
-                    {
-                        letter: 'D',
-                        name: 'Dependency Inversion',
-                        rule: 'Depend on abstractions, not concrete implementations.',
-                        bad: 'Library holds a vector<SQLiteDatabase*> — now you can\'t swap databases.',
-                        good: 'Library depends on a Database interface — works with SQLite, Postgres, or a mock in tests.',
-                    },
-                ].map((p) => (
-                    <div key={p.letter} className="rounded-xl border border-border overflow-hidden">
-                        <div className="flex items-center gap-3 px-4 py-2.5 border-b border-border bg-muted/30">
-                            <span className="text-2xl font-black text-primary/20 select-none">{p.letter}</span>
-                            <div>
-                                <p className="text-xs font-bold text-foreground">{p.name} Principle</p>
-                                <p className="text-xs text-muted-foreground">{p.rule}</p>
-                            </div>
-                        </div>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 divide-y sm:divide-y-0 sm:divide-x divide-border">
-                            <div className="px-4 py-2.5">
-                                <p className="text-xs font-semibold text-rose-600 dark:text-rose-400 mb-1">❌ Violation</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">{p.bad}</p>
-                            </div>
-                            <div className="px-4 py-2.5">
-                                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mb-1">✅ Compliant</p>
-                                <p className="text-xs text-muted-foreground leading-relaxed">{p.good}</p>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── 03 DESIGN PATTERNS ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Design Patterns" />
+            <LectureSubHeading title="Python's dict and set" />
 
             <LectureP>
-                <LectureTerm>Design patterns</LectureTerm> are named, reusable solutions to recurring design problems. They're not code you copy — they're vocabulary for describing structures. When a senior engineer says "use a Factory here," they mean a specific structure with known tradeoffs. Learn the three most common:
+                Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dict</code> is a hash map. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">set</code> is a hash set (keys only, no values). You have been using hash maps since day one. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">in</code> operator on a dict or set is O(1) average — on a list, it is O(n) because every element must be checked.
             </LectureP>
 
-            <PatternCards />
-
-            <LectureSubHeading title="Singleton in C++" />
-
-            <CodeBlock language="cpp"
-                title="Singleton — thread-safe with static local (C++11+)"
+            <CodeBlock language="python"
+                title="hash_map_basics.py — practical dict and set usage"
                 lines={[
-                    'class Logger {',
-                    'public:',
-                    '    // Delete copy constructor and assignment — no duplicates',
-                    '    Logger(const Logger&) = delete;',
-                    '    Logger& operator=(const Logger&) = delete;',
+                    '# Frequency counting — how many times does each word appear?',
+                    'words = ["apple", "banana", "apple", "cherry", "banana", "apple"]',
+                    'freq = {}',
+                    'for word in words:',
+                    '    freq[word] = freq.get(word, 0) + 1',
+                    'print(freq)  # {"apple": 3, "banana": 2, "cherry": 1}',
                     '',
-                    '    static Logger& getInstance() {',
-                    '        static Logger instance;  // initialized once, guaranteed thread-safe',
-                    '        return instance;',
-                    '    }',
                     '',
-                    '    void log(const string& message) {',
-                    '        cout << "[LOG] " << message << endl;',
-                    '    }',
+                    '# Membership check — O(1) with set vs O(n) with list',
+                    'seen = set()',
+                    'for word in words:',
+                    '    if word in seen:',
+                    '        print(f"Duplicate: {word}")',
+                    '    seen.add(word)',
+                    '# Output: Duplicate: apple, Duplicate: banana, Duplicate: apple',
                     '',
-                    'private:',
-                    '    Logger() {}  // private constructor — prevent direct instantiation',
-                    '};',
                     '',
-                    '// Usage — no new, no pointer, no global variable',
-                    '// Logger::getInstance().log("System started");',
-                ]}
-            />
-
-            <LectureSubHeading title="Observer in C++" />
-
-            <CodeBlock language="cpp"
-                title="Observer — event subscription and notification"
-                lines={[
-                    '// Abstract observer — anything that wants to be notified',
-                    'class Observer {',
-                    'public:',
-                    '    virtual void onEvent(const string& event) = 0;',
-                    '    virtual ~Observer() {}',
-                    '};',
-                    '',
-                    '// Subject — holds observers and fires events',
-                    'class EventEmitter {',
-                    'private:',
-                    '    vector<Observer*> observers;',
-                    'public:',
-                    '    void subscribe(Observer* obs) { observers.push_back(obs); }',
-                    '',
-                    '    void emit(const string& event) {',
-                    '        for (Observer* obs : observers) obs->onEvent(event);',
-                    '    }',
-                    '};',
-                    '',
-                    '// Concrete observer — e.g. the Library notifying members on overdue items',
-                    'class EmailNotifier : public Observer {',
-                    'public:',
-                    '    void onEvent(const string& event) override {',
-                    '        cout << "Email sent: " << event << endl;',
-                    '    }',
-                    '};',
-                ]}
-            />
-
-            <LectureSubHeading title="Factory in C++" />
-
-            <CodeBlock language="cpp"
-                title="Factory — create objects without specifying the concrete class"
-                lines={[
-                    '// Without factory: the caller knows too much',
-                    '// if (type == "book")    item = new Book(...);',
-                    '// else if (type == "dvd") item = new DVD(...);',
-                    '// This switch lives everywhere. Adding a new type = update all callsites.',
-                    '',
-                    '// With factory: creation logic in one place',
-                    'class ItemFactory {',
-                    'public:',
-                    '    static LibraryItem* create(const string& type, const string& id, const string& title) {',
-                    '        if (type == "book")     return new Book(id, title, "Unknown", 0);',
-                    '        if (type == "dvd")      return new DVD(id, title, "Unknown", 0);',
-                    '        if (type == "magazine") return new Magazine(id, title, 0, "Unknown");',
-                    '        return nullptr;',
-                    '    }',
-                    '};',
-                    '',
-                    '// Usage — caller never touches Book/DVD/Magazine constructors directly',
-                    '// LibraryItem* item = ItemFactory::create("book", "001", "Clean Code");',
-                ]}
-            />
-
-            {/* ── 04 INTERFACES IN C++ ────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Interfaces via Pure Abstract Classes" />
-
-            <LectureP>
-                C++ has no <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">interface</code> keyword — interfaces are implemented as classes where every method is pure virtual. This is the primary tool for the Dependency Inversion Principle: your high-level code depends on the interface, not the concrete implementation.
-            </LectureP>
-
-            <CodeBlock language="cpp"
-                title="interface pattern — swappable implementations"
-                lines={[
-                    '// The interface — what Library cares about',
-                    'class IStorage {',
-                    'public:',
-                    '    virtual void save(const string& id, const string& data) = 0;',
-                    '    virtual string load(const string& id) = 0;',
-                    '    virtual ~IStorage() {}',
-                    '};',
-                    '',
-                    '// Concrete implementation 1 — file system',
-                    'class FileStorage : public IStorage {',
-                    'public:',
-                    '    void save(const string& id, const string& data) override { /* write to file */ }',
-                    '    string load(const string& id) override { return ""; /* read from file */ }',
-                    '};',
-                    '',
-                    '// Concrete implementation 2 — in-memory (great for tests)',
-                    'class InMemoryStorage : public IStorage {',
-                    '    unordered_map<string, string> store;',
-                    'public:',
-                    '    void save(const string& id, const string& data) override { store[id] = data; }',
-                    '    string load(const string& id) override { return store.count(id) ? store[id] : ""; }',
-                    '};',
-                    '',
-                    '// Library depends on the interface, not the concrete type',
-                    'class Library {',
-                    '    IStorage* storage;  // pointer to interface — could be either implementation',
-                    'public:',
-                    '    Library(IStorage* s) : storage(s) {}',
-                    '    // ... now swapping storage requires zero changes to Library',
-                    '};',
+                    '# Default values with .get(key, default)',
+                    'config = {"host": "localhost", "port": 8080}',
+                    'timeout = config.get("timeout", 30)   # 30 — key missing, returns default',
+                    'host = config.get("host", "0.0.0.0")  # "localhost" — key found, returns value',
                 ]}
             />
 
             <LectureCallout type="tip">
-                Depending on interfaces instead of concrete classes makes your code <LectureTerm>testable</LectureTerm>. In tests, inject <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">InMemoryStorage</code> — no disk I/O, runs instantly, always clean. In production, inject <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">FileStorage</code> or a database implementation. Same Library code. This is called <strong className="text-foreground">dependency injection</strong>.
+                When to reach for a hash map: <strong className="text-foreground">"Have I seen this before?"</strong> — use a set. <strong className="text-foreground">"How many times does X appear?"</strong> — use a dict for frequency counting. <strong className="text-foreground">"What is the complement of X?"</strong> — store values in a dict and look up complements in O(1). These three questions cover a massive portion of hash map interview problems.
             </LectureCallout>
 
-            {/* ── 05 SMART POINTERS ───────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Smart Pointers — Automatic Memory Management" />
+            {/* ── 02 BIG-O NOTATION ────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Big-O Notation" />
 
             <LectureP>
-                Raw pointers (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">new</code> / <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code>) are error-prone. Forget to delete and you leak memory. Delete twice and you crash. C++11 introduced <LectureTerm>smart pointers</LectureTerm> that manage memory automatically through RAII (Resource Acquisition Is Initialization).
+                <LectureTerm>Big-O notation</LectureTerm> describes how an algorithm's runtime (or space usage) grows as the input size grows. We care about the <strong className="text-foreground">growth rate</strong>, not the exact time — we drop constants and lower-order terms because they become irrelevant at scale. An O(n) algorithm might be slower than O(n²) for n = 5, but for n = 1,000,000 the difference is between one second and eleven days.
             </LectureP>
 
-            <CodeBlock language="cpp"
-                title="unique_ptr and shared_ptr — prefer over raw pointers"
-                lines={[
-                    '#include <memory>',
-                    '',
-                    '// unique_ptr — sole owner. Memory freed when pointer goes out of scope.',
-                    '// Use for: class members, factory return values, anything with one owner.',
-                    'unique_ptr<Book> book = make_unique<Book>("001", "Clean Code", "Martin", 431);',
-                    '// book->getTitle() works normally',
-                    '// No delete needed — freed automatically when book leaves scope',
-                    '',
-                    '// shared_ptr — reference counted. Freed when last owner is gone.',
-                    '// Use for: shared ownership, observer lists, graph nodes.',
-                    'shared_ptr<LibraryItem> item = make_shared<Book>("002", "SICP", "Abelson", 657);',
-                    'shared_ptr<LibraryItem> copy = item;  // ref count = 2',
-                    '// item freed only when both item and copy go out of scope',
-                    '',
-                    '// In your Library class — prefer this over raw vector<LibraryItem*>',
-                    'vector<unique_ptr<LibraryItem>> catalog;',
-                    'catalog.push_back(make_unique<Book>("003", "The Pragmatic Programmer", "Hunt", 352));',
-                    '// Destructor frees everything automatically — no manual cleanup needed',
-                ]}
-            />
+            <LectureSubHeading title="The common complexities" />
 
-            {/* ── 06 PUTTING IT TOGETHER ──────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="The Complete Design" />
-
-            <LectureP>
-                Here's the full architecture of the system you'll build in the activity, applying everything from this lecture:
-            </LectureP>
-
-            <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden font-mono text-xs">
+            <div className="my-6 space-y-1.5">
                 {[
-                    { label: 'IStorage', note: 'interface — save/load abstract operations', color: 'text-purple-600 dark:text-purple-400' },
-                    { label: '  ↳ FileStorage, InMemoryStorage', note: 'concrete implementations', color: 'text-muted-foreground' },
-                    { label: 'LibraryItem', note: 'abstract base — id, title, checkout(), pure virtual getType()/getLoanDays()', color: 'text-blue-600 dark:text-blue-400' },
-                    { label: '  ↳ Book, DVD, Magazine', note: 'concrete items — override type and loan period', color: 'text-muted-foreground' },
-                    { label: 'ItemFactory', note: 'static factory — create(type, id, title) → LibraryItem*', color: 'text-orange-600 dark:text-orange-400' },
-                    { label: 'Observer / EventEmitter', note: 'notification when items go overdue or are checked out', color: 'text-emerald-600 dark:text-emerald-400' },
-                    { label: 'Library', note: 'orchestrator — holds catalog (vector<unique_ptr<LibraryItem>>), depends on IStorage', color: 'text-rose-600 dark:text-rose-400' },
-                    { label: 'Logger (Singleton)', note: 'single shared log for all operations', color: 'text-zinc-500' },
+                    { complexity: 'O(1)', name: 'Constant', example: 'Dict lookup, list access by index, stack push/pop' },
+                    { complexity: 'O(log n)', name: 'Logarithmic', example: 'Binary search, balanced BST insert/search' },
+                    { complexity: 'O(n)', name: 'Linear', example: 'Single for-loop, linear search, in-order traversal' },
+                    { complexity: 'O(n log n)', name: 'Linearithmic', example: "Sorting (Python's Timsort, merge sort)" },
+                    { complexity: 'O(n²)', name: 'Quadratic', example: 'Nested loops, brute-force pair checking, bubble sort' },
+                    { complexity: 'O(2ⁿ)', name: 'Exponential', example: 'Naive recursive Fibonacci, generating all subsets' },
                 ].map((row) => (
-                    <div key={row.label} className="flex items-start gap-4 px-4 py-2.5 border-b border-border last:border-b-0">
-                        <code className={`shrink-0 w-72 ${row.color}`}>{row.label}</code>
-                        <span className="text-muted-foreground text-xs">{row.note}</span>
+                    <div key={row.complexity} className="flex items-start gap-3 rounded-lg border border-border px-4 py-2.5">
+                        <code className="text-xs font-bold text-primary shrink-0 w-20 mt-0.5">{row.complexity}</code>
+                        <div>
+                            <p className="text-xs font-semibold text-foreground">{row.name}</p>
+                            <p className="text-xs text-muted-foreground">{row.example}</p>
+                        </div>
                     </div>
                 ))}
             </div>
 
+            <CodeBlock language="python"
+                title="complexity_examples.py — same problem, three different Big-Os"
+                lines={[
+                    '# Problem: does the list contain a duplicate?',
+                    '',
+                    '',
+                    '# O(n²) — brute force: compare every pair',
+                    'def has_duplicate_brute(nums):',
+                    '    for i in range(len(nums)):',
+                    '        for j in range(i + 1, len(nums)):',
+                    '            if nums[i] == nums[j]:',
+                    '                return True',
+                    '    return False',
+                    '',
+                    '',
+                    '# O(n log n) — sort first, then check adjacent elements',
+                    'def has_duplicate_sort(nums):',
+                    '    nums_sorted = sorted(nums)',
+                    '    for i in range(1, len(nums_sorted)):',
+                    '        if nums_sorted[i] == nums_sorted[i - 1]:',
+                    '            return True',
+                    '    return False',
+                    '',
+                    '',
+                    '# O(n) — use a hash set',
+                    'def has_duplicate_set(nums):',
+                    '    seen = set()',
+                    '    for num in nums:',
+                    '        if num in seen:',
+                    '            return True',
+                    '        seen.add(num)',
+                    '    return False',
+                    '',
+                    '',
+                    '# All three return the same answer.',
+                    '# For n = 100,000:',
+                    '#   brute  ≈ 5,000,000,000 comparisons',
+                    '#   sort   ≈ 1,700,000 comparisons',
+                    '#   set    ≈ 100,000 lookups',
+                ]}
+            />
+
+            <LectureSubHeading title="The n = 10⁵ rule" />
+
+            <LectureP>
+                In interviews and competitive programming, input size constraints tell you which complexity you need before writing a single line of code. If n ≤ 10³, O(n²) will probably work. If n is around 10⁵, you need O(n log n) or better. If n exceeds 10⁶, you almost certainly need O(n). When you see the constraints, this rule immediately narrows down your approach.
+            </LectureP>
+
+            <LectureSubHeading title="Space complexity" />
+
+            <LectureP>
+                Space complexity measures memory the same way Big-O measures time. A hash map storing n items is O(n) space. A single variable is O(1). Creating a copy of an array is O(n). Recursive DFS on a balanced tree uses O(log n) stack frames; on a degenerate tree, O(n). When analyzing an algorithm, always state both time and space complexity.
+            </LectureP>
+
+            {/* ── 03 ANALYZING YOUR DATA STRUCTURES ─────────────────────────── */}
+            <LectureSectionHeading number="03" title="Analyzing Your Data Structures" />
+
+            <LectureP>
+                Now that you understand Big-O, apply it to every data structure from Lecture 1 — plus the hash map you just learned. This table is one of the most referenced tools in interview prep. Know these cold.
+            </LectureP>
+
+            <div className="my-6 rounded-xl border border-border overflow-hidden text-xs">
+                <div className="grid grid-cols-5 bg-muted/30 px-4 py-2.5 border-b border-border">
+                    <span className="font-bold text-foreground">Structure</span>
+                    <span className="font-bold text-foreground">Access</span>
+                    <span className="font-bold text-foreground">Search</span>
+                    <span className="font-bold text-foreground">Insert</span>
+                    <span className="font-bold text-foreground">Delete</span>
+                </div>
+                {[
+                    { name: 'Python list', access: 'O(1)', search: 'O(n)', insert: 'O(n)*', delete: 'O(n)' },
+                    { name: 'Stack', access: 'O(n)', search: 'O(n)', insert: 'O(1)', delete: 'O(1)' },
+                    { name: 'Queue', access: 'O(n)', search: 'O(n)', insert: 'O(1)', delete: 'O(1)' },
+                    { name: 'BST (balanced)', access: 'O(log n)', search: 'O(log n)', insert: 'O(log n)', delete: 'O(log n)' },
+                    { name: 'BST (worst)', access: 'O(n)', search: 'O(n)', insert: 'O(n)', delete: 'O(n)' },
+                    { name: 'Hash map (avg)', access: '—', search: 'O(1)', insert: 'O(1)', delete: 'O(1)' },
+                    { name: 'Hash map (worst)', access: '—', search: 'O(n)', insert: 'O(n)', delete: 'O(n)' },
+                ].map((row) => (
+                    <div key={row.name} className="grid grid-cols-5 px-4 py-2 border-b border-border last:border-b-0">
+                        <span className="font-semibold text-foreground">{row.name}</span>
+                        <span className="text-muted-foreground font-mono">{row.access}</span>
+                        <span className="text-muted-foreground font-mono">{row.search}</span>
+                        <span className="text-muted-foreground font-mono">{row.insert}</span>
+                        <span className="text-muted-foreground font-mono">{row.delete}</span>
+                    </div>
+                ))}
+            </div>
+
+            <LectureP>
+                <strong className="text-foreground">*</strong> Python list <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">append()</code> is O(1) amortized, but inserting at an arbitrary index is O(n) because elements must shift. Hash map "access" is marked "—" because hash maps do not support index-based access — you access by key, which is the search operation.
+            </LectureP>
+
             <LectureCallout type="info">
-                You won't implement every layer in the activity — the storage interface and full observer system are bonus challenges. But designing with this architecture in mind from the start means the code is <em>ready</em> for those extensions. That's the point of good design: it makes change cheap.
+                This table explains why interviewers love hash maps: O(1) for the operations you care about most (lookup and insert). It also explains why BSTs matter: they give O(log n) <em>ordered</em> access — something hash maps cannot do (hash maps have no inherent order). Each structure has a sweet spot; the skill is matching the structure to the problem.
+            </LectureCallout>
+
+            {/* ── 04 TWO-POINTER PATTERN ────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Two-Pointer Pattern" />
+
+            <LectureP>
+                The <LectureTerm>two-pointer pattern</LectureTerm> uses two indices that move through a data structure in a coordinated way, reducing what would be O(n²) brute-force (checking every pair) to O(n). It appears in dozens of interview problems and has two main variants.
+            </LectureP>
+
+            <LectureSubHeading title="Opposite ends" />
+
+            <LectureP>
+                Start one pointer at the beginning and one at the end. Move them toward each other based on a condition. This works when the input is sorted or when the problem lets you sort it first without losing information.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="two_pointer_opposite.py — find pair that sums to target in sorted array"
+                lines={[
+                    'def pair_sum(sorted_arr, target):',
+                    '    """Return indices of two numbers that sum to target.',
+                    '    Input must be sorted. O(n) time, O(1) space."""',
+                    '    left, right = 0, len(sorted_arr) - 1',
+                    '',
+                    '    while left < right:',
+                    '        total = sorted_arr[left] + sorted_arr[right]',
+                    '        if total == target:',
+                    '            return [left, right]',
+                    '        elif total < target:',
+                    '            left += 1    # need a bigger sum — move left forward',
+                    '        else:',
+                    '            right -= 1   # need a smaller sum — move right backward',
+                    '',
+                    '    return []  # no pair found',
+                    '',
+                    '',
+                    '# Example',
+                    'nums = [1, 3, 5, 7, 11, 15]',
+                    'print(pair_sum(nums, 12))  # [0, 4] — nums[0] + nums[4] = 1 + 11 = 12',
+                    'print(pair_sum(nums, 8))   # [1, 2] — nums[1] + nums[2] = 3 + 5 = 8',
+                ]}
+            />
+
+            <LectureSubHeading title="Same direction (slow/fast)" />
+
+            <LectureP>
+                Both pointers start at the beginning. One moves faster or conditionally, while the other trails behind. This variant is used for in-place array manipulation: removing duplicates, partitioning, or detecting cycles in linked lists.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="two_pointer_same.py — remove duplicates from sorted array in-place"
+                lines={[
+                    'def remove_duplicates(sorted_arr):',
+                    '    """Remove duplicates in-place, return new length.',
+                    '    O(n) time, O(1) space."""',
+                    '    if not sorted_arr:',
+                    '        return 0',
+                    '',
+                    '    write = 1  # slow pointer: next position to write a unique value',
+                    '',
+                    '    for read in range(1, len(sorted_arr)):  # fast pointer',
+                    '        if sorted_arr[read] != sorted_arr[read - 1]:',
+                    '            sorted_arr[write] = sorted_arr[read]',
+                    '            write += 1',
+                    '',
+                    '    return write  # number of unique elements',
+                    '',
+                    '',
+                    '# Example',
+                    'arr = [1, 1, 2, 3, 3, 3, 4]',
+                    'length = remove_duplicates(arr)',
+                    'print(arr[:length])  # [1, 2, 3, 4]',
+                ]}
+            />
+
+            <LectureP>
+                Recognize the pattern: <strong className="text-foreground">"given a sorted array, find a pair..."</strong> — opposite-end two pointers. <strong className="text-foreground">"reorganize an array in-place..."</strong> — same-direction two pointers.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                LeetCode practice for two-pointer: Two Sum II (opposite ends, sorted input), Container With Most Water (opposite ends, maximize area), Remove Duplicates from Sorted Array (same direction), and Move Zeroes (same direction).
+            </LectureCallout>
+
+            {/* ── 05 SLIDING WINDOW PATTERN ─────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Sliding Window Pattern" />
+
+            <LectureP>
+                The <LectureTerm>sliding window pattern</LectureTerm> maintains a "window" — a contiguous subarray or substring — and slides it across the input, updating a running state as elements enter and leave the window. This reduces O(n × k) brute-force recalculation to O(n) because each element is added and removed from the window exactly once.
+            </LectureP>
+
+            <LectureSubHeading title="Fixed-size window" />
+
+            <LectureP>
+                When the window size is fixed (e.g., "subarray of length k"), initialize the window with the first k elements, then slide: add the next element, remove the oldest, update the aggregate.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="sliding_window_fixed.py — maximum sum subarray of size k"
+                lines={[
+                    'def max_sum_subarray(arr, k):',
+                    '    """Find the maximum sum of any contiguous subarray of size k.',
+                    '    O(n) time, O(1) space."""',
+                    '    if len(arr) < k:',
+                    '        return 0',
+                    '',
+                    '    # Initialize: sum of first window',
+                    '    window_sum = sum(arr[:k])',
+                    '    best = window_sum',
+                    '',
+                    '    # Slide the window: add next element, remove oldest',
+                    '    for i in range(k, len(arr)):',
+                    '        window_sum += arr[i] - arr[i - k]',
+                    '        best = max(best, window_sum)',
+                    '',
+                    '    return best',
+                    '',
+                    '',
+                    '# Example',
+                    'arr = [2, 1, 5, 1, 3, 2]',
+                    'print(max_sum_subarray(arr, 3))  # 9 — subarray [5, 1, 3]',
+                ]}
+            />
+
+            <LectureSubHeading title="Variable-size window" />
+
+            <LectureP>
+                When the window size is not fixed, use two pointers: expand the right boundary to include new elements, and shrink the left boundary when a constraint is violated. The window grows and shrinks as needed.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="sliding_window_variable.py — longest substring without repeating characters"
+                lines={[
+                    'def longest_unique_substring(s):',
+                    '    """Find the length of the longest substring with no repeating characters.',
+                    '    O(n) time, O(min(n, alphabet)) space."""',
+                    '    char_set = set()',
+                    '    left = 0',
+                    '    best = 0',
+                    '',
+                    '    for right in range(len(s)):',
+                    '        # Shrink window until the duplicate is removed',
+                    '        while s[right] in char_set:',
+                    '            char_set.remove(s[left])',
+                    '            left += 1',
+                    '',
+                    '        char_set.add(s[right])',
+                    '        best = max(best, right - left + 1)',
+                    '',
+                    '    return best',
+                    '',
+                    '',
+                    '# Example',
+                    'print(longest_unique_substring("abcabcbb"))  # 3 — "abc"',
+                    'print(longest_unique_substring("bbbbb"))     # 1 — "b"',
+                    'print(longest_unique_substring("pwwkew"))     # 3 — "wke"',
+                ]}
+            />
+
+            <LectureP>
+                Recognize the pattern: <strong className="text-foreground">"contiguous subarray of size k"</strong> — fixed sliding window. <strong className="text-foreground">"longest/shortest substring satisfying a condition"</strong> — variable sliding window.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                LeetCode practice for sliding window: Maximum Average Subarray I (fixed), Longest Substring Without Repeating Characters (variable), Minimum Size Subarray Sum (variable), and Minimum Window Substring (variable, hard).
+            </LectureCallout>
+
+            {/* ── 06 HASH MAP PATTERNS ──────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Hash Map Patterns in Interviews" />
+
+            <LectureP>
+                Hash maps appear in interviews more than any other data structure. Three patterns cover the vast majority of hash-map-based problems. Learn to recognize each one and the solution structure becomes automatic.
+            </LectureP>
+
+            <LectureSubHeading title="Pattern 1 — complement lookup (Two Sum)" />
+
+            <LectureP>
+                For each element, compute its complement (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">target - element</code>), check if the complement exists in the map, and if not, store the current element. One pass, O(n) time, O(n) space. This is the single most-asked interview question.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="two_sum.py — the canonical hash map problem"
+                lines={[
+                    'def two_sum(nums, target):',
+                    '    """Return indices of two numbers that add up to target.',
+                    '    O(n) time, O(n) space."""',
+                    '    seen = {}  # value -> index',
+                    '',
+                    '    for i, num in enumerate(nums):',
+                    '        complement = target - num',
+                    '        if complement in seen:',
+                    '            return [seen[complement], i]',
+                    '        seen[num] = i',
+                    '',
+                    '    return []  # no solution',
+                    '',
+                    '',
+                    '# Example',
+                    'print(two_sum([2, 7, 11, 15], 9))   # [0, 1] — 2 + 7 = 9',
+                    'print(two_sum([3, 2, 4], 6))         # [1, 2] — 2 + 4 = 6',
+                ]}
+            />
+
+            <LectureSubHeading title="Pattern 2 — frequency counting" />
+
+            <LectureP>
+                Count occurrences of each element with a dict, then use those counts to answer the question. This pattern solves: "is X an anagram of Y?", "what is the most frequent element?", "which elements appear exactly once?"
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="frequency.py — anagram check via frequency counting"
+                lines={[
+                    'def is_anagram(s, t):',
+                    '    """Check if t is an anagram of s.',
+                    '    O(n) time, O(1) space (bounded by alphabet size)."""',
+                    '    if len(s) != len(t):',
+                    '        return False',
+                    '',
+                    '    freq = {}',
+                    '    for char in s:',
+                    '        freq[char] = freq.get(char, 0) + 1',
+                    '',
+                    '    for char in t:',
+                    '        if char not in freq or freq[char] == 0:',
+                    '            return False',
+                    '        freq[char] -= 1',
+                    '',
+                    '    return True',
+                    '',
+                    '',
+                    '# Examples',
+                    'print(is_anagram("listen", "silent"))  # True',
+                    'print(is_anagram("hello", "world"))    # False',
+                ]}
+            />
+
+            <LectureSubHeading title="Pattern 3 — group by key" />
+
+            <LectureP>
+                Use a dict to bucket items by some derived key. Given a list of words, group all anagrams together by using the sorted characters as the key. Given a list of transactions, group by user ID. The pattern is always: compute a key, append to the list at that key.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="group_anagrams.py — group by sorted characters"
+                lines={[
+                    'from collections import defaultdict',
+                    '',
+                    '',
+                    'def group_anagrams(words):',
+                    '    """Group words that are anagrams of each other.',
+                    '    O(n * k log k) time where k = max word length."""',
+                    '    groups = defaultdict(list)',
+                    '',
+                    '    for word in words:',
+                    '        key = "".join(sorted(word))  # "eat" -> "aet", "tea" -> "aet"',
+                    '        groups[key].append(word)',
+                    '',
+                    '    return list(groups.values())',
+                    '',
+                    '',
+                    '# Example',
+                    'words = ["eat", "tea", "tan", "ate", "nat", "bat"]',
+                    'print(group_anagrams(words))',
+                    '# [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]',
+                ]}
+            />
+
+            <LectureCallout type="info">
+                These three patterns — complement lookup, frequency counting, and group-by-key — cover an enormous fraction of hash-map interview questions. When you see a problem and think "I need fast lookup," start with one of these three.
+            </LectureCallout>
+
+            {/* ── 07 THE PROBLEM-SOLVING FRAMEWORK ──────────────────────────── */}
+            <LectureSectionHeading number="07" title="The Problem-Solving Framework" />
+
+            <LectureP>
+                Knowing data structures and patterns is necessary but not sufficient. You also need a <strong className="text-foreground">systematic process</strong> for approaching unfamiliar problems. The following six steps work for interview problems, homework assignments, and real engineering tasks. The steps are always the same — only the problem changes.
+            </LectureP>
+
+            <div className="my-6 space-y-2">
+                {[
+                    { step: '1', title: 'Understand', desc: 'Restate the problem in your own words. Clarify inputs, outputs, and constraints. Ask: what are the edge cases? What is guaranteed?' },
+                    { step: '2', title: 'Trace examples', desc: 'Walk through 2-3 concrete examples by hand before writing any code. This reveals patterns and catches misunderstandings early.' },
+                    { step: '3', title: 'Brute force', desc: 'Write the simplest correct solution, even if it is O(n²) or worse. A working solution is better than no solution. Interviewers want to see you can produce correctness first.' },
+                    { step: '4', title: 'Optimize', desc: 'Identify the bottleneck. Can a hash map eliminate a nested loop? Can two pointers replace brute-force pair checking? Can a sliding window avoid recomputation?' },
+                    { step: '5', title: 'Code', desc: 'Translate the optimized approach into clean, readable code. Name variables clearly. Handle edge cases. Do not optimize prematurely — clarity first.' },
+                    { step: '6', title: 'Test', desc: 'Run through edge cases: empty input, single element, all duplicates, negative numbers, maximum size. Trace your code on at least one non-trivial example.' },
+                ].map((row) => (
+                    <div key={row.step} className="flex items-start gap-3 rounded-lg border border-border px-4 py-3">
+                        <span className="text-lg font-black text-primary/20 select-none shrink-0 w-6 text-right">{row.step}</span>
+                        <div>
+                            <p className="text-xs font-bold text-foreground">{row.title}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{row.desc}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <LectureSubHeading title="Worked example: first repeating character" />
+
+            <LectureP>
+                <strong className="text-foreground">Problem:</strong> given a string, return the first character that appears more than once. Return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code> if all characters are unique. This is one of the Activity challenges — let's walk through the framework.
+            </LectureP>
+
+            <LectureP>
+                <strong className="text-foreground">1. Understand:</strong> Input is a string. Output is a single character (or None). "First repeating" means the first character we encounter <em>for the second time</em>, not the character with the smallest index of its first occurrence.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">2. Trace:</strong> For <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"abcadb"</code> → walk through: a (new), b (new), c (new), a (seen!) → return "a". For <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"abcdef"</code> → all unique → return None.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">3. Brute force:</strong> For each character, scan the rest of the string to check if it appears again. O(n²).
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">4. Optimize:</strong> The bottleneck is "have I seen this character before?" — that is a hash set lookup. One pass through the string, checking membership in a set at each step. O(n) time, O(1) space (alphabet is bounded).
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="first_repeat.py — applying the framework"
+                lines={[
+                    '# Step 5: Code',
+                    'def first_repeat(s):',
+                    '    """Return the first character that appears more than once.',
+                    '    O(n) time, O(1) space (bounded alphabet)."""',
+                    '    seen = set()',
+                    '    for char in s:',
+                    '        if char in seen:',
+                    '            return char',
+                    '        seen.add(char)',
+                    '    return None',
+                    '',
+                    '',
+                    '# Step 6: Test',
+                    'print(first_repeat("abcadb"))   # "a"',
+                    'print(first_repeat("abcdef"))   # None',
+                    'print(first_repeat(""))          # None  — edge case: empty string',
+                    'print(first_repeat("aabb"))      # "a"  — first duplicate encountered',
+                ]}
+            />
+
+            <LectureCallout type="info">
+                This framework is not just for interviews — it is how experienced engineers approach any unfamiliar problem. The difference between a junior and senior engineer is often not what they know, but that they follow a process instead of guessing. Build the habit now.
             </LectureCallout>
 
             <LectureFooterNav
