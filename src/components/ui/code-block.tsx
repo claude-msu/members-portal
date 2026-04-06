@@ -48,6 +48,7 @@ const highlighterStyle: CSSProperties = {
     lineHeight: 1.6,
     userSelect: 'none',
     WebkitUserSelect: 'none',
+    overflow: 'visible',
 };
 
 const noCopy: CSSProperties = {
@@ -63,7 +64,7 @@ export function CodeBlock({ language, title, lines }: CodeBlockProps) {
             <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
                 {title}
             </div>
-            <div className="bg-zinc-950 overflow-x-auto overflow-y-clip overscroll-x-contain">
+            <div className="bg-zinc-950 overflow-x-auto overscroll-x-contain">
                 <SyntaxHighlighter
                     language={language}
                     style={vscDarkPlus}
