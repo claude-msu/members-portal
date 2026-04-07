@@ -1,21 +1,17 @@
-import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 
 export default function Week5Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -114,7 +110,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                The <LectureCmd tip="npm install (no arguments): reads package.json and installs every dependency listed under 'dependencies' and 'devDependencies'. This is what you run after cloning a project — it reconstructs the full node_modules folder from the manifest.">npm install</LectureCmd> command with no arguments is what you run when you clone a new project. It reads <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> and recreates the entire <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The <LectureCmd tip="--save-dev flag: installs the package as a devDependency — only needed during development (linting, testing, TypeScript compilation). Not included in production builds.">--save-dev</LectureCmd> flag marks packages as development-only. These are things like TypeScript, ESLint, and test runners that don't need to be included in production.
+                The <LectureTip tip="npm install (no arguments): reads package.json and installs every dependency listed under 'dependencies' and 'devDependencies'. This is what you run after cloning a project — it reconstructs the full node_modules folder from the manifest.">npm install</LectureTip> command with no arguments is what you run when you clone a new project. It reads <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> and recreates the entire <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The <LectureTip tip="--save-dev flag: installs the package as a devDependency — only needed during development (linting, testing, TypeScript compilation). Not included in production builds.">--save-dev</LectureTip> flag marks packages as development-only. These are things like TypeScript, ESLint, and test runners that don't need to be included in production.
             </LectureP>
 
             <LectureSubHeading title="The package-lock.json file" />
@@ -161,7 +157,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureCallout type="tip">
-                <LectureCmd tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureCmd> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
+                <LectureTip tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureTip> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
             </LectureCallout>
 
             {/* ── 04 PIP ──────────────────────────────────────────────────────── */}
@@ -190,7 +186,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                The <LectureCmd tip="pip freeze: outputs every installed package and its exact version in a format suitable for a requirements.txt file. Like package-lock.json for Python — captures the exact state of your environment.">pip freeze</LectureCmd> command captures your exact environment to a <LectureTermWithTip tip="A text file listing package names and versions (one per line). pip install -r requirements.txt recreates the environment. Commit this; don't commit .venv.">requirements.txt</LectureTermWithTip> file. This is Python's equivalent of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> — it pins exact versions so anyone who runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install -r requirements.txt</code> gets the same environment.
+                The <LectureTip tip="pip freeze: outputs every installed package and its exact version in a format suitable for a requirements.txt file. Like package-lock.json for Python — captures the exact state of your environment.">pip freeze</LectureTip> command captures your exact environment to a <LectureTermWithTip tip="A text file listing package names and versions (one per line). pip install -r requirements.txt recreates the environment. Commit this; don't commit .venv.">requirements.txt</LectureTermWithTip> file. This is Python's equivalent of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> — it pins exact versions so anyone who runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install -r requirements.txt</code> gets the same environment.
             </LectureP>
 
             <LectureCallout type="info">
@@ -222,7 +218,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                The difference between <LectureCmd tip="apt remove: uninstalls the package binary but leaves configuration files in place. Useful if you plan to reinstall later and want to keep your settings.">apt remove</LectureCmd> and <LectureCmd tip="apt purge: uninstalls the package AND deletes all its configuration files. Use this for a clean uninstall — like it was never there.">apt purge</LectureCmd> matters when you're managing servers. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">remove</code> leaves config files behind (useful if you might reinstall). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">purge</code> cleans everything out completely.
+                The difference between <LectureTip tip="apt remove: uninstalls the package binary but leaves configuration files in place. Useful if you plan to reinstall later and want to keep your settings.">apt remove</LectureTip> and <LectureTip tip="apt purge: uninstalls the package AND deletes all its configuration files. Use this for a clean uninstall — like it was never there.">apt purge</LectureTip> matters when you're managing servers. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">remove</code> leaves config files behind (useful if you might reinstall). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">purge</code> cleans everything out completely.
             </LectureP>
 
             <LectureSubHeading title="PPAs and external repositories" />
@@ -262,7 +258,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                Homebrew distinguishes between <LectureTermWithTip tip="Homebrew's term for a command-line tool or library (e.g. git, node). Install with brew install <name>.">formulae</LectureTermWithTip> (command-line tools and libraries, like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">postgresql</code>) and <LectureTermWithTip tip="Homebrew's term for a GUI application (.app). Install with brew install --cask <name>; goes to your Applications folder.">casks</LectureTermWithTip> (GUI applications, like VS Code, Chrome, or Docker Desktop). The <LectureCmd tip="--cask flag: tells brew to install a GUI application rather than a command-line tool. Casks are macOS .app bundles that install into your Applications folder.">--cask</LectureCmd> flag is how you install GUI apps.
+                Homebrew distinguishes between <LectureTermWithTip tip="Homebrew's term for a command-line tool or library (e.g. git, node). Install with brew install <name>.">formulae</LectureTermWithTip> (command-line tools and libraries, like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">postgresql</code>) and <LectureTermWithTip tip="Homebrew's term for a GUI application (.app). Install with brew install --cask <name>; goes to your Applications folder.">casks</LectureTermWithTip> (GUI applications, like VS Code, Chrome, or Docker Desktop). The <LectureTip tip="--cask flag: tells brew to install a GUI application rather than a command-line tool. Casks are macOS .app bundles that install into your Applications folder.">--cask</LectureTip> flag is how you install GUI apps.
             </LectureP>
 
             <LectureCallout type="tip">
@@ -311,7 +307,7 @@ export default function Week5Lecture1() {
             </div>
 
             <LectureP>
-                In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code>, version ranges use special symbols. A <LectureCmd tip="^ (caret) in package.json: accepts any version compatible with the specified version. ^18.2.0 means 'any version >= 18.2.0 and < 19.0.0'. Will automatically get new features and bug fixes but not breaking changes.">^</LectureCmd> (caret) means "compatible with" — it will accept newer minor and patch versions but not a new major. A <LectureCmd tip="~ (tilde) in package.json: more restrictive than caret. ~18.2.0 means 'any version >= 18.2.0 and < 18.3.0'. Only accepts patch-level updates.">~</LectureCmd> (tilde) is more restrictive — only patch updates. No prefix means exactly that version.
+                In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code>, version ranges use special symbols. A <LectureTip tip="^ (caret) in package.json: accepts any version compatible with the specified version. ^18.2.0 means 'any version >= 18.2.0 and < 19.0.0'. Will automatically get new features and bug fixes but not breaking changes.">^</LectureTip> (caret) means "compatible with" — it will accept newer minor and patch versions but not a new major. A <LectureTip tip="~ (tilde) in package.json: more restrictive than caret. ~18.2.0 means 'any version >= 18.2.0 and < 18.3.0'. Only accepts patch-level updates.">~</LectureTip> (tilde) is more restrictive — only patch updates. No prefix means exactly that version.
             </LectureP>
 
             <LectureCallout type="info">
@@ -346,16 +342,7 @@ export default function Week5Lecture1() {
                 This sequence — update, install essentials, install runtimes, verify — is the pattern for every server setup you'll ever do. The specific packages change, the pattern doesn't.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Project Kickoff',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/activity'),
-                }}
-                next={{
-                    label: 'Docker & Containerization',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

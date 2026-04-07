@@ -1,12 +1,10 @@
-import { useNavigate } from 'react-router-dom';
 import { Terminal } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -14,8 +12,6 @@ import {
 } from '@/components/ui/lecture-typography';
 
 export default function Week1Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -37,7 +33,7 @@ export default function Week1Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                You'll use <LectureCmd tip="Bourne Again Shell — default on most Linux. Brian Fox, 1989.">bash</LectureCmd> or <LectureCmd tip="Z Shell — default on macOS since Catalina. Very similar to bash.">zsh</LectureCmd>. This course works in both.
+                You'll use <LectureTip tip="Bourne Again Shell — default on most Linux. Brian Fox, 1989.">bash</LectureTip> or <LectureTip tip="Z Shell — default on macOS since Catalina. Very similar to bash.">zsh</LectureTip>. This course works in both.
             </LectureCallout>
 
             <LectureSubHeading title="Opening a terminal" />
@@ -66,13 +62,13 @@ export default function Week1Lecture1() {
 
             <LectureSubHeading title="Where am I?" />
             <LectureP>
-                <LectureCmd tip="print working directory — full path of where you are. Run whenever you're disoriented.">pwd</LectureCmd>
+                <LectureTip tip="print working directory — full path of where you are. Run whenever you're disoriented.">pwd</LectureTip>
             </LectureP>
             <TerminalBlock lines={[{ comment: 'print your current location', cmd: 'pwd' }]} />
 
             <LectureSubHeading title="What's in here?" />
             <LectureP>
-                <LectureCmd tip="list — contents of the current directory. -l = long format (permissions, size, date). -a = show hidden files (names starting with .).">ls</LectureCmd> — use <LectureCmd tip="-la: long format + all files. The combo you'll use most.">-la</LectureCmd> for the full picture.
+                <LectureTip tip="list — contents of the current directory. -l = long format (permissions, size, date). -a = show hidden files (names starting with .).">ls</LectureTip> — use <LectureTip tip="-la: long format + all files. The combo you'll use most.">-la</LectureTip> for the full picture.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -84,7 +80,7 @@ export default function Week1Lecture1() {
 
             <LectureSubHeading title="Moving around" />
             <LectureP>
-                <LectureCmd tip="change directory — move to another folder. Like double-clicking, but faster.">cd</LectureCmd> moves you. <LectureCmd tip="Parent directory — one level up. Use constantly.">..</LectureCmd> goes up; <LectureCmd tip="Your home directory. Works anywhere.">~</LectureCmd> goes home.
+                <LectureTip tip="change directory — move to another folder. Like double-clicking, but faster.">cd</LectureTip> moves you. <LectureTip tip="Parent directory — one level up. Use constantly.">..</LectureTip> goes up; <LectureTip tip="Your home directory. Works anywhere.">~</LectureTip> goes home.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -101,7 +97,7 @@ export default function Week1Lecture1() {
 
             <LectureSubHeading title="Getting help" />
             <LectureP>
-                Every command has a built-in manual. <LectureCmd tip="Full manual for any command. man ls, man grep, man chmod. q to quit. When in doubt, man it out.">man</LectureCmd> shows it. Use it any time you forget flags or want to know what a command can do.
+                Every command has a built-in manual. <LectureTip tip="Full manual for any command. man ls, man grep, man chmod. q to quit. When in doubt, man it out.">man</LectureTip> shows it. Use it any time you forget flags or want to know what a command can do.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -130,7 +126,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Creates an empty file (or updates its timestamp).">touch</LectureCmd> for files. <LectureCmd tip="Creates a directory. -p = create parent dirs as needed.">mkdir</LectureCmd> for folders. <LectureCmd tip="-p: create parent directories. Without it, mkdir fails if parents don't exist.">-p</LectureCmd> when nesting.
+                <LectureTip tip="Creates an empty file (or updates its timestamp).">touch</LectureTip> for files. <LectureTip tip="Creates a directory. -p = create parent dirs as needed.">mkdir</LectureTip> for folders. <LectureTip tip="-p: create parent directories. Without it, mkdir fails if parents don't exist.">-p</LectureTip> when nesting.
             </LectureP>
 
             <LectureSubHeading title="Editing files" />
@@ -150,18 +146,18 @@ export default function Week1Lecture1() {
                 <strong className="text-foreground">Vim quick reference:</strong>
             </LectureP>
             <ul className="list-disc pl-6 py-1.5 space-y-2 text-sm text-muted-foreground [&_code]:text-xs [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_code]:border [&_code]:border-border">
-                <li><LectureCmd tip="Enter insert mode so you can type. You'll see -- INSERT -- at the bottom. Press Esc when done typing.">i</LectureCmd> — insert mode (type)</li>
-                <li><LectureCmd tip="Leave insert mode and return to command mode. You must be in command mode before typing : commands.">Esc</LectureCmd> — command mode</li>
-                <li><LectureCmd tip="Write (save) the file and quit. Type :wq then press Enter.">:wq</LectureCmd> — save and quit</li>
-                <li><LectureCmd tip="Quit without saving. Discards any changes. Use when you want to exit without keeping edits.">:q!</LectureCmd> — quit without saving</li>
+                <li><LectureTip tip="Enter insert mode so you can type. You'll see -- INSERT -- at the bottom. Press Esc when done typing.">i</LectureTip> — insert mode (type)</li>
+                <li><LectureTip tip="Leave insert mode and return to command mode. You must be in command mode before typing : commands.">Esc</LectureTip> — command mode</li>
+                <li><LectureTip tip="Write (save) the file and quit. Type :wq then press Enter.">:wq</LectureTip> — save and quit</li>
+                <li><LectureTip tip="Quit without saving. Discards any changes. Use when you want to exit without keeping edits.">:q!</LectureTip> — quit without saving</li>
             </ul>
             <LectureP>
-                If Git or another tool opens vim and you're stuck, press <LectureCmd tip="Leave insert mode.">Esc</LectureCmd> then type <LectureCmd tip="Save and quit.">:wq</LectureCmd> and Enter.
+                If Git or another tool opens vim and you're stuck, press <LectureTip tip="Leave insert mode.">Esc</LectureTip> then type <LectureTip tip="Save and quit.">:wq</LectureTip> and Enter.
             </LectureP>
 
             <LectureSubHeading title="Writing content with echo" />
             <LectureP>
-                <LectureCmd tip="Print text to the terminal — or redirect it into a file. The simplest way to create a file with content in one command.">echo</LectureCmd> prints text. Combined with <LectureTermWithTip tip="Send a command's output to a file instead of the screen. > overwrites, >> appends.">redirection</LectureTermWithTip>, it creates files with content in one shot — no editor needed.
+                <LectureTip tip="Print text to the terminal — or redirect it into a file. The simplest way to create a file with content in one command.">echo</LectureTip> prints text. Combined with <LectureTermWithTip tip="Send a command's output to a file instead of the screen. > overwrites, >> appends.">redirection</LectureTermWithTip>, it creates files with content in one shot — no editor needed.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -185,7 +181,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Copy a file. -r for directories.">cp</LectureCmd>. <LectureCmd tip="Move (or rename — same directory, new name). No separate rename command.">mv</LectureCmd>.
+                <LectureTip tip="Copy a file. -r for directories.">cp</LectureTip>. <LectureTip tip="Move (or rename — same directory, new name). No separate rename command.">mv</LectureTip>.
             </LectureP>
 
             <LectureSubHeading title="Deleting files" />
@@ -196,10 +192,10 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Permanent delete. No trash, no undo. -r for directories.">rm</LectureCmd> — gone for good.
+                <LectureTip tip="Permanent delete. No trash, no undo. -r for directories.">rm</LectureTip> — gone for good.
             </LectureP>
             <LectureCallout type="warning">
-                <LectureCmd tip="Recursive + force. No confirmation. Wrong path = disaster. Never run on / or system paths." warn>rm -rf</LectureCmd> is dangerous. Double-check the path.
+                <LectureTip tip="Recursive + force. No confirmation. Wrong path = disaster. Never run on / or system paths." warn>rm -rf</LectureTip> is dangerous. Double-check the path.
             </LectureCallout>
 
             {/* ── 04 READING FILES ────────────────────────────────────────────── */}
@@ -218,12 +214,12 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Print whole file to the terminal.">cat</LectureCmd>. <LectureCmd tip="Scroll through large files: arrows, / to search, q to quit.">less</LectureCmd> for big files. <LectureCmd tip="Follow mode — stream new lines as they're added. Essential for live logs.">tail -f</LectureCmd> for live logs.
+                <LectureTip tip="Print whole file to the terminal.">cat</LectureTip>. <LectureTip tip="Scroll through large files: arrows, / to search, q to quit.">less</LectureTip> for big files. <LectureTip tip="Follow mode — stream new lines as they're added. Essential for live logs.">tail -f</LectureTip> for live logs.
             </LectureP>
 
             <LectureSubHeading title="Searching inside files with grep" />
             <LectureP>
-                <LectureCmd tip="Search for a pattern; prints every matching line. -i = case-insensitive, -n = line numbers, -r = recursive through dirs. One of the most useful commands.">grep</LectureCmd> finds text in files.
+                <LectureTip tip="Search for a pattern; prints every matching line. -i = case-insensitive, -n = line numbers, -r = recursive through dirs. One of the most useful commands.">grep</LectureTip> finds text in files.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -235,7 +231,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureCallout type="tip">
-                <LectureCmd tip="Recursive grep through a codebase — often faster than IDE search.">grep -r</LectureCmd> in a project to find where something's defined or used.
+                <LectureTip tip="Recursive grep through a codebase — often faster than IDE search.">grep -r</LectureTip> in a project to find where something's defined or used.
             </LectureCallout>
 
             {/* ── 05 PIPES AND REDIRECTION ─────────────────────────────────────── */}
@@ -247,7 +243,7 @@ export default function Week1Lecture1() {
 
             <LectureSubHeading title="The pipe operator" />
             <LectureP>
-                <LectureCmd tip="Pipe — takes the output of the command on the left and feeds it as input to the command on the right. Chain as many as you need.">|</LectureCmd> connects two commands: the left command's output becomes the right command's input. You can chain as many as you need.
+                <LectureTip tip="Pipe — takes the output of the command on the left and feeds it as input to the command on the right. Chain as many as you need.">|</LectureTip> connects two commands: the left command's output becomes the right command's input. You can chain as many as you need.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -258,7 +254,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                Each <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">|</code> takes the full output of the previous command and feeds it into the next. <LectureCmd tip="Word count. -l = count lines only. Combined with pipes, it counts how many matches grep found.">wc -l</LectureCmd> counts lines — combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">grep</code>, it tells you how many matches exist.
+                Each <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">|</code> takes the full output of the previous command and feeds it into the next. <LectureTip tip="Word count. -l = count lines only. Combined with pipes, it counts how many matches grep found.">wc -l</LectureTip> counts lines — combined with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">grep</code>, it tells you how many matches exist.
             </LectureP>
 
             <LectureSubHeading title="Output redirection" />
@@ -319,7 +315,7 @@ export default function Week1Lecture1() {
 
             <LectureSubHeading title="Changing permissions with chmod" />
             <LectureP>
-                <LectureCmd tip="Change permissions. Symbolic: chmod +x. Numeric: r=4, w=2, x=1 — so 755 = rwxr-xr-x, 644 = rw-r--r--.">chmod</LectureCmd>
+                <LectureTip tip="Change permissions. Symbolic: chmod +x. Numeric: r=4, w=2, x=1 — so 755 = rwxr-xr-x, 644 = rw-r--r--.">chmod</LectureTip>
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -330,7 +326,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureCallout type="info">
-                <LectureCmd tip="Make a file executable. Every .sh script needs this before you can run it.">chmod +x</LectureCmd> on scripts — you'll use it constantly.
+                <LectureTip tip="Make a file executable. Every .sh script needs this before you can run it.">chmod +x</LectureTip> on scripts — you'll use it constantly.
             </LectureCallout>
 
             {/* ── 07 PROCESSES ────────────────────────────────────────────────── */}
@@ -349,7 +345,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Process status. aux = all processes with CPU/memory.">ps</LectureCmd> shows what's running. <LectureCmd tip="Pipe — send one command's output to the next. ps aux | grep node lists all processes, then filters for 'node'.">|</LectureCmd> chains commands.
+                <LectureTip tip="Process status. aux = all processes with CPU/memory.">ps</LectureTip> shows what's running. <LectureTip tip="Pipe — send one command's output to the next. ps aux | grep node lists all processes, then filters for 'node'.">|</LectureTip> chains commands.
             </LectureP>
 
             <LectureSubHeading title="Stopping processes" />
@@ -361,7 +357,7 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Send terminate signal. Default is graceful (SIGTERM).">kill</LectureCmd>. <LectureCmd tip="Force kill — no cleanup. Use when a process is frozen." warn>kill -9</LectureCmd> when it won't quit.
+                <LectureTip tip="Send terminate signal. Default is graceful (SIGTERM).">kill</LectureTip>. <LectureTip tip="Force kill — no cleanup. Use when a process is frozen." warn>kill -9</LectureTip> when it won't quit.
             </LectureP>
             <LectureCallout type="tip">
                 <LectureTermWithTip tip="Sends interrupt to the foreground process. Standard way to stop npm run dev, Python servers, etc.">Ctrl + C</LectureTermWithTip> stops whatever's running in the terminal.
@@ -375,7 +371,7 @@ export default function Week1Lecture1() {
             </LectureP>
 
             <LectureP>
-                <LectureCmd tip="Advanced Package Tool — Debian/Ubuntu. Most servers use it. Always run apt update first.">apt</LectureCmd> (Ubuntu/Debian), <LectureCmd tip="Homebrew — macOS package manager. Installs what Apple doesn't ship.">brew</LectureCmd> (macOS), <LectureCmd tip="Node Package Manager — JavaScript libs and tools. You'll use it constantly.">npm</LectureCmd> (Node.js), <LectureCmd tip="Pip Installs Packages — Python's standard. FastAPI, NumPy, etc.">pip</LectureCmd> (Python):
+                <LectureTip tip="Advanced Package Tool — Debian/Ubuntu. Most servers use it. Always run apt update first.">apt</LectureTip> (Ubuntu/Debian), <LectureTip tip="Homebrew — macOS package manager. Installs what Apple doesn't ship.">brew</LectureTip> (macOS), <LectureTip tip="Node Package Manager — JavaScript libs and tools. You'll use it constantly.">npm</LectureTip> (Node.js), <LectureTip tip="Pip Installs Packages — Python's standard. FastAPI, NumPy, etc.">pip</LectureTip> (Python):
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -388,7 +384,7 @@ export default function Week1Lecture1() {
 
             <LectureSubHeading title="Installing software with apt" />
             <LectureP>
-                <LectureCmd tip="Advanced Package Tool. Run apt update before installing.">apt</LectureCmd> on Linux — typical workflow:
+                <LectureTip tip="Advanced Package Tool. Run apt update before installing.">apt</LectureTip> on Linux — typical workflow:
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -400,15 +396,15 @@ export default function Week1Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="Run as administrator for one command. Required for installing software. You'll be prompted for your password.">sudo</LectureCmd> = admin for that command.
+                <LectureTip tip="Run as administrator for one command. Required for installing software. You'll be prompted for your password.">sudo</LectureTip> = admin for that command.
             </LectureP>
             <LectureCallout type="warning">
-                <LectureCmd tip="Full system access. Can break the OS or create security holes. Only use when needed; understand what you run." warn>sudo</LectureCmd> — know what the command does before you run it.
+                <LectureTip tip="Full system access. Can break the OS or create security holes. Only use when needed; understand what you run." warn>sudo</LectureTip> — know what the command does before you run it.
             </LectureCallout>
 
             <LectureSubHeading title="Finding installed programs" />
             <LectureP>
-                <LectureCmd tip="Shows the full path to a program's binary. Useful to check if something is installed and which version the shell will use.">which</LectureCmd> tells you where a program lives on disk — or whether it's installed at all.
+                <LectureTip tip="Shows the full path to a program's binary. Useful to check if something is installed and which version the shell will use.">which</LectureTip> tells you where a program lives on disk — or whether it's installed at all.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -448,12 +444,7 @@ export default function Week1Lecture1() {
                 Navigate, create structure, write content with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">echo</code>, set permissions, pipe commands together, install software, verify. First five minutes on a new server.
             </LectureP>
 
-            <LectureFooterNav
-                next={{
-                    label: 'Shell Scripting & Permissions',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

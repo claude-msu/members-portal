@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { GitBranch } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -64,8 +62,6 @@ const KanbanBoard = () => {
 };
 
 export default function Week4Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -185,16 +181,7 @@ export default function Week4Lecture2() {
                 The Week 2 activity is <strong className="text-foreground">Project Kickoff</strong>: choose your project domain, create the repo, set up a GitHub Project board, write issues for the work you'll do in Weeks 3–5, and open your first PR. From here on, every deliverable in the course ships through this board — same as in industry.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Version Control with Git',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-1'),
-                }}
-                next={{
-                    label: 'Project Kickoff',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/activity'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

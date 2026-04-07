@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { Trophy } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -12,8 +10,6 @@ import {
 } from '@/components/ui/lecture-typography';
 
 export default function Week12Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -134,16 +130,7 @@ One lesson I'm taking forward (for the demo):
                 Your "one takeaway" doesn't have to be technical. It could be "I work better when I break tasks into small PRs" or "Documenting as I go saved me at the end." Authentic beats impressive.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'README, Docs & Open Source Habits',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-12/lecture-1'),
-                }}
-                next={{
-                    label: 'Final Demo & Celebration',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-12/activity'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

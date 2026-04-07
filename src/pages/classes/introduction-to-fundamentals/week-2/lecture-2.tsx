@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Binary } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -15,8 +13,6 @@ import {
 import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week2Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -46,7 +42,7 @@ export default function Week2Lecture2() {
             <LectureSubHeading title="Python's dict and set" />
 
             <LectureP>
-                Python's <LectureCmd tip="Python's built-in hash map. O(1) average lookup, insert, delete by key. The most-used data structure in Python — you've been using it since day one.">dict</LectureCmd> is a hash map. <LectureCmd tip="Python's hash set — stores unique keys only (no values). O(1) average membership test. Use for deduplication and fast 'have I seen this?' checks.">set</LectureCmd> is a hash set (keys only, no values). You have been using hash maps since day one. The <LectureCmd tip="Membership operator. O(1) on dict/set (hash lookup). O(n) on list (linear scan). Always prefer set/dict for membership checks over list.">in</LectureCmd> operator on a dict or set is O(1) average — on a list, it is O(n) because every element must be checked.
+                Python's <LectureTip tip="Python's built-in hash map. O(1) average lookup, insert, delete by key. The most-used data structure in Python — you've been using it since day one.">dict</LectureTip> is a hash map. <LectureTip tip="Python's hash set — stores unique keys only (no values). O(1) average membership test. Use for deduplication and fast 'have I seen this?' checks.">set</LectureTip> is a hash set (keys only, no values). You have been using hash maps since day one. The <LectureTip tip="Membership operator. O(1) on dict/set (hash lookup). O(n) on list (linear scan). Always prefer set/dict for membership checks over list.">in</LectureTip> operator on a dict or set is O(1) average — on a list, it is O(n) because every element must be checked.
             </LectureP>
 
             <CodeBlock language="python"
@@ -543,16 +539,7 @@ export default function Week2Lecture2() {
                 This framework is not just for interviews — it is how experienced engineers approach any unfamiliar problem. The difference between a junior and senior engineer is often not what they know, but that they follow a process instead of guessing. Build the habit now.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Trees, Stacks & Queues',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
-                }}
-                next={{
-                    label: 'Data Structures in Practice',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/activity'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

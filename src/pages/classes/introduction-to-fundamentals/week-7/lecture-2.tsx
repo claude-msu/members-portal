@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Server } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -76,8 +74,6 @@ const RelationalDiagram = () => (
 
 
 export default function Week6Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -332,7 +328,7 @@ export default function Week6Lecture2() {
             />
 
             <LectureP>
-                The <LectureCmd tip="Depends() — FastAPI's dependency injection system. Pass a function to Depends() and FastAPI will call it for you and inject the result as the parameter value. Used for database sessions, authentication, config, and any shared logic that routes need.">Depends(get_db)</LectureCmd> annotation is FastAPI's dependency injection system. FastAPI calls <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db()</code> before the handler runs, injects the session, and runs the generator's cleanup (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db.close()</code>) after the response is sent. You never manage session lifecycle manually.
+                The <LectureTip tip="Depends() — FastAPI's dependency injection system. Pass a function to Depends() and FastAPI will call it for you and inject the result as the parameter value. Used for database sessions, authentication, config, and any shared logic that routes need.">Depends(get_db)</LectureTip> annotation is FastAPI's dependency injection system. FastAPI calls <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db()</code> before the handler runs, injects the session, and runs the generator's cleanup (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">db.close()</code>) after the response is sent. You never manage session lifecycle manually.
             </LectureP>
 
             <LectureCallout type="warning">
@@ -402,16 +398,7 @@ export default function Week6Lecture2() {
                 <strong className="text-foreground">When to use SQL vs Redis:</strong> Use SQL (SQLite, Postgres) for persistent, relational data that you query in flexible ways — users, notes, orders. Use Redis for fast caching (e.g. session data, API response cache), rate limiting, or temporary data. In the activity you'll wire both: SQLite for the source of truth, Redis for a cache layer.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'FastAPI & Python Backends',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-1'),
-                }}
-                next={{
-                    label: 'Build Your Backend',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/activity'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Rocket } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -15,8 +13,6 @@ import {
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
 export default function Week11Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -109,7 +105,7 @@ app.add_middleware(
                 In Railway: New Project → Deploy from GitHub → select repo and root (or backend folder) → set Root Directory if your backend is in a subfolder → add env vars <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">JWT_SECRET</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DATABASE_URL</code> → Deploy. Copy the generated URL and set it as <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">VITE_API_URL</code> in Vercel.
             </LectureP>
             <LectureCallout type="warning">
-                Never commit production secrets. Use the host's environment configuration for <LectureCmd tip="JWT secret, DB URL, API keys — set in Vercel/Railway dashboard, not in code.">JWT_SECRET</LectureCmd>, database URLs, and any API keys. Document which env vars are required in the README (names only, no values).
+                Never commit production secrets. Use the host's environment configuration for <LectureTip tip="JWT secret, DB URL, API keys — set in Vercel/Railway dashboard, not in code.">JWT_SECRET</LectureTip>, database URLs, and any API keys. Document which env vars are required in the README (names only, no values).
             </LectureCallout>
 
             <LectureSectionHeading number="04" title="What Can Go Wrong" />
@@ -118,16 +114,7 @@ app.add_middleware(
                 Common issues: (1) Frontend still calling <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost</code> — fix by using the env var for API base URL. (2) CORS errors — add the frontend origin to the backend. (3) 502/503 — backend crashed or not listening on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">0.0.0.0</code>. (4) Env var missing — double-check names and that they're set in the right project (frontend vs backend). Check the host's logs; they usually show the error.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Pipeline for Your Repo',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-10/activity'),
-                }}
-                next={{
-                    label: 'Databases & Persistence in Production',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-11/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

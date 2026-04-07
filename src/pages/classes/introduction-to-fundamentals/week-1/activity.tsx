@@ -1,22 +1,18 @@
-import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week1Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -329,16 +325,7 @@ export default function Week1Activity() {
                 </LectureP>
             </ActivityChallenge>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Shell Scripting & Permissions',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-2'),
-                }}
-                next={{
-                    label: 'Trees, Stacks & Queues',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
-                }}
-            />
+            
             </LectureLayout>
         </ActivityTaskListProvider>
     );

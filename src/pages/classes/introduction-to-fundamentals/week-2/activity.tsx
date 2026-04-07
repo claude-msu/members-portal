@@ -1,20 +1,16 @@
-import { useNavigate } from 'react-router-dom';
 import { Binary } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { ActivityHint } from '@/components/ui/activity-hint';
-import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
 } from '@/components/ui/lecture-typography';
+import { ActivityHint } from '@/components/ui/activity-hint';
+import { ActivityChallenge } from '@/components/ui/activity-challenge';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
 export default function Week2Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -148,16 +144,7 @@ export default function Week2Activity() {
                     These patterns — BST, stack-with-extra-invariant, and hash map for O(1) lookup — show up in Week 3 when you build the C++ Phonebook. Here you get the logic without the syntax; next week you apply the same ideas in C++.
                 </LectureCallout>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'Hash Maps, Complexity & Interview Patterns',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Classes, Encapsulation & Inheritance',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-1'),
-                    }}
-                />
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

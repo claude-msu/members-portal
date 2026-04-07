@@ -1,16 +1,14 @@
-import { useNavigate } from 'react-router-dom';
 import { Server } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 
 // ── Request/Response cycle diagram ────────────────────────────────────────────
 const RequestCycleDiagram = () => {
@@ -66,8 +64,6 @@ const HttpMethodsTable = () => (
 );
 
 export default function Week6Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -348,16 +344,7 @@ export default function Week6Lecture1() {
                 For more complex API testing, install <strong className="text-foreground">Bruno</strong> (free, open-source, stores requests as files in your repo) or use the built-in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page. Both are better than Postman for most use cases and don't require an account.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Containerize Your Backend Stub',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
-                }}
-                next={{
-                    label: 'Databases: SQL, SQLite & Redis',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

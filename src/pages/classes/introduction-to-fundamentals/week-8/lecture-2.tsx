@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { TestTube } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -16,8 +14,6 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week10Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -85,7 +81,7 @@ export default function Week10Lecture2() {
                 ]}
             />
             <LectureCallout type="info">
-                Use <LectureCmd tip="npm ci — installs exactly what's in package-lock.json. Faster and more reproducible than npm install for CI.">npm ci</LectureCmd> in CI instead of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code> so the install is deterministic and matches your lockfile.
+                Use <LectureTip tip="npm ci — installs exactly what's in package-lock.json. Faster and more reproducible than npm install for CI.">npm ci</LectureTip> in CI instead of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code> so the install is deterministic and matches your lockfile.
             </LectureCallout>
 
             <LectureSectionHeading number="03" title="Coverage" />
@@ -110,16 +106,7 @@ export default function Week10Lecture2() {
                 A green check on the PR means "tests passed." Get in the habit of not merging until the check is green. That single habit prevents most "it worked on my machine" breakages.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Vitest & Testing Your Project',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
-                }}
-                next={{
-                    label: 'Pipeline for Your Repo',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/activity'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

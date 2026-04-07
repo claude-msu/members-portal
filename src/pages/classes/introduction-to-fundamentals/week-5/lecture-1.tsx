@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { Workflow } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -157,8 +155,6 @@ const KanbanBoard = () => {
 };
 
 export default function Week5Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -400,16 +396,7 @@ export default function Week5Lecture1() {
                 The best retrospectives are psychologically safe — team members can say what's actually wrong without fear of blame. If your retrospective only produces "good job everyone," something's wrong. The facilitator's job is to make it safe to say hard things.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Project Kickoff',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/activity'),
-                }}
-                next={{
-                    label: 'Backlog Design & Issue Writing',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-2'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

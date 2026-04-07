@@ -1,16 +1,14 @@
-import { useNavigate } from 'react-router-dom';
 import { Workflow } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
+import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureSectionHeading,
+} from '@/components/ui/lecture-typography';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
-import { LectureSectionHeading } from '@/components/ui/lecture-typography';
 
 export default function Week5Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -95,16 +93,7 @@ export default function Week5Activity() {
                     You don't have to complete every issue in the week it's assigned — the board is a roadmap. But having the issues written now means you always know what "done" looks like for each week, and you can close issues with PRs as you go. From Week 6 on, execution is: pull an issue → build → PR → close issue → repeat.
                 </LectureCallout>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'Backlog Design & Issue Writing',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Package Managers & Environments',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
-                    }}
-                />
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

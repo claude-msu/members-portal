@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -52,8 +50,6 @@ const TailwindPreview = ({
 );
 
 export default function Week7Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -295,7 +291,7 @@ export default function Week7Lecture2() {
             </div>
 
             <LectureP>
-                The <LectureCmd tip="group in Tailwind: add 'group' to a parent element, then use 'group-hover:' on children to apply styles when the parent is hovered. Useful for cards where hovering the card changes the appearance of text inside it.">group</LectureCmd> pattern is particularly powerful for cards. Add <code className={CODE_INLINE}>group</code> to the card container, then use <code className={CODE_INLINE}>group-hover:</code> on any child elements you want to change when the card is hovered.
+                The <LectureTip tip="group in Tailwind: add 'group' to a parent element, then use 'group-hover:' on children to apply styles when the parent is hovered. Useful for cards where hovering the card changes the appearance of text inside it.">group</LectureTip> pattern is particularly powerful for cards. Add <code className={CODE_INLINE}>group</code> to the card container, then use <code className={CODE_INLINE}>group-hover:</code> on any child elements you want to change when the card is hovered.
             </LectureP>
 
             {/* ── 07 DYNAMIC CLASSES IN REACT ─────────────────────────────────── */}
@@ -326,7 +322,7 @@ export default function Week7Lecture2() {
             />
 
             <LectureP>
-                The <LectureCmd tip="cn() — a utility function from @/lib/utils that combines clsx (conditional class joining) and tailwind-merge (deduplication of conflicting Tailwind classes). The standard pattern for dynamic Tailwind classes in a React + shadcn project.">cn()</LectureCmd> function (from <code className={CODE_INLINE}>@/lib/utils</code>) is already in this project and is the standard way to handle dynamic classes. It merges class strings and intelligently resolves conflicts — so if you pass both <code className={CODE_INLINE}>px-4</code> and <code className={CODE_INLINE}>px-8</code>, <code className={CODE_INLINE}>px-8</code> wins.
+                The <LectureTip tip="cn() — a utility function from @/lib/utils that combines clsx (conditional class joining) and tailwind-merge (deduplication of conflicting Tailwind classes). The standard pattern for dynamic Tailwind classes in a React + shadcn project.">cn()</LectureTip> function (from <code className={CODE_INLINE}>@/lib/utils</code>) is already in this project and is the standard way to handle dynamic classes. It merges class strings and intelligently resolves conflicts — so if you pass both <code className={CODE_INLINE}>px-4</code> and <code className={CODE_INLINE}>px-8</code>, <code className={CODE_INLINE}>px-8</code> wins.
             </LectureP>
 
             {/* ── 08 BUILDING A COMPONENT ─────────────────────────────────────── */}
@@ -403,16 +399,7 @@ export default function Week7Lecture2() {
                 When you're ready to ship, run <code className={CODE_INLINE}>npm run build</code>. Vite compiles and bundles your app into a <code className={CODE_INLINE}>dist/</code> folder of static files. Use <code className={CODE_INLINE}>VITE_API_URL</code> (and other <code className={CODE_INLINE}>VITE_*</code> env vars) for the production API base URL; Vite inlines them at build time. Services like Vercel or Netlify can deploy from your repo and run the build step in CI — we cover pipelines in Week 6.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'React Components & Hooks',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-9/lecture-1'),
-                }}
-                next={{
-                    label: 'Build Your Frontend',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-9/activity'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

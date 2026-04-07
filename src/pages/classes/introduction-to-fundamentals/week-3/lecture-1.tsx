@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Cpu } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -15,8 +13,6 @@ import {
 import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week3Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -37,16 +33,16 @@ export default function Week3Lecture1() {
             <LectureSubHeading title="Types" />
 
             <LectureP>
-                Every variable must have a type declared at creation. The core types: <LectureCmd tip="Whole numbers: -2, 0, 42. 32-bit signed integer on most systems. Range: roughly ±2 billion.">int</LectureCmd>, <LectureCmd tip="Floating-point decimals: 3.14, -0.5. 64-bit, ~15 digits of precision. Use for money? No — use integers of cents.">double</LectureCmd>, <LectureCmd tip="true or false. 1 byte. Used in conditions, flags, and return values. In C++, 0 is false, anything else is true.">bool</LectureCmd>, <LectureCmd tip="A single character: 'A', '7', '\\n'. 1 byte. Use single quotes. A string is a sequence of chars.">char</LectureCmd>, and <LectureCmd tip="Text type from the standard library. Dynamically sized, heap-allocated. Use double quotes. Unlike C strings (char*), std::string manages its own memory.">string</LectureCmd> (from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;string&gt;</code>). Once declared, a variable's type cannot change — <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int x = 5;</code> cannot later become a string. Use <LectureCmd tip="Let the compiler infer the type from the right-hand side. auto x = 5; is int. auto s = string('hi'); is string. Useful with complex types like iterators.">auto</LectureCmd> to let the compiler infer the type when it is obvious from context.
+                Every variable must have a type declared at creation. The core types: <LectureTip tip="Whole numbers: -2, 0, 42. 32-bit signed integer on most systems. Range: roughly ±2 billion.">int</LectureTip>, <LectureTip tip="Floating-point decimals: 3.14, -0.5. 64-bit, ~15 digits of precision. Use for money? No — use integers of cents.">double</LectureTip>, <LectureTip tip="true or false. 1 byte. Used in conditions, flags, and return values. In C++, 0 is false, anything else is true.">bool</LectureTip>, <LectureTip tip="A single character: 'A', '7', '\\n'. 1 byte. Use single quotes. A string is a sequence of chars.">char</LectureTip>, and <LectureTip tip="Text type from the standard library. Dynamically sized, heap-allocated. Use double quotes. Unlike C strings (char*), std::string manages its own memory.">string</LectureTip> (from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;string&gt;</code>). Once declared, a variable's type cannot change — <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int x = 5;</code> cannot later become a string. Use <LectureTip tip="Let the compiler infer the type from the right-hand side. auto x = 5; is int. auto s = string('hi'); is string. Useful with complex types like iterators.">auto</LectureTip> to let the compiler infer the type when it is obvious from context.
             </LectureP>
 
             <LectureSubHeading title="Includes, main, and namespaces" />
 
             <LectureP>
-                C++ uses <LectureCmd tip="Preprocessor directive that copies the contents of a header file into your source. Like Python's import, but it literally pastes the header's text into your file before compilation.">#include</LectureCmd> to import library headers. <LectureCmd tip="Input/Output stream library. Provides cout (output), cin (input), cerr (error output), and endl (newline + flush).">&lt;iostream&gt;</LectureCmd> gives you <LectureCmd tip="Character output stream. Use << to insert values: cout << 'Hello' << endl; Chains left to right.">cout</LectureCmd> and <LectureCmd tip="Character input stream. Use >> to extract values: cin >> x; Reads one whitespace-delimited token. Stops at spaces.">cin</LectureCmd>. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;string&gt;</code> gives you the string type. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;vector&gt;</code> gives you dynamic arrays. Every C++ program starts at <LectureCmd tip="The entry point. The OS calls this function when your program launches. Returns int — 0 means success, non-zero means error.">int main()</LectureCmd> and conventionally ends with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">return 0;</code> to indicate success.
+                C++ uses <LectureTip tip="Preprocessor directive that copies the contents of a header file into your source. Like Python's import, but it literally pastes the header's text into your file before compilation.">#include</LectureTip> to import library headers. <LectureTip tip="Input/Output stream library. Provides cout (output), cin (input), cerr (error output), and endl (newline + flush).">&lt;iostream&gt;</LectureTip> gives you <LectureTip tip="Character output stream. Use << to insert values: cout << 'Hello' << endl; Chains left to right.">cout</LectureTip> and <LectureTip tip="Character input stream. Use >> to extract values: cin >> x; Reads one whitespace-delimited token. Stops at spaces.">cin</LectureTip>. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;string&gt;</code> gives you the string type. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;vector&gt;</code> gives you dynamic arrays. Every C++ program starts at <LectureTip tip="The entry point. The OS calls this function when your program launches. Returns int — 0 means success, non-zero means error.">int main()</LectureTip> and conventionally ends with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">return 0;</code> to indicate success.
             </LectureP>
             <LectureP>
-                Standard library names live in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std</code> namespace. Without <LectureCmd tip="Imports all names from the std namespace into global scope so you can write cout instead of std::cout. Convenient for learning; avoid in headers or large projects to prevent name collisions.">using namespace std;</LectureCmd>, you would have to write <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::cout</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::string</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::vector</code> everywhere. In production code, explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::</code> is preferred to avoid name collisions, but for learning and in single-file programs, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">using namespace std;</code> is fine. All examples in this course use it.
+                Standard library names live in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std</code> namespace. Without <LectureTip tip="Imports all names from the std namespace into global scope so you can write cout instead of std::cout. Convenient for learning; avoid in headers or large projects to prevent name collisions.">using namespace std;</LectureTip>, you would have to write <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::cout</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::string</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::vector</code> everywhere. In production code, explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::</code> is preferred to avoid name collisions, but for learning and in single-file programs, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">using namespace std;</code> is fine. All examples in this course use it.
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -75,7 +71,7 @@ export default function Week3Lecture1() {
             <LectureSubHeading title="Input with cin" />
 
             <LectureP>
-                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cout &lt;&lt;</code> writes to the terminal. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin &gt;&gt;</code> reads from the terminal — it reads one whitespace-delimited token at a time. For full lines (including spaces), use <LectureCmd tip="Reads an entire line of input including spaces. Takes the stream and a string variable: getline(cin, name). Use instead of cin >> when input has spaces.">getline(cin, variable)</LectureCmd>. A common pitfall: after <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin &gt;&gt;</code>, a newline remains in the buffer — call <LectureCmd tip="Discards the next character in the input buffer. Call after cin >> and before getline() to prevent the leftover newline from being consumed as an empty line.">cin.ignore()</LectureCmd> before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getline()</code> to discard it.
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cout &lt;&lt;</code> writes to the terminal. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin &gt;&gt;</code> reads from the terminal — it reads one whitespace-delimited token at a time. For full lines (including spaces), use <LectureTip tip="Reads an entire line of input including spaces. Takes the stream and a string variable: getline(cin, name). Use instead of cin >> when input has spaces.">getline(cin, variable)</LectureTip>. A common pitfall: after <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin &gt;&gt;</code>, a newline remains in the buffer — call <LectureTip tip="Discards the next character in the input buffer. Call after cin >> and before getline() to prevent the leftover newline from being consumed as an empty line.">cin.ignore()</LectureTip> before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getline()</code> to discard it.
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -104,7 +100,7 @@ export default function Week3Lecture1() {
             <LectureSubHeading title="Compilation" />
 
             <LectureP>
-                Unlike Python, C++ code must be compiled before it can run. The compiler (<LectureCmd tip="GNU C++ compiler. Translates .cpp source files into executable binaries. Part of the GCC (GNU Compiler Collection). On macOS, g++ is actually clang++ by default.">g++</LectureCmd>) translates your source code into machine code. Compile and run with:
+                Unlike Python, C++ code must be compiled before it can run. The compiler (<LectureTip tip="GNU C++ compiler. Translates .cpp source files into executable binaries. Part of the GCC (GNU Compiler Collection). On macOS, g++ is actually clang++ by default.">g++</LectureTip>) translates your source code into machine code. Compile and run with:
             </LectureP>
 
             <CodeBlock language="bash"
@@ -116,7 +112,7 @@ export default function Week3Lecture1() {
             />
 
             <LectureP>
-                <LectureCmd tip="Sets the C++ standard version. c++17 gives you structured bindings, if-init, optional, filesystem, and more. Always specify a standard.">-std=c++17</LectureCmd> enables modern C++ features. <LectureCmd tip="Warns All — enables all common compiler warnings. Treat every warning as a bug. Also consider -Wextra and -Werror (treats warnings as errors).">-Wall</LectureCmd> turns on all warnings — treat every warning as a bug. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-o hello</code> names the output binary. If compilation fails, the compiler will tell you the exact line and the problem — read the first error message and fix it before worrying about the rest.
+                <LectureTip tip="Sets the C++ standard version. c++17 gives you structured bindings, if-init, optional, filesystem, and more. Always specify a standard.">-std=c++17</LectureTip> enables modern C++ features. <LectureTip tip="Warns All — enables all common compiler warnings. Treat every warning as a bug. Also consider -Wextra and -Werror (treats warnings as errors).">-Wall</LectureTip> turns on all warnings — treat every warning as a bug. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-o hello</code> names the output binary. If compilation fails, the compiler will tell you the exact line and the problem — read the first error message and fix it before worrying about the rest.
             </LectureP>
 
             <LectureSubHeading title="Key syntax differences from Python" />
@@ -173,7 +169,7 @@ export default function Week3Lecture1() {
             <LectureSectionHeading number="04" title="Access Modifiers — Public, Private, Protected" />
 
             <LectureP>
-                C++ gives you explicit control over who can see what. By default, a <LectureCmd tip="Defines a type with private members by default. Use when you're building an abstraction with invariants to protect. Has constructors, methods, access control.">class</LectureCmd> has private members until you say otherwise; a <LectureCmd tip="Same as class but members are public by default. Use for plain data (POD) with no invariants to protect — just data, no encapsulation needed.">struct</LectureCmd> has public members by default. The only difference is that default — use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> for plain data and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> when you are building an abstraction with an interface.
+                C++ gives you explicit control over who can see what. By default, a <LectureTip tip="Defines a type with private members by default. Use when you're building an abstraction with invariants to protect. Has constructors, methods, access control.">class</LectureTip> has private members until you say otherwise; a <LectureTip tip="Same as class but members are public by default. Use for plain data (POD) with no invariants to protect — just data, no encapsulation needed.">struct</LectureTip> has public members by default. The only difference is that default — use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> for plain data and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> when you are building an abstraction with an interface.
             </LectureP>
 
             <div className="my-6 rounded-xl border border-border overflow-hidden">
@@ -182,15 +178,15 @@ export default function Week3Lecture1() {
                 </div>
                 <div className="divide-y divide-border">
                     <div className="px-4 py-3">
-                        <p className="text-xs font-medium text-foreground"><LectureCmd tip="Accessible by anyone — the class itself, derived classes, and all external code. Your API surface: constructors, getters, methods that change state in valid ways.">public:</LectureCmd></p>
+                        <p className="text-xs font-medium text-foreground"><LectureTip tip="Accessible by anyone — the class itself, derived classes, and all external code. Your API surface: constructors, getters, methods that change state in valid ways.">public:</LectureTip></p>
                         <p className="text-xs text-muted-foreground mt-0.5">Anyone can call or read. Your API — constructors, getters, methods that change state in valid ways.</p>
                     </div>
                     <div className="px-4 py-3">
-                        <p className="text-xs font-medium text-foreground"><LectureCmd tip="Accessible only by this class's own methods. Not even derived classes can see private members. Use for implementation details and data that must be protected by invariants.">private:</LectureCmd></p>
+                        <p className="text-xs font-medium text-foreground"><LectureTip tip="Accessible only by this class's own methods. Not even derived classes can see private members. Use for implementation details and data that must be protected by invariants.">private:</LectureTip></p>
                         <p className="text-xs text-muted-foreground mt-0.5">Only this class. Derived classes cannot see private members. Use for implementation details and invariants.</p>
                     </div>
                     <div className="px-4 py-3">
-                        <p className="text-xs font-medium text-foreground"><LectureCmd tip="Accessible by this class and all derived classes, but not external code. Use sparingly — it creates a coupling contract between base and derived classes.">protected:</LectureCmd></p>
+                        <p className="text-xs font-medium text-foreground"><LectureTip tip="Accessible by this class and all derived classes, but not external code. Use sparingly — it creates a coupling contract between base and derived classes.">protected:</LectureTip></p>
                         <p className="text-xs text-muted-foreground mt-0.5">This class and derived classes. Lets subclasses access or extend internal state without exposing it to the world. Use sparingly — it tightens coupling between base and derived.</p>
                     </div>
                 </div>
@@ -204,7 +200,7 @@ export default function Week3Lecture1() {
             <LectureSectionHeading number="05" title="OOP in C++ — Classes, Constructors & Inheritance" />
 
             <LectureP>
-                A <LectureTerm>class</LectureTerm> bundles data (member variables) and behavior (member functions). Constructors initialize the object; use the <LectureTermWithTip tip="Syntax: ClassName(params) : member1(val1), member2(val2) {}. Runs BEFORE the constructor body. Required for const members and references. More efficient than assigning in the body.">initializer list</LectureTermWithTip> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to set members before the body runs — it is required for <LectureCmd tip="A member marked const cannot be changed after construction. Must be initialized in the initializer list — you cannot assign to a const member in the constructor body.">const</LectureCmd> members and references, and often more efficient.
+                A <LectureTerm>class</LectureTerm> bundles data (member variables) and behavior (member functions). Constructors initialize the object; use the <LectureTermWithTip tip="Syntax: ClassName(params) : member1(val1), member2(val2) {}. Runs BEFORE the constructor body. Required for const members and references. More efficient than assigning in the body.">initializer list</LectureTermWithTip> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to set members before the body runs — it is required for <LectureTip tip="A member marked const cannot be changed after construction. Must be initialized in the initializer list — you cannot assign to a const member in the constructor body.">const</LectureTip> members and references, and often more efficient.
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -249,7 +245,7 @@ export default function Week3Lecture1() {
             </LectureP>
 
             <LectureP>
-                <LectureTerm>Inheritance</LectureTerm> lets a derived class reuse and extend a base class. Use <LectureCmd tip="Declares a method as overridable. When called through a base pointer/reference, the derived class's version runs instead of the base class's. Enables polymorphism via the vtable.">virtual</LectureCmd> so that calls through a base pointer invoke the derived class's override. A virtual destructor in the base is required when you delete through a base pointer — otherwise the derived destructor will not run.
+                <LectureTerm>Inheritance</LectureTerm> lets a derived class reuse and extend a base class. Use <LectureTip tip="Declares a method as overridable. When called through a base pointer/reference, the derived class's version runs instead of the base class's. Enables polymorphism via the vtable.">virtual</LectureTip> so that calls through a base pointer invoke the derived class's override. A virtual destructor in the base is required when you delete through a base pointer — otherwise the derived destructor will not run.
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -353,16 +349,7 @@ export default function Week3Lecture1() {
                 <strong className="text-foreground">Virtual destructor:</strong> Base class with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> methods must have a virtual destructor; otherwise <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> leaks the derived part. <strong className="text-foreground">Slicing:</strong> Passing or assigning by value copies only the base; use reference or pointer. <strong className="text-foreground">Const:</strong> Mark getters and read-only methods <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> so they work on const objects. <strong className="text-foreground">Initializer list:</strong> Use it for all members when possible; required for const and reference members. <strong className="text-foreground">Protected vs private:</strong> Prefer private; use protected only when derived classes genuinely need access.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Data Structures in Practice',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/activity'),
-                }}
-                next={{
-                    label: 'Polymorphism, STL & System Design',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

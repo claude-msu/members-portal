@@ -1,21 +1,17 @@
-import { useNavigate } from 'react-router-dom';
 import { GitBranch } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { ActivityHint } from '@/components/ui/activity-hint';
-import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
+import { ActivityHint } from '@/components/ui/activity-hint';
+import { ActivityChallenge } from '@/components/ui/activity-challenge';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
 export default function Week4Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -181,16 +177,7 @@ export default function Week4Activity() {
                     </div>
                 </ActivityChallenge>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'GitHub, Agile & Project Management',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Containers with Docker',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
-                    }}
-                />
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

@@ -1,19 +1,17 @@
-import { useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { CodeBlock } from '@/components/ui/code-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── Props flow diagram ────────────────────────────────────────────────────────
 const PropsFlowDiagram = () => (
@@ -60,8 +58,6 @@ const UseStateDiagram = () => (
 );
 
 export default function Week7Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -191,7 +187,7 @@ export default function Week7Lecture1() {
             <LectureSectionHeading number="04" title="State with useState" />
 
             <LectureP>
-                <LectureTermWithTip tip="Data owned by the component that can change. When state updates (via useState setter), React re-renders the component and updates the UI.">State</LectureTermWithTip> is data that can change over time and, when it changes, causes the component to re-render. The <LectureCmd tip="useState — the most fundamental React hook. Takes an initial value and returns a pair: the current state value and a setter function. When you call the setter, React re-renders the component with the new value.">useState</LectureCmd> hook is how you add state to a functional component.
+                <LectureTermWithTip tip="Data owned by the component that can change. When state updates (via useState setter), React re-renders the component and updates the UI.">State</LectureTermWithTip> is data that can change over time and, when it changes, causes the component to re-render. The <LectureTip tip="useState — the most fundamental React hook. Takes an initial value and returns a pair: the current state value and a setter function. When you call the setter, React re-renders the component with the new value.">useState</LectureTip> hook is how you add state to a functional component.
             </LectureP>
 
             <UseStateDiagram />
@@ -252,7 +248,7 @@ export default function Week7Lecture1() {
             <LectureSectionHeading number="05" title="Side Effects with useEffect" />
 
             <LectureP>
-                <LectureCmd tip="useEffect — runs code after React renders the component. Used for anything that needs to happen 'outside' of rendering: fetching data, setting up subscriptions, updating the document title, timers. Takes a function and a dependency array.">useEffect</LectureCmd> runs code after a component renders. It's how you handle <LectureTermWithTip tip="Anything that affects the outside world: API calls, timers, subscriptions, DOM updates. Not part of the render; run after render via useEffect.">side effects</LectureTermWithTip> — anything that reaches outside the component: fetching data from an API, setting up a timer, syncing with localStorage.
+                <LectureTip tip="useEffect — runs code after React renders the component. Used for anything that needs to happen 'outside' of rendering: fetching data, setting up subscriptions, updating the document title, timers. Takes a function and a dependency array.">useEffect</LectureTip> runs code after a component renders. It's how you handle <LectureTermWithTip tip="Anything that affects the outside world: API calls, timers, subscriptions, DOM updates. Not part of the render; run after render via useEffect.">side effects</LectureTermWithTip> — anything that reaches outside the component: fetching data from an API, setting up a timer, syncing with localStorage.
             </LectureP>
 
             <CodeBlock
@@ -390,16 +386,7 @@ export default function Week7Lecture1() {
                 A good exercise before the activity: sketch your component tree on paper first. What are the top-level components? What data does each one need? What events does each one emit? Planning the structure before coding saves enormous time.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Build Your Backend',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/activity'),
-                }}
-                next={{
-                    label: 'Tailwind CSS & Connecting to Your API',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-9/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

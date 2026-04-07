@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Trophy } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -15,8 +13,6 @@ import {
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
 export default function Week12Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -167,7 +163,7 @@ DATABASE_URL=postgresql://user:password@host:5432/dbname
             />
 
             <LectureP>
-                After <LectureCmd tip="Copy file. cp .env.example .env then edit .env with real values; never commit .env.">cp .env.example .env</LectureCmd>, open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> in your editor and replace placeholders. For local dev, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">VITE_API_URL</code> is usually <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">http://localhost:8000</code>; for production the build uses the URL you set in Vercel.
+                After <LectureTip tip="Copy file. cp .env.example .env then edit .env with real values; never commit .env.">cp .env.example .env</LectureTip>, open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> in your editor and replace placeholders. For local dev, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">VITE_API_URL</code> is usually <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">http://localhost:8000</code>; for production the build uses the URL you set in Vercel.
             </LectureP>
 
             {/* ── 05 DOCS AND OPEN SOURCE HABITS ───────────────────────────────── */}
@@ -196,16 +192,7 @@ DATABASE_URL=postgresql://user:password@host:5432/dbname
                 Your fundamentals project README is part of your portfolio. Spend time this week making it crisp: someone who clones the repo should be able to run and test the app, and a reader should understand what you built and how.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Ship Your Project',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-11/activity'),
-                }}
-                next={{
-                    label: 'Demo Prep & Retrospective',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-12/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

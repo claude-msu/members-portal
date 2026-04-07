@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { Rocket } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -14,8 +12,6 @@ import {
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
 export default function Week11Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -97,16 +93,7 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
                 Before you call the project "deployed": (1) Frontend and backend both have live URLs; (2) Frontend uses the production API URL via env var; (3) Backend has CORS set for the frontend origin; (4) All secrets (JWT, DB URL, etc.) are in the host's env, not in code; (5) Database is provisioned and migrations have been run; (6) You've tested login and at least one main flow on the live URLs. Document the live URLs and how to set env vars in the README (without exposing secrets).
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Vercel, Railway & What Production Means',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-11/lecture-1'),
-                }}
-                next={{
-                    label: 'Ship Your Project',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-11/activity'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

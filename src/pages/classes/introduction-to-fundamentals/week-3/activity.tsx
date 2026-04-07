@@ -1,20 +1,16 @@
-import { useNavigate } from 'react-router-dom';
 import { Cpu } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { ActivityHint } from '@/components/ui/activity-hint';
-import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
 } from '@/components/ui/lecture-typography';
+import { ActivityHint } from '@/components/ui/activity-hint';
+import { ActivityChallenge } from '@/components/ui/activity-challenge';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
 export default function Week3Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -264,16 +260,7 @@ export default function Week3Activity() {
                     To demonstrate your completed phonebook: run it and walk through the full cycle — add two or three contacts, list them (verify alphabetical order), search by phone, delete one, undo the delete, list again. Paste the terminal session as your submission.
                 </LectureP>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'Polymorphism, STL & System Design',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Version Control with Git',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-1'),
-                    }}
-                />
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

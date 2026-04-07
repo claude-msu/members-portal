@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -14,8 +12,6 @@ import {
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
 export default function Week9Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -180,16 +176,7 @@ const logout = () => {
                 Document your auth flow in the README: how to get a token (login endpoint, body params), how to send it (header name and format), and which routes require it. That helps you and reviewers when debugging.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'JWT, Sessions & Protecting Routes',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-10/lecture-1'),
-                }}
-                next={{
-                    label: 'Auth on Your Project',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-10/activity'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

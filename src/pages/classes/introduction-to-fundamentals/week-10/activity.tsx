@@ -1,17 +1,15 @@
-import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
+import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureSectionHeading,
+} from '@/components/ui/lecture-typography';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
-import { LectureSectionHeading } from '@/components/ui/lecture-typography';
 
 export default function Week9Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -97,16 +95,7 @@ export default function Week9Activity() {
                     Bring your project to Coworking and walk through login → protected API call → protected page. A classmate or instructor can sanity-check your flow and security (no secrets in frontend, hashed passwords, env for JWT secret).
                 </LectureCallout>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'Identity & User Context',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-10/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Vercel, Railway & What Production Means',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-11/lecture-1'),
-                    }}
-                />
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

@@ -1,20 +1,16 @@
-import { useNavigate } from 'react-router-dom';
 import { Globe } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
+import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureSectionHeading,
+} from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
-import {
-    LectureSectionHeading,
-} from '@/components/ui/lecture-typography';
 
 export default function Week7Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -165,16 +161,7 @@ export default function Week7Activity() {
                 </div>
             </ActivityChallenge>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Tailwind CSS & Connecting to Your API',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-9/lecture-2'),
-                }}
-                next={{
-                    label: 'Scrum, Kanban & Sprint Cycles',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-10/lecture-1'),
-                }}
-            />
+            
             </LectureLayout>
         </ActivityTaskListProvider>
     );

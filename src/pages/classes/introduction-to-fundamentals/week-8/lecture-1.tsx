@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { TestTube } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -15,8 +13,6 @@ import { TerminalBlock } from '@/components/ui/terminal-block';
 import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week10Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -166,16 +162,7 @@ export default function Week10Lecture1() {
                 Prioritize: (1) one happy-path test for your main API endpoint (e.g. GET list, POST create); (2) one auth test (login returns token; protected route without token returns 401); (3) one frontend test (e.g. login form submits and stores token, or list page shows items). Add edge-case tests (empty list, 404, invalid input) as you go. Document how to run tests in your README (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm test</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pytest</code>).
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Auth on Your Project',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/activity'),
-                }}
-                next={{
-                    label: 'GitHub Actions & Coverage',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-2'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

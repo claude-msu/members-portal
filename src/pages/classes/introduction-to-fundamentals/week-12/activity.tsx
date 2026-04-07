@@ -1,16 +1,14 @@
-import { useNavigate } from 'react-router-dom';
 import { Trophy } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
+import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureSectionHeading,
+} from '@/components/ui/lecture-typography';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
-import { LectureSectionHeading } from '@/components/ui/lecture-typography';
 
 export default function Week12Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -55,16 +53,7 @@ export default function Week12Activity() {
                     Keep your repo and live app public (or shareable). This project is portfolio-ready: a recruiter or future you can open the README, run the app, and see a full-stack, tested, deployed product. You did that.
                 </LectureCallout>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'Demo Prep & Retrospective',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-12/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Back to Introduction to Fundamentals',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals'),
-                    }}
-                />
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

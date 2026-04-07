@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Shield } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -15,8 +13,6 @@ import {
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
 export default function Week9Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -46,7 +42,7 @@ export default function Week9Lecture1() {
                 A JWT has three parts separated by dots: <strong className="text-foreground">header.payload.signature</strong>. The <LectureTerm>payload</LectureTerm> is a JSON object (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"{ \"sub\": \"user-id-123\", \"exp\": 1734567890 }"}</code>) that can hold user id, email, roles, and an expiration time. The server signs it with a secret; later, it can verify that the token wasn't tampered with and that it hasn't expired.
             </LectureP>
             <LectureP>
-                Flow: user logs in with email/password → backend checks credentials → if valid, backend creates a JWT with user id (and optionally roles) and an <LectureCmd tip="Expiration time — Unix timestamp. Tokens should have a short lifetime (e.g. 15 min–1 hour) to limit damage if one is stolen.">exp</LectureCmd> claim → backend returns the token; frontend stores it and sends <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization: Bearer &lt;token&gt;</code> on every API call → backend middleware validates the token and attaches the user to the request.
+                Flow: user logs in with email/password → backend checks credentials → if valid, backend creates a JWT with user id (and optionally roles) and an <LectureTip tip="Expiration time — Unix timestamp. Tokens should have a short lifetime (e.g. 15 min–1 hour) to limit damage if one is stolen.">exp</LectureTip> claim → backend returns the token; frontend stores it and sends <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization: Bearer &lt;token&gt;</code> on every API call → backend middleware validates the token and attaches the user to the request.
             </LectureP>
 
             <LectureSubHeading title="Never put secrets in the payload" />
@@ -98,7 +94,7 @@ def login(form: OAuth2PasswordRequestForm = Depends()):
                 </pre>
             </div>
             <LectureP>
-                Use a library like <LectureCmd tip="Python: python-jose or PyJWT. Never roll your own crypto.">python-jose</LectureCmd> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PyJWT</code> to create and verify tokens. Store your <LectureTerm>JWT secret</LectureTerm> in an environment variable — never in code. Hash passwords with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bcrypt</code> or your framework's built-in hasher; never store plain-text passwords.
+                Use a library like <LectureTip tip="Python: python-jose or PyJWT. Never roll your own crypto.">python-jose</LectureTip> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PyJWT</code> to create and verify tokens. Store your <LectureTerm>JWT secret</LectureTerm> in an environment variable — never in code. Hash passwords with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bcrypt</code> or your framework's built-in hasher; never store plain-text passwords.
             </LectureP>
 
             <LectureSectionHeading number="04" title="Protecting API Routes" />
@@ -204,16 +200,7 @@ export function ProtectedRoute() {
                 Protecting the frontend route only hides the UI — it does not secure the API. Always enforce auth (and authorization) on the backend. Otherwise anyone can call your API directly and bypass the frontend.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Sprint 1 Review & Backlog for Sprint 2',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-9/activity'),
-                }}
-                next={{
-                    label: 'Identity & User Context',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-10/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

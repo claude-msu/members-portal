@@ -1,19 +1,17 @@
-import { useNavigate } from 'react-router-dom';
 import { Package } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
-import { CodeBlock } from '@/components/ui/code-block';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── VM vs Container diagram ───────────────────────────────────────────────────
 const VmVsContainerDiagram = () => (
@@ -56,8 +54,6 @@ const VmVsContainerDiagram = () => (
 );
 
 export default function Week5Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -133,7 +129,7 @@ export default function Week5Lecture2() {
             />
 
             <LectureP>
-                The <LectureCmd tip="-t flag for docker build: tag. Assigns a name and optional version tag to the built image. Format is name:tag. Without a tag, Docker defaults to 'latest'.">-t</LectureCmd> flag in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> assigns a name and tag to the image. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code> at the end tells Docker where to find the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> — the current directory. The tag format is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">name:version</code>. If you omit the version, Docker uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">latest</code>.
+                The <LectureTip tip="-t flag for docker build: tag. Assigns a name and optional version tag to the built image. Format is name:tag. Without a tag, Docker defaults to 'latest'.">-t</LectureTip> flag in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> assigns a name and tag to the image. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code> at the end tells Docker where to find the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> — the current directory. The tag format is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">name:version</code>. If you omit the version, Docker uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">latest</code>.
             </LectureP>
 
             <LectureSubHeading title="Running containers" />
@@ -149,10 +145,10 @@ export default function Week5Lecture2() {
             />
 
             <LectureP>
-                The <LectureCmd tip="-p flag for docker run: publish ports. Format is host_port:container_port. Without this, the container's ports are completely isolated and unreachable from your machine — even if your app listens on port 3000 inside the container.">-p</LectureCmd> flag is critical to understand. Containers are isolated by default — their ports are invisible to the outside world. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-p 3000:3000</code> punches a hole: requests to your machine's port 3000 get forwarded to the container's port 3000. Without this, your app runs but you can't reach it.
+                The <LectureTip tip="-p flag for docker run: publish ports. Format is host_port:container_port. Without this, the container's ports are completely isolated and unreachable from your machine — even if your app listens on port 3000 inside the container.">-p</LectureTip> flag is critical to understand. Containers are isolated by default — their ports are invisible to the outside world. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-p 3000:3000</code> punches a hole: requests to your machine's port 3000 get forwarded to the container's port 3000. Without this, your app runs but you can't reach it.
             </LectureP>
             <LectureP>
-                The <LectureCmd tip="-d flag for docker run: detached mode. Runs the container in the background and returns your terminal. Without -d, the container runs in the foreground and you can't use your terminal until it stops.">-d</LectureCmd> flag runs the container in the background so your terminal isn't held hostage. The <LectureCmd tip="-v flag for docker run: volume mount. Maps a directory from your host machine into the container. Changes to files in that directory are immediately visible inside the container — essential for development workflows.">-v</LectureCmd> flag mounts a local directory into the container, which is essential for development — it means the container sees your local code changes in real time.
+                The <LectureTip tip="-d flag for docker run: detached mode. Runs the container in the background and returns your terminal. Without -d, the container runs in the foreground and you can't use your terminal until it stops.">-d</LectureTip> flag runs the container in the background so your terminal isn't held hostage. The <LectureTip tip="-v flag for docker run: volume mount. Maps a directory from your host machine into the container. Changes to files in that directory are immediately visible inside the container — essential for development workflows.">-v</LectureTip> flag mounts a local directory into the container, which is essential for development — it means the container sees your local code changes in real time.
             </LectureP>
 
             <LectureSubHeading title="Managing running containers" />
@@ -170,7 +166,7 @@ export default function Week5Lecture2() {
             />
 
             <LectureP>
-                <LectureCmd tip="docker exec -it: execute a command inside a running container. -i keeps stdin open, -t allocates a pseudo-TTY (terminal). Together they give you an interactive shell. Use /bin/bash if bash is available, /bin/sh otherwise.">docker exec -it</LectureCmd> is your debugging lifeline. When a container is misbehaving, you open a shell inside it and poke around exactly as you would on a regular Linux machine — check files, run commands, inspect environment variables.
+                <LectureTip tip="docker exec -it: execute a command inside a running container. -i keeps stdin open, -t allocates a pseudo-TTY (terminal). Together they give you an interactive shell. Use /bin/bash if bash is available, /bin/sh otherwise.">docker exec -it</LectureTip> is your debugging lifeline. When a container is misbehaving, you open a shell inside it and poke around exactly as you would on a regular Linux machine — check files, run commands, inspect environment variables.
             </LectureP>
 
             {/* ── 05 THE DOCKERFILE ───────────────────────────────────────────── */}
@@ -349,16 +345,7 @@ export default function Week5Lecture2() {
                 The complete flow to remember: write <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker run</code>. Every time you change your app, rebuild the image and rerun the container. In production, this process is automated by a CI/CD pipeline.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Package Managers & Environments',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/lecture-1'),
-                }}
-                next={{
-                    label: 'Containerize Your Backend Stub',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

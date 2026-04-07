@@ -1,13 +1,11 @@
-import { useNavigate } from 'react-router-dom';
 import { Terminal } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 import { CodeBlock } from '@/components/ui/code-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -16,8 +14,6 @@ import {
 } from '@/components/ui/lecture-typography';
 
 export default function Week1Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -73,7 +69,7 @@ export default function Week1Lecture2() {
             />
 
             <LectureCallout type="tip">
-                <LectureCmd tip="Make a file executable. Required before you can run ./script.sh.">chmod +x</LectureCmd> is required before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./backup.sh</code> works. Without execute permission, the shell will refuse to run the file. You only need to run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod +x</code> once per script.
+                <LectureTip tip="Make a file executable. Required before you can run ./script.sh.">chmod +x</LectureTip> is required before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./backup.sh</code> works. Without execute permission, the shell will refuse to run the file. You only need to run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod +x</code> once per script.
             </LectureCallout>
 
             {/* ── 03 VARIABLES AND QUOTING ─────────────────────────────────────── */}
@@ -148,7 +144,7 @@ export default function Week1Lecture2() {
             />
 
             <LectureP>
-                <LectureCmd tip="Quiet mode — no output, only exit code. Perfect for scripts.">grep -q</LectureCmd> succeeds (exit 0) if it finds a match and fails otherwise. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">exit 1</code> tells the rest of the system "this script failed."
+                <LectureTip tip="Quiet mode — no output, only exit code. Perfect for scripts.">grep -q</LectureTip> succeeds (exit 0) if it finds a match and fails otherwise. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">exit 1</code> tells the rest of the system "this script failed."
             </LectureP>
 
             <LectureCallout type="tip">
@@ -258,7 +254,7 @@ export default function Week1Lecture2() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureCmd tip="Find files and run a command on each. -type f = files only; -name '*.sh' = match pattern.">{'find . -name "*.sh" -exec chmod +x {} \\;'}</LectureCmd> is a robust way to make all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.sh</code> files in a tree executable without breaking on spaces in names.
+                <LectureTip tip="Find files and run a command on each. -type f = files only; -name '*.sh' = match pattern.">{'find . -name "*.sh" -exec chmod +x {} \\;'}</LectureTip> is a robust way to make all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.sh</code> files in a tree executable without breaking on spaces in names.
             </LectureCallout>
 
             <LectureSubHeading title="while loops" />
@@ -390,7 +386,7 @@ export default function Week1Lecture2() {
 
             <LectureSubHeading title="chown and chgrp" />
             <LectureP>
-                <LectureCmd tip="Change file owner. Often requires sudo.">chown</LectureCmd> and <LectureCmd tip="Change file group. Useful when multiple users need access.">chgrp</LectureCmd> change who owns a file or which group it belongs to. On a server, you might run a web app as a dedicated user and use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chown www-data:www-data</code> so the web server can read the files but others cannot.
+                <LectureTip tip="Change file owner. Often requires sudo.">chown</LectureTip> and <LectureTip tip="Change file group. Useful when multiple users need access.">chgrp</LectureTip> change who owns a file or which group it belongs to. On a server, you might run a web app as a dedicated user and use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chown www-data:www-data</code> so the web server can read the files but others cannot.
             </LectureP>
 
             <LectureCallout type="info">
@@ -477,19 +473,10 @@ export default function Week1Lecture2() {
             </LectureP>
 
             <LectureCallout type="warning">
-                Avoid <LectureCmd tip="Recursive force delete. No undo. In a script, a wrong variable or path can wipe the wrong directory." warn>rm -rf</LectureCmd> in scripts unless the path is fixed and you're certain. Prefer moving to a trash directory or using a flag that requires confirmation. One typo in a variable used with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">rm -rf $VAR</code> has destroyed production systems.
+                Avoid <LectureTip tip="Recursive force delete. No undo. In a script, a wrong variable or path can wipe the wrong directory." warn>rm -rf</LectureTip> in scripts unless the path is fixed and you're certain. Prefer moving to a trash directory or using a flag that requires confirmation. One typo in a variable used with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">rm -rf $VAR</code> has destroyed production systems.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Linux & The Command Line',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-1'),
-                }}
-                next={{
-                    label: 'The Linux Gauntlet',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/activity'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

@@ -1,11 +1,9 @@
-import { useNavigate } from 'react-router-dom';
 import { Binary } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -69,8 +67,6 @@ const BfsDfsDiagram = () => (
 );
 
 export default function Week2Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -204,7 +200,7 @@ export default function Week2Lecture1() {
             />
 
             <LectureCallout type="warning">
-                Do not use <LectureCmd tip="Removes the first element of a list. O(n) because every remaining element must shift left by one index. Never use as a queue — use deque.popleft() instead." warn>list.pop(0)</LectureCmd> as a queue — it is O(n) because every remaining element must shift left by one index. Python's <LectureCmd tip="Double-ended queue from collections. O(1) append and popleft. Backed by a doubly-linked list. The correct way to implement queues in Python.">collections.deque</LectureCmd> gives O(1) <LectureCmd tip="Remove and return the leftmost element in O(1). The correct dequeue operation. list.pop(0) does the same thing but in O(n).">popleft()</LectureCmd> using a doubly-linked list internally. Always use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deque</code> for queues.
+                Do not use <LectureTip tip="Removes the first element of a list. O(n) because every remaining element must shift left by one index. Never use as a queue — use deque.popleft() instead." warn>list.pop(0)</LectureTip> as a queue — it is O(n) because every remaining element must shift left by one index. Python's <LectureTip tip="Double-ended queue from collections. O(1) append and popleft. Backed by a doubly-linked list. The correct way to implement queues in Python.">collections.deque</LectureTip> gives O(1) <LectureTip tip="Remove and return the leftmost element in O(1). The correct dequeue operation. list.pop(0) does the same thing but in O(n).">popleft()</LectureTip> using a doubly-linked list internally. Always use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deque</code> for queues.
             </LectureCallout>
 
             <LectureP>
@@ -491,16 +487,7 @@ export default function Week2Lecture1() {
                 Trees are a special case of a more general structure called a <LectureTermWithTip tip="Nodes connected by edges. Unlike trees, cycles are allowed and any node can connect to any other. Social networks, road maps, and dependency systems are graphs.">graph</LectureTermWithTip>. In a graph, nodes can connect to any other nodes — not just parents and children — and cycles are allowed. Social networks, road maps, and dependency systems are all graphs. The same BFS and DFS strategies you learned above apply to graphs, with one addition: a "visited" set to prevent infinite loops on cycles. You will encounter graph algorithms in dedicated algorithms coursework and in later weeks of this course.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'The Linux Gauntlet',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/activity'),
-                }}
-                next={{
-                    label: 'Hash Maps, Complexity & Interview Patterns',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

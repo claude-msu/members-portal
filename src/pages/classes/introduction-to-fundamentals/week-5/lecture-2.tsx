@@ -1,10 +1,8 @@
-import { useNavigate } from 'react-router-dom';
 import { Workflow } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -21,8 +19,6 @@ const SPRINT_THEMES = [
 ];
 
 export default function Week5Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -83,16 +79,7 @@ export default function Week5Lecture2() {
                 You can create a Milestone per week (e.g. "Week 6 — Containers") and assign issues to it. The milestone progress bar becomes a quick view of how much of that week's work is done.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Scrum, Kanban & Sprint Cycles',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/lecture-1'),
-                }}
-                next={{
-                    label: 'Set Up Your Entire Sprint Roadmap',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-5/activity'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

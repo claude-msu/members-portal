@@ -1,18 +1,16 @@
-import { useNavigate } from 'react-router-dom';
 import { GitBranch, ChevronRight } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 
 // ── Three-areas diagram (unique to this lecture) ──────────────────────────────
 const ThreeAreasDiagram = () => (
@@ -139,8 +137,6 @@ const QuickReference = () => (
 );
 
 export default function Week4Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
@@ -205,7 +201,7 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                The <LectureCmd tip="--global flag: applies this setting to all Git repositories on your machine, not just the current one. Stored in ~/.gitconfig. Without --global, the setting only applies to the current repo.">--global</LectureCmd> flag stores these in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">~/.gitconfig</code> so they apply to every project. You only need to do this once per machine.
+                The <LectureTip tip="--global flag: applies this setting to all Git repositories on your machine, not just the current one. Stored in ~/.gitconfig. Without --global, the setting only applies to the current repo.">--global</LectureTip> flag stores these in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">~/.gitconfig</code> so they apply to every project. You only need to do this once per machine.
             </LectureP>
 
             {/* ── 04 YOUR FIRST REPOSITORY ────────────────────────────────────── */}
@@ -222,12 +218,12 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="git init — initializes a new Git repository in the current directory. Creates a hidden .git folder that stores all version history, configuration, and internal data. Only run this once per project.">git init</LectureCmd> creates a hidden <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code> folder. That folder is the entire repository — it contains every commit, every branch, every piece of history. If you delete it, you lose all version history. Don't touch it directly.
+                <LectureTip tip="git init — initializes a new Git repository in the current directory. Creates a hidden .git folder that stores all version history, configuration, and internal data. Only run this once per project.">git init</LectureTip> creates a hidden <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code> folder. That folder is the entire repository — it contains every commit, every branch, every piece of history. If you delete it, you lose all version history. Don't touch it directly.
             </LectureP>
 
             <LectureSubHeading title="Checking status" />
             <LectureP>
-                <LectureCmd tip="git status — shows the current state of your working directory and staging area. Tells you which files are untracked, staged, or modified. Run this constantly — it's your orientation tool.">git status</LectureCmd> is the command you'll run more than any other. It tells you exactly what's going on right now — what's changed, what's staged, what's not tracked. Get in the habit of running it before and after everything.
+                <LectureTip tip="git status — shows the current state of your working directory and staging area. Tells you which files are untracked, staged, or modified. Run this constantly — it's your orientation tool.">git status</LectureTip> is the command you'll run more than any other. It tells you exactly what's going on right now — what's changed, what's staged, what's not tracked. Get in the habit of running it before and after everything.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -239,7 +235,7 @@ export default function Week4Lecture1() {
 
             <LectureSubHeading title="Staging and committing" />
             <LectureP>
-                Now let's move that file through the three areas. First we stage it with <LectureCmd tip="git add — moves changes from the working directory to the staging area. Does not save anything permanently — that happens when you commit.">git add</LectureCmd>, then commit it permanently with <LectureCmd tip="git commit — takes everything in the staging area and saves it as a permanent snapshot. Each commit has a unique SHA hash, your name, email, timestamp, and message.">git commit</LectureCmd>.
+                Now let's move that file through the three areas. First we stage it with <LectureTip tip="git add — moves changes from the working directory to the staging area. Does not save anything permanently — that happens when you commit.">git add</LectureTip>, then commit it permanently with <LectureTip tip="git commit — takes everything in the staging area and saves it as a permanent snapshot. Each commit has a unique SHA hash, your name, email, timestamp, and message.">git commit</LectureTip>.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -250,17 +246,17 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureCallout type="tip">
-                <LectureCmd tip="git add . — stages ALL changes in the current directory and all subdirectories. Convenient, but run git status first so you know exactly what you're staging.">git add .</LectureCmd> stages everything at once. The dot means "current directory and everything inside it." Always run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git status</code> first so you know what you're about to stage.
+                <LectureTip tip="git add . — stages ALL changes in the current directory and all subdirectories. Convenient, but run git status first so you know exactly what you're staging.">git add .</LectureTip> stages everything at once. The dot means "current directory and everything inside it." Always run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git status</code> first so you know what you're about to stage.
             </LectureCallout>
             <LectureP>
-                The <LectureCmd tip="-m flag for git commit: message. Lets you write the commit message inline. Without -m, Git opens a text editor (usually vim) for you to write a longer message.">-m</LectureCmd> flag lets you write your commit message inline. A good commit message describes what changed and why — not how. "Fix login bug" is good. "Changed line 47" is useless. Your future self and teammates will read these when something breaks.
+                The <LectureTip tip="-m flag for git commit: message. Lets you write the commit message inline. Without -m, Git opens a text editor (usually vim) for you to write a longer message.">-m</LectureTip> flag lets you write your commit message inline. A good commit message describes what changed and why — not how. "Fix login bug" is good. "Changed line 47" is useless. Your future self and teammates will read these when something breaks.
             </LectureP>
 
             {/* ── 05 VIEWING HISTORY ──────────────────────────────────────────── */}
             <LectureSectionHeading number="05" title="Viewing History" />
 
             <LectureP>
-                Every commit is stored permanently. <LectureCmd tip="git log — shows the commit history for the current branch in reverse chronological order. Each entry shows the commit hash, author, date, and message.">git log</LectureCmd> lets you scroll through that history.
+                Every commit is stored permanently. <LectureTip tip="git log — shows the commit history for the current branch in reverse chronological order. Each entry shows the commit hash, author, date, and message.">git log</LectureTip> lets you scroll through that history.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -270,10 +266,10 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                Each entry shows a <LectureTermWithTip tip="A unique SHA-1 checksum (40 hex characters) that identifies that exact commit. Git uses it to reference commits; --oneline shortens it to 7 characters.">commit hash</LectureTermWithTip> — a 40-character string like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">a3f92c1...</code>. This is a unique identifier for that exact snapshot. You'll use these hashes to reference specific commits when going back in time or comparing changes. The <LectureCmd tip="--oneline flag for git log: shows each commit as a single line with a shortened hash and message. Far more readable for most purposes.">--oneline</LectureCmd> flag shortens them to 7 characters, which is usually enough.
+                Each entry shows a <LectureTermWithTip tip="A unique SHA-1 checksum (40 hex characters) that identifies that exact commit. Git uses it to reference commits; --oneline shortens it to 7 characters.">commit hash</LectureTermWithTip> — a 40-character string like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">a3f92c1...</code>. This is a unique identifier for that exact snapshot. You'll use these hashes to reference specific commits when going back in time or comparing changes. The <LectureTip tip="--oneline flag for git log: shows each commit as a single line with a shortened hash and message. Far more readable for most purposes.">--oneline</LectureTip> flag shortens them to 7 characters, which is usually enough.
             </LectureP>
             <LectureCallout type="info">
-                <LectureCmd tip="git log --oneline --graph --all: shows all branches as an ASCII graph. --all includes branches you haven't checked out. Best command for understanding what's happening across multiple branches.">--graph --all</LectureCmd> is extremely useful once you start branching. It draws the commit history as a tree in your terminal so you can see exactly where branches diverged and merged.
+                <LectureTip tip="git log --oneline --graph --all: shows all branches as an ASCII graph. --all includes branches you haven't checked out. Best command for understanding what's happening across multiple branches.">--graph --all</LectureTip> is extremely useful once you start branching. It draws the commit history as a tree in your terminal so you can see exactly where branches diverged and merged.
             </LectureCallout>
 
             {/* ── 06 BRANCHING ────────────────────────────────────────────────── */}
@@ -294,7 +290,7 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="git branch: lists all local branches. With a name argument, creates a new branch. Does not switch to it.">git branch</LectureCmd> creates and lists branches. <LectureCmd tip="git checkout: switches to a different branch or commit. Moving between branches changes the files in your working directory to match that branch's state.">git checkout</LectureCmd> switches between them. The <LectureCmd tip="-b flag for git checkout: create and switch in one step. Equivalent to running git branch then git checkout, but faster. This is what you'll use in practice.">-b</LectureCmd> flag creates and switches in one step — which is what you'll use almost every time.
+                <LectureTip tip="git branch: lists all local branches. With a name argument, creates a new branch. Does not switch to it.">git branch</LectureTip> creates and lists branches. <LectureTip tip="git checkout: switches to a different branch or commit. Moving between branches changes the files in your working directory to match that branch's state.">git checkout</LectureTip> switches between them. The <LectureTip tip="-b flag for git checkout: create and switch in one step. Equivalent to running git branch then git checkout, but faster. This is what you'll use in practice.">-b</LectureTip> flag creates and switches in one step — which is what you'll use almost every time.
             </LectureP>
             <LectureCallout type="tip">
                 Branch naming conventions matter on real teams. Common patterns: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature/thing-you-are-building</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fix/bug-you-are-fixing</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chore/maintenance-task</code>. Consistent names make pull requests and history much easier to read.
@@ -332,7 +328,7 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="git merge: integrates the history of one branch into the current branch. If the branches haven't diverged, Git does a 'fast-forward' and simply moves the pointer. If they've diverged, Git creates a new merge commit.">git merge</LectureCmd> brings the feature branch's commits into main. <LectureCmd tip="git branch -d: deletes a branch safely — it refuses to delete a branch that hasn't been fully merged. Use -D (capital) to force-delete.">git branch -d</LectureCmd> cleans up the now-redundant branch.
+                <LectureTip tip="git merge: integrates the history of one branch into the current branch. If the branches haven't diverged, Git does a 'fast-forward' and simply moves the pointer. If they've diverged, Git creates a new merge commit.">git merge</LectureTip> brings the feature branch's commits into main. <LectureTip tip="git branch -d: deletes a branch safely — it refuses to delete a branch that hasn't been fully merged. Use -D (capital) to force-delete.">git branch -d</LectureTip> cleans up the now-redundant branch.
             </LectureP>
 
             <LectureSubHeading title="Merge conflicts" />
@@ -375,11 +371,11 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="git remote add: registers a remote repository with a name. 'origin' is the conventional name for your primary remote — just a nickname for the URL. You can have multiple remotes with different names.">git remote add origin</LectureCmd> gives your remote a nickname. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">origin</code> is the conventional name — every project uses it. <LectureCmd tip="git push: uploads your local commits to the remote. -u sets the upstream tracking reference so future pushes only need 'git push' with no arguments.">git push</LectureCmd> uploads your commits. The <LectureCmd tip="-u flag for git push: sets the upstream tracking branch. After doing this once, you can just type 'git push' and Git knows where to send it.">-u</LectureCmd> flag sets a default so future pushes only need <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push</code>.
+                <LectureTip tip="git remote add: registers a remote repository with a name. 'origin' is the conventional name for your primary remote — just a nickname for the URL. You can have multiple remotes with different names.">git remote add origin</LectureTip> gives your remote a nickname. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">origin</code> is the conventional name — every project uses it. <LectureTip tip="git push: uploads your local commits to the remote. -u sets the upstream tracking reference so future pushes only need 'git push' with no arguments.">git push</LectureTip> uploads your commits. The <LectureTip tip="-u flag for git push: sets the upstream tracking branch. After doing this once, you can just type 'git push' and Git knows where to send it.">-u</LectureTip> flag sets a default so future pushes only need <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push</code>.
             </LectureP>
 
             <LectureCallout type="warning">
-                Never <LectureCmd tip="git push --force: overwrites the remote branch with your local version. Destroys other people's commits if they've pushed in the meantime. Only use on branches you own and never on shared main." warn>git push --force</LectureCmd> on a shared branch like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. It rewrites remote history and can erase teammates' work. Use force push only on personal feature branches, and only when you're sure no one else has pushed to them.
+                Never <LectureTip tip="git push --force: overwrites the remote branch with your local version. Destroys other people's commits if they've pushed in the meantime. Only use on branches you own and never on shared main." warn>git push --force</LectureTip> on a shared branch like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. It rewrites remote history and can erase teammates' work. Use force push only on personal feature branches, and only when you're sure no one else has pushed to them.
             </LectureCallout>
 
             <LectureSubHeading title="The daily workflow" />
@@ -415,7 +411,7 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureCallout type="warning">
-                <LectureCmd tip="git restore (without --staged): discards uncommitted changes to a file and restores it to the last committed version. This cannot be undone — the changes are permanently gone." warn>git restore</LectureCmd> without <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">--staged</code> permanently discards your uncommitted changes. There is no undo. Use it carefully.
+                <LectureTip tip="git restore (without --staged): discards uncommitted changes to a file and restores it to the last committed version. This cannot be undone — the changes are permanently gone." warn>git restore</LectureTip> without <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">--staged</code> permanently discards your uncommitted changes. There is no undo. Use it carefully.
             </LectureCallout>
 
             <LectureSubHeading title="Viewing and reverting commits" />
@@ -427,12 +423,12 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureP>
-                <LectureCmd tip="git revert: creates a new commit that is the exact inverse of a previous commit. The original commit stays in history — nothing is rewritten. This is the safe way to undo changes on a shared branch because it doesn't alter history.">git revert</LectureCmd> is the safe way to undo a commit on a shared branch. It creates a new commit that undoes the changes — the original stays in history unchanged. <LectureCmd tip="git reflog: logs every single thing HEAD has pointed to, including checkouts, merges, resets, and commits. Even if you accidentally delete commits with a reset, the reflog lets you find the hashes and recover them.">git reflog</LectureCmd> is your emergency recovery tool — even if you accidentally lose commits with a reset, it almost always lets you get them back.
+                <LectureTip tip="git revert: creates a new commit that is the exact inverse of a previous commit. The original commit stays in history — nothing is rewritten. This is the safe way to undo changes on a shared branch because it doesn't alter history.">git revert</LectureTip> is the safe way to undo a commit on a shared branch. It creates a new commit that undoes the changes — the original stays in history unchanged. <LectureTip tip="git reflog: logs every single thing HEAD has pointed to, including checkouts, merges, resets, and commits. Even if you accidentally delete commits with a reset, the reflog lets you find the hashes and recover them.">git reflog</LectureTip> is your emergency recovery tool — even if you accidentally lose commits with a reset, it almost always lets you get them back.
             </LectureP>
 
             <LectureSubHeading title="Cleaning up history with rebase" />
             <LectureP>
-                <LectureCmd tip="git rebase: rewrites commit history by replaying commits on top of a different base. Creates a linear history with no merge commits. Two main uses: updating a branch with the latest main, and squashing multiple commits into one clean commit.">git rebase</LectureCmd> rewrites commit history. The two most common uses are keeping a feature branch up to date with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and squashing several messy commits into one clean one before merging.
+                <LectureTip tip="git rebase: rewrites commit history by replaying commits on top of a different base. Creates a linear history with no merge commits. Two main uses: updating a branch with the latest main, and squashing multiple commits into one clean commit.">git rebase</LectureTip> rewrites commit history. The two most common uses are keeping a feature branch up to date with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and squashing several messy commits into one clean one before merging.
             </LectureP>
             <TerminalBlock
                 lines={[
@@ -441,7 +437,7 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureCallout type="warning">
-                <LectureCmd tip="git rebase rewrites history — it creates new commits with different hashes. Never rebase a branch that other people are working on. Rewriting shared history forces everyone to reconcile their work against a new timeline." warn>git rebase</LectureCmd> rewrites history — it creates brand new commits with different hashes. Never rebase a branch that's been pushed and shared with other people. Only rebase local branches or branches you know nobody else is using.
+                <LectureTip tip="git rebase rewrites history — it creates new commits with different hashes. Never rebase a branch that other people are working on. Rewriting shared history forces everyone to reconcile their work against a new timeline." warn>git rebase</LectureTip> rewrites history — it creates brand new commits with different hashes. Never rebase a branch that's been pushed and shared with other people. Only rebase local branches or branches you know nobody else is using.
             </LectureCallout>
 
             {/* ── 10 THE .GITIGNORE ───────────────────────────────────────────── */}
@@ -491,17 +487,6 @@ export default function Week4Lecture1() {
             </LectureP>
 
             <QuickReference />
-
-            <LectureFooterNav
-                prev={{
-                    label: 'CLI Phonebook',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/activity'),
-                }}
-                next={{
-                    label: 'GitHub, Agile & Project Management',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-4/lecture-2'),
-                }}
-            />
         </LectureLayout>
     );
 }
