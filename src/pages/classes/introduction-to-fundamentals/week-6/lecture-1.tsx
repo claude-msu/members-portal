@@ -7,14 +7,16 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
-export default function Week5Lecture1() {
+export default function Week6Lecture1() {
     return (
         <LectureLayout>
             <LectureHeader
-                week={5}
+                week={6}
                 session="Lecture 1"
                 title="Package Managers & Environments"
                 description="Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again."
@@ -126,21 +128,20 @@ export default function Week5Lecture1() {
                 The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">scripts</code> field in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> lets you define shortcut commands for your project. These are how you start dev servers, run tests, build for production, and lint your code — all through a consistent interface regardless of what tools are underneath.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    package.json — scripts section
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 select-none">
-                    <p className="text-zinc-400">{'{'}</p>
-                    <p className="text-zinc-400 pl-4">{'"scripts": {'}</p>
-                    <p className="text-zinc-500 pl-8">{'"dev": '}<span className="text-emerald-400">"vite"</span><span className="text-zinc-400">,</span></p>
-                    <p className="text-zinc-500 pl-8">{'"build": '}<span className="text-emerald-400">"tsc && vite build"</span><span className="text-zinc-400">,</span></p>
-                    <p className="text-zinc-500 pl-8">{'"lint": '}<span className="text-emerald-400">"eslint src --ext ts,tsx"</span><span className="text-zinc-400">,</span></p>
-                    <p className="text-zinc-500 pl-8">{'"test": '}<span className="text-emerald-400">"vitest"</span></p>
-                    <p className="text-zinc-400 pl-4">{'}'}</p>
-                    <p className="text-zinc-400">{'}'}</p>
-                </div>
-            </div>
+            <CodeBlock
+                language="json"
+                title="package.json — scripts section"
+                lines={[
+                    '{',
+                    '  "scripts": {',
+                    '    "dev": "vite",',
+                    '    "build": "tsc && vite build",',
+                    '    "lint": "eslint src --ext ts,tsx",',
+                    '    "test": "vitest"',
+                    '  }',
+                    '}',
+                ]}
+            />
 
             <LectureP>
                 In a project that defines <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dev</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">build</code>, or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test</code> in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> (e.g. from Vite or Create React App), you run:
@@ -159,6 +160,23 @@ export default function Week5Lecture1() {
                 <LectureTip code tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureTip> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
             </LectureCallout>
 
+            <LectureSubHeading title="npx — run without installing" />
+            <LectureP>
+                Sometimes you need to run a package exactly once — like scaffolding a new project. <LectureTip code tip="npx: runs an npm package binary without permanently installing it. Downloads to a temp cache, executes it, and discards it. Avoids polluting your global installs.">npx</LectureTip> runs a package without globally installing it. It downloads the package to a temporary cache, executes the command, and moves on. This is how most project generators work:
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'scaffold a new React project with Vite', cmd: 'npx create-vite@latest my-app -- --template react-ts' },
+                    { comment: 'scaffold a new Next.js project', cmd: 'npx create-next-app@latest my-site' },
+                    { comment: 'run a one-off tool without installing', cmd: 'npx prettier --write .' },
+                ]}
+            />
+
+            <LectureP>
+                You'll see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npx</code> in the "Getting Started" section of almost every framework's docs. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">@latest</code> suffix ensures you always run the newest version of the scaffolding tool.
+            </LectureP>
+
             {/* ── 04 PIP ──────────────────────────────────────────────────────── */}
             <LectureSectionHeading number="04" title="pip — Python's Package Manager" />
 
@@ -168,7 +186,7 @@ export default function Week5Lecture1() {
 
             <LectureSubHeading title="Virtual environments" />
             <LectureP>
-                Without a virtual environment, pip installs packages globally — meaning every Python project on your machine shares the same package versions. This causes version conflicts when Project A needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.25</code> and Project B needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.31</code>. A <LectureTip tip="A folder (e.g. .venv) containing a copy of the Python interpreter and project-specific packages. Prevents version conflicts between projects.">virtual environment</LectureTip> creates an isolated Python installation per project so each project has its own packages.
+                Without a virtual environment, pip installs packages globally — meaning every Python project on your machine shares the same package versions. This causes version conflicts when Project A needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.25</code> and Project B needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.31</code>. A <LectureTerm>virtual environment</LectureTerm> creates an isolated Python installation per project so each project has its own packages.
             </LectureP>
 
             <TerminalBlock
@@ -341,6 +359,24 @@ export default function Week5Lecture1() {
                 This sequence — update, install essentials, install runtimes, verify — is the pattern for every server setup you'll ever do. The specific packages change, the pattern doesn't.
             </LectureP>
 
+            {/* ── 09 WHAT'S NEXT ──────────────────────────────────────────────── */}
+            <LectureSectionHeading number="09" title="Before Next Lecture: Install Docker" />
+
+            <LectureP>
+                Lecture 2 and the activity both require Docker. If you don't have it installed yet, do it now — it takes a few minutes and avoids losing time during class.
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'macOS — install Docker Desktop via Homebrew', cmd: 'brew install --cask docker' },
+                    { comment: 'then open Docker Desktop from Applications and let it finish setup' },
+                    { comment: 'verify Docker is running', cmd: 'docker --version' },
+                ]}
+            />
+
+            <LectureCallout type="warning">
+                Docker Desktop must be running in the background for any <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker</code> command to work. If you get "Cannot connect to the Docker daemon," open the Docker Desktop app first. On Linux, install Docker Engine directly via <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">apt</code> — see the <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener noreferrer" className="underline">official install guide</a>.
+            </LectureCallout>
 
         </LectureLayout>
     );

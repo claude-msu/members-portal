@@ -52,16 +52,20 @@ const VmVsContainerDiagram = () => (
     </div>
 );
 
-export default function Week5Lecture2() {
+export default function Week6Lecture2() {
     return (
         <LectureLayout>
             <LectureHeader
-                week={5}
+                week={6}
                 session="Lecture 2"
                 title="Docker & Containerization"
                 description="'It works on my machine' ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere."
                 icon={<Package className="h-4 w-4" />}
             />
+
+            <LectureCallout type="warning">
+                This lecture requires Docker. If you haven't installed it yet, follow the instructions at the end of Lecture 1 — on macOS run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">brew install --cask docker</code> and open Docker Desktop. Verify with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker --version</code> before continuing.
+            </LectureCallout>
 
             {/* ── 01 THE PROBLEM ──────────────────────────────────────────────── */}
             <LectureSectionHeading number="01" title="The Problem Docker Solves" />
