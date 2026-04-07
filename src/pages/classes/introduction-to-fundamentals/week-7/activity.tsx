@@ -7,24 +7,25 @@ import {
     LectureP,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
-export default function Week6Activity() {
+export default function Week7Activity() {
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
-                    week={6}
-                session="Activity"
-                title="Build Your Backend"
-                description="The Dockerfile exists. Now fill it in — a real FastAPI backend with SQLite storage and Redis caching, all running via Docker Compose. By the end you have a documented API you can hand off to your frontend next week."
-                icon={<Server className="h-4 w-4" />}
-            />
+                    week={7}
+                    session="Activity"
+                    title="Build Your Backend"
+                    description="The Dockerfile exists. Now fill it in — a real FastAPI backend with SQLite storage and Redis caching, all running via Docker Compose. By the end you have a documented API you can hand off to your frontend next week."
+                    icon={<Server className="h-4 w-4" />}
+                />
 
             <LectureCallout type="info">
-                You are building the backend for the domain you chose in Week 2. Use FastAPI's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page to verify everything as you go.
+                You are building the backend for the domain you chose in the Week 4 project kickoff. Use FastAPI's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page to verify everything as you go.
             </LectureCallout>
 
             {/* ── 01 PROJECT REQUIREMENTS ──────────────────────────────────────── */}
@@ -58,10 +59,12 @@ export default function Week6Activity() {
 
             <ActivityChallenge
                 number="2.1"
-                title="Write docker-compose.yml"
-                description="Define FastAPI + Redis services that work together."
+                title="Update Requirements and Write docker-compose.yml"
+                description="Install all needed packages and define FastAPI + Redis services."
             >
                 <div className="space-y-1">
+                    <ActivityTask>Update <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/requirements.txt</code> to include: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fastapi</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">uvicorn[standard]</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sqlalchemy</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
+                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> CMD to start FastAPI: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></ActivityTask>
                     <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code></ActivityTask>
                     <ActivityTask>Define an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">api</code> service: build from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code>, ports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">8000:8000</code>, depends_on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
                     <ActivityTask>Define a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> service: image <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis:7-alpine</code>, no extra config needed</ActivityTask>
@@ -71,12 +74,12 @@ export default function Week6Activity() {
                 <TerminalBlock
                     title="bash — backend"
                     lines={[
-                        { cmd: 'docker compose up' },
+                        { cmd: 'docker compose up --build' },
                     ]}
                 />
 
                 <LectureCallout type="info">
-                    <span title="Tells Docker Compose to start the redis service before the api service. Does not wait for Redis to be ready — just for the container to start. For production readiness checks, you would use healthchecks.">depends_on</span> ensures Redis starts first, but doesn't wait for it to be ready. Your code should handle the case where Redis is temporarily unavailable.
+                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">depends_on</code> ensures Redis starts first, but doesn't wait for it to be ready — just for the container to start. Your code should handle the case where Redis is temporarily unavailable.
                 </LectureCallout>
             </ActivityChallenge>
 
@@ -85,17 +88,18 @@ export default function Week6Activity() {
 
             <ActivityChallenge
                 number="3.1"
-                title="Database Models"
-                description="Set up SQLAlchemy and define your data schema."
+                title="Database Models and Schemas"
+                description="Set up SQLAlchemy, define your data schema, and create Pydantic models."
             >
                 <div className="space-y-1">
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">database.py</code> with engine setup and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code> dependency (copy the pattern from Lecture 2)</ActivityTask>
                     <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">models.py</code> with your SQLAlchemy model(s) representing your chosen domain</ActivityTask>
-                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">database.py</code> with engine setup and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code> dependency</ActivityTask>
-                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> to create tables on startup</ActivityTask>
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">schemas.py</code> with Pydantic models for each endpoint: a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Create</code> model (what the client sends) and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Response</code> model (what the server returns)</ActivityTask>
+                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> to create tables on startup with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Base.metadata.create_all(bind=engine)</code></ActivityTask>
                 </div>
 
                 <ActivityHint label="SQLAlchemy quickstart">
-                    <code className="bg-muted px-1 rounded text-xs">from sqlalchemy import create_engine; from sqlalchemy.orm import sessionmaker, declarative_base</code> — then define your Base class and models that inherit from it.
+                    <code className="bg-muted px-1 rounded text-xs">from sqlalchemy import create_engine; from sqlalchemy.orm import sessionmaker, DeclarativeBase</code> — then define your Base class and models that inherit from it. For Pydantic schemas, use <code className="bg-muted px-1 rounded text-xs">model_config = ConfigDict(from_attributes=True)</code> so Pydantic can read SQLAlchemy objects directly.
                 </ActivityHint>
             </ActivityChallenge>
 
@@ -120,25 +124,33 @@ export default function Week6Activity() {
                 description="Add caching to your most expensive read operation."
             >
                 <div className="space-y-1">
-                    <ActivityTask>Connect to Redis using the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> Python package: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis.Redis(host='redis', port=6379)</code></ActivityTask>
+                    <ActivityTask>Connect to Redis: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r = redis.Redis(host="redis", port=6379, decode_responses=True)</code></ActivityTask>
                     <ActivityTask>Pick the most read-heavy endpoint — the one that does the most computation or hits the most rows</ActivityTask>
                     <ActivityTask>Cache its result in Redis with a 60-second TTL using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r.setex()</code></ActivityTask>
                     <ActivityTask>On each request: check Redis first (cache hit), fall back to SQLite if not found (cache miss), then store the result in Redis</ActivityTask>
                 </div>
 
-                <div className="my-4 rounded-xl border border-border bg-muted/30 p-4 font-mono text-xs">
-                    <p className="text-zinc-400 mb-2"># Cache hit/miss pattern:</p>
-                    <p className="text-blue-400">result = r.get(<span className="text-amber-400">'cache_key'</span>)</p>
-                    <p className="text-blue-400">if result:</p>
-                    <p className="text-zinc-400 pl-4">return json.loads(result)  <span className="text-gray-500"># cache hit</span></p>
-                    <p className="text-blue-400">else:</p>
-                    <p className="text-zinc-400 pl-4">result = compute_expensive_query()</p>
-                    <p className="text-zinc-400 pl-4">r.setex(<span className="text-amber-400">'cache_key'</span>, 60, json.dumps(result))</p>
-                    <p className="text-zinc-400 pl-4">return result  <span className="text-gray-500"># cache miss, but now cached</span></p>
-                </div>
+                <CodeBlock
+                    language="python"
+                    title="cache hit/miss pattern"
+                    lines={[
+                        '# Cache hit/miss pattern:',
+                        'result = r.get("cache_key")',
+                        'if result:',
+                        '    return json.loads(result)  # cache hit',
+                        'else:',
+                        '    result = compute_expensive_query()',
+                        '    r.setex("cache_key", 60, json.dumps(result))',
+                        '    return result  # cache miss, but now cached',
+                    ]}
+                />
 
                 <LectureCallout type="info">
-                    <span title="Time To Live — how long a cached value stays valid before Redis automatically deletes it. After 60 seconds the next request will recompute the value and re-cache it. Prevents serving stale data indefinitely.">TTL</span> is the expiration time. After 60 seconds the next request will recompute the value and re-cache it.
+                    The host <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"redis"</code> works because Docker Compose creates a network where each service name resolves to that container's IP. Your API connects to the Redis container by its service name — not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost</code>.
+                </LectureCallout>
+
+                <LectureCallout type="tip">
+                    TTL (Time To Live) is the expiration time in seconds. After 60 seconds the next request will recompute the value and re-cache it. Start with 60 seconds and adjust based on how stale your data can tolerate being.
                 </LectureCallout>
             </ActivityChallenge>
 

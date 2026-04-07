@@ -10,6 +10,7 @@ import {
     LectureTerm,
 } from '@/components/ui/lecture-typography';
 import { CodeBlock } from '@/components/ui/code-block';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 
 // ── Relational table diagram ──────────────────────────────────────────────────
 const RelationalDiagram = () => (
@@ -72,11 +73,11 @@ const RelationalDiagram = () => (
 );
 
 
-export default function Week6Lecture2() {
+export default function Week7Lecture2() {
     return (
         <LectureLayout>
             <LectureHeader
-                week={6}
+                week={7}
                 session="Lecture 2"
                 title="Databases: SQL, SQLite & Redis"
                 description="SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command."
@@ -360,6 +361,22 @@ export default function Week6Lecture2() {
                 A good rule of thumb: index every foreign key column and every column that appears in a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">WHERE</code> clause in a frequently-run query. Don't index everything — each index adds overhead to inserts and updates.
             </LectureCallout>
 
+            <LectureSubHeading title="SQLite CLI — quick debugging" />
+            <LectureP>
+                SQLite ships with a command-line tool that lets you inspect your database directly. Useful when you need to check whether your tables exist, what schema they have, or run a quick query outside of Python.
+            </LectureP>
+
+            <TerminalBlock
+                lines={[
+                    { comment: 'open the database file', cmd: 'sqlite3 notes.db' },
+                    { comment: 'list all tables', cmd: '.tables' },
+                    { comment: 'show the CREATE TABLE statement for a table', cmd: '.schema notes' },
+                    { comment: 'turn on column headers for readability', cmd: '.headers on' },
+                    { comment: 'run a quick query', cmd: 'SELECT * FROM notes LIMIT 5;' },
+                    { comment: 'exit', cmd: '.quit' },
+                ]}
+            />
+
             {/* ── 07 NORMALIZATION ────────────────────────────────────────────── */}
             <LectureSectionHeading number="07" title="Normalization — Designing Good Schemas" />
 
@@ -393,10 +410,100 @@ export default function Week6Lecture2() {
                 </div>
             </div>
 
+            {/* ── 08 REDIS ──────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Redis — An In-Memory Data Store" />
+
+            <LectureP>
+                <LectureTip tip="Remote Dictionary Server. An in-memory key-value store. Data lives in RAM, so reads and writes are sub-millisecond. Used for caching, sessions, rate limiting, and queues.">Redis</LectureTip> is an in-memory key-value store. Unlike SQLite or Postgres, Redis keeps all data in RAM — which makes it extraordinarily fast (sub-millisecond reads) but means data is lost when Redis restarts unless you configure persistence.
+            </LectureP>
+            <LectureP>
+                Use SQL for your source of truth — the authoritative, persistent copy of your data. Use Redis as a <LectureTerm>cache</LectureTerm> layer on top: expensive query results, session tokens, rate limit counters, or any data that is read frequently and expensive to compute but acceptable if slightly stale.
+            </LectureP>
+
+            <LectureSubHeading title="Installing redis-py" />
+            <TerminalBlock
+                lines={[
+                    { comment: 'install the Python Redis client', cmd: 'pip install redis' },
+                    { comment: 'add it to requirements.txt', cmd: 'pip freeze > requirements.txt' },
+                ]}
+            />
+
+            <LectureSubHeading title="Connecting and using Redis" />
+            <CodeBlock
+                language="python"
+                title="redis_client.py — connection setup"
+                lines={[
+                    'import redis',
+                    'import json',
+                    '',
+                    '# In Docker Compose, the service name IS the hostname',
+                    '# If running locally without Docker, use host="localhost"',
+                    'r = redis.Redis(host="redis", port=6379, decode_responses=True)',
+                    '',
+                    '# SET — store a string value under a key',
+                    'r.set("greeting", "hello")',
+                    '',
+                    '# GET — retrieve it',
+                    'value = r.get("greeting")  # "hello"',
+                    '',
+                    '# SETEX — store with a TTL (auto-deletes after N seconds)',
+                    'r.setex("temp_data", 60, "expires in 60 seconds")',
+                    '',
+                    '# DELETE — remove a key',
+                    'r.delete("greeting")',
+                    '',
+                    '# Store complex data as JSON',
+                    'notes = [{"id": 1, "title": "Hello"}, {"id": 2, "title": "World"}]',
+                    'r.setex("all_notes", 60, json.dumps(notes))',
+                    'cached = json.loads(r.get("all_notes"))  # back to a Python list',
+                ]}
+            />
+
+            <LectureP>
+                The <LectureTip tip="Time To Live. How long a cached value stays in Redis before it is automatically deleted. After the TTL expires, the next read returns None (cache miss) and your code recomputes and re-caches the value.">TTL</LectureTip> (Time To Live) is the expiration time in seconds. After the TTL passes, Redis automatically deletes the key. This prevents your cache from serving stale data indefinitely — after expiration, the next request recomputes the value and stores it again.
+            </LectureP>
+
+            <LectureSubHeading title="The cache hit/miss pattern" />
+            <LectureP>
+                The fundamental caching pattern: check Redis first. If the key exists (cache hit), return it immediately. If not (cache miss), compute the result from the database, store it in Redis with a TTL, and return it.
+            </LectureP>
+
+            <CodeBlock
+                language="python"
+                title="cache hit/miss pattern in a FastAPI endpoint"
+                lines={[
+                    'import json',
+                    'import redis',
+                    'from fastapi import Depends',
+                    'from sqlalchemy.orm import Session',
+                    '',
+                    'r = redis.Redis(host="redis", port=6379, decode_responses=True)',
+                    '',
+                    '@app.get("/notes")',
+                    'def get_notes(db: Session = Depends(get_db)):',
+                    '    # 1. Check the cache',
+                    '    cached = r.get("all_notes")',
+                    '    if cached:',
+                    '        return json.loads(cached)  # cache hit — fast',
+                    '',
+                    '    # 2. Cache miss — query the database',
+                    '    notes = db.query(models.Note).all()',
+                    '    result = [schemas.NoteResponse.model_validate(n).model_dump() for n in notes]',
+                    '',
+                    '    # 3. Store in cache with 60-second TTL',
+                    '    r.setex("all_notes", 60, json.dumps(result, default=str))',
+                    '',
+                    '    return result',
+                ]}
+            />
+
             <LectureCallout type="info">
-                <strong className="text-foreground">When to use SQL vs Redis:</strong> Use SQL (SQLite, Postgres) for persistent, relational data that you query in flexible ways — users, notes, orders. Use Redis for fast caching (e.g. session data, API response cache), rate limiting, or temporary data. In the activity you'll wire both: SQLite for the source of truth, Redis for a cache layer.
+                In Docker Compose, services on the same network can reach each other by service name. If your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code> defines a service called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code>, your Python code connects to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">host="redis"</code> — not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost</code>. Docker Compose creates a virtual network and maps each service name to the container's IP address.
             </LectureCallout>
 
+            <LectureCallout type="warning">
+                Redis is a cache, not your primary database. Every piece of data must live in SQL first. If Redis goes down or a key expires, your app should still work — it just falls back to querying the database directly (slower, but correct).
+            </LectureCallout>
 
         </LectureLayout>
     );

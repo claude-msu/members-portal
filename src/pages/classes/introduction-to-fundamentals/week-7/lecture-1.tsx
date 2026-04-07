@@ -7,8 +7,10 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTip,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── Request/Response cycle diagram ────────────────────────────────────────────
 const RequestCycleDiagram = () => {
@@ -63,16 +65,20 @@ const HttpMethodsTable = () => (
     </div>
 );
 
-export default function Week6Lecture1() {
+export default function Week7Lecture1() {
     return (
         <LectureLayout>
             <LectureHeader
-                week={6}
+                week={7}
                 session="Lecture 1"
                 title="FastAPI & Python Backends"
                 description="Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API."
                 icon={<Server className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
+
+            <LectureCallout type="info">
+                Last week you containerized a Flask stub with a single <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/health</code> endpoint. This week you replace that stub with a real FastAPI backend — full CRUD, Pydantic validation, and auto-generated docs. The Dockerfile structure stays the same; only the framework and the CMD change.
+            </LectureCallout>
 
             {/* ── 01 HOW THE WEB WORKS ────────────────────────────────────────── */}
             <LectureSectionHeading number="01" title="How the Web Actually Works" />
@@ -115,31 +121,35 @@ export default function Week6Lecture1() {
 
             <LectureSubHeading title="Your first FastAPI app" />
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    main.py — a complete FastAPI application
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">fastapi </span><span className="text-blue-400">import </span><span className="text-zinc-400">FastAPI</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">pydantic </span><span className="text-blue-400">import </span><span className="text-zinc-400">BaseModel</span></p>
-                    <p className="mt-2"><span className="text-sky-300">app </span><span className="text-zinc-400">= FastAPI()</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># A Pydantic model defines the shape of request/response bodies</span></p>
-                    <p><span className="text-blue-400">class </span><span className="text-emerald-400">Note</span><span className="text-zinc-400">(BaseModel):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">title</span><span className="text-zinc-400">: str</span></p>
-                    <p className="pl-4"><span className="text-sky-300">content</span><span className="text-zinc-400">: str</span></p>
-                    <p className="pl-4"><span className="text-sky-300">published</span><span className="text-zinc-400">: bool = </span><span className="text-blue-400">False</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># In-memory store (replaced by a real DB later)</span></p>
-                    <p><span className="text-sky-300">notes </span><span className="text-zinc-400">= []</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Route decorator tells FastAPI which method + path triggers this function</span></p>
-                    <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">():</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">notes</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.post(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, status_code=201)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">create_note</span><span className="text-zinc-400">(note: Note):  </span><span className="text-zinc-500"># FastAPI sees Note and reads the body</span></p>
-                    <p className="pl-4"><span className="text-sky-300">notes</span><span className="text-zinc-400">.append(note)</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">note</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="main.py — a complete FastAPI application"
+                lines={[
+                    'from fastapi import FastAPI',
+                    'from pydantic import BaseModel',
+                    '',
+                    'app = FastAPI()',
+                    '',
+                    '# A Pydantic model defines the shape of request/response bodies',
+                    'class Note(BaseModel):',
+                    '    title: str',
+                    '    content: str',
+                    '    published: bool = False',
+                    '',
+                    '# In-memory store (replaced by a real DB later)',
+                    'notes = []',
+                    '',
+                    '# Route decorator tells FastAPI which method + path triggers this function',
+                    '@app.get("/notes")',
+                    'def get_notes():',
+                    '    return notes',
+                    '',
+                    '@app.post("/notes", status_code=201)',
+                    'def create_note(note: Note):  # FastAPI sees Note and reads the body',
+                    '    notes.append(note)',
+                    '    return note',
+                ]}
+            />
 
             <LectureP>
                 Save the code above as <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> in your project root (the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">myapi</code> folder). Then, from that folder with your venv activated, run:
@@ -160,34 +170,35 @@ export default function Week6Lecture1() {
             <LectureSectionHeading number="03" title="Pydantic Models" />
 
             <LectureP>
-                <LectureTip tip="Validates and serializes data using type annotations. BaseModel classes define shape; invalid input raises clear validation errors.">Pydantic</LectureTip> is FastAPI's validation engine. When you define a class that inherits from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BaseModel</code>, Pydantic automatically validates any data passed to it — coercing types where possible, and raising clear validation errors when data doesn't match.
+                <LectureTerm>Pydantic</LectureTerm> is FastAPI's validation engine. When you define a class that inherits from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BaseModel</code>, Pydantic automatically validates any data passed to it — coercing types where possible, and raising clear validation errors when data doesn't match.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    Pydantic models — validation and serialization
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">pydantic </span><span className="text-blue-400">import </span><span className="text-zinc-400">BaseModel, Field, EmailStr</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">typing </span><span className="text-blue-400">import </span><span className="text-zinc-400">Optional</span></p>
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">datetime </span><span className="text-blue-400">import </span><span className="text-zinc-400">datetime</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Request model — what the client sends</span></p>
-                    <p><span className="text-blue-400">class </span><span className="text-emerald-400">NoteCreate</span><span className="text-zinc-400">(BaseModel):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">title</span><span className="text-zinc-400">: str = Field(min_length=1, max_length=100)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">content</span><span className="text-zinc-400">: str = Field(min_length=1)</span></p>
-                    <p className="pl-4"><span className="text-sky-300">tags</span><span className="text-zinc-400">: list[str] = []  </span><span className="text-zinc-500"># optional, defaults to empty list</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Response model — what the server sends back</span></p>
-                    <p><span className="text-blue-400">class </span><span className="text-emerald-400">NoteResponse</span><span className="text-zinc-400">(BaseModel):</span></p>
-                    <p className="pl-4"><span className="text-sky-300">id</span><span className="text-zinc-400">: int</span></p>
-                    <p className="pl-4"><span className="text-sky-300">title</span><span className="text-zinc-400">: str</span></p>
-                    <p className="pl-4"><span className="text-sky-300">content</span><span className="text-zinc-400">: str</span></p>
-                    <p className="pl-4"><span className="text-sky-300">created_at</span><span className="text-zinc-400">: datetime</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># Using response_model ensures the response is filtered and validated</span></p>
-                    <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.post(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">, response_model=NoteResponse, status_code=201)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">create_note</span><span className="text-zinc-400">(note: NoteCreate):</span></p>
-                    <p className="pl-4"><span className="text-zinc-400">...</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="Pydantic models — validation and serialization"
+                lines={[
+                    'from pydantic import BaseModel, Field',
+                    'from datetime import datetime',
+                    '',
+                    '# Request model — what the client sends',
+                    'class NoteCreate(BaseModel):',
+                    '    title: str = Field(min_length=1, max_length=100)',
+                    '    content: str = Field(min_length=1)',
+                    '    tags: list[str] = []  # optional, defaults to empty list',
+                    '',
+                    '# Response model — what the server sends back',
+                    'class NoteResponse(BaseModel):',
+                    '    id: int',
+                    '    title: str',
+                    '    content: str',
+                    '    created_at: datetime',
+                    '',
+                    '# Using response_model ensures the response is filtered and validated',
+                    '@app.post("/notes", response_model=NoteResponse, status_code=201)',
+                    'def create_note(note: NoteCreate):',
+                    '    ...',
+                ]}
+            />
 
             <LectureP>
                 Separating <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">NoteCreate</code> (what comes in) from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">NoteResponse</code> (what goes out) is a critical pattern. The create model has no <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">id</code> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">created_at</code> — those are assigned by the server. The response model ensures you never accidentally leak sensitive fields (like a password hash) back to the client.
@@ -200,33 +211,28 @@ export default function Week6Lecture1() {
                 FastAPI reads parameters from three places: the URL path, the query string, and the request body. Declaring them in your function signature is all you need — FastAPI handles the rest.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    path params, query params, body — all at once
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-4 select-none">
-                    <div>
-                        <p className="text-zinc-500 mb-1"># Path param — curly brace in the route, matching param name in function</p>
-                        <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes/{'{note_id}'}"</span><span className="text-zinc-400">)</span></p>
-                        <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_note</span><span className="text-zinc-400">(note_id: int):  </span><span className="text-zinc-500"># FastAPI extracts from URL and converts to int</span></p>
-                        <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">notes</span><span className="text-zinc-400">[note_id]</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500 mb-1"># Query param — any param not in the path and not a Pydantic model</p>
-                        <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">)</span></p>
-                        <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">(skip: int = 0, limit: int = 10, search: str | </span><span className="text-blue-400">None</span><span className="text-zinc-400"> = </span><span className="text-blue-400">None</span><span className="text-zinc-400">):</span></p>
-                        <p className="pl-4"><span className="text-zinc-500"># GET /notes?skip=20&limit=5&search=python</span></p>
-                        <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">notes</span><span className="text-zinc-400">[skip : skip + limit]</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500 mb-1"># Path param + body — update a specific resource</p>
-                        <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.patch(</span><span className="text-amber-400">"/notes/{'{note_id}'}"</span><span className="text-zinc-400">)</span></p>
-                        <p><span className="text-blue-400">def </span><span className="text-emerald-400">update_note</span><span className="text-zinc-400">(note_id: int, updates: NoteCreate):</span></p>
-                        <p className="pl-4"><span className="text-zinc-500"># note_id from path, updates from request body</span></p>
-                        <p className="pl-4"><span className="text-blue-400">return</span><span className="text-zinc-400"> {'{'}...{'}'}</span></p>
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="path params, query params, body — all at once"
+                lines={[
+                    '# Path param — curly brace in the route, matching param name in function',
+                    '@app.get("/notes/{note_id}")',
+                    'def get_note(note_id: int):  # FastAPI extracts from URL and converts to int',
+                    '    return notes[note_id]',
+                    '',
+                    '# Query param — any param not in the path and not a Pydantic model',
+                    '@app.get("/notes")',
+                    'def get_notes(skip: int = 0, limit: int = 10, search: str | None = None):',
+                    '    # GET /notes?skip=20&limit=5&search=python',
+                    '    return notes[skip : skip + limit]',
+                    '',
+                    '# Path param + body — update a specific resource',
+                    '@app.patch("/notes/{note_id}")',
+                    'def update_note(note_id: int, updates: NoteCreate):',
+                    '    # note_id from path, updates from request body',
+                    '    return {...}',
+                ]}
+            />
 
             {/* ── 05 ERROR HANDLING ───────────────────────────────────────────── */}
             <LectureSectionHeading number="05" title="Error Handling" />
@@ -235,23 +241,24 @@ export default function Week6Lecture1() {
                 When something goes wrong — a note isn't found, a user isn't authorized — you raise an <LectureTip tip="FastAPI's way to return an error response. You set status_code and detail; FastAPI serializes it to JSON and sends the right status.">HTTPException</LectureTip>. FastAPI catches it and returns a properly formatted JSON error response with the correct status code.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    HTTPException — the standard way to return errors
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">fastapi </span><span className="text-blue-400">import </span><span className="text-zinc-400">FastAPI, HTTPException</span></p>
-                    <p className="mt-2"><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes/{'{note_id}'}"</span><span className="text-zinc-400">)</span></p>
-                    <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_note</span><span className="text-zinc-400">(note_id: int):</span></p>
-                    <p className="pl-4"><span className="text-blue-400">if </span><span className="text-sky-300">note_id</span><span className="text-zinc-400"> &gt;= len(notes):</span></p>
-                    <p className="pl-8"><span className="text-blue-400">raise </span><span className="text-zinc-400">HTTPException(</span></p>
-                    <p className="pl-12"><span className="text-sky-300">status_code</span><span className="text-zinc-400">=404,</span></p>
-                    <p className="pl-12"><span className="text-sky-300">detail</span><span className="text-zinc-400">=</span><span className="text-amber-400">"Note not found"</span></p>
-                    <p className="pl-8"><span className="text-zinc-400">)</span></p>
-                    <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">notes</span><span className="text-zinc-400">[note_id]</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># FastAPI returns: {"{'detail': 'Note not found'}"} with status 404</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="HTTPException — the standard way to return errors"
+                lines={[
+                    'from fastapi import FastAPI, HTTPException',
+                    '',
+                    '@app.get("/notes/{note_id}")',
+                    'def get_note(note_id: int):',
+                    '    if note_id >= len(notes):',
+                    '        raise HTTPException(',
+                    '            status_code=404,',
+                    '            detail="Note not found"',
+                    '        )',
+                    '    return notes[note_id]',
+                    '',
+                    '# FastAPI returns: {"detail": "Note not found"} with status 404',
+                ]}
+            />
 
             {/* ── 06 CORS ─────────────────────────────────────────────────────── */}
             <LectureSectionHeading number="06" title="CORS — Letting Your Frontend Talk to Your Backend" />
@@ -263,23 +270,24 @@ export default function Week6Lecture1() {
                 You grant permission with <LectureTip tip="Cross-Origin Resource Sharing. HTTP headers that tell the browser which origins may call your API. The server sends Allow-Origin and related headers.">CORS</LectureTip> (Cross-Origin Resource Sharing) headers. FastAPI includes middleware to handle this:
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    main.py — adding CORS middleware
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p><span className="text-blue-400">from </span><span className="text-emerald-400">fastapi.middleware.cors </span><span className="text-blue-400">import </span><span className="text-zinc-400">CORSMiddleware</span></p>
-                    <p className="mt-2"><span className="text-sky-300">app</span><span className="text-zinc-400">.add_middleware(</span></p>
-                    <p className="pl-4"><span className="text-sky-300">CORSMiddleware</span><span className="text-zinc-400">,</span></p>
-                    <p className="pl-4"><span className="text-sky-300">allow_origins</span><span className="text-zinc-400">=[</span><span className="text-amber-400">"http://localhost:5173"</span><span className="text-zinc-400">],  </span><span className="text-zinc-500"># your React dev server</span></p>
-                    <p className="pl-4"><span className="text-sky-300">allow_credentials</span><span className="text-zinc-400">=</span><span className="text-blue-400">True</span><span className="text-zinc-400">,</span></p>
-                    <p className="pl-4"><span className="text-sky-300">allow_methods</span><span className="text-zinc-400">=[</span><span className="text-amber-400">"*"</span><span className="text-zinc-400">],</span></p>
-                    <p className="pl-4"><span className="text-sky-300">allow_headers</span><span className="text-zinc-400">=[</span><span className="text-amber-400">"*"</span><span className="text-zinc-400">],</span></p>
-                    <p><span className="text-zinc-400">)</span></p>
-                    <p className="mt-2"><span className="text-zinc-500"># In production: replace localhost with your deployed frontend URL</span></p>
-                    <p><span className="text-sky-300">allow_origins</span><span className="text-zinc-400">=[</span><span className="text-amber-400">"https://myapp.vercel.app"</span><span className="text-zinc-400">]</span></p>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="main.py — adding CORS middleware"
+                lines={[
+                    'from fastapi.middleware.cors import CORSMiddleware',
+                    '',
+                    'app.add_middleware(',
+                    '    CORSMiddleware,',
+                    '    allow_origins=["http://localhost:5173"],  # your React dev server',
+                    '    allow_credentials=True,',
+                    '    allow_methods=["*"],',
+                    '    allow_headers=["*"],',
+                    ')',
+                    '',
+                    '# In production: replace localhost with your deployed frontend URL',
+                    '# allow_origins=["https://myapp.vercel.app"]',
+                ]}
+            />
 
             <LectureCallout type="warning">
                 Never use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">allow_origins=["*"]</code> in production — this allows any website on the internet to make requests to your API. Always list the specific origins you trust.
@@ -292,26 +300,22 @@ export default function Week6Lecture1() {
                 FastAPI supports Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">async/await</code> natively. When your endpoint does I/O — hitting a database, calling another API — making it async lets FastAPI handle other requests while it waits instead of blocking the entire server.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    sync vs async endpoints
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-4 select-none">
-                    <div>
-                        <p className="text-zinc-500 mb-1"># Sync — fine for CPU-bound work or when using a sync DB driver</p>
-                        <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">)</span></p>
-                        <p><span className="text-blue-400">def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">():</span></p>
-                        <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">notes</span></p>
-                    </div>
-                    <div>
-                        <p className="text-zinc-500 mb-1"># Async — required when awaiting DB calls, HTTP requests, etc.</p>
-                        <p><span className="text-sky-300">@app</span><span className="text-zinc-400">.get(</span><span className="text-amber-400">"/notes"</span><span className="text-zinc-400">)</span></p>
-                        <p><span className="text-blue-400">async def </span><span className="text-emerald-400">get_notes</span><span className="text-zinc-400">():</span></p>
-                        <p className="pl-4"><span className="text-sky-300">results </span><span className="text-zinc-400">= </span><span className="text-blue-400">await </span><span className="text-sky-300">db</span><span className="text-zinc-400">.fetch_all(query)</span></p>
-                        <p className="pl-4"><span className="text-blue-400">return </span><span className="text-sky-300">results</span></p>
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="python"
+                title="sync vs async endpoints"
+                lines={[
+                    '# Sync — fine for CPU-bound work or when using a sync DB driver',
+                    '@app.get("/notes")',
+                    'def get_notes():',
+                    '    return notes',
+                    '',
+                    '# Async — required when awaiting DB calls, HTTP requests, etc.',
+                    '@app.get("/notes")',
+                    'async def get_notes():',
+                    '    results = await db.fetch_all(query)',
+                    '    return results',
+                ]}
+            />
 
             <LectureCallout type="info">
                 FastAPI runs sync endpoints in a thread pool so they don't block the event loop, but <strong className="text-foreground">async</strong> endpoints are more efficient under load: while one request is waiting on the database or another API, the server can handle other requests. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">async def</code> when your endpoint does I/O.
