@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -34,7 +33,7 @@ export default function Week12Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTermWithTip tip="A template for .env listing variable names and a short description, with no real secrets. Commit it; users copy to .env and fill in.">.env.example</LectureTermWithTip> is a best practice: list every env var the app needs with a one-line comment (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">JWT_SECRET=  # secret for signing tokens</code>). Never put real values in .env.example.
+                <LectureTip tip="A template for .env listing variable names and a short description, with no real secrets. Commit it; users copy to .env and fill in.">.env.example</LectureTip> is a best practice: list every env var the app needs with a one-line comment (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">JWT_SECRET=  # secret for signing tokens</code>). Never put real values in .env.example.
             </LectureCallout>
 
             {/* ── 02 STRUCTURE OF A GOOD README ───────────────────────────────── */}
@@ -134,7 +133,7 @@ cd backend && pytest
             <LectureSectionHeading number="04" title=".env.example in Practice" />
 
             <LectureP>
-                Your <LectureTermWithTip tip="Commit this file; it lists every variable name and a short comment. No real secrets.">.env.example</LectureTermWithTip> should list every variable the app reads from the environment, with a comment explaining what it's for. Anyone cloning the repo copies it to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> and fills in real values locally.
+                Your <LectureTip tip="Commit this file; it lists every variable name and a short comment. No real secrets.">.env.example</LectureTip> should list every variable the app reads from the environment, with a comment explaining what it's for. Anyone cloning the repo copies it to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> and fills in real values locally.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
@@ -163,7 +162,7 @@ DATABASE_URL=postgresql://user:password@host:5432/dbname
             />
 
             <LectureP>
-                After <LectureTip tip="Copy file. cp .env.example .env then edit .env with real values; never commit .env.">cp .env.example .env</LectureTip>, open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> in your editor and replace placeholders. For local dev, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">VITE_API_URL</code> is usually <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">http://localhost:8000</code>; for production the build uses the URL you set in Vercel.
+                After <LectureTip code tip="Copy file. cp .env.example .env then edit .env with real values; never commit .env.">cp .env.example .env</LectureTip>, open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> in your editor and replace placeholders. For local dev, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">VITE_API_URL</code> is usually <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">http://localhost:8000</code>; for production the build uses the URL you set in Vercel.
             </LectureP>
 
             {/* ── 05 DOCS AND OPEN SOURCE HABITS ───────────────────────────────── */}

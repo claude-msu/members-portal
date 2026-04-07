@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 import { CodeBlock } from '@/components/ui/code-block';
@@ -74,14 +73,14 @@ export default function Week5Lecture2() {
                 This is the environment problem. Software doesn't run in isolation — it depends on the OS, the runtime version, installed libraries, environment variables, and dozens of other things. Getting all of those to match between development, staging, and production is hard. Doing it reliably across a team is even harder.
             </LectureP>
             <LectureP>
-                Docker solves this by bundling your application together with its entire environment into a <LectureTermWithTip tip="A runnable instance of a Docker image. Isolated from the host and other containers; shares the host kernel. Start with docker run.">container</LectureTermWithTip>. The container includes the OS libraries, the runtime, the dependencies, the config — everything. You ship the container, and it runs identically on any machine that has Docker installed.
+                Docker solves this by bundling your application together with its entire environment into a <LectureTip tip="A runnable instance of a Docker image. Isolated from the host and other containers; shares the host kernel. Start with docker run.">container</LectureTip>. The container includes the OS libraries, the runtime, the dependencies, the config — everything. You ship the container, and it runs identically on any machine that has Docker installed.
             </LectureP>
 
             {/* ── 02 CONTAINERS VS VMs ────────────────────────────────────────── */}
             <LectureSectionHeading number="02" title="Containers vs. Virtual Machines" />
 
             <LectureP>
-                Before Docker, the standard solution to the environment problem was <LectureTermWithTip tip="Software that emulates a full computer and runs a complete guest OS. Heavier than containers; each VM has its own kernel and boot process.">virtual machines</LectureTermWithTip>. A VM emulates an entire computer — including a full operating system — on top of your physical hardware. This works, but it's expensive: each VM needs gigabytes of disk space and takes minutes to start.
+                Before Docker, the standard solution to the environment problem was <LectureTip tip="Software that emulates a full computer and runs a complete guest OS. Heavier than containers; each VM has its own kernel and boot process.">virtual machines</LectureTip>. A VM emulates an entire computer — including a full operating system — on top of your physical hardware. This works, but it's expensive: each VM needs gigabytes of disk space and takes minutes to start.
             </LectureP>
             <LectureP>
                 Containers take a different approach. Instead of emulating hardware and running a full OS, containers share the host machine's OS kernel and isolate only the application and its dependencies. They're faster to start (milliseconds instead of minutes), use far less memory, and you can run dozens on a single machine where you might only run 3–4 VMs.
@@ -100,7 +99,7 @@ export default function Week5Lecture2() {
                 Two terms you need to keep straight:
             </LectureP>
             <LectureP>
-                A <LectureTermWithTip tip="A read-only template built from a Dockerfile. Contains the filesystem and metadata needed to run an app. You build images, then run containers from them.">Docker image</LectureTermWithTip> is a read-only template — a snapshot of a filesystem with all the software and files needed to run an application. It's like a class definition or a blueprint. It doesn't run. It just describes what a running container should look like. Images are built from a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> and stored in a registry like Docker Hub.
+                A <LectureTip tip="A read-only template built from a Dockerfile. Contains the filesystem and metadata needed to run an app. You build images, then run containers from them.">Docker image</LectureTip> is a read-only template — a snapshot of a filesystem with all the software and files needed to run an application. It's like a class definition or a blueprint. It doesn't run. It just describes what a running container should look like. Images are built from a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> and stored in a registry like Docker Hub.
             </LectureP>
             <LectureP>
                 A <LectureTerm>container</LectureTerm> is a running instance of an image. You can run many containers from the same image simultaneously, each isolated from the others. It's like instantiating multiple objects from a class.
@@ -129,7 +128,7 @@ export default function Week5Lecture2() {
             />
 
             <LectureP>
-                The <LectureTip tip="-t flag for docker build: tag. Assigns a name and optional version tag to the built image. Format is name:tag. Without a tag, Docker defaults to 'latest'.">-t</LectureTip> flag in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> assigns a name and tag to the image. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code> at the end tells Docker where to find the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> — the current directory. The tag format is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">name:version</code>. If you omit the version, Docker uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">latest</code>.
+                The <LectureTip code tip="-t flag for docker build: tag. Assigns a name and optional version tag to the built image. Format is name:tag. Without a tag, Docker defaults to 'latest'.">-t</LectureTip> flag in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker build</code> assigns a name and tag to the image. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code> at the end tells Docker where to find the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> — the current directory. The tag format is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">name:version</code>. If you omit the version, Docker uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">latest</code>.
             </LectureP>
 
             <LectureSubHeading title="Running containers" />
@@ -145,10 +144,10 @@ export default function Week5Lecture2() {
             />
 
             <LectureP>
-                The <LectureTip tip="-p flag for docker run: publish ports. Format is host_port:container_port. Without this, the container's ports are completely isolated and unreachable from your machine — even if your app listens on port 3000 inside the container.">-p</LectureTip> flag is critical to understand. Containers are isolated by default — their ports are invisible to the outside world. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-p 3000:3000</code> punches a hole: requests to your machine's port 3000 get forwarded to the container's port 3000. Without this, your app runs but you can't reach it.
+                The <LectureTip code tip="-p flag for docker run: publish ports. Format is host_port:container_port. Without this, the container's ports are completely isolated and unreachable from your machine — even if your app listens on port 3000 inside the container.">-p</LectureTip> flag is critical to understand. Containers are isolated by default — their ports are invisible to the outside world. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-p 3000:3000</code> punches a hole: requests to your machine's port 3000 get forwarded to the container's port 3000. Without this, your app runs but you can't reach it.
             </LectureP>
             <LectureP>
-                The <LectureTip tip="-d flag for docker run: detached mode. Runs the container in the background and returns your terminal. Without -d, the container runs in the foreground and you can't use your terminal until it stops.">-d</LectureTip> flag runs the container in the background so your terminal isn't held hostage. The <LectureTip tip="-v flag for docker run: volume mount. Maps a directory from your host machine into the container. Changes to files in that directory are immediately visible inside the container — essential for development workflows.">-v</LectureTip> flag mounts a local directory into the container, which is essential for development — it means the container sees your local code changes in real time.
+                The <LectureTip code tip="-d flag for docker run: detached mode. Runs the container in the background and returns your terminal. Without -d, the container runs in the foreground and you can't use your terminal until it stops.">-d</LectureTip> flag runs the container in the background so your terminal isn't held hostage. The <LectureTip code tip="-v flag for docker run: volume mount. Maps a directory from your host machine into the container. Changes to files in that directory are immediately visible inside the container — essential for development workflows.">-v</LectureTip> flag mounts a local directory into the container, which is essential for development — it means the container sees your local code changes in real time.
             </LectureP>
 
             <LectureSubHeading title="Managing running containers" />
@@ -166,7 +165,7 @@ export default function Week5Lecture2() {
             />
 
             <LectureP>
-                <LectureTip tip="docker exec -it: execute a command inside a running container. -i keeps stdin open, -t allocates a pseudo-TTY (terminal). Together they give you an interactive shell. Use /bin/bash if bash is available, /bin/sh otherwise.">docker exec -it</LectureTip> is your debugging lifeline. When a container is misbehaving, you open a shell inside it and poke around exactly as you would on a regular Linux machine — check files, run commands, inspect environment variables.
+                <LectureTip code tip="docker exec -it: execute a command inside a running container. -i keeps stdin open, -t allocates a pseudo-TTY (terminal). Together they give you an interactive shell. Use /bin/bash if bash is available, /bin/sh otherwise.">docker exec -it</LectureTip> is your debugging lifeline. When a container is misbehaving, you open a shell inside it and poke around exactly as you would on a regular Linux machine — check files, run commands, inspect environment variables.
             </LectureP>
 
             {/* ── 05 THE DOCKERFILE ───────────────────────────────────────────── */}

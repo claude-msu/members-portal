@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -33,7 +32,7 @@ export default function Week11Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTermWithTip tip="Hosts static sites and serverless functions. Great for React/Vite: connect your repo, it builds and deploys on every push to main. Free tier is generous.">Vercel</LectureTermWithTip> is the default choice for React/Vite frontends: connect GitHub, set build command and output directory, and you get a URL. <LectureTermWithTip tip="Hosts backends, databases, and workers. Simple CLI and dashboard; free tier for small projects.">Railway</LectureTermWithTip> (or Render, Fly.io) is a common choice for FastAPI/Node backends. Both support env vars and custom domains.
+                <LectureTip tip="Hosts static sites and serverless functions. Great for React/Vite: connect your repo, it builds and deploys on every push to main. Free tier is generous.">Vercel</LectureTip> is the default choice for React/Vite frontends: connect GitHub, set build command and output directory, and you get a URL. <LectureTip tip="Hosts backends, databases, and workers. Simple CLI and dashboard; free tier for small projects.">Railway</LectureTip> (or Render, Fly.io) is a common choice for FastAPI/Node backends. Both support env vars and custom domains.
             </LectureCallout>
 
             <LectureSectionHeading number="02" title="Deploying the Frontend (Vercel)" />
@@ -105,7 +104,7 @@ app.add_middleware(
                 In Railway: New Project → Deploy from GitHub → select repo and root (or backend folder) → set Root Directory if your backend is in a subfolder → add env vars <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">JWT_SECRET</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">DATABASE_URL</code> → Deploy. Copy the generated URL and set it as <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">VITE_API_URL</code> in Vercel.
             </LectureP>
             <LectureCallout type="warning">
-                Never commit production secrets. Use the host's environment configuration for <LectureTip tip="JWT secret, DB URL, API keys — set in Vercel/Railway dashboard, not in code.">JWT_SECRET</LectureTip>, database URLs, and any API keys. Document which env vars are required in the README (names only, no values).
+                Never commit production secrets. Use the host's environment configuration for <LectureTip code tip="JWT secret, DB URL, API keys — set in Vercel/Railway dashboard, not in code.">JWT_SECRET</LectureTip>, database URLs, and any API keys. Document which env vars are required in the README (names only, no values).
             </LectureCallout>
 
             <LectureSectionHeading number="04" title="What Can Go Wrong" />

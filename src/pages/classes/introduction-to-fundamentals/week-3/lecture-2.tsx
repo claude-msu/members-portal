@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { CodeBlock } from '@/components/ui/code-block';
 
@@ -119,21 +118,21 @@ export default function Week3Lecture2() {
 
             <LectureSubHeading title="Abstract base classes — the contract" />
             <LectureP>
-                A pure virtual method (<LectureTip tip="Syntax for declaring a pure virtual method. No implementation provided. Makes the class abstract — it cannot be instantiated, only derived from.">= 0</LectureTip>) has no implementation in the base. A class with at least one pure virtual method is <LectureTermWithTip tip="A class that cannot be instantiated directly. It exists only to define an interface that derived classes must implement. Like a blueprint that says 'you must build these rooms' but doesn't build them itself.">abstract</LectureTermWithTip> — you cannot instantiate it. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem item("x", "y");</code> will not compile. You can only create concrete derived types and use them through pointers or references to the base.
+                A pure virtual method (<LectureTip code tip="Syntax for declaring a pure virtual method. No implementation provided. Makes the class abstract — it cannot be instantiated, only derived from.">= 0</LectureTip>) has no implementation in the base. A class with at least one pure virtual method is <LectureTip tip="A class that cannot be instantiated directly. It exists only to define an interface that derived classes must implement. Like a blueprint that says 'you must build these rooms' but doesn't build them itself.">abstract</LectureTip> — you cannot instantiate it. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem item("x", "y");</code> will not compile. You can only create concrete derived types and use them through pointers or references to the base.
             </LectureP>
             <LectureP>
                 Think of an abstract base class as a <strong className="text-foreground">contract</strong>: "any LibraryItem must implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getLoanDays()</code>." Derived classes fulfill the contract. Code that works with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem&</code> can rely on the contract without knowing or caring which concrete type it is holding. This is <LectureTerm>interface-based design</LectureTerm> in C++, and it is the foundation of everything in this lecture.
             </LectureP>
 
             <LectureCallout type="tip">
-                Use <LectureTip tip="Placed after a method declaration that overrides a base class virtual. The compiler verifies the base method exists and the signature matches — catches typos and signature mismatches at compile time.">override</LectureTip> on every method that overrides a virtual. The compiler will catch mistakes — if the base method signature changes, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">override</code> will produce a compilation error instead of silently creating a new method.
+                Use <LectureTip code tip="Placed after a method declaration that overrides a base class virtual. The compiler verifies the base method exists and the signature matches — catches typos and signature mismatches at compile time.">override</LectureTip> on every method that overrides a virtual. The compiler will catch mistakes — if the base method signature changes, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">override</code> will produce a compilation error instead of silently creating a new method.
             </LectureCallout>
 
             {/* ── 02 STL CONTAINERS ─────────────────────────────────────────── */}
             <LectureSectionHeading number="02" title="STL Containers — Your Toolbox" />
 
             <LectureP>
-                The C++ <LectureTermWithTip tip="Standard Template Library — a collection of template-based containers (vector, map, set...), algorithms (sort, find, count...), and iterators. Ships with every C++ compiler. Production-grade, heavily optimized.">Standard Template Library</LectureTermWithTip> ships production-grade implementations of every data structure you will need. Know these cold:
+                The C++ <LectureTip tip="Standard Template Library — a collection of template-based containers (vector, map, set...), algorithms (sort, find, count...), and iterators. Ships with every C++ compiler. Production-grade, heavily optimized.">Standard Template Library</LectureTip> ships production-grade implementations of every data structure you will need. Know these cold:
             </LectureP>
 
             <div className="my-6 rounded-xl border border-border overflow-hidden">
@@ -157,7 +156,7 @@ export default function Week3Lecture2() {
             </div>
 
             <LectureP>
-                <LectureTip tip="Sorted associative container. Keys are always in order (uses operator<). Implemented as a red-black tree. O(log n) insert, find, erase. Use when you need sorted iteration or range queries.">{"map<K,V>"}</LectureTip> and <LectureTip tip="Sorted set of unique elements. Same red-black tree as map but stores only keys, no values. O(log n) operations. Use when you need sorted unique elements.">{"set<T>"}</LectureTip> are implemented as balanced binary search trees (typically red-black). Understanding a BST makes O(log n) and "keys always sorted" intuitive:
+                <LectureTip code tip="Sorted associative container. Keys are always in order (uses operator<). Implemented as a red-black tree. O(log n) insert, find, erase. Use when you need sorted iteration or range queries.">{"map<K,V>"}</LectureTip> and <LectureTip code tip="Sorted set of unique elements. Same red-black tree as map but stores only keys, no values. O(log n) operations. Use when you need sorted unique elements.">{"set<T>"}</LectureTip> are implemented as balanced binary search trees (typically red-black). Understanding a BST makes O(log n) and "keys always sorted" intuitive:
             </LectureP>
             <BstDiagram />
 
@@ -270,12 +269,12 @@ export default function Week3Lecture2() {
 
             <LectureSubHeading title="Iterators — what begin() and end() are" />
             <LectureP>
-                STL containers expose <LectureTermWithTip tip="Objects that point to an element in a container and can advance to the next. Like a cursor. Different containers provide different iterator types (random-access for vector, bidirectional for map, etc.).">iterators</LectureTermWithTip>: objects that let you refer to an element and move to the next. <LectureTip tip="Returns an iterator to the first element of the container. The starting point for iteration.">begin()</LectureTip> points to the first element; <LectureTip tip="Returns an iterator to one past the last element. The stopping point for iteration. Never dereference end() — it's a sentinel, not an element.">end()</LectureTip> points one past the last (so a loop <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> covers every element). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sort(nums.begin(), nums.end())</code> takes two iterators and sorts that range. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">for (const auto& x : v)</code> is syntactic sugar that uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> under the hood.
+                STL containers expose <LectureTip tip="Objects that point to an element in a container and can advance to the next. Like a cursor. Different containers provide different iterator types (random-access for vector, bidirectional for map, etc.).">iterators</LectureTip>: objects that let you refer to an element and move to the next. <LectureTip code tip="Returns an iterator to the first element of the container. The starting point for iteration.">begin()</LectureTip> points to the first element; <LectureTip code tip="Returns an iterator to one past the last element. The stopping point for iteration. Never dereference end() — it's a sentinel, not an element.">end()</LectureTip> points one past the last (so a loop <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> covers every element). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sort(nums.begin(), nums.end())</code> takes two iterators and sorts that range. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">for (const auto& x : v)</code> is syntactic sugar that uses <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">begin()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">end()</code> under the hood.
             </LectureP>
 
             <LectureSubHeading title="<algorithm> — functions you'll use every day" />
             <LectureP>
-                Include <LectureTip tip="The STL algorithms header. Provides sort, find, count, lower_bound, min_element, max_element, binary_search, and dozens more. All operate on iterator ranges.">#include &lt;algorithm&gt;</LectureTip> and use: <LectureTip tip="In-place sort of [begin, end). O(n log n). Uses introsort (quicksort + heapsort fallback). Custom comparator: sort(b, e, cmp).">sort(begin, end)</LectureTip>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">find(begin, end, value)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">count(begin, end, value)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">lower_bound(begin, end, value)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_element / max_element</code>. All take half-open ranges <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[begin, end)</code>.
+                Include <LectureTip code tip="The STL algorithms header. Provides sort, find, count, lower_bound, min_element, max_element, binary_search, and dozens more. All operate on iterator ranges.">#include &lt;algorithm&gt;</LectureTip> and use: <LectureTip code tip="In-place sort of [begin, end). O(n log n). Uses introsort (quicksort + heapsort fallback). Custom comparator: sort(b, e, cmp).">sort(begin, end)</LectureTip>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">find(begin, end, value)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">count(begin, end, value)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">lower_bound(begin, end, value)</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_element / max_element</code>. All take half-open ranges <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[begin, end)</code>.
             </LectureP>
 
             <LectureCallout type="tip">
@@ -286,7 +285,7 @@ export default function Week3Lecture2() {
             <LectureSectionHeading number="03" title="SOLID Principles" />
 
             <LectureP>
-                <LectureTermWithTip tip="Five design principles: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion. Named by Robert C. Martin (Uncle Bob). Not rules — lenses for evaluating design decisions.">SOLID</LectureTermWithTip> is a set of five design principles that make object-oriented code easier to maintain, extend, and test. They are not rules to follow blindly — they are lenses for evaluating design decisions. When code is hard to change, one or more SOLID principles are usually being violated.
+                <LectureTip tip="Five design principles: Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion. Named by Robert C. Martin (Uncle Bob). Not rules — lenses for evaluating design decisions.">SOLID</LectureTip> is a set of five design principles that make object-oriented code easier to maintain, extend, and test. They are not rules to follow blindly — they are lenses for evaluating design decisions. When code is hard to change, one or more SOLID principles are usually being violated.
             </LectureP>
 
             <div className="my-6 space-y-4">
@@ -350,7 +349,7 @@ export default function Week3Lecture2() {
             <LectureSectionHeading number="04" title="Design Patterns" />
 
             <LectureP>
-                <LectureTermWithTip tip="Reusable solutions to common software design problems. Not code to copy-paste — templates for thinking about recurring challenges. Catalogued in the 'Gang of Four' book (1994). The three most common: Singleton, Observer, Factory.">Design patterns</LectureTermWithTip> are reusable solutions to common design problems. They are not code you copy-paste — they are <strong className="text-foreground">templates for thinking</strong> about recurring challenges. Three patterns are especially common in applications and interviews: <LectureTerm>Singleton</LectureTerm>, <LectureTerm>Observer</LectureTerm>, and <LectureTerm>Factory</LectureTerm>.
+                <LectureTip tip="Reusable solutions to common software design problems. Not code to copy-paste — templates for thinking about recurring challenges. Catalogued in the 'Gang of Four' book (1994). The three most common: Singleton, Observer, Factory.">Design patterns</LectureTip> are reusable solutions to common design problems. They are not code you copy-paste — they are <strong className="text-foreground">templates for thinking</strong> about recurring challenges. Three patterns are especially common in applications and interviews: <LectureTerm>Singleton</LectureTerm>, <LectureTerm>Observer</LectureTerm>, and <LectureTerm>Factory</LectureTerm>.
             </LectureP>
 
             <div className="my-6 space-y-4">
@@ -475,7 +474,7 @@ export default function Week3Lecture2() {
             <LectureSectionHeading number="05" title="Interfaces & Dependency Inversion" />
 
             <LectureP>
-                C++ does not have a built-in <LectureTip tip="In Java/C#, interface is a keyword that defines a contract with no implementation. C++ achieves the same thing with a class that has only pure virtual methods and a virtual destructor.">interface</LectureTip> keyword like Java or C#. Instead, an interface is a class with <strong className="text-foreground">only pure virtual methods</strong> and a virtual destructor — no data, no implementations. Convention: prefix the name with <LectureTip tip="Convention: prefix interface names with I. IStorage, IObserver, ISerializable. Not enforced by the language — purely a naming convention to signal 'this is a pure abstract contract.'">I</LectureTip>.
+                C++ does not have a built-in <LectureTip code tip="In Java/C#, interface is a keyword that defines a contract with no implementation. C++ achieves the same thing with a class that has only pure virtual methods and a virtual destructor.">interface</LectureTip> keyword like Java or C#. Instead, an interface is a class with <strong className="text-foreground">only pure virtual methods</strong> and a virtual destructor — no data, no implementations. Convention: prefix the name with <LectureTip code tip="Convention: prefix interface names with I. IStorage, IObserver, ISerializable. Not enforced by the language — purely a naming convention to signal 'this is a pure abstract contract.'">I</LectureTip>.
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -535,7 +534,7 @@ export default function Week3Lecture2() {
 
             <LectureSubHeading title="Dependency injection" />
             <LectureP>
-                <LectureTermWithTip tip="The 'D' in SOLID. High-level modules should depend on abstractions (interfaces), not concrete implementations. Enables swapping implementations (e.g. FileStorage for InMemoryStorage) without changing the high-level code.">Dependency Inversion</LectureTermWithTip> (the "D" in SOLID) means high-level modules depend on abstractions. In practice, this means injecting the dependency <strong className="text-foreground">into</strong> the class rather than creating it internally:
+                <LectureTip tip="The 'D' in SOLID. High-level modules should depend on abstractions (interfaces), not concrete implementations. Enables swapping implementations (e.g. FileStorage for InMemoryStorage) without changing the high-level code.">Dependency Inversion</LectureTip> (the "D" in SOLID) means high-level modules depend on abstractions. In practice, this means injecting the dependency <strong className="text-foreground">into</strong> the class rather than creating it internally:
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -568,12 +567,12 @@ export default function Week3Lecture2() {
             <LectureSectionHeading number="06" title="Smart Pointers" />
 
             <LectureP>
-                Raw pointers (<LectureTip tip="Allocates memory on the heap and returns a pointer. You must manually call delete to free it. Forgetting = memory leak. Calling twice = double-free crash." warn>new</LectureTip> / <LectureTip tip="Frees heap memory allocated with new. Calls the destructor, then returns memory. Missing delete = leak. Double delete = crash. Use smart pointers instead." warn>delete</LectureTip>) are the most common source of bugs in C++: memory leaks, double frees, dangling pointers, use-after-free. Smart pointers from <LectureTip tip="Header that provides unique_ptr, shared_ptr, weak_ptr, make_unique, and make_shared. The modern C++ approach to memory management.">&lt;memory&gt;</LectureTip> solve all of these by tying the lifetime of heap-allocated memory to the lifetime of the pointer object — this pattern is called <LectureTermWithTip tip="Resource Acquisition Is Initialization. Acquire resources (memory, file handles, locks) in a constructor; release them in the destructor. Since C++ guarantees destructors run when objects go out of scope, resources are automatically cleaned up. The foundation of smart pointers and all modern C++ resource management.">RAII</LectureTermWithTip> (Resource Acquisition Is Initialization).
+                Raw pointers (<LectureTip code tip="Allocates memory on the heap and returns a pointer. You must manually call delete to free it. Forgetting = memory leak. Calling twice = double-free crash." warn>new</LectureTip> / <LectureTip code tip="Frees heap memory allocated with new. Calls the destructor, then returns memory. Missing delete = leak. Double delete = crash. Use smart pointers instead." warn>delete</LectureTip>) are the most common source of bugs in C++: memory leaks, double frees, dangling pointers, use-after-free. Smart pointers from <LectureTip code tip="Header that provides unique_ptr, shared_ptr, weak_ptr, make_unique, and make_shared. The modern C++ approach to memory management.">&lt;memory&gt;</LectureTip> solve all of these by tying the lifetime of heap-allocated memory to the lifetime of the pointer object — this pattern is called <LectureTip tip="Resource Acquisition Is Initialization. Acquire resources (memory, file handles, locks) in a constructor; release them in the destructor. Since C++ guarantees destructors run when objects go out of scope, resources are automatically cleaned up. The foundation of smart pointers and all modern C++ resource management.">RAII</LectureTip> (Resource Acquisition Is Initialization).
             </LectureP>
 
             <LectureSubHeading title="unique_ptr — exclusive ownership" />
             <LectureP>
-                <LectureTip tip="Smart pointer with exclusive ownership. When it goes out of scope, the resource is automatically freed. Cannot be copied (prevents accidental sharing). Can be moved with std::move() to transfer ownership. Zero overhead vs raw pointer.">unique_ptr</LectureTip> owns the resource exclusively. When it goes out of scope, the resource is freed. It cannot be copied (no accidental sharing), but it can be <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">moved</code> to transfer ownership.
+                <LectureTip code tip="Smart pointer with exclusive ownership. When it goes out of scope, the resource is automatically freed. Cannot be copied (prevents accidental sharing). Can be moved with std::move() to transfer ownership. Zero overhead vs raw pointer.">unique_ptr</LectureTip> owns the resource exclusively. When it goes out of scope, the resource is freed. It cannot be copied (no accidental sharing), but it can be <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">moved</code> to transfer ownership.
             </LectureP>
 
             <CodeBlock language="cpp"
@@ -597,7 +596,7 @@ export default function Week3Lecture2() {
 
             <LectureSubHeading title="shared_ptr — shared ownership" />
             <LectureP>
-                <LectureTip tip="Smart pointer with shared ownership via reference counting. Multiple shared_ptrs can point to the same resource. Freed when the last shared_ptr goes out of scope (ref count hits 0). Slightly more overhead than unique_ptr due to the counter.">shared_ptr</LectureTip> uses <LectureTermWithTip tip="Each shared_ptr increments a counter when copied and decrements when destroyed. When the counter reaches zero, the resource is freed. Thread-safe counter updates, but the pointed-to object is NOT thread-safe by default.">reference counting</LectureTermWithTip>. Multiple <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">shared_ptr</code>s can point to the same resource; it is freed when the <strong className="text-foreground">last</strong> one goes out of scope. Use when multiple owners genuinely need the same object — for example, an observer list where multiple parts of the system hold references.
+                <LectureTip code tip="Smart pointer with shared ownership via reference counting. Multiple shared_ptrs can point to the same resource. Freed when the last shared_ptr goes out of scope (ref count hits 0). Slightly more overhead than unique_ptr due to the counter.">shared_ptr</LectureTip> uses <LectureTip tip="Each shared_ptr increments a counter when copied and decrements when destroyed. When the counter reaches zero, the resource is freed. Thread-safe counter updates, but the pointed-to object is NOT thread-safe by default.">reference counting</LectureTip>. Multiple <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">shared_ptr</code>s can point to the same resource; it is freed when the <strong className="text-foreground">last</strong> one goes out of scope. Use when multiple owners genuinely need the same object — for example, an observer list where multiple parts of the system hold references.
             </LectureP>
 
             <CodeBlock language="cpp"

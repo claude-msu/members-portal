@@ -7,7 +7,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
+    LectureTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -34,7 +34,7 @@ export default function Week9Lecture2() {
             <LectureSectionHeading number="02" title="Role-Based Access" />
 
             <LectureP>
-                <LectureTermWithTip tip="Restricting actions by role — e.g. only admins can delete users; only the owner can edit a resource. Implement after authentication.">Role-based access control</LectureTermWithTip> (RBAC) means different users have different permissions. For example: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">admin</code> can do everything; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">user</code> can only edit their own data; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">guest</code> can only read. Store the role in the user record and in the JWT payload so the backend can check it on each request.
+                <LectureTip tip="Restricting actions by role — e.g. only admins can delete users; only the owner can edit a resource. Implement after authentication.">Role-based access control</LectureTip> (RBAC) means different users have different permissions. For example: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">admin</code> can do everything; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">user</code> can only edit their own data; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">guest</code> can only read. Store the role in the user record and in the JWT payload so the backend can check it on each request.
             </LectureP>
             <LectureP>
                 On protected endpoints, after verifying the JWT, check something like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">if user.role != "admin": raise 403</code>. On the frontend you can hide or disable buttons based on role, but again: the backend must enforce it. Never trust the client.

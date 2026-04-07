@@ -7,7 +7,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
+    LectureTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -32,7 +32,7 @@ export default function Week11Lecture2() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTermWithTip tip="A version-controlled set of changes to the database schema (create table, add column, etc.). Run migrations on deploy so production schema stays in sync with code.">Migrations</LectureTermWithTip> (e.g. Alembic for Python, Prisma migrate for Node) let you evolve the schema without manual SQL. Generate migrations locally, commit them, and run them as part of the deploy or startup so production DB is always in the right state.
+                <LectureTip tip="A version-controlled set of changes to the database schema (create table, add column, etc.). Run migrations on deploy so production schema stays in sync with code.">Migrations</LectureTip> (e.g. Alembic for Python, Prisma migrate for Node) let you evolve the schema without manual SQL. Generate migrations locally, commit them, and run them as part of the deploy or startup so production DB is always in the right state.
             </LectureCallout>
 
             <LectureSectionHeading number="02" title="Connection Strings and Security" />

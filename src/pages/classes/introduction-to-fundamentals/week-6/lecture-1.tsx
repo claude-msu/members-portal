@@ -7,7 +7,6 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -26,7 +25,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="01" title="What is a Package?" />
 
             <LectureP>
-                A <LectureTermWithTip tip="A distributable unit of code (library or tool) with a name and version. Published to a registry so others can install it with one command.">package</LectureTermWithTip> is a bundle of code that someone else wrote, tested, and published so that you don't have to write it yourself. It has a name, a version, and a set of files. It might also depend on other packages — those are called its <LectureTermWithTip tip="Other packages this one needs to run. Installing a package automatically installs its dependencies (and their dependencies, recursively).">dependencies</LectureTermWithTip>.
+                A <LectureTip tip="A distributable unit of code (library or tool) with a name and version. Published to a registry so others can install it with one command.">package</LectureTip> is a bundle of code that someone else wrote, tested, and published so that you don't have to write it yourself. It has a name, a version, and a set of files. It might also depend on other packages — those are called its <LectureTip tip="Other packages this one needs to run. Installing a package automatically installs its dependencies (and their dependencies, recursively).">dependencies</LectureTip>.
             </LectureP>
             <LectureP>
                 When you install a package, you're not just downloading one file. You're downloading that package, plus all of its dependencies, plus all of their dependencies, potentially dozens of levels deep. A simple React project can have tens of thousands of packages in its <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The package manager resolves, downloads, and wires all of them together so you don't have to think about it.
@@ -36,14 +35,14 @@ export default function Week5Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                The infamous <LectureTermWithTip tip="A developer unpublished the tiny npm package 'left-pad', breaking thousands of projects that depended on it. Led to more careful dependency practices and lockfiles.">left-pad incident</LectureTermWithTip> in 2016 is a good illustration of package dependency risk. A developer unpublished a 17-line npm package called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left-pad</code> from the registry. Because thousands of other packages depended on it, builds broke across the entire JavaScript ecosystem within minutes — including React and Babel. The entire internet's JS infrastructure depended on a function that pads strings with spaces.
+                The infamous <LectureTip tip="A developer unpublished the tiny npm package 'left-pad', breaking thousands of projects that depended on it. Led to more careful dependency practices and lockfiles.">left-pad incident</LectureTip> in 2016 is a good illustration of package dependency risk. A developer unpublished a 17-line npm package called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left-pad</code> from the registry. Because thousands of other packages depended on it, builds broke across the entire JavaScript ecosystem within minutes — including React and Babel. The entire internet's JS infrastructure depended on a function that pads strings with spaces.
             </LectureCallout>
 
             {/* ── 02 THE REGISTRY MODEL ───────────────────────────────────────── */}
             <LectureSectionHeading number="02" title="The Registry Model" />
 
             <LectureP>
-                Every package manager works against a <LectureTermWithTip tip="A central server that stores package metadata and files. npm uses registry.npmjs.org; pip uses pypi.org. Install commands query the registry.">registry</LectureTermWithTip> — a centralized database of published packages. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install react</code>, npm reaches out to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">registry.npmjs.org</code>, downloads the package metadata, resolves the full dependency tree, and installs everything. The registry is the source of truth.
+                Every package manager works against a <LectureTip tip="A central server that stores package metadata and files. npm uses registry.npmjs.org; pip uses pypi.org. Install commands query the registry.">registry</LectureTip> — a centralized database of published packages. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install react</code>, npm reaches out to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">registry.npmjs.org</code>, downloads the package metadata, resolves the full dependency tree, and installs everything. The registry is the source of truth.
             </LectureP>
 
             <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -90,12 +89,12 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="03" title="npm — The JavaScript Package Manager" />
 
             <LectureP>
-                <LectureTermWithTip tip="Node Package Manager. Installs JavaScript packages, manages package.json and node_modules, and runs scripts. The default package manager for Node.js.">npm</LectureTermWithTip> (Node Package Manager) ships with Node.js and is the package manager you'll use most as a web developer. It manages two things: packages installed globally on your machine (CLI tools), and packages installed locally in a specific project.
+                <LectureTip tip="Node Package Manager. Installs JavaScript packages, manages package.json and node_modules, and runs scripts. The default package manager for Node.js.">npm</LectureTip> (Node Package Manager) ships with Node.js and is the package manager you'll use most as a web developer. It manages two things: packages installed globally on your machine (CLI tools), and packages installed locally in a specific project.
             </LectureP>
 
             <LectureSubHeading title="The package.json file" />
             <LectureP>
-                Every Node.js project has a <LectureTermWithTip tip="The project manifest: name, version, scripts, and dependency lists (dependencies and devDependencies). npm install reads this file.">package.json</LectureTermWithTip> file at its root. This is the manifest — it records the project name, version, scripts, and most importantly, the list of packages the project depends on. It's the single source of truth for your project's dependencies.
+                Every Node.js project has a <LectureTip tip="The project manifest: name, version, scripts, and dependency lists (dependencies and devDependencies). npm install reads this file.">package.json</LectureTip> file at its root. This is the manifest — it records the project name, version, scripts, and most importantly, the list of packages the project depends on. It's the single source of truth for your project's dependencies.
             </LectureP>
 
             <TerminalBlock
@@ -110,12 +109,12 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                The <LectureTip tip="npm install (no arguments): reads package.json and installs every dependency listed under 'dependencies' and 'devDependencies'. This is what you run after cloning a project — it reconstructs the full node_modules folder from the manifest.">npm install</LectureTip> command with no arguments is what you run when you clone a new project. It reads <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> and recreates the entire <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The <LectureTip tip="--save-dev flag: installs the package as a devDependency — only needed during development (linting, testing, TypeScript compilation). Not included in production builds.">--save-dev</LectureTip> flag marks packages as development-only. These are things like TypeScript, ESLint, and test runners that don't need to be included in production.
+                The <LectureTip code tip="npm install (no arguments): reads package.json and installs every dependency listed under 'dependencies' and 'devDependencies'. This is what you run after cloning a project — it reconstructs the full node_modules folder from the manifest.">npm install</LectureTip> command with no arguments is what you run when you clone a new project. It reads <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> and recreates the entire <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The <LectureTip code tip="--save-dev flag: installs the package as a devDependency — only needed during development (linting, testing, TypeScript compilation). Not included in production builds.">--save-dev</LectureTip> flag marks packages as development-only. These are things like TypeScript, ESLint, and test runners that don't need to be included in production.
             </LectureP>
 
             <LectureSubHeading title="The package-lock.json file" />
             <LectureP>
-                When npm installs packages, it creates a <LectureTermWithTip tip="Locks exact versions of every package (including transitive deps). Commit this file so everyone gets the same dependency tree; makes builds reproducible.">package-lock.json</LectureTermWithTip> file. While <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> specifies version ranges (e.g., <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">^18.0.0</code>), the lockfile pins every package to its exact installed version — including all transitive dependencies. This ensures that anyone who clones your project gets the exact same dependency tree, not "approximately the same."
+                When npm installs packages, it creates a <LectureTip tip="Locks exact versions of every package (including transitive deps). Commit this file so everyone gets the same dependency tree; makes builds reproducible.">package-lock.json</LectureTip> file. While <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> specifies version ranges (e.g., <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">^18.0.0</code>), the lockfile pins every package to its exact installed version — including all transitive dependencies. This ensures that anyone who clones your project gets the exact same dependency tree, not "approximately the same."
             </LectureP>
 
             <LectureCallout type="warning">
@@ -157,19 +156,19 @@ export default function Week5Lecture1() {
             />
 
             <LectureCallout type="tip">
-                <LectureTip tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureTip> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
+                <LectureTip code tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureTip> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
             </LectureCallout>
 
             {/* ── 04 PIP ──────────────────────────────────────────────────────── */}
             <LectureSectionHeading number="04" title="pip — Python's Package Manager" />
 
             <LectureP>
-                <LectureTermWithTip tip="Pip Installs Packages. Python's default package manager; installs from PyPI. Use inside a virtual environment so projects don't share global packages.">pip</LectureTermWithTip> is Python's package manager. It installs packages from PyPI (the Python Package Index). The workflow is similar to npm, but Python projects use a <LectureTermWithTip tip="An isolated Python environment per project. Activate it with source .venv/bin/activate; pip install then only affects that project.">virtual environment</LectureTermWithTip> instead of a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder to isolate dependencies.
+                <LectureTip tip="Pip Installs Packages. Python's default package manager; installs from PyPI. Use inside a virtual environment so projects don't share global packages.">pip</LectureTip> is Python's package manager. It installs packages from PyPI (the Python Package Index). The workflow is similar to npm, but Python projects use a <LectureTip tip="An isolated Python environment per project. Activate it with source .venv/bin/activate; pip install then only affects that project.">virtual environment</LectureTip> instead of a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder to isolate dependencies.
             </LectureP>
 
             <LectureSubHeading title="Virtual environments" />
             <LectureP>
-                Without a virtual environment, pip installs packages globally — meaning every Python project on your machine shares the same package versions. This causes version conflicts when Project A needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.25</code> and Project B needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.31</code>. A <LectureTermWithTip tip="A folder (e.g. .venv) containing a copy of the Python interpreter and project-specific packages. Prevents version conflicts between projects.">virtual environment</LectureTermWithTip> creates an isolated Python installation per project so each project has its own packages.
+                Without a virtual environment, pip installs packages globally — meaning every Python project on your machine shares the same package versions. This causes version conflicts when Project A needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.25</code> and Project B needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.31</code>. A <LectureTip tip="A folder (e.g. .venv) containing a copy of the Python interpreter and project-specific packages. Prevents version conflicts between projects.">virtual environment</LectureTip> creates an isolated Python installation per project so each project has its own packages.
             </LectureP>
 
             <TerminalBlock
@@ -186,7 +185,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                The <LectureTip tip="pip freeze: outputs every installed package and its exact version in a format suitable for a requirements.txt file. Like package-lock.json for Python — captures the exact state of your environment.">pip freeze</LectureTip> command captures your exact environment to a <LectureTermWithTip tip="A text file listing package names and versions (one per line). pip install -r requirements.txt recreates the environment. Commit this; don't commit .venv.">requirements.txt</LectureTermWithTip> file. This is Python's equivalent of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> — it pins exact versions so anyone who runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install -r requirements.txt</code> gets the same environment.
+                The <LectureTip code tip="pip freeze: outputs every installed package and its exact version in a format suitable for a requirements.txt file. Like package-lock.json for Python — captures the exact state of your environment.">pip freeze</LectureTip> command captures your exact environment to a <LectureTip tip="A text file listing package names and versions (one per line). pip install -r requirements.txt recreates the environment. Commit this; don't commit .venv.">requirements.txt</LectureTip> file. This is Python's equivalent of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> — it pins exact versions so anyone who runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install -r requirements.txt</code> gets the same environment.
             </LectureP>
 
             <LectureCallout type="info">
@@ -197,7 +196,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="05" title="apt — Linux System Package Manager" />
 
             <LectureP>
-                <LectureTermWithTip tip="Advanced Package Tool. The default package manager for Debian and Ubuntu. Manages system software: run apt update before apt install.">apt</LectureTermWithTip> (Advanced Package Tool) is the system-level package manager for Debian and Ubuntu — the Linux distributions you'll encounter on most servers. Unlike npm and pip which manage language-level libraries, apt manages system-level software: web servers, databases, programming language runtimes, system utilities.
+                <LectureTip tip="Advanced Package Tool. The default package manager for Debian and Ubuntu. Manages system software: run apt update before apt install.">apt</LectureTip> (Advanced Package Tool) is the system-level package manager for Debian and Ubuntu — the Linux distributions you'll encounter on most servers. Unlike npm and pip which manage language-level libraries, apt manages system-level software: web servers, databases, programming language runtimes, system utilities.
             </LectureP>
             <LectureP>
                 When you install Node.js on a fresh Ubuntu server, you use apt. When you install PostgreSQL or nginx or Python, you use apt. It's the foundation layer that everything else sits on top of.
@@ -218,12 +217,12 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                The difference between <LectureTip tip="apt remove: uninstalls the package binary but leaves configuration files in place. Useful if you plan to reinstall later and want to keep your settings.">apt remove</LectureTip> and <LectureTip tip="apt purge: uninstalls the package AND deletes all its configuration files. Use this for a clean uninstall — like it was never there.">apt purge</LectureTip> matters when you're managing servers. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">remove</code> leaves config files behind (useful if you might reinstall). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">purge</code> cleans everything out completely.
+                The difference between <LectureTip code tip="apt remove: uninstalls the package binary but leaves configuration files in place. Useful if you plan to reinstall later and want to keep your settings.">apt remove</LectureTip> and <LectureTip code tip="apt purge: uninstalls the package AND deletes all its configuration files. Use this for a clean uninstall — like it was never there.">apt purge</LectureTip> matters when you're managing servers. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">remove</code> leaves config files behind (useful if you might reinstall). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">purge</code> cleans everything out completely.
             </LectureP>
 
             <LectureSubHeading title="PPAs and external repositories" />
             <LectureP>
-                Not every package is in Ubuntu's default repositories. For software like the latest version of Node.js, you often need to add a <LectureTermWithTip tip="Personal Package Archive. A third-party repository for Ubuntu/Debian that provides packages not in the official repos. Add with add-apt-repository.">PPA</LectureTermWithTip> (Personal Package Archive) or an external repository before you can install it.
+                Not every package is in Ubuntu's default repositories. For software like the latest version of Node.js, you often need to add a <LectureTip tip="Personal Package Archive. A third-party repository for Ubuntu/Debian that provides packages not in the official repos. Add with add-apt-repository.">PPA</LectureTip> (Personal Package Archive) or an external repository before you can install it.
             </LectureP>
 
             <TerminalBlock
@@ -242,7 +241,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="06" title="brew — macOS Package Manager" />
 
             <LectureP>
-                <LectureTermWithTip tip="The de facto macOS package manager. Installs CLI tools (formulae) and GUI apps (casks). Install from brew.sh; then use brew install for everything else.">Homebrew</LectureTermWithTip> is the unofficial-but-universal package manager for macOS. Apple ships a minimal set of tools — Homebrew fills the gap with thousands of packages that developers need.
+                <LectureTip tip="The de facto macOS package manager. Installs CLI tools (formulae) and GUI apps (casks). Install from brew.sh; then use brew install for everything else.">Homebrew</LectureTip> is the unofficial-but-universal package manager for macOS. Apple ships a minimal set of tools — Homebrew fills the gap with thousands of packages that developers need.
             </LectureP>
 
             <TerminalBlock
@@ -258,7 +257,7 @@ export default function Week5Lecture1() {
             />
 
             <LectureP>
-                Homebrew distinguishes between <LectureTermWithTip tip="Homebrew's term for a command-line tool or library (e.g. git, node). Install with brew install <name>.">formulae</LectureTermWithTip> (command-line tools and libraries, like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">postgresql</code>) and <LectureTermWithTip tip="Homebrew's term for a GUI application (.app). Install with brew install --cask <name>; goes to your Applications folder.">casks</LectureTermWithTip> (GUI applications, like VS Code, Chrome, or Docker Desktop). The <LectureTip tip="--cask flag: tells brew to install a GUI application rather than a command-line tool. Casks are macOS .app bundles that install into your Applications folder.">--cask</LectureTip> flag is how you install GUI apps.
+                Homebrew distinguishes between <LectureTip tip="Homebrew's term for a command-line tool or library (e.g. git, node). Install with brew install <name>.">formulae</LectureTip> (command-line tools and libraries, like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">postgresql</code>) and <LectureTip tip="Homebrew's term for a GUI application (.app). Install with brew install --cask <name>; goes to your Applications folder.">casks</LectureTip> (GUI applications, like VS Code, Chrome, or Docker Desktop). The <LectureTip code tip="--cask flag: tells brew to install a GUI application rather than a command-line tool. Casks are macOS .app bundles that install into your Applications folder.">--cask</LectureTip> flag is how you install GUI apps.
             </LectureP>
 
             <LectureCallout type="tip">
@@ -269,7 +268,7 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="07" title="Semantic Versioning" />
 
             <LectureP>
-                Every package has a version number. Understanding how versioning works helps you make informed decisions about what to install and when to upgrade. The standard format is <LectureTermWithTip tip="Semantic versioning: MAJOR = breaking changes, MINOR = new features (backward compatible), PATCH = bug fixes. e.g. 18.2.0.">MAJOR.MINOR.PATCH</LectureTermWithTip> — for example, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">18.2.0</code>.
+                Every package has a version number. Understanding how versioning works helps you make informed decisions about what to install and when to upgrade. The standard format is <LectureTip tip="Semantic versioning: MAJOR = breaking changes, MINOR = new features (backward compatible), PATCH = bug fixes. e.g. 18.2.0.">MAJOR.MINOR.PATCH</LectureTip> — for example, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">18.2.0</code>.
             </LectureP>
 
             <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden">
@@ -307,7 +306,7 @@ export default function Week5Lecture1() {
             </div>
 
             <LectureP>
-                In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code>, version ranges use special symbols. A <LectureTip tip="^ (caret) in package.json: accepts any version compatible with the specified version. ^18.2.0 means 'any version >= 18.2.0 and < 19.0.0'. Will automatically get new features and bug fixes but not breaking changes.">^</LectureTip> (caret) means "compatible with" — it will accept newer minor and patch versions but not a new major. A <LectureTip tip="~ (tilde) in package.json: more restrictive than caret. ~18.2.0 means 'any version >= 18.2.0 and < 18.3.0'. Only accepts patch-level updates.">~</LectureTip> (tilde) is more restrictive — only patch updates. No prefix means exactly that version.
+                In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code>, version ranges use special symbols. A <LectureTip code tip="^ (caret) in package.json: accepts any version compatible with the specified version. ^18.2.0 means 'any version >= 18.2.0 and < 19.0.0'. Will automatically get new features and bug fixes but not breaking changes.">^</LectureTip> (caret) means "compatible with" — it will accept newer minor and patch versions but not a new major. A <LectureTip code tip="~ (tilde) in package.json: more restrictive than caret. ~18.2.0 means 'any version >= 18.2.0 and < 18.3.0'. Only accepts patch-level updates.">~</LectureTip> (tilde) is more restrictive — only patch updates. No prefix means exactly that version.
             </LectureP>
 
             <LectureCallout type="info">

@@ -6,7 +6,7 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTermWithTip,
+    LectureTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -78,26 +78,26 @@ export default function Week6Lecture1() {
             <LectureSectionHeading number="01" title="How the Web Actually Works" />
 
             <LectureP>
-                Every time your React app fetches data, it's making an <LectureTermWithTip tip="A message from client to server: method (GET, POST, etc.), URL, headers, and optional body. Sent over TCP, usually on port 80 (HTTP) or 443 (HTTPS).">HTTP request</LectureTermWithTip> to a server. The server receives the request, does some work, and sends back an <LectureTermWithTip tip="The server's reply: status code (200, 404, etc.), headers, and body (often JSON). The browser or client uses this to update the UI.">HTTP response</LectureTermWithTip>. This request/response cycle is the foundation of everything on the web.
+                Every time your React app fetches data, it's making an <LectureTip tip="A message from client to server: method (GET, POST, etc.), URL, headers, and optional body. Sent over TCP, usually on port 80 (HTTP) or 443 (HTTPS).">HTTP request</LectureTip> to a server. The server receives the request, does some work, and sends back an <LectureTip tip="The server's reply: status code (200, 404, etc.), headers, and body (often JSON). The browser or client uses this to update the UI.">HTTP response</LectureTip>. This request/response cycle is the foundation of everything on the web.
             </LectureP>
 
             <RequestCycleDiagram />
 
             <LectureP>
-                A <LectureTermWithTip tip="Representational State Transfer. An API design style: resources as URLs, CRUD via HTTP methods, stateless requests. Common and well-understood.">REST API</LectureTermWithTip> is a server that exposes data through a predictable set of URLs called <LectureTermWithTip tip="A URL path + HTTP method that the server handles. e.g. GET /notes returns the list; POST /notes creates one.">endpoints</LectureTermWithTip>. Each endpoint responds to specific HTTP methods. The convention maps methods to CRUD operations: Create → POST, Read → GET, Update → PUT/PATCH, Delete → DELETE.
+                A <LectureTip tip="Representational State Transfer. An API design style: resources as URLs, CRUD via HTTP methods, stateless requests. Common and well-understood.">REST API</LectureTip> is a server that exposes data through a predictable set of URLs called <LectureTip tip="A URL path + HTTP method that the server handles. e.g. GET /notes returns the list; POST /notes creates one.">endpoints</LectureTip>. Each endpoint responds to specific HTTP methods. The convention maps methods to CRUD operations: Create → POST, Read → GET, Update → PUT/PATCH, Delete → DELETE.
             </LectureP>
 
             <HttpMethodsTable />
 
             <LectureCallout type="info">
-                HTTP responses include a <LectureTermWithTip tip="A number that indicates result: 2xx success, 3xx redirect, 4xx client error (e.g. 404), 5xx server error. FastAPI sets these for you.">status code</LectureTermWithTip> that tells the client what happened. The ranges: 2xx = success (200 OK, 201 Created, 204 No Content), 3xx = redirect, 4xx = client error (400 Bad Request, 401 Unauthorized, 404 Not Found, 422 Validation Error), 5xx = server error (500 Internal Server Error). FastAPI handles most of these automatically.
+                HTTP responses include a <LectureTip tip="A number that indicates result: 2xx success, 3xx redirect, 4xx client error (e.g. 404), 5xx server error. FastAPI sets these for you.">status code</LectureTip> that tells the client what happened. The ranges: 2xx = success (200 OK, 201 Created, 204 No Content), 3xx = redirect, 4xx = client error (400 Bad Request, 401 Unauthorized, 404 Not Found, 422 Validation Error), 5xx = server error (500 Internal Server Error). FastAPI handles most of these automatically.
             </LectureCallout>
 
             {/* ── 02 WHAT IS FASTAPI ───────────────────────────────────────────── */}
             <LectureSectionHeading number="02" title="What is FastAPI?" />
 
             <LectureP>
-                <LectureTermWithTip tip="A Python web framework for APIs. Uses type hints for validation, auto-generates OpenAPI docs, and supports async. Built on Starlette and Pydantic.">FastAPI</LectureTermWithTip> is a modern Python web framework for building APIs. It's built on two things: <LectureTermWithTip tip="A lightweight ASGI framework. FastAPI wraps it to add validation, docs, and dependency injection.">Starlette</LectureTermWithTip> (an async web framework) and <LectureTermWithTip tip="A library for data validation using Python type hints. FastAPI uses it for request/response bodies and settings.">Pydantic</LectureTermWithTip> (a data validation library). Together they give you automatic request validation, automatic response serialization, automatic API documentation, and excellent performance — all with minimal boilerplate.
+                <LectureTip tip="A Python web framework for APIs. Uses type hints for validation, auto-generates OpenAPI docs, and supports async. Built on Starlette and Pydantic.">FastAPI</LectureTip> is a modern Python web framework for building APIs. It's built on two things: <LectureTip tip="A lightweight ASGI framework. FastAPI wraps it to add validation, docs, and dependency injection.">Starlette</LectureTip> (an async web framework) and <LectureTip tip="A library for data validation using Python type hints. FastAPI uses it for request/response bodies and settings.">Pydantic</LectureTip> (a data validation library). Together they give you automatic request validation, automatic response serialization, automatic API documentation, and excellent performance — all with minimal boilerplate.
             </LectureP>
             <LectureP>
                 FastAPI uses Python type hints to do all of this. You annotate your function parameters with types, and FastAPI figures out the rest — where each value comes from (URL, query string, request body), how to validate it, and how to document it.
@@ -160,7 +160,7 @@ export default function Week6Lecture1() {
             <LectureSectionHeading number="03" title="Pydantic Models" />
 
             <LectureP>
-                <LectureTermWithTip tip="Validates and serializes data using type annotations. BaseModel classes define shape; invalid input raises clear validation errors.">Pydantic</LectureTermWithTip> is FastAPI's validation engine. When you define a class that inherits from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BaseModel</code>, Pydantic automatically validates any data passed to it — coercing types where possible, and raising clear validation errors when data doesn't match.
+                <LectureTip tip="Validates and serializes data using type annotations. BaseModel classes define shape; invalid input raises clear validation errors.">Pydantic</LectureTip> is FastAPI's validation engine. When you define a class that inherits from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BaseModel</code>, Pydantic automatically validates any data passed to it — coercing types where possible, and raising clear validation errors when data doesn't match.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
@@ -232,7 +232,7 @@ export default function Week6Lecture1() {
             <LectureSectionHeading number="05" title="Error Handling" />
 
             <LectureP>
-                When something goes wrong — a note isn't found, a user isn't authorized — you raise an <LectureTermWithTip tip="FastAPI's way to return an error response. You set status_code and detail; FastAPI serializes it to JSON and sends the right status.">HTTPException</LectureTermWithTip>. FastAPI catches it and returns a properly formatted JSON error response with the correct status code.
+                When something goes wrong — a note isn't found, a user isn't authorized — you raise an <LectureTip tip="FastAPI's way to return an error response. You set status_code and detail; FastAPI serializes it to JSON and sends the right status.">HTTPException</LectureTip>. FastAPI catches it and returns a properly formatted JSON error response with the correct status code.
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
@@ -257,10 +257,10 @@ export default function Week6Lecture1() {
             <LectureSectionHeading number="06" title="CORS — Letting Your Frontend Talk to Your Backend" />
 
             <LectureP>
-                When your React app (running on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:5173</code>) tries to fetch from your FastAPI server (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:8000</code>), the browser blocks it. This is the <LectureTermWithTip tip="Browser rule: a page can only freely request to the same origin (scheme + host + port). Different port or domain is 'cross-origin' and restricted.">Same-Origin Policy</LectureTermWithTip> — a security feature that prevents one website from making requests to a different domain without permission.
+                When your React app (running on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:5173</code>) tries to fetch from your FastAPI server (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:8000</code>), the browser blocks it. This is the <LectureTip tip="Browser rule: a page can only freely request to the same origin (scheme + host + port). Different port or domain is 'cross-origin' and restricted.">Same-Origin Policy</LectureTip> — a security feature that prevents one website from making requests to a different domain without permission.
             </LectureP>
             <LectureP>
-                You grant permission with <LectureTermWithTip tip="Cross-Origin Resource Sharing. HTTP headers that tell the browser which origins may call your API. The server sends Allow-Origin and related headers.">CORS</LectureTermWithTip> (Cross-Origin Resource Sharing) headers. FastAPI includes middleware to handle this:
+                You grant permission with <LectureTip tip="Cross-Origin Resource Sharing. HTTP headers that tell the browser which origins may call your API. The server sends Allow-Origin and related headers.">CORS</LectureTip> (Cross-Origin Resource Sharing) headers. FastAPI includes middleware to handle this:
             </LectureP>
 
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">

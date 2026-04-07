@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 import { CodeBlock } from '@/components/ui/code-block';
@@ -27,7 +26,7 @@ export default function Week10Lecture2() {
             <LectureSectionHeading number="01" title="What is CI/CD?" />
 
             <LectureP>
-                <LectureTermWithTip tip="Continuous Integration: every time someone pushes code, the project is built and tested automatically. Catches breakage before it reaches production.">CI</LectureTermWithTip> (Continuous Integration) means your tests and build run automatically on every push or pull request. <LectureTermWithTip tip="Continuous Deployment/Delivery: automatically deploy when tests pass. For this course we focus on CI; deployment is Week 11.">CD</LectureTermWithTip> can mean automatically deploying when tests pass. For now we'll focus on CI: run tests and report results so no one merges broken code.
+                <LectureTip tip="Continuous Integration: every time someone pushes code, the project is built and tested automatically. Catches breakage before it reaches production.">CI</LectureTip> (Continuous Integration) means your tests and build run automatically on every push or pull request. <LectureTip tip="Continuous Deployment/Delivery: automatically deploy when tests pass. For this course we focus on CI; deployment is Week 11.">CD</LectureTip> can mean automatically deploying when tests pass. For now we'll focus on CI: run tests and report results so no one merges broken code.
             </LectureP>
             <LectureP>
                 GitHub Actions is GitHub's built-in CI: you add a <LectureTerm>workflow</LectureTerm> file (YAML) to your repo that defines when to run (e.g. on push to main, on every PR) and what steps to run (checkout code, install deps, run tests). The run happens in a fresh virtual machine; you see pass/fail and logs on the PR. Free for public repos and generous for private.
@@ -81,7 +80,7 @@ export default function Week10Lecture2() {
                 ]}
             />
             <LectureCallout type="info">
-                Use <LectureTip tip="npm ci — installs exactly what's in package-lock.json. Faster and more reproducible than npm install for CI.">npm ci</LectureTip> in CI instead of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code> so the install is deterministic and matches your lockfile.
+                Use <LectureTip code tip="npm ci — installs exactly what's in package-lock.json. Faster and more reproducible than npm install for CI.">npm ci</LectureTip> in CI instead of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install</code> so the install is deterministic and matches your lockfile.
             </LectureCallout>
 
             <LectureSectionHeading number="03" title="Coverage" />

@@ -7,7 +7,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
+    LectureTip,
 } from '@/components/ui/lecture-typography';
 
 // ── PR workflow diagram ──────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="01" title="From Git to Collaboration" />
 
             <LectureP>
-                You now know how to branch, commit, and merge locally. In practice, teams don't merge by running <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git merge</code> on each other's branches. They use <LectureTermWithTip tip="A proposal to merge your branch into another (usually main). Includes a description, discussion thread, and optional required approvals before merge.">pull requests</LectureTermWithTip> (PRs): you push your branch to GitHub, open a PR to propose merging it into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, someone reviews your code, and then the merge happens. The PR is the unit of review and the audit trail for every change.
+                You now know how to branch, commit, and merge locally. In practice, teams don't merge by running <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git merge</code> on each other's branches. They use <LectureTip tip="A proposal to merge your branch into another (usually main). Includes a description, discussion thread, and optional required approvals before merge.">pull requests</LectureTip> (PRs): you push your branch to GitHub, open a PR to propose merging it into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, someone reviews your code, and then the merge happens. The PR is the unit of review and the audit trail for every change.
             </LectureP>
             <LectureP>
                 Pull requests connect Git (the mechanics) to how work actually gets done: an issue describes what to build, a branch holds the code, and the PR ties them together so that when the PR merges, the issue closes and the board updates. That loop — idea → issue → branch → PR → merge → done — is the Agile workflow in practice.
@@ -118,7 +118,7 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="03" title="Issues as the Source of Work" />
 
             <LectureP>
-                Every piece of work should start as an <LectureTermWithTip tip="A single unit of work in GitHub: bug report, feature request, or task. Has a title, description, labels, and can be linked to PRs.">issue</LectureTermWithTip>: a bug report, a feature request, or a task. Issues live in the <LectureTermWithTip tip="The ordered list of work that might get done. Items sit here until the team pulls them into the current sprint or cycle.">backlog</LectureTermWithTip> until the team decides to do them. When you're ready to work on something, you assign yourself (or get it assigned), create a branch, and when you open a PR you link it to the issue. That way the issue tracks the work from "to do" to "in progress" to "done."
+                Every piece of work should start as an <LectureTip tip="A single unit of work in GitHub: bug report, feature request, or task. Has a title, description, labels, and can be linked to PRs.">issue</LectureTip>: a bug report, a feature request, or a task. Issues live in the <LectureTip tip="The ordered list of work that might get done. Items sit here until the team pulls them into the current sprint or cycle.">backlog</LectureTip> until the team decides to do them. When you're ready to work on something, you assign yourself (or get it assigned), create a branch, and when you open a PR you link it to the issue. That way the issue tracks the work from "to do" to "in progress" to "done."
             </LectureP>
             <LectureP>
                 Issues don't have to be huge. "Add a README section for setup" is a valid issue. "Fix typo in login error message" is too. The goal is traceability: every change is tied to a reason, and every reason is visible in the backlog and on the board.
@@ -132,10 +132,10 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="04" title="Agile in One Page" />
 
             <LectureP>
-                <LectureTermWithTip tip="A mindset and set of practices: deliver working software in small increments, get feedback early, and adapt. Emphasizes people and flexibility over rigid plans.">Agile</LectureTermWithTip> means shipping small increments, getting feedback, and adapting. Instead of planning a whole product upfront and building it in one shot (waterfall), teams work in short cycles: pick a chunk of work from the backlog, build it, ship it, learn from it, then repeat. The backlog is the ordered list of everything that might get built; the current cycle (sprint or just "in progress") is what the team is doing now.
+                <LectureTip tip="A mindset and set of practices: deliver working software in small increments, get feedback early, and adapt. Emphasizes people and flexibility over rigid plans.">Agile</LectureTip> means shipping small increments, getting feedback, and adapting. Instead of planning a whole product upfront and building it in one shot (waterfall), teams work in short cycles: pick a chunk of work from the backlog, build it, ship it, learn from it, then repeat. The backlog is the ordered list of everything that might get built; the current cycle (sprint or just "in progress") is what the team is doing now.
             </LectureP>
             <LectureP>
-                Two common ways to run this: <LectureTermWithTip tip="A framework with fixed-length iterations (sprints), planning at the start, and a retrospective at the end. Roles include Scrum Master and Product Owner.">Scrum</LectureTermWithTip> (fixed-length sprints, e.g. 2 weeks, with planning and retro at the boundaries) and <LectureTermWithTip tip="A flow-based method. Work moves across columns (e.g. To Do → In Progress → Done). No fixed sprint length; optional WIP limits per column.">Kanban</LectureTermWithTip> (continuous flow with a board and optional WIP limits). Many teams mix both: a board with columns like Backlog → In Progress → In Review → Done, and optional time-boxed sprints for planning and demos.
+                Two common ways to run this: <LectureTip tip="A framework with fixed-length iterations (sprints), planning at the start, and a retrospective at the end. Roles include Scrum Master and Product Owner.">Scrum</LectureTip> (fixed-length sprints, e.g. 2 weeks, with planning and retro at the boundaries) and <LectureTip tip="A flow-based method. Work moves across columns (e.g. To Do → In Progress → Done). No fixed sprint length; optional WIP limits per column.">Kanban</LectureTip> (continuous flow with a board and optional WIP limits). Many teams mix both: a board with columns like Backlog → In Progress → In Review → Done, and optional time-boxed sprints for planning and demos.
             </LectureP>
 
             <KanbanBoard />
@@ -148,7 +148,7 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="05" title="GitHub Projects — Your Board in the Repo" />
 
             <LectureP>
-                <LectureTermWithTip tip="GitHub's built-in project management: boards or tables linked to your repo. Issues become cards; PRs that close issues update the board automatically.">GitHub Projects</LectureTermWithTip> gives you a board (Kanban or table view) tied directly to your repo. Create a project from the repo's Projects tab, add columns like Backlog, In Progress, In Review, Done, and add your issues as cards. When you open a PR that "Closes #5," the issue card can move to Done automatically. No separate Jira or Trello — the board lives next to the code.
+                <LectureTip tip="GitHub's built-in project management: boards or tables linked to your repo. Issues become cards; PRs that close issues update the board automatically.">GitHub Projects</LectureTip> gives you a board (Kanban or table view) tied directly to your repo. Create a project from the repo's Projects tab, add columns like Backlog, In Progress, In Review, Done, and add your issues as cards. When you open a PR that "Closes #5," the issue card can move to Done automatically. No separate Jira or Trello — the board lives next to the code.
             </LectureP>
             <LectureP>
                 For this course, you'll create a GitHub Project for your capstone repo, add issues for the work you plan across the remaining weeks, and ship every deliverable via a PR that closes an issue. By the end you'll have a real workflow: idea → issue → branch → PR → review → merge → done.
@@ -187,7 +187,7 @@ export default function Week4Lecture2() {
                 Read the PR description first so you understand the intent. Then look at the diff: does the code do what the description says? Are there edge cases? Is anything confusing? Leave comments on specific lines — GitHub lets you click a line number in the diff to start a comment thread. Be constructive: explain <em>why</em> something should change, not just <em>that</em> it should.
             </LectureP>
             <LectureP>
-                GitHub offers a <LectureTermWithTip tip="Click the ± icon on a line in a PR diff and write a code suggestion in a fenced code block. The author can accept with one click and it creates a commit automatically. Faster than describing the change in words.">Suggest changes</LectureTermWithTip> feature: click the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">±</code> icon on a line, write your proposed code, and the author can accept it with one click. This is faster than describing a change in words.
+                GitHub offers a <LectureTip tip="Click the ± icon on a line in a PR diff and write a code suggestion in a fenced code block. The author can accept with one click and it creates a commit automatically. Faster than describing the change in words.">Suggest changes</LectureTip> feature: click the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">±</code> icon on a line, write your proposed code, and the author can accept it with one click. This is faster than describing a change in words.
             </LectureP>
             <LectureP>
                 When you're done, submit your review with one of three statuses: <LectureTerm>Approve</LectureTerm> (looks good, merge it), <LectureTerm>Request changes</LectureTerm> (needs work before merging), or <LectureTerm>Comment</LectureTerm> (feedback without a blocking verdict).
@@ -206,7 +206,7 @@ export default function Week4Lecture2() {
             <LectureSectionHeading number="07" title="Branch Protection" />
 
             <LectureP>
-                In industry, nobody can push directly to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> — it's protected. <LectureTermWithTip tip="Repository settings that prevent direct pushes to a branch. Typically require a PR with at least one approval, passing CI checks, and an up-to-date branch before merge is allowed.">Branch protection rules</LectureTermWithTip> enforce that every change goes through a PR, gets at least one approval, and passes automated checks (like tests or linting) before it can be merged.
+                In industry, nobody can push directly to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> — it's protected. <LectureTip tip="Repository settings that prevent direct pushes to a branch. Typically require a PR with at least one approval, passing CI checks, and an up-to-date branch before merge is allowed.">Branch protection rules</LectureTip> enforce that every change goes through a PR, gets at least one approval, and passes automated checks (like tests or linting) before it can be merged.
             </LectureP>
             <LectureP>
                 You can set this up in your GitHub repo right now: go to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Settings → Branches → Add rule</code>, select <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and enable "Require a pull request before merging." For solo projects, you can still enable this and approve your own PRs — the habit of never pushing to main directly is worth building early.

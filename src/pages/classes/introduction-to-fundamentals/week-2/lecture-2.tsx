@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { CodeBlock } from '@/components/ui/code-block';
 
@@ -27,22 +26,22 @@ export default function Week2Lecture2() {
             <LectureSectionHeading number="01" title="Hash Maps — The O(1) Lookup" />
 
             <LectureP>
-                A <LectureTermWithTip tip="Key-value store with O(1) average lookup, insert, and delete. Also called hash table, dictionary, or associative array. The single most useful data structure in programming.">hash map</LectureTermWithTip> (also called a hash table, dictionary, or associative array) stores key-value pairs and lets you look up any value by its key in <strong className="text-foreground">average O(1) time</strong>. This is the single most useful data structure in programming — it powers caches, database indexes, routers, compilers, and roughly half of all interview solutions.
+                A <LectureTip tip="Key-value store with O(1) average lookup, insert, and delete. Also called hash table, dictionary, or associative array. The single most useful data structure in programming.">hash map</LectureTip> (also called a hash table, dictionary, or associative array) stores key-value pairs and lets you look up any value by its key in <strong className="text-foreground">average O(1) time</strong>. This is the single most useful data structure in programming — it powers caches, database indexes, routers, compilers, and roughly half of all interview solutions.
             </LectureP>
 
             <LectureSubHeading title="How it works" />
 
             <LectureP>
-                A hash map uses a <LectureTermWithTip tip="Converts a key into an array index (bucket number). Deterministic: same key always produces the same index. A good hash function distributes keys uniformly across buckets.">hash function</LectureTermWithTip> to convert a key into an array index (called a <LectureTerm>bucket</LectureTerm>). The value is stored at that index. When you look up a key, the hash function computes the same index, and retrieval is instant — no searching required.
+                A hash map uses a <LectureTip tip="Converts a key into an array index (bucket number). Deterministic: same key always produces the same index. A good hash function distributes keys uniformly across buckets.">hash function</LectureTip> to convert a key into an array index (called a <LectureTerm>bucket</LectureTerm>). The value is stored at that index. When you look up a key, the hash function computes the same index, and retrieval is instant — no searching required.
             </LectureP>
             <LectureP>
-                When two different keys hash to the same bucket, that is a <LectureTermWithTip tip="Two different keys hash to the same bucket. Resolved by chaining (linked list per bucket) or open addressing (probe for the next open slot). Why O(1) is average, not guaranteed.">collision</LectureTermWithTip>. Hash maps resolve collisions through <em>chaining</em> (each bucket holds a linked list of entries) or <em>open addressing</em> (probe for the next available slot). You do not need to implement collision resolution — Python handles it — but understanding the mechanism explains why O(1) is the <em>average</em> case, not a guarantee. In the worst case (all keys collide), every operation degrades to O(n).
+                When two different keys hash to the same bucket, that is a <LectureTip tip="Two different keys hash to the same bucket. Resolved by chaining (linked list per bucket) or open addressing (probe for the next open slot). Why O(1) is average, not guaranteed.">collision</LectureTip>. Hash maps resolve collisions through <em>chaining</em> (each bucket holds a linked list of entries) or <em>open addressing</em> (probe for the next available slot). You do not need to implement collision resolution — Python handles it — but understanding the mechanism explains why O(1) is the <em>average</em> case, not a guarantee. In the worst case (all keys collide), every operation degrades to O(n).
             </LectureP>
 
             <LectureSubHeading title="Python's dict and set" />
 
             <LectureP>
-                Python's <LectureTip tip="Python's built-in hash map. O(1) average lookup, insert, delete by key. The most-used data structure in Python — you've been using it since day one.">dict</LectureTip> is a hash map. <LectureTip tip="Python's hash set — stores unique keys only (no values). O(1) average membership test. Use for deduplication and fast 'have I seen this?' checks.">set</LectureTip> is a hash set (keys only, no values). You have been using hash maps since day one. The <LectureTip tip="Membership operator. O(1) on dict/set (hash lookup). O(n) on list (linear scan). Always prefer set/dict for membership checks over list.">in</LectureTip> operator on a dict or set is O(1) average — on a list, it is O(n) because every element must be checked.
+                Python's <LectureTip code tip="Python's built-in hash map. O(1) average lookup, insert, delete by key. The most-used data structure in Python — you've been using it since day one.">dict</LectureTip> is a hash map. <LectureTip code tip="Python's hash set — stores unique keys only (no values). O(1) average membership test. Use for deduplication and fast 'have I seen this?' checks.">set</LectureTip> is a hash set (keys only, no values). You have been using hash maps since day one. The <LectureTip code tip="Membership operator. O(1) on dict/set (hash lookup). O(n) on list (linear scan). Always prefer set/dict for membership checks over list.">in</LectureTip> operator on a dict or set is O(1) average — on a list, it is O(n) because every element must be checked.
             </LectureP>
 
             <CodeBlock language="python"
@@ -80,7 +79,7 @@ export default function Week2Lecture2() {
             <LectureSectionHeading number="02" title="Big-O Notation" />
 
             <LectureP>
-                <LectureTermWithTip tip="Describes how an algorithm's runtime or space grows with input size. Drop constants and lower-order terms: 2n + 5 is O(n). Focused on the growth rate, not the exact time.">Big-O notation</LectureTermWithTip> describes how an algorithm's runtime (or space usage) grows as the input size grows. We care about the <strong className="text-foreground">growth rate</strong>, not the exact time — we drop constants and lower-order terms because they become irrelevant at scale. An O(n) algorithm might be slower than O(n²) for n = 5, but for n = 1,000,000 the difference is between one second and eleven days.
+                <LectureTip tip="Describes how an algorithm's runtime or space grows with input size. Drop constants and lower-order terms: 2n + 5 is O(n). Focused on the growth rate, not the exact time.">Big-O notation</LectureTip> describes how an algorithm's runtime (or space usage) grows as the input size grows. We care about the <strong className="text-foreground">growth rate</strong>, not the exact time — we drop constants and lower-order terms because they become irrelevant at scale. An O(n) algorithm might be slower than O(n²) for n = 5, but for n = 1,000,000 the difference is between one second and eleven days.
             </LectureP>
 
             <LectureSubHeading title="The common complexities" />
@@ -204,7 +203,7 @@ export default function Week2Lecture2() {
             <LectureSectionHeading number="04" title="Two-Pointer Pattern" />
 
             <LectureP>
-                The <LectureTermWithTip tip="Two indices moving through a data structure in coordinated fashion. Turns O(n²) pair-checking into O(n). Two variants: opposite ends (sorted input) and same direction (in-place manipulation).">two-pointer pattern</LectureTermWithTip> uses two indices that move through a data structure in a coordinated way, reducing what would be O(n²) brute-force (checking every pair) to O(n). It appears in dozens of interview problems and has two main variants.
+                The <LectureTip tip="Two indices moving through a data structure in coordinated fashion. Turns O(n²) pair-checking into O(n). Two variants: opposite ends (sorted input) and same direction (in-place manipulation).">two-pointer pattern</LectureTip> uses two indices that move through a data structure in a coordinated way, reducing what would be O(n²) brute-force (checking every pair) to O(n). It appears in dozens of interview problems and has two main variants.
             </LectureP>
 
             <LectureSubHeading title="Opposite ends" />
@@ -284,7 +283,7 @@ export default function Week2Lecture2() {
             <LectureSectionHeading number="05" title="Sliding Window Pattern" />
 
             <LectureP>
-                The <LectureTermWithTip tip="A contiguous subarray or substring that slides across input. Each element enters and leaves the window exactly once, reducing O(n×k) recalculation to O(n). Fixed-size or variable-size.">sliding window pattern</LectureTermWithTip> maintains a "window" — a contiguous subarray or substring — and slides it across the input, updating a running state as elements enter and leave the window. This reduces O(n × k) brute-force recalculation to O(n) because each element is added and removed from the window exactly once.
+                The <LectureTip tip="A contiguous subarray or substring that slides across input. Each element enters and leaves the window exactly once, reducing O(n×k) recalculation to O(n). Fixed-size or variable-size.">sliding window pattern</LectureTip> maintains a "window" — a contiguous subarray or substring — and slides it across the input, updating a running state as elements enter and leave the window. This reduces O(n × k) brute-force recalculation to O(n) because each element is added and removed from the window exactly once.
             </LectureP>
 
             <LectureSubHeading title="Fixed-size window" />

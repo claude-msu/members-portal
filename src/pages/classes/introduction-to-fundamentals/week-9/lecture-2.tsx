@@ -291,7 +291,7 @@ export default function Week7Lecture2() {
             </div>
 
             <LectureP>
-                The <LectureTip tip="group in Tailwind: add 'group' to a parent element, then use 'group-hover:' on children to apply styles when the parent is hovered. Useful for cards where hovering the card changes the appearance of text inside it.">group</LectureTip> pattern is particularly powerful for cards. Add <code className={CODE_INLINE}>group</code> to the card container, then use <code className={CODE_INLINE}>group-hover:</code> on any child elements you want to change when the card is hovered.
+                The <LectureTip code tip="group in Tailwind: add 'group' to a parent element, then use 'group-hover:' on children to apply styles when the parent is hovered. Useful for cards where hovering the card changes the appearance of text inside it.">group</LectureTip> pattern is particularly powerful for cards. Add <code className={CODE_INLINE}>group</code> to the card container, then use <code className={CODE_INLINE}>group-hover:</code> on any child elements you want to change when the card is hovered.
             </LectureP>
 
             {/* ── 07 DYNAMIC CLASSES IN REACT ─────────────────────────────────── */}
@@ -322,7 +322,7 @@ export default function Week7Lecture2() {
             />
 
             <LectureP>
-                The <LectureTip tip="cn() — a utility function from @/lib/utils that combines clsx (conditional class joining) and tailwind-merge (deduplication of conflicting Tailwind classes). The standard pattern for dynamic Tailwind classes in a React + shadcn project.">cn()</LectureTip> function (from <code className={CODE_INLINE}>@/lib/utils</code>) is already in this project and is the standard way to handle dynamic classes. It merges class strings and intelligently resolves conflicts — so if you pass both <code className={CODE_INLINE}>px-4</code> and <code className={CODE_INLINE}>px-8</code>, <code className={CODE_INLINE}>px-8</code> wins.
+                The <LectureTip code tip="cn() — a utility function from @/lib/utils that combines clsx (conditional class joining) and tailwind-merge (deduplication of conflicting Tailwind classes). The standard pattern for dynamic Tailwind classes in a React + shadcn project.">cn()</LectureTip> function (from <code className={CODE_INLINE}>@/lib/utils</code>) is already in this project and is the standard way to handle dynamic classes. It merges class strings and intelligently resolves conflicts — so if you pass both <code className={CODE_INLINE}>px-4</code> and <code className={CODE_INLINE}>px-8</code>, <code className={CODE_INLINE}>px-8</code> wins.
             </LectureP>
 
             {/* ── 08 BUILDING A COMPONENT ─────────────────────────────────────── */}

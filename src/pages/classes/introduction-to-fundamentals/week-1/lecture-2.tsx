@@ -9,7 +9,6 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTermWithTip,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
 
@@ -35,7 +34,7 @@ export default function Week1Lecture2() {
             </LectureP>
 
             <LectureCallout type="info">
-                On servers, scripts often run without a human at the keyboard — via <LectureTermWithTip tip="Scheduled tasks. cron runs commands at fixed times (e.g. every night at 2am).">cron</LectureTermWithTip>, init systems, or deployment pipelines. That's why making scripts <strong className="text-foreground">fail fast</strong> and use clear paths matters: there's no one there to notice a typo.
+                On servers, scripts often run without a human at the keyboard — via <LectureTip tip="Scheduled tasks. cron runs commands at fixed times (e.g. every night at 2am).">cron</LectureTip>, init systems, or deployment pipelines. That's why making scripts <strong className="text-foreground">fail fast</strong> and use clear paths matters: there's no one there to notice a typo.
             </LectureCallout>
 
             {/* ── 02 THE SHEBANG AND EXECUTING SCRIPTS ───────────────────────── */}
@@ -69,7 +68,7 @@ export default function Week1Lecture2() {
             />
 
             <LectureCallout type="tip">
-                <LectureTip tip="Make a file executable. Required before you can run ./script.sh.">chmod +x</LectureTip> is required before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./backup.sh</code> works. Without execute permission, the shell will refuse to run the file. You only need to run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod +x</code> once per script.
+                <LectureTip code tip="Make a file executable. Required before you can run ./script.sh.">chmod +x</LectureTip> is required before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./backup.sh</code> works. Without execute permission, the shell will refuse to run the file. You only need to run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod +x</code> once per script.
             </LectureCallout>
 
             {/* ── 03 VARIABLES AND QUOTING ─────────────────────────────────────── */}
@@ -91,7 +90,7 @@ export default function Week1Lecture2() {
             />
 
             <LectureP>
-                <LectureTermWithTip tip="Double quotes allow variable expansion. Single quotes treat everything literally.">Double quotes</LectureTermWithTip> let <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">$NAME</code> expand. <LectureTermWithTip tip="Command substitution: run the command and use its output as the string.">$(date)</LectureTermWithTip> runs the command and inserts its output. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'${VAR}'}</code> when the variable name is followed by letters or digits so the shell knows where the name ends.
+                <LectureTip tip="Double quotes allow variable expansion. Single quotes treat everything literally.">Double quotes</LectureTip> let <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">$NAME</code> expand. <LectureTip tip="Command substitution: run the command and use its output as the string.">$(date)</LectureTip> runs the command and inserts its output. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'${VAR}'}</code> when the variable name is followed by letters or digits so the shell knows where the name ends.
             </LectureP>
 
             <LectureCallout type="warning">
@@ -100,7 +99,7 @@ export default function Week1Lecture2() {
 
             <LectureSubHeading title="Script arguments" />
             <LectureP>
-                Scripts can accept input from the command line. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./script.sh Alice Bob</code>, the shell sets special variables: <LectureTermWithTip tip="The first argument passed to the script. $2 is the second, and so on.">$1</LectureTermWithTip> is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Alice</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">$2</code> is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Bob</code>, <LectureTermWithTip tip="All arguments as a single string. Useful for passing everything along to another command.">$@</LectureTermWithTip> is all arguments, and <LectureTermWithTip tip="The number of arguments passed. Useful for validation: check that the user provided enough inputs.">$#</LectureTermWithTip> is the count.
+                Scripts can accept input from the command line. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">./script.sh Alice Bob</code>, the shell sets special variables: <LectureTip tip="The first argument passed to the script. $2 is the second, and so on.">$1</LectureTip> is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Alice</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">$2</code> is <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Bob</code>, <LectureTip tip="All arguments as a single string. Useful for passing everything along to another command.">$@</LectureTip> is all arguments, and <LectureTip tip="The number of arguments passed. Useful for validation: check that the user provided enough inputs.">$#</LectureTip> is the count.
             </LectureP>
 
             <CodeBlock
@@ -144,7 +143,7 @@ export default function Week1Lecture2() {
             />
 
             <LectureP>
-                <LectureTip tip="Quiet mode — no output, only exit code. Perfect for scripts.">grep -q</LectureTip> succeeds (exit 0) if it finds a match and fails otherwise. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">exit 1</code> tells the rest of the system "this script failed."
+                <LectureTip code tip="Quiet mode — no output, only exit code. Perfect for scripts.">grep -q</LectureTip> succeeds (exit 0) if it finds a match and fails otherwise. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">exit 1</code> tells the rest of the system "this script failed."
             </LectureP>
 
             <LectureCallout type="tip">
@@ -254,7 +253,7 @@ export default function Week1Lecture2() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTip tip="Find files and run a command on each. -type f = files only; -name '*.sh' = match pattern.">{'find . -name "*.sh" -exec chmod +x {} \\;'}</LectureTip> is a robust way to make all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.sh</code> files in a tree executable without breaking on spaces in names.
+                <LectureTip code tip="Find files and run a command on each. -type f = files only; -name '*.sh' = match pattern.">{'find . -name "*.sh" -exec chmod +x {} \\;'}</LectureTip> is a robust way to make all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.sh</code> files in a tree executable without breaking on spaces in names.
             </LectureCallout>
 
             <LectureSubHeading title="while loops" />
@@ -386,7 +385,7 @@ export default function Week1Lecture2() {
 
             <LectureSubHeading title="chown and chgrp" />
             <LectureP>
-                <LectureTip tip="Change file owner. Often requires sudo.">chown</LectureTip> and <LectureTip tip="Change file group. Useful when multiple users need access.">chgrp</LectureTip> change who owns a file or which group it belongs to. On a server, you might run a web app as a dedicated user and use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chown www-data:www-data</code> so the web server can read the files but others cannot.
+                <LectureTip code tip="Change file owner. Often requires sudo.">chown</LectureTip> and <LectureTip code tip="Change file group. Useful when multiple users need access.">chgrp</LectureTip> change who owns a file or which group it belongs to. On a server, you might run a web app as a dedicated user and use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chown www-data:www-data</code> so the web server can read the files but others cannot.
             </LectureP>
 
             <LectureCallout type="info">
@@ -473,7 +472,7 @@ export default function Week1Lecture2() {
             </LectureP>
 
             <LectureCallout type="warning">
-                Avoid <LectureTip tip="Recursive force delete. No undo. In a script, a wrong variable or path can wipe the wrong directory." warn>rm -rf</LectureTip> in scripts unless the path is fixed and you're certain. Prefer moving to a trash directory or using a flag that requires confirmation. One typo in a variable used with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">rm -rf $VAR</code> has destroyed production systems.
+                Avoid <LectureTip code tip="Recursive force delete. No undo. In a script, a wrong variable or path can wipe the wrong directory." warn>rm -rf</LectureTip> in scripts unless the path is fixed and you're certain. Prefer moving to a trash directory or using a flag that requires confirmation. One typo in a variable used with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">rm -rf $VAR</code> has destroyed production systems.
             </LectureCallout>
 
 

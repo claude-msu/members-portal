@@ -9,11 +9,11 @@
  *   LectureHeader     — breadcrumb + hero (week, session, title, description, icon)
  *
  * Typography:
- *   LectureSectionHeading, LectureSubHeading, LectureP, LectureTerm, LectureTermWithTip
+ *   LectureSectionHeading, LectureSubHeading, LectureP, LectureTerm
  *
  * Blocks & inline:
  *   LectureCallout    — tip / warning / info boxes
- *   LectureTip        — monospace tip with hover explanation (optional warn styling)
+ *   LectureTip        — inline term or monospace command with hover tip (code + optional warn)
  */
 
 import { motion } from 'framer-motion';
@@ -28,41 +28,6 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-// ─── Shared tooltip (private) ─────────────────────────────────────────────────
-
-type LectureTooltipProps = {
-    delayDuration: number;
-    triggerTag: 'span' | 'code';
-    triggerClassName: string;
-    children: string;
-    tip: React.ReactNode;
-    warn?: boolean;
-};
-
-function LectureTooltip({
-    delayDuration,
-    triggerTag: Trigger,
-    triggerClassName,
-    children,
-    tip,
-    warn,
-}: LectureTooltipProps) {
-    return (
-        <Tooltip delayDuration={delayDuration}>
-            <TooltipTrigger asChild>
-                <Trigger className={triggerClassName}>{children}</Trigger>
-            </TooltipTrigger>
-            <TooltipContent
-                side="top"
-                className={`max-w-xs text-xs leading-relaxed ${warn ? 'border-rose-300 bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200' : ''}`}
-            >
-                {warn && <AlertTriangle className="inline h-3 w-3 mr-1 text-rose-500" />}
-                {tip}
-            </TooltipContent>
-        </Tooltip>
-    );
-}
 
 // ─── Section Heading ──────────────────────────────────────────────────────────
 
@@ -97,7 +62,7 @@ export const LectureSubHeading = ({ title }: { title: string }) => (
 
 /**
  * Body paragraph. Accepts any React children so you can embed
- * LectureTip, LectureTerm, or plain <code> inline.
+ * LectureTip (term or code mode), LectureTerm, or plain <code> inline.
  */
 export const LectureP = ({ children }: { children: React.ReactNode }) => (
     <p className="text-sm leading-7 text-muted-foreground">{children}</p>
@@ -110,49 +75,45 @@ export const LectureTerm = ({ children }: { children: string }) => (
     <span className="font-semibold text-foreground">{children}</span>
 );
 
-// ─── Term with tooltip ────────────────────────────────────────────────────────
-
-interface LectureTermWithTipProps {
-    children: string;
-    tip: string;
-}
-
-export const LectureTermWithTip = ({ children, tip }: LectureTermWithTipProps) => (
-    <LectureTooltip
-        delayDuration={150}
-        triggerTag="span"
-        triggerClassName="font-semibold text-foreground cursor-help border-b border-dotted border-muted-foreground/50 hover:border-foreground/50 transition-colors"
-        tip={tip}
-    >
-        {children}
-    </LectureTooltip>
-);
-
-// ─── Inline command + tooltip ─────────────────────────────────────────────────
+// ─── Inline term or command + tooltip ─────────────────────────────────────────
 
 interface LectureTipProps {
     children: string;
     tip: string;
+    /** When true, render as monospace code chip (warn styling applies only in this mode). */
+    code?: boolean;
+    /** Dangerous / fragile; only applies when code is true */
     warn?: boolean;
 }
 
-export const LectureTip = ({ children, tip, warn }: LectureTipProps) => (
-    <LectureTooltip
-        delayDuration={100}
-        triggerTag="code"
-        triggerClassName={`
+export const LectureTip = ({ children, tip, code = false, warn }: LectureTipProps) => {
+    const showWarn = code && warn;
+    const Trigger = code ? 'code' : 'span';
+    const triggerClassName = code
+        ? `
           px-1.5 py-0.5 rounded text-xs font-mono cursor-help border transition-colors
-          ${warn
+          ${showWarn
                 ? 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
                 : 'bg-zinc-100 text-zinc-800 border-zinc-200 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700'
             }
-        `}
-        tip={tip}
-        warn={warn}
-    >
-        {children}
-    </LectureTooltip>
-);
+        `
+        : 'font-semibold text-foreground cursor-help border-b border-dotted border-muted-foreground/50 hover:border-foreground/50 transition-colors';
+
+    return (
+        <Tooltip delayDuration={100}>
+            <TooltipTrigger asChild>
+                <Trigger className={triggerClassName}>{children}</Trigger>
+            </TooltipTrigger>
+            <TooltipContent
+                side="top"
+                className={`max-w-xs text-xs leading-relaxed ${showWarn ? 'border-rose-300 bg-rose-50 text-rose-800 dark:bg-rose-950 dark:text-rose-200' : ''}`}
+            >
+                {showWarn && <AlertTriangle className="inline h-3 w-3 mr-1 text-rose-500" />}
+                {tip}
+            </TooltipContent>
+        </Tooltip>
+    );
+};
 
 // ─── Callout ──────────────────────────────────────────────────────────────────
 

@@ -7,7 +7,7 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
+    LectureTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 import { CodeBlock } from '@/components/ui/code-block';
@@ -33,13 +33,13 @@ export default function Week10Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTermWithTip tip="A test runner and assertion library for JavaScript/TypeScript. Fast, Vite-native, and familiar if you've used Jest. Works for unit and integration tests.">Vitest</LectureTermWithTip> is the default choice for Vite-based React projects. It uses the same describe/it/expect style as Jest and runs in the same process as your app, so it's fast. We'll use it for both frontend and (with a small setup) for calling your API in tests.
+                <LectureTip tip="A test runner and assertion library for JavaScript/TypeScript. Fast, Vite-native, and familiar if you've used Jest. Works for unit and integration tests.">Vitest</LectureTip> is the default choice for Vite-based React projects. It uses the same describe/it/expect style as Jest and runs in the same process as your app, so it's fast. We'll use it for both frontend and (with a small setup) for calling your API in tests.
             </LectureCallout>
 
             <LectureSectionHeading number="02" title="Unit vs Integration Tests" />
 
             <LectureP>
-                <LectureTerm>Unit tests</LectureTerm> isolate one function or component: you call the function with inputs and assert on the output, or render a component and assert on the DOM or behavior. Dependencies are often <LectureTermWithTip tip="A fake implementation used in tests so you control inputs and don't hit the real API or database.">mocked</LectureTermWithTip> (e.g. replace <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fetch</code> with a stub that returns fixed data). <LectureTerm>Integration tests</LectureTerm> test several pieces together — e.g. your FastAPI endpoint plus the database, or your React app calling the real (or test) API. Slower but catch more real-world bugs.
+                <LectureTerm>Unit tests</LectureTerm> isolate one function or component: you call the function with inputs and assert on the output, or render a component and assert on the DOM or behavior. Dependencies are often <LectureTip tip="A fake implementation used in tests so you control inputs and don't hit the real API or database.">mocked</LectureTip> (e.g. replace <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fetch</code> with a stub that returns fixed data). <LectureTerm>Integration tests</LectureTerm> test several pieces together — e.g. your FastAPI endpoint plus the database, or your React app calling the real (or test) API. Slower but catch more real-world bugs.
             </LectureP>
             <LectureP>
                 For your fundamentals project: write a few unit tests for pure logic (e.g. a formatter or validator) and for React components that have clear behavior (e.g. "when user is null, show Login button"). Write integration tests for at least one API route (e.g. GET /items returns 200 and a list) and one full flow (e.g. login then fetch protected data) so you know the stack works together.

@@ -8,7 +8,6 @@ import {
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
 
@@ -33,7 +32,7 @@ export default function Week9Lecture1() {
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTermWithTip tip="A string the server creates after a successful login. The client stores it (e.g. in memory or localStorage) and sends it in the Authorization header on every request. The server verifies it without storing session state.">JWT</LectureTermWithTip> (JSON Web Token) is the most common approach for APIs: stateless, works across servers, and easy to use from React. We'll use it as the default; session cookies are an alternative you'll see in traditional server-rendered apps.
+                <LectureTip tip="A string the server creates after a successful login. The client stores it (e.g. in memory or localStorage) and sends it in the Authorization header on every request. The server verifies it without storing session state.">JWT</LectureTip> (JSON Web Token) is the most common approach for APIs: stateless, works across servers, and easy to use from React. We'll use it as the default; session cookies are an alternative you'll see in traditional server-rendered apps.
             </LectureCallout>
 
             <LectureSectionHeading number="02" title="How JWTs Work" />
@@ -42,12 +41,12 @@ export default function Week9Lecture1() {
                 A JWT has three parts separated by dots: <strong className="text-foreground">header.payload.signature</strong>. The <LectureTerm>payload</LectureTerm> is a JSON object (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"{ \"sub\": \"user-id-123\", \"exp\": 1734567890 }"}</code>) that can hold user id, email, roles, and an expiration time. The server signs it with a secret; later, it can verify that the token wasn't tampered with and that it hasn't expired.
             </LectureP>
             <LectureP>
-                Flow: user logs in with email/password → backend checks credentials → if valid, backend creates a JWT with user id (and optionally roles) and an <LectureTip tip="Expiration time — Unix timestamp. Tokens should have a short lifetime (e.g. 15 min–1 hour) to limit damage if one is stolen.">exp</LectureTip> claim → backend returns the token; frontend stores it and sends <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization: Bearer &lt;token&gt;</code> on every API call → backend middleware validates the token and attaches the user to the request.
+                Flow: user logs in with email/password → backend checks credentials → if valid, backend creates a JWT with user id (and optionally roles) and an <LectureTip code tip="Expiration time — Unix timestamp. Tokens should have a short lifetime (e.g. 15 min–1 hour) to limit damage if one is stolen.">exp</LectureTip> claim → backend returns the token; frontend stores it and sends <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization: Bearer &lt;token&gt;</code> on every API call → backend middleware validates the token and attaches the user to the request.
             </LectureP>
 
             <LectureSubHeading title="Never put secrets in the payload" />
             <LectureP>
-                The payload is <LectureTermWithTip tip="Base64-encoded — anyone can decode it and read the contents. So never put passwords or secrets inside. Only put non-sensitive identifiers and claims.">base64-encoded</LectureTermWithTip>, not encrypted. Anyone can decode it. Put only non-sensitive data in the payload (user id, email, roles). Never put passwords or API keys there.
+                The payload is <LectureTip tip="Base64-encoded — anyone can decode it and read the contents. So never put passwords or secrets inside. Only put non-sensitive identifiers and claims.">base64-encoded</LectureTip>, not encrypted. Anyone can decode it. Put only non-sensitive data in the payload (user id, email, roles). Never put passwords or API keys there.
             </LectureP>
 
             <LectureSectionHeading number="03" title="Backend: Login and Token Issuance" />
@@ -94,7 +93,7 @@ def login(form: OAuth2PasswordRequestForm = Depends()):
                 </pre>
             </div>
             <LectureP>
-                Use a library like <LectureTip tip="Python: python-jose or PyJWT. Never roll your own crypto.">python-jose</LectureTip> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PyJWT</code> to create and verify tokens. Store your <LectureTerm>JWT secret</LectureTerm> in an environment variable — never in code. Hash passwords with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bcrypt</code> or your framework's built-in hasher; never store plain-text passwords.
+                Use a library like <LectureTip code tip="Python: python-jose or PyJWT. Never roll your own crypto.">python-jose</LectureTip> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">PyJWT</code> to create and verify tokens. Store your <LectureTerm>JWT secret</LectureTerm> in an environment variable — never in code. Hash passwords with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bcrypt</code> or your framework's built-in hasher; never store plain-text passwords.
             </LectureP>
 
             <LectureSectionHeading number="04" title="Protecting API Routes" />
@@ -141,7 +140,7 @@ def get_me(user: dict = Depends(get_current_user)):
             <LectureSectionHeading number="05" title="Frontend: Storing and Sending the Token" />
 
             <LectureP>
-                After a successful login, the frontend receives the JWT. You can store it in <LectureTermWithTip tip="Survives refresh but is visible to any script on the page — use for non-sensitive apps; prefer memory + refresh token for higher security.">localStorage</LectureTermWithTip>, in memory (React state/context), or in an HTTP-only cookie (set by the server). For this course, localStorage or in-memory is fine; send it in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization: Bearer &lt;token&gt;</code> header for every API request.
+                After a successful login, the frontend receives the JWT. You can store it in <LectureTip tip="Survives refresh but is visible to any script on the page — use for non-sensitive apps; prefer memory + refresh token for higher security.">localStorage</LectureTip>, in memory (React state/context), or in an HTTP-only cookie (set by the server). For this course, localStorage or in-memory is fine; send it in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization: Bearer &lt;token&gt;</code> header for every API request.
             </LectureP>
             <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
                 <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700">
