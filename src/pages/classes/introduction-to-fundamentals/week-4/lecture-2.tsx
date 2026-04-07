@@ -6,6 +6,7 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
+    LectureTerm,
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 
@@ -150,7 +151,7 @@ export default function Week4Lecture2() {
                 <LectureTermWithTip tip="GitHub's built-in project management: boards or tables linked to your repo. Issues become cards; PRs that close issues update the board automatically.">GitHub Projects</LectureTermWithTip> gives you a board (Kanban or table view) tied directly to your repo. Create a project from the repo's Projects tab, add columns like Backlog, In Progress, In Review, Done, and add your issues as cards. When you open a PR that "Closes #5," the issue card can move to Done automatically. No separate Jira or Trello — the board lives next to the code.
             </LectureP>
             <LectureP>
-                For this course, you'll create a GitHub Project for your capstone repo, add issues for the work you plan in Weeks 3–5, and ship every deliverable via a PR that closes an issue. By the end you'll have a real workflow: idea → issue → branch → PR → review → merge → done.
+                For this course, you'll create a GitHub Project for your capstone repo, add issues for the work you plan across the remaining weeks, and ship every deliverable via a PR that closes an issue. By the end you'll have a real workflow: idea → issue → branch → PR → review → merge → done.
             </LectureP>
 
             <div className="my-6 space-y-2">
@@ -174,11 +175,52 @@ export default function Week4Lecture2() {
                 Use labels on issues (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bug</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">good first issue</code>) so you can filter the board and reports. Milestones (e.g. "Sprint 1") group issues by time so you can see sprint scope and progress at a glance.
             </LectureCallout>
 
-            {/* ── 06 WHAT YOU WILL DO IN THE ACTIVITY ─────────────────────────── */}
-            <LectureSectionHeading number="06" title="What You'll Do in the Activity" />
+            {/* ── 06 CODE REVIEW ────────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Code Review Best Practices" />
 
             <LectureP>
-                The Week 2 activity is <strong className="text-foreground">Project Kickoff</strong>: choose your project domain, create the repo, set up a GitHub Project board, write issues for the work you'll do in Weeks 3–5, and open your first PR. From here on, every deliverable in the course ships through this board — same as in industry.
+                Code review is not about finding fault — it's about catching bugs early, sharing context across the team, and collectively improving code quality. Every PR you open will be reviewed, and you'll review others'. Doing this well is a career-long skill.
+            </LectureP>
+
+            <LectureSubHeading title="As a reviewer" />
+            <LectureP>
+                Read the PR description first so you understand the intent. Then look at the diff: does the code do what the description says? Are there edge cases? Is anything confusing? Leave comments on specific lines — GitHub lets you click a line number in the diff to start a comment thread. Be constructive: explain <em>why</em> something should change, not just <em>that</em> it should.
+            </LectureP>
+            <LectureP>
+                GitHub offers a <LectureTermWithTip tip="Click the ± icon on a line in a PR diff and write a code suggestion in a fenced code block. The author can accept with one click and it creates a commit automatically. Faster than describing the change in words.">Suggest changes</LectureTermWithTip> feature: click the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">±</code> icon on a line, write your proposed code, and the author can accept it with one click. This is faster than describing a change in words.
+            </LectureP>
+            <LectureP>
+                When you're done, submit your review with one of three statuses: <LectureTerm>Approve</LectureTerm> (looks good, merge it), <LectureTerm>Request changes</LectureTerm> (needs work before merging), or <LectureTerm>Comment</LectureTerm> (feedback without a blocking verdict).
+            </LectureP>
+
+            <LectureSubHeading title="As an author" />
+            <LectureP>
+                Keep PRs small and focused — one logical change per PR. A 50-line PR gets careful review; a 500-line PR gets a rubber stamp. Respond to every comment: either make the change or explain why you disagree. Don't take feedback personally — your reviewer is reviewing the code, not you.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                The best PRs are boring to review. If your reviewer has to spend 20 minutes understanding the change, the PR is too big or the description is too sparse. Make it easy for them and you'll get faster, better reviews.
+            </LectureCallout>
+
+            {/* ── 07 BRANCH PROTECTION ────────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Branch Protection" />
+
+            <LectureP>
+                In industry, nobody can push directly to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> — it's protected. <LectureTermWithTip tip="Repository settings that prevent direct pushes to a branch. Typically require a PR with at least one approval, passing CI checks, and an up-to-date branch before merge is allowed.">Branch protection rules</LectureTermWithTip> enforce that every change goes through a PR, gets at least one approval, and passes automated checks (like tests or linting) before it can be merged.
+            </LectureP>
+            <LectureP>
+                You can set this up in your GitHub repo right now: go to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Settings → Branches → Add rule</code>, select <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and enable "Require a pull request before merging." For solo projects, you can still enable this and approve your own PRs — the habit of never pushing to main directly is worth building early.
+            </LectureP>
+
+            <LectureCallout type="info">
+                When you see a green checkmark on a PR, that's <LectureTerm>CI</LectureTerm> (Continuous Integration) — automated scripts that run your tests, linter, and build on every push. You'll set this up with GitHub Actions later in the course. For now, just know it exists and that teams rely on it to catch problems before they reach <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>.
+            </LectureCallout>
+
+            {/* ── 08 WHAT YOU WILL DO IN THE ACTIVITY ─────────────────────────── */}
+            <LectureSectionHeading number="08" title="What You'll Do in the Activity" />
+
+            <LectureP>
+                The Week 4 activity is <strong className="text-foreground">Project Kickoff</strong>: choose your project domain, create the repo, set up a GitHub Project board, write your initial issues, and open your first PR. From here on, every deliverable in the course ships through this board — same as in industry.
             </LectureP>
 
             

@@ -11,6 +11,7 @@ import {
     LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 // ── Three-areas diagram (unique to this lecture) ──────────────────────────────
 const ThreeAreasDiagram = () => (
@@ -54,22 +55,6 @@ const ThreeAreasDiagram = () => (
     </div>
 );
 
-// ── Conflict markers block (unique to this lecture) ───────────────────────────
-const ConflictMarkersBlock = () => (
-    <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-            index.html — conflict markers
-        </div>
-        <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-            <p className="text-zinc-500">{'<<<<<<< HEAD'}</p>
-            <p className="text-blue-300">{'<h1>Welcome to my app</h1>'}</p>
-            <p className="text-zinc-500">{'======='}</p>
-            <p className="text-emerald-300">{'<h1>Hello from feature branch</h1>'}</p>
-            <p className="text-zinc-500">{'>>>>>>> feature/add-homepage'}</p>
-        </div>
-    </div>
-);
-
 // ── Quick reference table (unique to this lecture) ────────────────────────────
 const QuickReference = () => (
     <div className="my-6 rounded-xl border border-border overflow-hidden">
@@ -86,6 +71,8 @@ const QuickReference = () => (
                 category: 'Daily Work',
                 items: [
                     { cmd: 'git status', desc: 'See what has changed' },
+                    { cmd: 'git diff', desc: 'See unstaged changes line by line' },
+                    { cmd: 'git diff --staged', desc: 'See what will go into the next commit' },
                     { cmd: 'git add .', desc: 'Stage all changes' },
                     { cmd: 'git commit -m "message"', desc: 'Save a snapshot with a message' },
                     { cmd: 'git pull', desc: 'Download remote changes' },
@@ -97,6 +84,7 @@ const QuickReference = () => (
                 items: [
                     { cmd: 'git branch', desc: 'List all branches' },
                     { cmd: 'git checkout -b <name>', desc: 'Create and switch to a new branch' },
+                    { cmd: 'git switch -c <name>', desc: 'Modern alternative (Git 2.23+)' },
                     { cmd: 'git merge <branch>', desc: 'Merge a branch into the current one' },
                     { cmd: 'git branch -d <name>', desc: 'Delete a merged branch' },
                 ],
@@ -105,6 +93,8 @@ const QuickReference = () => (
                 category: 'History & Recovery',
                 items: [
                     { cmd: 'git log --oneline', desc: 'View compact commit history' },
+                    { cmd: 'git stash', desc: 'Shelve uncommitted changes temporarily' },
+                    { cmd: 'git stash pop', desc: 'Restore the most recent stash' },
                     { cmd: 'git revert <hash>', desc: 'Safely undo a commit' },
                     { cmd: 'git reflog', desc: 'View every action (emergency recovery)' },
                     { cmd: 'git restore --staged <file>', desc: 'Unstage a file' },
@@ -272,6 +262,22 @@ export default function Week4Lecture1() {
                 <LectureTip tip="git log --oneline --graph --all: shows all branches as an ASCII graph. --all includes branches you haven't checked out. Best command for understanding what's happening across multiple branches.">--graph --all</LectureTip> is extremely useful once you start branching. It draws the commit history as a tree in your terminal so you can see exactly where branches diverged and merged.
             </LectureCallout>
 
+            <LectureSubHeading title="Seeing what changed with git diff" />
+            <LectureP>
+                <LectureTip tip="git diff — shows line-by-line changes between your working directory and the staging area (unstaged changes). Add --staged to compare the staging area against the last commit. Essential for reviewing exactly what you're about to commit.">git diff</LectureTip> shows you exactly what has changed — line by line — before you commit. This is how you verify your changes instead of relying on memory. Without it you're committing blind.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'see unstaged changes (working directory vs staging area)', cmd: 'git diff' },
+                    { comment: 'see staged changes (what will go into the next commit)', cmd: 'git diff --staged' },
+                    { comment: 'compare your branch against main', cmd: 'git diff main' },
+                    { comment: 'see changes in a specific file only', cmd: 'git diff README.md' },
+                ]}
+            />
+            <LectureP>
+                Lines prefixed with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">+</code> are additions; lines prefixed with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-</code> are deletions. Get in the habit of running <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git diff --staged</code> right before every commit so you know exactly what's going in.
+            </LectureP>
+
             {/* ── 06 BRANCHING ────────────────────────────────────────────────── */}
             <LectureSectionHeading number="06" title="Branching" />
 
@@ -292,6 +298,9 @@ export default function Week4Lecture1() {
             <LectureP>
                 <LectureTip tip="git branch: lists all local branches. With a name argument, creates a new branch. Does not switch to it.">git branch</LectureTip> creates and lists branches. <LectureTip tip="git checkout: switches to a different branch or commit. Moving between branches changes the files in your working directory to match that branch's state.">git checkout</LectureTip> switches between them. The <LectureTip tip="-b flag for git checkout: create and switch in one step. Equivalent to running git branch then git checkout, but faster. This is what you'll use in practice.">-b</LectureTip> flag creates and switches in one step — which is what you'll use almost every time.
             </LectureP>
+            <LectureCallout type="info">
+                Modern Git (2.23+) introduced <LectureTip tip="git switch — dedicated command for switching branches. Clearer than git checkout, which also handles file restoration. git switch -c creates and switches in one step (same as checkout -b).">git switch</LectureTip> as a cleaner alternative to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git checkout</code> for branch switching. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git switch main</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git switch -c feature/new-thing</code> do the same thing as checkout but with a clearer name. Both work — you'll see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">checkout</code> in most existing tutorials and codebases, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">switch</code> in newer ones.
+            </LectureCallout>
             <LectureCallout type="tip">
                 Branch naming conventions matter on real teams. Common patterns: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature/thing-you-are-building</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fix/bug-you-are-fixing</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chore/maintenance-task</code>. Consistent names make pull requests and history much easier to read.
             </LectureCallout>
@@ -339,7 +348,17 @@ export default function Week4Lecture1() {
                 When a conflict occurs, Git marks the conflicting sections directly inside the file:
             </LectureP>
 
-            <ConflictMarkersBlock />
+            <CodeBlock
+                language="html"
+                title="index.html — conflict markers"
+                lines={[
+                    '<<<<<<< HEAD',
+                    '<h1>Welcome to my app</h1>',
+                    '=======',
+                    '<h1>Hello from feature branch</h1>',
+                    '>>>>>>> feature/add-homepage',
+                ]}
+            />
 
             <LectureP>
                 Everything between <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'<<<<<<< HEAD'}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'======='}</code> is what's on your current branch. Everything between <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'======='}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>>>>>>>'}</code> is what's coming in from the branch you're merging. To resolve it, edit the file to contain exactly what you want — delete all the conflict markers — then stage and commit.
@@ -426,6 +445,23 @@ export default function Week4Lecture1() {
                 <LectureTip tip="git revert: creates a new commit that is the exact inverse of a previous commit. The original commit stays in history — nothing is rewritten. This is the safe way to undo changes on a shared branch because it doesn't alter history.">git revert</LectureTip> is the safe way to undo a commit on a shared branch. It creates a new commit that undoes the changes — the original stays in history unchanged. <LectureTip tip="git reflog: logs every single thing HEAD has pointed to, including checkouts, merges, resets, and commits. Even if you accidentally delete commits with a reset, the reflog lets you find the hashes and recover them.">git reflog</LectureTip> is your emergency recovery tool — even if you accidentally lose commits with a reset, it almost always lets you get them back.
             </LectureP>
 
+            <LectureSubHeading title="Stashing work in progress" />
+            <LectureP>
+                You're halfway through a feature when a teammate asks you to review their PR on a different branch. Your changes aren't ready to commit, but you need a clean working directory to switch branches. <LectureTip tip="git stash — temporarily shelves all uncommitted changes (staged and unstaged) so you can work on something else. The stash is a stack — you can push multiple stashes and pop them later. Your working directory becomes clean.">git stash</LectureTip> saves your uncommitted work to a temporary shelf and gives you a clean working directory.
+            </LectureP>
+            <TerminalBlock
+                lines={[
+                    { comment: 'save all uncommitted changes to the stash', cmd: 'git stash' },
+                    { comment: '... switch branches, do other work, come back ...', cmd: '' },
+                    { comment: 'restore the most recent stash and remove it from the stack', cmd: 'git stash pop' },
+                    { comment: 'list all stashed changes (you can have more than one)', cmd: 'git stash list' },
+                    { comment: 'drop a stash you no longer need', cmd: 'git stash drop' },
+                ]}
+            />
+            <LectureP>
+                Think of the stash as a clipboard for in-progress work. It's one of the most-used Git features in daily development — any time you need to context-switch without committing half-finished code.
+            </LectureP>
+
             <LectureSubHeading title="Cleaning up history with rebase" />
             <LectureP>
                 <LectureTip tip="git rebase: rewrites commit history by replaying commits on top of a different base. Creates a linear history with no merge commits. Two main uses: updating a branch with the latest main, and squashing multiple commits into one clean commit.">git rebase</LectureTip> rewrites commit history. The two most common uses are keeping a feature branch up to date with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and squashing several messy commits into one clean one before merging.
@@ -437,7 +473,7 @@ export default function Week4Lecture1() {
                 ]}
             />
             <LectureCallout type="warning">
-                <LectureTip tip="git rebase rewrites history — it creates new commits with different hashes. Never rebase a branch that other people are working on. Rewriting shared history forces everyone to reconcile their work against a new timeline." warn>git rebase</LectureTip> rewrites history — it creates brand new commits with different hashes. Never rebase a branch that's been pushed and shared with other people. Only rebase local branches or branches you know nobody else is using.
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git rebase</code> rewrites history — it creates brand new commits with different hashes. Never rebase a branch that's been pushed and shared with other people. Only rebase local branches or branches you know nobody else is using.
             </LectureCallout>
 
             {/* ── 10 THE .GITIGNORE ───────────────────────────────────────────── */}
@@ -455,25 +491,28 @@ export default function Week4Lecture1() {
                 Open it in a text editor and add patterns — one per line. Here's what a typical Node.js project's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> looks like:
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    .gitignore
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p className="text-zinc-500"># Dependencies</p>
-                    <p className="text-emerald-400">node_modules/</p>
-                    <p className="text-zinc-500 mt-2"># Environment variables — never commit secrets</p>
-                    <p className="text-emerald-400">.env</p>
-                    <p className="text-emerald-400">.env.local</p>
-                    <p className="text-zinc-500 mt-2"># Build output</p>
-                    <p className="text-emerald-400">dist/</p>
-                    <p className="text-emerald-400">build/</p>
-                    <p className="text-zinc-500 mt-2"># macOS system files</p>
-                    <p className="text-emerald-400">.DS_Store</p>
-                    <p className="text-zinc-500 mt-2"># Logs</p>
-                    <p className="text-emerald-400">*.log</p>
-                </div>
-            </div>
+            <CodeBlock
+                language="bash"
+                title=".gitignore"
+                lines={[
+                    '# Dependencies',
+                    'node_modules/',
+                    '',
+                    '# Environment variables — never commit secrets',
+                    '.env',
+                    '.env.local',
+                    '',
+                    '# Build output',
+                    'dist/',
+                    'build/',
+                    '',
+                    '# macOS system files',
+                    '.DS_Store',
+                    '',
+                    '# Logs',
+                    '*.log',
+                ]}
+            />
 
             <LectureCallout type="warning">
                 If you accidentally commit a secret like an API key, changing your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> afterwards does not remove it from history. Git history is permanent — the key is still retrievable in old commits. You must <strong className="text-foreground">revoke and rotate the key immediately</strong>. Add your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> before your first commit.

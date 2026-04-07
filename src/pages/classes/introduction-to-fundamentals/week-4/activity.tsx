@@ -27,7 +27,7 @@ export default function Week4Activity() {
                 <LectureSectionHeading number="01" title="Choose Your Domain" />
 
                 <LectureP>
-                    This project runs Weeks 4–8 (and continues through Weeks 9–12). By the end you will have a live full-stack web app. Choose one domain now and commit — you are building this all the way through.
+                    This project runs from now through the end of the course. By the end you will have a live, deployed full-stack web app. Choose one domain now and commit — you are building this all the way through.
                 </LectureP>
 
                 <LectureCallout type="info">
@@ -87,6 +87,7 @@ export default function Week4Activity() {
                         <ActivityTask>Create two folders at the root: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code></ActivityTask>
                         <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> create a placeholder main.py with a single comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border"># Week 7 — FastAPI backend goes here</code></ActivityTask>
                         <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code> create a placeholder index.html with a comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;!-- Week 9 — React frontend goes here --&gt;</code></ActivityTask>
+                        <ActivityTask>Create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> in the project root with entries for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules/</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">__pycache__/</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.DS_Store</code></ActivityTask>
                         <ActivityTask>Commit with message: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chore: scaffold project structure</code></ActivityTask>
                     </div>
 
@@ -96,6 +97,7 @@ export default function Week4Activity() {
                             { cmd: 'mkdir backend frontend' },
                             { cmd: 'echo "# Week 7 — FastAPI backend goes here" > backend/main.py' },
                             { cmd: 'echo "<!-- Week 9 — React frontend goes here -->" > frontend/index.html' },
+                            { cmd: 'printf "node_modules/\\n.env\\n__pycache__/\\n.DS_Store\\n" > .gitignore' },
                             { cmd: 'git add . && git commit -m "chore: scaffold project structure"' },
                         ]}
                     />
@@ -128,10 +130,10 @@ export default function Week4Activity() {
                 <ActivityChallenge
                     number="3.2"
                     title="Write Your Issues"
-                    description="Create the three issues that will track your Weeks 3–5 work."
+                    description="Create three initial issues that will track your upcoming work."
                 >
                     <div className="space-y-1">
-                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 1</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: containerize backend stub</code> — body: "Write a Dockerfile for the backend stub provided in Week 3. Mount a volume for data persistence. Verify the container runs."</ActivityTask>
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 1</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: containerize backend stub</code> — body: "Write a Dockerfile for the backend stub created during project scaffolding. Mount a volume for data persistence. Verify the container runs."</ActivityTask>
                         <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 2</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build FastAPI backend</code> — body: "Implement the FastAPI backend with 3+ endpoints, SQLite storage, and a Redis caching layer running via Docker Compose."</ActivityTask>
                         <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 3</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build React frontend</code> — body: "Build the React + Tailwind frontend with 3+ views connected to the live API."</ActivityTask>
                         <ActivityTask>Add all three issues to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Backlog</code> column</ActivityTask>
@@ -156,8 +158,12 @@ export default function Week4Activity() {
                         <ActivityTask>Commit: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git add . && git commit -m "chore: add my name to README"</code></ActivityTask>
                         <ActivityTask>Push the branch: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push origin feat/project-scaffold</code></ActivityTask>
                         <ActivityTask>Open a pull request from that branch into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
-                        <ActivityTask>In the PR description write: what your project does, which domain you chose, and link all three issues using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Closes #1, Closes #2, Closes #3</code></ActivityTask>
+                        <ActivityTask>In the PR description write: what your project does, which domain you chose, and mention all three issues using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Related: #1, #2, #3</code></ActivityTask>
                     </div>
+
+                    <LectureCallout type="warning">
+                        Do <strong className="text-foreground">not</strong> write "Closes #1" here — that keyword auto-closes the issue when the PR merges. This scaffold PR doesn't complete any of those issues; it just sets up the repo. Save "Closes #N" for the future PRs that actually deliver each feature.
+                    </LectureCallout>
 
                     <ActivityHint label="why not push to main directly">
                         In industry, nobody pushes to main directly. All changes go through pull requests so they can be reviewed, discussed, and reverted if needed. You are building this habit now.
@@ -172,7 +178,7 @@ export default function Week4Activity() {
                     <div className="space-y-1">
                         <ActivityTask>Confirm your GitHub Project board shows 3 issues in Backlog</ActivityTask>
                         <ActivityTask>Confirm your PR is open against <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
-                        <ActivityTask>Confirm your repo has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder</ActivityTask>
+                        <ActivityTask>Confirm your repo has <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code>, and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code></ActivityTask>
                         <ActivityTask>Share your PR link in the club Slack — this is how your progress gets tracked each week</ActivityTask>
                     </div>
                 </ActivityChallenge>
