@@ -368,8 +368,7 @@ export default function Week6Lecture1() {
 
             <TerminalBlock
                 lines={[
-                    { comment: 'macOS — install Docker Desktop via Homebrew', cmd: 'brew install --cask docker' },
-                    { comment: 'then open Docker Desktop from Applications and let it finish setup' },
+                    { comment: 'macOS — install and launchDocker Desktop via Homebrew', cmd: 'brew install --cask docker' },
                     { comment: 'verify Docker is running', cmd: 'docker --version' },
                 ]}
             />
