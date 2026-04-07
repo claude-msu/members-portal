@@ -13,7 +13,7 @@
  *
  * Blocks & inline:
  *   LectureCallout    — tip / warning / info boxes
- *   LectureCmd        — monospace command with hover explanation (optional warn styling)
+ *   LectureTip        — monospace tip with hover explanation (optional warn styling)
  */
 
 import { motion } from 'framer-motion';
@@ -97,7 +97,7 @@ export const LectureSubHeading = ({ title }: { title: string }) => (
 
 /**
  * Body paragraph. Accepts any React children so you can embed
- * LectureCmd, LectureTerm, or plain <code> inline.
+ * LectureTip, LectureTerm, or plain <code> inline.
  */
 export const LectureP = ({ children }: { children: React.ReactNode }) => (
     <p className="text-sm leading-7 text-muted-foreground">{children}</p>
