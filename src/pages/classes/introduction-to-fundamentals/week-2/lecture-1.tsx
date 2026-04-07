@@ -4,11 +4,13 @@ import { LectureLayout } from '@/components/ui/lecture-layout';
 import { LectureHeader } from '@/components/ui/lecture-header';
 import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { LectureCallout } from '@/components/ui/lecture-callout';
+import { LectureCmd } from '@/components/ui/lecture-cmd';
 import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTerm,
+    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
 import { CodeBlock } from '@/components/ui/code-block';
 
@@ -83,7 +85,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="01" title="What Is a Data Structure?" />
 
             <LectureP>
-                You have already used data structures — Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">list</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dict</code> are data structures. A <LectureTerm>data structure</LectureTerm> is a way of organizing data so that specific operations — insert, search, delete, sort — are efficient. Different structures optimize for different operations, and choosing the right one is often the difference between a solution that works and one that's fast.
+                You have already used data structures — Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">list</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dict</code> are data structures. A <LectureTermWithTip tip="A way of organizing data so that specific operations — insert, search, delete — are efficient. The right choice depends on which operations your problem needs to be fast.">data structure</LectureTermWithTip> is a way of organizing data so that specific operations — insert, search, delete, sort — are efficient. Different structures optimize for different operations, and choosing the right one is often the difference between a solution that works and one that's fast.
             </LectureP>
             <LectureP>
                 Data structures fall into two families. <LectureTerm>Linear</LectureTerm> structures arrange elements in a sequence: arrays, linked lists, stacks, and queues. <LectureTerm>Non-linear</LectureTerm> structures arrange elements in hierarchies or networks: trees and graphs. This lecture covers the core structures from both families that appear in virtually every technical interview and production codebase.
@@ -97,7 +99,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="02" title="Stacks — Last In, First Out" />
 
             <LectureP>
-                A <LectureTerm>stack</LectureTerm> works like a stack of plates: you can only add to the top and remove from the top. The last item you put on is the first item you take off — <LectureTerm>LIFO</LectureTerm> (Last In, First Out). There are four operations, and all of them are O(1):
+                A <LectureTermWithTip tip="LIFO — Last In, First Out. Like a stack of plates. push, pop, peek, is_empty — all O(1). Used for undo systems, expression parsing, DFS, and call stacks.">stack</LectureTermWithTip> works like a stack of plates: you can only add to the top and remove from the top. The last item you put on is the first item you take off — <LectureTermWithTip tip="Last In, First Out. The most recently added item is the first one removed. Think: stack of plates, browser back button, Ctrl+Z undo.">LIFO</LectureTermWithTip> (Last In, First Out). There are four operations, and all of them are O(1):
             </LectureP>
             <LectureP>
                 <strong className="text-foreground">push</strong> adds an element to the top. <strong className="text-foreground">pop</strong> removes and returns the top element. <strong className="text-foreground">peek</strong> returns the top element without removing it. <strong className="text-foreground">is_empty</strong> checks whether the stack has any elements.
@@ -144,7 +146,7 @@ export default function Week2Lecture1() {
             <LectureSubHeading title="The call stack" />
 
             <LectureP>
-                Your program already uses a stack. Every time Python calls a function, it pushes a <LectureTerm>stack frame</LectureTerm> onto the <LectureTerm>call stack</LectureTerm> — containing the function's local variables, parameters, and the return address. When the function returns, the frame is popped. This is why recursion works: each recursive call adds a frame, and each return removes one. It is also why infinite recursion crashes with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">RecursionError: maximum recursion depth exceeded</code> — the stack ran out of space.
+                Your program already uses a stack. Every time Python calls a function, it pushes a <LectureTerm>stack frame</LectureTerm> onto the <LectureTermWithTip tip="The runtime stack that tracks function calls. Each call pushes a frame (local variables + return address); each return pops one. Overflow causes RecursionError in Python.">call stack</LectureTermWithTip> — containing the function's local variables, parameters, and the return address. When the function returns, the frame is popped. This is why recursion works: each recursive call adds a frame, and each return removes one. It is also why infinite recursion crashes with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">RecursionError: maximum recursion depth exceeded</code> — the stack ran out of space.
             </LectureP>
 
             <LectureCallout type="tip">
@@ -155,7 +157,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="03" title="Queues — First In, First Out" />
 
             <LectureP>
-                A <LectureTerm>queue</LectureTerm> works like a line at a coffee shop: the first person in line is the first person served — <LectureTerm>FIFO</LectureTerm> (First In, First Out). Like stacks, queues have four core operations, all O(1) when implemented correctly:
+                A <LectureTermWithTip tip="FIFO — First In, First Out. Like a line at a store. enqueue, dequeue, peek, is_empty — all O(1) with deque. Used for BFS, task scheduling, message queues.">queue</LectureTermWithTip> works like a line at a coffee shop: the first person in line is the first person served — <LectureTermWithTip tip="First In, First Out. Items are processed in the order they arrive. Think: checkout line, print queue, BFS traversal.">FIFO</LectureTermWithTip> (First In, First Out). Like stacks, queues have four core operations, all O(1) when implemented correctly:
             </LectureP>
             <LectureP>
                 <strong className="text-foreground">enqueue</strong> adds an element to the back. <strong className="text-foreground">dequeue</strong> removes and returns the front element. <strong className="text-foreground">peek</strong> returns the front element without removing it. <strong className="text-foreground">is_empty</strong> checks whether the queue has any elements.
@@ -202,7 +204,7 @@ export default function Week2Lecture1() {
             />
 
             <LectureCallout type="warning">
-                Do not use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">list.pop(0)</code> as a queue — it is O(n) because every remaining element must shift left by one index. Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">collections.deque</code> gives O(1) <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">popleft()</code> using a doubly-linked list internally. Always use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deque</code> for queues.
+                Do not use <LectureCmd tip="Removes the first element of a list. O(n) because every remaining element must shift left by one index. Never use as a queue — use deque.popleft() instead." warn>list.pop(0)</LectureCmd> as a queue — it is O(n) because every remaining element must shift left by one index. Python's <LectureCmd tip="Double-ended queue from collections. O(1) append and popleft. Backed by a doubly-linked list. The correct way to implement queues in Python.">collections.deque</LectureCmd> gives O(1) <LectureCmd tip="Remove and return the leftmost element in O(1). The correct dequeue operation. list.pop(0) does the same thing but in O(n).">popleft()</LectureCmd> using a doubly-linked list internally. Always use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deque</code> for queues.
             </LectureCallout>
 
             <LectureP>
@@ -213,7 +215,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="04" title="Trees From First Principles" />
 
             <LectureP>
-                A <LectureTerm>tree</LectureTerm> is a non-linear data structure where elements are arranged in a hierarchy. Every tree has a single <LectureTerm>root</LectureTerm> node at the top. Each node can have zero or more <LectureTerm>children</LectureTerm>. A node with no children is called a <LectureTerm>leaf</LectureTerm>. The connection between a parent and child is called an <LectureTerm>edge</LectureTerm>.
+                A <LectureTermWithTip tip="Hierarchical data structure with a root node at the top. Each node has zero or more children. No cycles. File systems, the HTML DOM, and JSON are all trees.">tree</LectureTermWithTip> is a non-linear data structure where elements are arranged in a hierarchy. Every tree has a single <LectureTerm>root</LectureTerm> node at the top. Each node can have zero or more <LectureTerm>children</LectureTerm>. A node with no children is called a <LectureTerm>leaf</LectureTerm>. The connection between a parent and child is called an <LectureTerm>edge</LectureTerm>.
             </LectureP>
 
             <LectureSubHeading title="Key terminology" />
@@ -260,7 +262,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="05" title="Binary Search Trees" />
 
             <LectureP>
-                A <LectureTerm>Binary Search Tree</LectureTerm> (BST) is a binary tree with one critical rule: for every node, all values in the left subtree are <strong className="text-foreground">smaller</strong> and all values in the right subtree are <strong className="text-foreground">larger</strong>. This invariant turns search from O(n) to O(log n) — at each node you eliminate half the remaining values, just like binary search on a sorted array.
+                A <LectureTermWithTip tip="A binary tree where left < parent < right for every node. Enables O(log n) search, insert, and delete — each step eliminates half the remaining values.">Binary Search Tree</LectureTermWithTip> (BST) is a binary tree with one critical rule: for every node, all values in the left subtree are <strong className="text-foreground">smaller</strong> and all values in the right subtree are <strong className="text-foreground">larger</strong>. This invariant turns search from O(n) to O(log n) — at each node you eliminate half the remaining values, just like binary search on a sorted array.
             </LectureP>
 
             <LectureSubHeading title="Insertion" />
@@ -338,7 +340,7 @@ export default function Week2Lecture1() {
             <LectureSectionHeading number="06" title="Tree Traversals" />
 
             <LectureP>
-                <LectureTerm>Traversal</LectureTerm> means visiting every node in the tree exactly once. There are four standard traversals, and each produces a different ordering. The first three are depth-first (they go deep before going wide); the fourth is breadth-first (level by level).
+                <LectureTermWithTip tip="Visiting every node in a tree exactly once. Four standard orders: in-order (sorted for BST), pre-order (copy/serialize), post-order (delete/cleanup), level-order (BFS).">Traversal</LectureTermWithTip> means visiting every node in the tree exactly once. There are four standard traversals, and each produces a different ordering. The first three are depth-first (they go deep before going wide); the fourth is breadth-first (level by level).
             </LectureP>
 
             <LectureSubHeading title="In-order (left → node → right)" />
@@ -486,7 +488,7 @@ export default function Week2Lecture1() {
             </LectureCallout>
 
             <LectureCallout type="info">
-                Trees are a special case of a more general structure called a <LectureTerm>graph</LectureTerm>. In a graph, nodes can connect to any other nodes — not just parents and children — and cycles are allowed. Social networks, road maps, and dependency systems are all graphs. The same BFS and DFS strategies you learned above apply to graphs, with one addition: a "visited" set to prevent infinite loops on cycles. You will encounter graph algorithms in dedicated algorithms coursework and in later weeks of this course.
+                Trees are a special case of a more general structure called a <LectureTermWithTip tip="Nodes connected by edges. Unlike trees, cycles are allowed and any node can connect to any other. Social networks, road maps, and dependency systems are graphs.">graph</LectureTermWithTip>. In a graph, nodes can connect to any other nodes — not just parents and children — and cycles are allowed. Social networks, road maps, and dependency systems are all graphs. The same BFS and DFS strategies you learned above apply to graphs, with one addition: a "visited" set to prevent infinite loops on cycles. You will encounter graph algorithms in dedicated algorithms coursework and in later weeks of this course.
             </LectureCallout>
 
             <LectureFooterNav

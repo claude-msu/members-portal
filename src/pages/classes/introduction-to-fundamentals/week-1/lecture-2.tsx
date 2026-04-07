@@ -401,7 +401,7 @@ export default function Week1Lecture2() {
             <LectureSectionHeading number="08" title="Scheduling with cron" />
 
             <LectureP>
-                <LectureTermWithTip tip="Cron runs commands on a schedule: every minute, every day at 2am, etc. The cron daemon reads crontab files.">cron</LectureTermWithTip> runs commands at fixed times. Edit your user's crontab with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">crontab -e</code>. Each line is: minute, hour, day-of-month, month, day-of-week, then the command.
+                <LectureTerm>cron</LectureTerm> runs commands at fixed times. Edit your user's crontab with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">crontab -e</code>. Each line is: minute, hour, day-of-month, month, day-of-week, then the command.
             </LectureP>
 
             <CodeBlock
