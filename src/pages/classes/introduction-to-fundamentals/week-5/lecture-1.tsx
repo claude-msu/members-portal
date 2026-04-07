@@ -3,6 +3,7 @@ import {
     LectureLayout,
     LectureHeader,
     LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
@@ -185,14 +186,18 @@ export default function Week5Lecture1() {
             <LectureSectionHeading number="02" title="Scrum" />
 
             <LectureP>
-                <LectureTerm>Scrum</LectureTerm> organizes work into fixed-length iterations called <LectureTerm>sprints</LectureTerm> — typically 1–2 weeks. Each sprint is a complete loop: plan, build, ship, learn, repeat. The three roles in Scrum are the <LectureTerm>Product Owner</LectureTerm> (decides what to build and in what order), the <LectureTerm>Scrum Master</LectureTerm> (removes blockers, protects the team), and the <LectureTerm>Development Team</LectureTerm> (builds the thing).
+                <LectureTerm>Scrum</LectureTerm> organizes work into fixed-length iterations called <LectureTip tip="A fixed-length iteration (usually 1–2 weeks) in which a team plans, builds, and ships a set of features. At the end of each sprint the team demos, reflects, and plans the next one.">sprints</LectureTip> — typically 1–2 weeks. Each sprint is a complete loop: plan, build, ship, learn, repeat. The three roles in Scrum are the <LectureTip tip="Owns the product backlog and decides what to build next. Represents the customer/stakeholder. Does not tell the team how to build — only what and in what priority order.">Product Owner</LectureTip> (decides what to build and in what order), the <LectureTip tip="Facilitates Scrum ceremonies, removes blockers, and shields the team from interruptions. Not a manager — a servant-leader who keeps the process healthy.">Scrum Master</LectureTip> (removes blockers, protects the team), and the <LectureTerm>Development Team</LectureTerm> (builds the thing).
             </LectureP>
 
             <SprintCycle />
 
+            <LectureP>
+                Every sprint starts with a <LectureTip tip="A single sentence describing what the team aims to achieve by the end of the sprint. Keeps work focused — if a task doesn't serve the sprint goal, it goes back to the backlog.">sprint goal</LectureTip> — one sentence that describes what the team will achieve. "Users can search and filter the catalog" is a sprint goal; "work on stuff" is not. The goal keeps the team focused: if a task doesn't serve the sprint goal, it goes back to the backlog.
+            </LectureP>
+
             <LectureSubHeading title="User Stories" />
             <LectureP>
-                Work in Scrum is expressed as <LectureTerm>user stories</LectureTerm> — short, plain-language descriptions of a feature from the perspective of the person who needs it. The canonical format: <em className="text-foreground">As a [type of user], I want [some goal] so that [some reason].</em> This keeps the team focused on value delivered to real people, not technical tasks divorced from purpose.
+                Work in Scrum is expressed as <LectureTip tip="A short, plain-language description of a feature from the end-user's perspective. Format: 'As a [user], I want [goal] so that [reason].' Keeps the team focused on value, not just code.">user stories</LectureTip> — short, plain-language descriptions of a feature from the perspective of the person who needs it. The canonical format: <em className="text-foreground">As a [type of user], I want [some goal] so that [some reason].</em> This keeps the team focused on value delivered to real people, not technical tasks divorced from purpose.
             </LectureP>
 
             <div className="my-6 space-y-2">
@@ -229,7 +234,7 @@ export default function Week5Lecture1() {
             </div>
 
             <LectureCallout type="tip">
-                <LectureTerm>Story points</LectureTerm> measure relative effort, not hours. A 2-point story is roughly twice as complex as a 1-point story — the team calibrates their own scale. Common sequences: 1, 2, 3, 5, 8 (Fibonacci). The key insight: estimate in points, not time. Teams are bad at estimating hours; they're better at estimating relative complexity.
+                <LectureTip tip="A unit of relative effort used to estimate work. Fibonacci scale (1, 2, 3, 5, 8). A 2-point story is roughly twice the complexity of a 1 — the team calibrates its own scale over time.">Story points</LectureTip> measure relative effort, not hours. A 2-point story is roughly twice as complex as a 1-point story — the team calibrates their own scale. Common sequences: 1, 2, 3, 5, 8 (Fibonacci). The key insight: estimate in points, not time. Teams are bad at estimating hours; they're better at estimating relative complexity.
             </LectureCallout>
 
             {/* ── 03 AGILE ARTIFACTS ──────────────────────────────────────────── */}
@@ -275,11 +280,15 @@ export default function Week5Lecture1() {
                 ))}
             </div>
 
+            <LectureP>
+                After a few sprints, teams track their <LectureTip tip="The average number of story points a team completes per sprint. After 3–4 sprints the number stabilizes and becomes predictive — the team can forecast how much work fits in a future sprint.">velocity</LectureTip> — the average story points completed per sprint. After three or four sprints, velocity stabilizes and becomes predictive: if your velocity is 20, you should pull roughly 20 points into each sprint. Without velocity, sprint planning is guesswork.
+            </LectureP>
+
             {/* ── 04 KANBAN ───────────────────────────────────────────────────── */}
             <LectureSectionHeading number="04" title="Kanban" />
 
             <LectureP>
-                <LectureTerm>Kanban</LectureTerm> is a flow-based alternative to Scrum's sprints. Instead of time-boxed iterations, work flows continuously through a board of columns. The core principle is <LectureTerm>WIP limits</LectureTerm> (Work In Progress limits) — you cap how many items can be in each column at once. If "In Progress" is full, you can't start something new until you finish something in progress. This forces the team to finish work rather than start more.
+                <LectureTerm>Kanban</LectureTerm> is a flow-based alternative to Scrum's sprints. Instead of time-boxed iterations, work flows continuously through a board of columns. The core principle is <LectureTip tip="Work In Progress limits — a cap on how many items can be in a board column at once. Forces the team to finish work before starting more. Prevents overload and exposes bottlenecks.">WIP limits</LectureTip> (Work In Progress limits) — you cap how many items can be in each column at once. If "In Progress" is full, you can't start something new until you finish something in progress. This forces the team to finish work rather than start more.
             </LectureP>
 
             <KanbanBoard />
