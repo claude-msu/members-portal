@@ -49,7 +49,7 @@ const SessionCard = ({ session, accent: c }: SessionCardProps) => {
         ${config.cardBg}
         ${session.type === 'activity'
                     ? c.border
-                    : 'hover:shadow-md hover:border-primary/50 dark:hover:border-white/50'}
+                    : 'hover:border-primary/50 dark:hover:border-white/50'}
       `}
         >
             <div className="flex items-start justify-between gap-3">
