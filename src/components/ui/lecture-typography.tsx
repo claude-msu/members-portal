@@ -263,7 +263,7 @@ function LectureLayoutFooter({ prev, next }: { prev?: LectureFooterNavItem; next
                 <button
                     type="button"
                     onClick={next.onClick}
-                    className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                    className="flex items-center gap-2 text-sm font-medium text-primary/80 hover:text-primary transition-colors"
                 >
                     {next.label}
                     <ChevronRight className="h-4 w-4" />
