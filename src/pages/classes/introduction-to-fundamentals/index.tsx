@@ -133,7 +133,11 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
                 {/* Title block */}
                 <div className="flex-1 min-w-0">
-                    <p className="text-xs text-muted-foreground mb-0.5">{week.subtitle}</p>
+                    <p className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground mb-0.5">
+                        <span>Week {week.number}</span>
+                        <span className={`${c.dot} w-1 h-1 rounded-full inline-block`} />
+                        {week.subtitle}
+                    </p>
                     <h3 className="font-semibold text-sm text-foreground truncate">{week.title}</h3>
                 </div>
 
