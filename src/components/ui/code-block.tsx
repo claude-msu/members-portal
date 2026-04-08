@@ -47,14 +47,7 @@ const highlighterStyle: CSSProperties = {
     fontFamily: 'inherit',
     fontSize: 'inherit',
     lineHeight: 1.6,
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
     overflow: 'visible',
-};
-
-const noCopy: CSSProperties = {
-    userSelect: 'none',
-    WebkitUserSelect: 'none',
 };
 
 export function CodeBlock({ language, title, lines, copyable = false }: CodeBlockProps) {
@@ -70,7 +63,7 @@ export function CodeBlock({ language, title, lines, copyable = false }: CodeBloc
                     language={language}
                     style={vscDarkPlus}
                     customStyle={highlighterStyle}
-                    codeTagProps={{ style: copyable ? undefined : noCopy }}
+                    codeTagProps={{ style: !copyable && { userSelect: 'none', WebkitUserSelect: 'none' } }}
                     PreTag="div"
                     wrapLongLines={false}
                 >
