@@ -47,8 +47,9 @@ const SessionCard = ({ session, accent: c }: SessionCardProps) => {
             className={`
         w-full text-left rounded-xl border p-4 transition-all duration-200 group
         ${config.cardBg}
-        ${session.type === 'activity' ? c.border : 'border-border'}
-        hover:shadow-md hover:border-primary/30
+        ${session.type === 'activity'
+                    ? c.border
+                    : 'hover:shadow-md hover:border-primary/50 dark:hover:border-white/50'}
       `}
         >
             <div className="flex items-start justify-between gap-3">
@@ -210,7 +211,7 @@ export default function IntroductionToFundamentals() {
                 const clamped = Math.min(Math.max(week, 1), 12);
                 setOpenWeeks((prev) => new Set(prev).add(clamped));
             })
-            .catch(() => {});
+            .catch(() => { });
     }, [weekFromUrl]);
 
     const toggleWeek = (n: number) => {
@@ -284,8 +285,8 @@ export default function IntroductionToFundamentals() {
                         'C++ & DSA',
                         'Sprint Review',
                         'Project Management',
-                    ].map((topic) => (
-                        <Badge key={topic} variant="secondary">
+                    ].map((topic, topicIndex) => (
+                        <Badge key={`${topic}-${topicIndex}`} variant="secondary">
                             {topic}
                         </Badge>
                     ))}

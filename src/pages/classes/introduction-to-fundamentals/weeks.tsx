@@ -23,6 +23,7 @@ export type FundamentalsSessionType = 'lecture' | 'activity';
 
 /** Tailwind class bundles for week folder header and activity cards on the index page. */
 export interface FundamentalsWeekAccent {
+    color: string;
     bg: string;
     text: string;
     border: string;
@@ -52,6 +53,7 @@ export interface FundamentalsWeekData {
 
 /** Reusable accents — assign per week in WEEKS; override any field inline for one-offs. */
 const ACCENT_BLUE: FundamentalsWeekAccent = {
+    color: 'blue',
     bg: 'bg-blue-50 dark:bg-blue-950/20',
     text: 'text-blue-600 dark:text-blue-400',
     border: 'border-blue-200 dark:border-blue-800',
@@ -60,6 +62,7 @@ const ACCENT_BLUE: FundamentalsWeekAccent = {
 };
 
 const ACCENT_GREEN: FundamentalsWeekAccent = {
+    color: 'emerald',
     bg: 'bg-emerald-50 dark:bg-emerald-950/20',
     text: 'text-emerald-600 dark:text-emerald-400',
     border: 'border-emerald-200 dark:border-emerald-800',
@@ -68,6 +71,7 @@ const ACCENT_GREEN: FundamentalsWeekAccent = {
 };
 
 const ACCENT_PURPLE: FundamentalsWeekAccent = {
+    color: 'violet',
     bg: 'bg-violet-50 dark:bg-violet-950/20',
     text: 'text-violet-600 dark:text-violet-400',
     border: 'border-violet-200 dark:border-violet-800',
@@ -76,6 +80,7 @@ const ACCENT_PURPLE: FundamentalsWeekAccent = {
 };
 
 const ACCENT_RED: FundamentalsWeekAccent = {
+    color: 'rose',
     bg: 'bg-rose-50 dark:bg-rose-950/20',
     text: 'text-rose-600 dark:text-rose-400',
     border: 'border-rose-200 dark:border-rose-800',
@@ -84,6 +89,7 @@ const ACCENT_RED: FundamentalsWeekAccent = {
 };
 
 const ACCENT_BROWN: FundamentalsWeekAccent = {
+    color: 'yellow',
     bg: 'bg-yellow-50 dark:bg-yellow-900/30',
     text: 'text-yellow-800 dark:text-yellow-300',
     border: 'border-yellow-300 dark:border-yellow-700',
@@ -92,6 +98,7 @@ const ACCENT_BROWN: FundamentalsWeekAccent = {
 };
 
 const ACCENT_GRAY: FundamentalsWeekAccent = {
+    color: 'gray',
     bg: 'bg-gray-100 dark:bg-gray-900/30',
     text: 'text-gray-700 dark:text-gray-300',
     border: 'border-gray-400 dark:border-gray-700',
@@ -100,6 +107,7 @@ const ACCENT_GRAY: FundamentalsWeekAccent = {
 };
 
 const ACCENT_INDIGO: FundamentalsWeekAccent = {
+    color: 'indigo',
     bg: 'bg-indigo-50 dark:bg-indigo-900/20',
     text: 'text-indigo-700 dark:text-indigo-300',
     border: 'border-indigo-200 dark:border-indigo-700',
@@ -108,6 +116,7 @@ const ACCENT_INDIGO: FundamentalsWeekAccent = {
 };
 
 const ACCENT_AMBER: FundamentalsWeekAccent = {
+    color: 'amber',
     bg: 'bg-amber-50 dark:bg-amber-950/20',
     text: 'text-amber-700 dark:text-amber-300',
     border: 'border-amber-200 dark:border-amber-800',
