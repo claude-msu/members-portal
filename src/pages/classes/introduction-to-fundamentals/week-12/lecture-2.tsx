@@ -6,7 +6,6 @@ import {
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTerm,
     LectureTip,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
