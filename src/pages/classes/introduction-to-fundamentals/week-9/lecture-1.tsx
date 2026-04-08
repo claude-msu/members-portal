@@ -56,11 +56,11 @@ const UseStateDiagram = () => (
     </div>
 );
 
-export default function Week7Lecture1() {
+export default function Week9Lecture1() {
     return (
         <LectureLayout>
             <LectureHeader
-                week={7}
+                week={9}
                 session="Lecture 1"
                 title="React Components & Hooks"
                 description="React is the most widely used frontend library in the world. Learn the mental model, components, props, state, and the hooks you will use every single day."
@@ -362,8 +362,89 @@ export default function Week7Lecture1() {
                 Don't use array index as the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">key</code> prop if the list can be reordered or filtered. If the item at index 0 changes, React gets confused. Always use a stable, unique identifier from your data — like an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">id</code> field.
             </LectureCallout>
 
-            {/* ── 08 COMPONENT COMPOSITION ────────────────────────────────────── */}
-            <LectureSectionHeading number="08" title="Component Composition" />
+            {/* ── 08 SHARING STATE WITH USECONTEXT ──────────────────────────── */}
+            <LectureSectionHeading number="08" title="Sharing State with useContext" />
+
+            <LectureP>
+                As your app grows, you'll find some data — like the logged-in user, a theme preference, or a language setting — needs to be accessed by many components at different levels of the tree. Passing it through every intermediate component via props is tedious and fragile. This is called <LectureTerm>prop drilling</LectureTerm>, and React's answer to it is <LectureTip code tip="useContext — a React hook that reads a value from a Context. Any component wrapped in a Provider can call useContext to access the shared value without prop drilling.">useContext</LectureTip>.
+            </LectureP>
+            <LectureP>
+                A <LectureTip tip="A React mechanism for sharing values across the component tree without passing props at every level. You create a Context, wrap a subtree in a Provider, and any descendant can read the value with useContext.">Context</LectureTip> is a way to broadcast data to an entire subtree. You create the context, wrap your app (or a section of it) in a <LectureTerm>Provider</LectureTerm> that supplies the value, and any descendant component can read it with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useContext</code>.
+            </LectureP>
+
+            <CodeBlock
+                language="tsx"
+                title="auth-context.tsx — creating and providing context"
+                lines={[
+                    "import { createContext, useContext, useState, ReactNode } from 'react'",
+                    '',
+                    'interface AuthContextType {',
+                    '    user: string | null',
+                    '    login: (name: string) => void',
+                    '    logout: () => void',
+                    '}',
+                    '',
+                    'const AuthContext = createContext<AuthContextType | null>(null)',
+                    '',
+                    'export function AuthProvider({ children }: { children: ReactNode }) {',
+                    '    const [user, setUser] = useState<string | null>(null)',
+                    '    return (',
+                    '        <AuthContext.Provider value={{',
+                    '            user,',
+                    '            login: (name) => setUser(name),',
+                    '            logout: () => setUser(null),',
+                    '        }}>',
+                    '            {children}',
+                    '        </AuthContext.Provider>',
+                    '    )',
+                    '}',
+                    '',
+                    'export function useAuth() {',
+                    '    const ctx = useContext(AuthContext)',
+                    "    if (!ctx) throw new Error('useAuth must be used within AuthProvider')",
+                    '    return ctx',
+                    '}',
+                ]}
+            />
+
+            <LectureP>
+                To use it, wrap your app in the provider and call the custom hook from any descendant:
+            </LectureP>
+
+            <CodeBlock
+                language="tsx"
+                title="using the AuthContext"
+                lines={[
+                    '// main.tsx — wrap the app',
+                    '<AuthProvider>',
+                    '    <App />',
+                    '</AuthProvider>',
+                    '',
+                    '// any component deep in the tree',
+                    'function Navbar() {',
+                    '    const { user, logout } = useAuth()',
+                    '    return (',
+                    '        <nav>',
+                    '            {user ? (',
+                    '                <>',
+                    '                    <span>Hello, {user}</span>',
+                    '                    <button onClick={logout}>Log out</button>',
+                    '                </>',
+                    '            ) : (',
+                    '                <Link to="/login">Log in</Link>',
+                    '            )}',
+                    '        </nav>',
+                    '    )',
+                    '}',
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                Use Context for truly global state that many components need (auth, theme, language). For data that only two or three nearby components share, lifting state to a common parent and passing props is simpler and easier to follow. Don't reach for Context just to avoid one level of prop passing.
+            </LectureCallout>
+
+            {/* ── 09 COMPONENT COMPOSITION ────────────────────────────────────── */}
+            <LectureSectionHeading number="09" title="Component Composition" />
 
             <LectureP>
                 The most important skill in React isn't knowing the APIs — it's knowing how to break a UI into the right components. A good rule of thumb: a component should do one thing. If it's getting long or complex, split it up.

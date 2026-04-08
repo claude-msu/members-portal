@@ -6,21 +6,22 @@ import {
     LectureSectionHeading,
 } from '@/components/ui/lecture-typography';
 import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
-export default function Week7Activity() {
+export default function Week9Activity() {
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
-                    week={7}
-                session="Activity"
-                title="Build Your Frontend"
-                description="Your API is live. Now build the interface — React components, Tailwind styling, and real data flowing from your backend. By the end of this session you have a complete full-stack app you built from scratch."
-                icon={<Globe className="h-4 w-4" />}
-            />
+                    week={9}
+                    session="Activity"
+                    title="Build Your Frontend"
+                    description="Your API is live. Now build the interface — React components, Tailwind styling, and real data flowing from your backend. By the end of this session you have a complete full-stack app you built from scratch."
+                    icon={<Globe className="h-4 w-4" />}
+                />
 
             <LectureCallout type="info">
                 Your backend must be running locally (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder) before starting this activity. All data in the UI comes from the live API.
@@ -55,8 +56,20 @@ export default function Week7Activity() {
                 />
 
                 <LectureCallout type="info">
-                    <span title="A frontend build tool that uses native ES modules in development for near-instant hot module replacement. Dramatically faster than webpack-based setups like Create React App.">Vite</span> is incredibly fast — changes appear instantly in your browser during development.
+                    Vite is incredibly fast — changes appear instantly in your browser during development.
                 </LectureCallout>
+
+                <ActivityHint label="Tailwind configuration">
+                    Replace the contents of <code className="bg-muted px-1 rounded text-xs">src/index.css</code> with the single Tailwind import. That's all you need — Tailwind's build plugin handles the rest.
+                </ActivityHint>
+
+                <CodeBlock
+                    language="css"
+                    title="src/index.css — replace all existing content with this"
+                    lines={[
+                        '@import "tailwindcss";',
+                    ]}
+                />
             </ActivityChallenge>
 
             {/* ── 02 PROJECT REQUIREMENTS ─────────────────────────────────────── */}
@@ -114,8 +127,32 @@ export default function Week7Activity() {
                 </div>
 
                 <LectureCallout type="info">
-                    <span title="A React hook that runs a side effect after render. With an empty dependency array ([]), it runs once when the component mounts — the right place to trigger your initial data fetch.">useEffect</span> is where you fetch data. The empty dependency array <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[]</code> runs it once on mount.
+                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">useEffect</code> is where you fetch data. The empty dependency array <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[]</code> runs it once on mount.
                 </LectureCallout>
+
+                <CodeBlock
+                    language="tsx"
+                    title="fetch pattern with loading and error states"
+                    lines={[
+                        'const [items, setItems] = useState<Item[]>([])',
+                        'const [loading, setLoading] = useState(true)',
+                        'const [error, setError] = useState<string | null>(null)',
+                        '',
+                        'useEffect(() => {',
+                        '    fetch("http://localhost:8000/api/items")',
+                        '        .then(res => {',
+                        '            if (!res.ok) throw new Error(`HTTP ${res.status}`)',
+                        '            return res.json()',
+                        '        })',
+                        '        .then(setItems)',
+                        '        .catch(err => setError(err.message))',
+                        '        .finally(() => setLoading(false))',
+                        '}, [])',
+                        '',
+                        'if (loading) return <p>Loading...</p>',
+                        'if (error) return <p className="text-red-500">{error}</p>',
+                    ]}
+                />
             </ActivityChallenge>
 
             <ActivityChallenge
@@ -128,6 +165,10 @@ export default function Week7Activity() {
                     <ActivityTask>Each must fetch from or post to your API</ActivityTask>
                     <ActivityTask>Style everything with Tailwind — pay attention to spacing, color, and responsive layout</ActivityTask>
                 </div>
+
+                <ActivityHint label="project structure">
+                    Each view should be its own component file. A common pattern is <code className="bg-muted px-1 rounded text-xs">src/pages/Home.tsx</code>, <code className="bg-muted px-1 rounded text-xs">src/pages/Detail.tsx</code>, etc. Keep shared UI (nav, layout wrapper) in <code className="bg-muted px-1 rounded text-xs">src/components/</code>.
+                </ActivityHint>
             </ActivityChallenge>
 
             {/* ── 04 SHIP IT ──────────────────────────────────────────────────── */}

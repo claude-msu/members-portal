@@ -9,6 +9,7 @@ import {
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
 
 // Tailwind default palette (hex) so dynamic color swatches render without purging
 const TAILWIND_PALETTE: Record<string, Record<number, string>> = {
@@ -49,11 +50,11 @@ const TailwindPreview = ({
     </div>
 );
 
-export default function Week7Lecture2() {
+export default function Week9Lecture2() {
     return (
         <LectureLayout>
             <LectureHeader
-                week={7}
+                week={9}
                 session="Lecture 2"
                 title="Tailwind CSS & Connecting to Your API"
                 description="Style your UI with utility classes that do exactly one thing, then wire your React frontend to the FastAPI backend you built last week using fetch."
@@ -64,7 +65,7 @@ export default function Week7Lecture2() {
             <LectureSectionHeading number="01" title="The Utility Class Model" />
 
             <LectureP>
-                In traditional CSS, you write a class name, define it in a stylesheet, and apply it to elements. Tailwind inverts this: instead of writing custom CSS, you compose styles by applying small, single-purpose utility classes directly to your HTML elements.
+                In traditional CSS, you write a class name, define it in a stylesheet, and apply it to elements. <LectureTip tip="A utility-first CSS framework. Instead of writing custom CSS, you compose styles from small, single-purpose classes applied directly in your markup. Tailwind scans your source files at build time and generates only the CSS you actually use.">Tailwind CSS</LectureTip> inverts this: instead of writing custom CSS, you compose styles by applying small, single-purpose utility classes directly to your HTML elements.
             </LectureP>
             <LectureP>
                 Every Tailwind class does exactly one thing. <code className={CODE_INLINE}>p-4</code> adds padding. <code className={CODE_INLINE}>text-blue-500</code> sets the text color. <code className={CODE_INLINE}>rounded-lg</code> rounds the corners. You describe a component's appearance by stacking these utilities together.
@@ -94,6 +95,18 @@ export default function Week7Lecture2() {
 
             <LectureCallout type="info">
                 Tailwind generates CSS at build time by scanning your source files for class names and including only the ones you actually use. A production Tailwind CSS bundle is typically just a few KB regardless of how many utilities you use.
+            </LectureCallout>
+
+            <TerminalBlock
+                title="bash — install Tailwind in a Vite project"
+                lines={[
+                    { comment: 'install Tailwind and the Vite plugin', cmd: 'npm install -D tailwindcss @tailwindcss/vite' },
+                    { comment: 'add @import "tailwindcss" to your main CSS file', cmd: 'echo \'@import "tailwindcss";\' > src/index.css' },
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                The Activity walks through the full setup step by step. For now, just know that installation is two commands — the rest is automatic.
             </LectureCallout>
 
             {/* ── 02 THE SCALE SYSTEM ─────────────────────────────────────────── */}
@@ -175,64 +188,44 @@ export default function Week7Lecture2() {
                 />
             </div>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    common flexbox classes
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 select-none">
-                    <div className="grid grid-cols-2 gap-x-8 gap-y-2">
-                        {[
-                            ['flex', 'enable flexbox'],
-                            ['flex-col', 'stack vertically'],
-                            ['items-center', 'align on cross axis'],
-                            ['justify-center', 'align on main axis'],
-                            ['justify-between', 'space between items'],
-                            ['gap-4', 'gap between items (16px)'],
-                            ['flex-1', 'grow to fill available space'],
-                            ['shrink-0', 'prevent shrinking'],
-                            ['flex-wrap', 'wrap to next line'],
-                            ['items-start', 'align to start of cross axis'],
-                        ].map(([cls, desc]) => (
-                            <div key={cls} className="flex gap-2">
-                                <code className="text-emerald-400 w-32 shrink-0">{cls}</code>
-                                <span className="text-zinc-500">{desc}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="text"
+                title="common flexbox classes"
+                lines={[
+                    'flex                 enable flexbox',
+                    'flex-col             stack vertically',
+                    'items-center         align on cross axis',
+                    'justify-center       align on main axis',
+                    'justify-between      space between items',
+                    'gap-4                gap between items (16px)',
+                    'flex-1               grow to fill available space',
+                    'shrink-0             prevent shrinking',
+                    'flex-wrap            wrap to next line',
+                    'items-start          align to start of cross axis',
+                ]}
+            />
 
             <LectureSubHeading title="Grid" />
             <LectureP>
                 CSS Grid is perfect for two-dimensional layouts. Tailwind's grid utilities map directly to <code className={CODE_INLINE}>grid-template-columns</code> and related properties.
             </LectureP>
 
-            <div className="my-4 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    grid classes
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 select-none">
-                    <div className="space-y-2">
-                        {[
-                            ['grid grid-cols-3 gap-4', '3 equal columns with 16px gap'],
-                            ['grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3', 'responsive: 1→2→3 columns'],
-                            ['col-span-2', 'span 2 columns'],
-                            ['grid-cols-[1fr_2fr]', 'custom column widths (arbitrary value)'],
-                        ].map(([cls, desc]) => (
-                            <div key={cls} className="flex gap-3 flex-wrap">
-                                <code className="text-emerald-400">{cls}</code>
-                                <span className="text-zinc-500">— {desc}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="text"
+                title="grid classes"
+                lines={[
+                    'grid grid-cols-3 gap-4                         3 equal columns with 16px gap',
+                    'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 responsive: 1→2→3 columns',
+                    'col-span-2                                     span 2 columns',
+                    'grid-cols-[1fr_2fr]                            custom column widths (arbitrary value)',
+                ]}
+            />
 
             {/* ── 05 RESPONSIVE DESIGN ────────────────────────────────────────── */}
             <LectureSectionHeading number="05" title="Responsive Design" />
 
             <LectureP>
-                Tailwind is <LectureTerm>mobile-first</LectureTerm>. Classes without a prefix apply to all screen sizes. Breakpoint prefixes (<code className={CODE_INLINE}>sm:</code>, <code className={CODE_INLINE}>md:</code>, <code className={CODE_INLINE}>lg:</code>) apply the style <em>only at that size and above</em>. You build the mobile layout first, then add overrides for larger screens.
+                Tailwind is <LectureTip tip="A design approach where you build the mobile layout first (no prefix), then layer on styles for larger screens using breakpoint prefixes (sm:, md:, lg:). This ensures your app works on the smallest screens by default.">mobile-first</LectureTip>. Classes without a prefix apply to all screen sizes. Breakpoint prefixes (<code className={CODE_INLINE}>sm:</code>, <code className={CODE_INLINE}>md:</code>, <code className={CODE_INLINE}>lg:</code>) apply the style <em>only at that size and above</em>. You build the mobile layout first, then add overrides for larger screens.
             </LectureP>
 
             <div className="my-6 rounded-xl border border-border bg-muted/30 p-5">
@@ -267,28 +260,18 @@ export default function Week7Lecture2() {
                 Tailwind can apply styles conditionally based on element state using <LectureTerm>variants</LectureTerm> — prefixes that correspond to CSS pseudo-classes. The pattern is the same as responsive prefixes: <code className={CODE_INLINE}>variant:class</code>.
             </LectureP>
 
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 border-b border-zinc-700 select-none">
-                    common state variants
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 select-none">
-                    <div className="space-y-2">
-                        {[
-                            ['hover:bg-blue-600', 'apply on mouse hover'],
-                            ['focus:ring-2 focus:ring-blue-500', 'apply when element is focused'],
-                            ['active:scale-95', 'apply while being clicked'],
-                            ['disabled:opacity-50 disabled:cursor-not-allowed', 'apply when input/button is disabled'],
-                            ['dark:bg-zinc-900', 'apply in dark mode'],
-                            ['group-hover:text-blue-500', 'apply when a parent with "group" class is hovered'],
-                        ].map(([cls, desc]) => (
-                            <div key={cls} className="flex gap-3 flex-wrap items-start">
-                                <code className="text-emerald-400 shrink-0">{cls}</code>
-                                <span className="text-zinc-500">— {desc}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+            <CodeBlock
+                language="text"
+                title="common state variants"
+                lines={[
+                    'hover:bg-blue-600                              apply on mouse hover',
+                    'focus:ring-2 focus:ring-blue-500               apply when element is focused',
+                    'active:scale-95                                apply while being clicked',
+                    'disabled:opacity-50 disabled:cursor-not-allowed  apply when disabled',
+                    'dark:bg-zinc-900                               apply in dark mode',
+                    'group-hover:text-blue-500                      apply when parent "group" is hovered',
+                ]}
+            />
 
             <LectureP>
                 The <LectureTip code tip="group in Tailwind: add 'group' to a parent element, then use 'group-hover:' on children to apply styles when the parent is hovered. Useful for cards where hovering the card changes the appearance of text inside it.">group</LectureTip> pattern is particularly powerful for cards. Add <code className={CODE_INLINE}>group</code> to the card container, then use <code className={CODE_INLINE}>group-hover:</code> on any child elements you want to change when the card is hovered.
@@ -396,7 +379,7 @@ export default function Week7Lecture2() {
 
             <LectureSubHeading title="Deploy your frontend" />
             <LectureP>
-                When you're ready to ship, run <code className={CODE_INLINE}>npm run build</code>. Vite compiles and bundles your app into a <code className={CODE_INLINE}>dist/</code> folder of static files. Use <code className={CODE_INLINE}>VITE_API_URL</code> (and other <code className={CODE_INLINE}>VITE_*</code> env vars) for the production API base URL; Vite inlines them at build time. Services like Vercel or Netlify can deploy from your repo and run the build step in CI — we cover pipelines in Week 6.
+                When you're ready to ship, run <code className={CODE_INLINE}>npm run build</code>. Vite compiles and bundles your app into a <code className={CODE_INLINE}>dist/</code> folder of static files. Use <code className={CODE_INLINE}>VITE_API_URL</code> (and other <code className={CODE_INLINE}>VITE_*</code> env vars) for the production API base URL; Vite inlines them at build time. Services like Vercel or Netlify can deploy from your repo and run the build step in CI — we cover pipelines in Week 8.
             </LectureP>
 
 
