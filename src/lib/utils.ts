@@ -14,7 +14,7 @@ export function escapeCsv(s: string): string {
 // Centralized interface attributes for consistent styling across components
 export const interfaceAttributes = {
   variants: {
-    default: "bg-primary border-2 border-primary text-on-primary hover:bg-white dark:hover:bg-black hover:text-primary",
+    default: "bg-primary border-2 border-primary text-on-primary hover:bg-white dark:hover:bg-muted/10 hover:text-primary",
     secondary: "border-2 border-primary hover:bg-primary text-primary hover:text-white",
 
     green: "bg-green-600 border-2 border-green-600 text-white hover:bg-cream hover:text-green-600",
