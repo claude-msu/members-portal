@@ -113,10 +113,11 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
     return (
         <motion.div
+            id={`fundamentals-week-${week.number}`}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.06, duration: 0.3 }}
-            className="rounded-xl border border-border bg-card overflow-hidden"
+            className="rounded-xl border border-border bg-card overflow-hidden scroll-my-6"
         >
             {/* Header / Toggle */}
             <button
@@ -186,6 +187,15 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
 const VALID_WEEK_NUMBERS = WEEKS.map((w) => w.number);
 
+/** After opening a folder, match WeekFolder session panel motion (0.25s) before scrolling. */
+const SCROLL_AFTER_FOLDER_EXPAND_MS = 280;
+
+function scrollFundamentalsWeekIntoView(weekNumber: number) {
+    document
+        .getElementById(`fundamentals-week-${weekNumber}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
 function getWeekFromSearchParams(searchParams: URLSearchParams): number | null {
     const s = searchParams.get('s');
     const n = s ? parseInt(s, 10) : NaN;
@@ -200,22 +210,36 @@ export default function IntroductionToFundamentals() {
     );
     const navigate = useNavigate();
 
-    // When URL ?s= changes (e.g. breadcrumb link), expand that week
+    // When URL ?s= changes (e.g. breadcrumb link), expand that week and scroll after panel opens
     useEffect(() => {
-        if (weekFromUrl !== null) {
-            setOpenWeeks((prev) => new Set(prev).add(weekFromUrl));
-        }
+        if (weekFromUrl === null) return;
+        setOpenWeeks((prev) => new Set(prev).add(weekFromUrl));
+        const scrollTimeoutId = window.setTimeout(() => {
+            scrollFundamentalsWeekIntoView(weekFromUrl);
+        }, SCROLL_AFTER_FOLDER_EXPAND_MS);
+        return () => window.clearTimeout(scrollTimeoutId);
     }, [weekFromUrl]);
 
     // Auto-expand current week on load when no URL week is specified
     useEffect(() => {
         if (weekFromUrl !== null) return;
+        let cancelled = false;
+        let scrollTimeoutId: number | undefined;
         getCurrent()
             .then((week) => {
+                if (cancelled) return;
                 const clamped = Math.min(Math.max(week, 1), 12);
                 setOpenWeeks((prev) => new Set(prev).add(clamped));
+                scrollTimeoutId = window.setTimeout(() => {
+                    if (cancelled) return;
+                    scrollFundamentalsWeekIntoView(clamped);
+                }, SCROLL_AFTER_FOLDER_EXPAND_MS);
             })
             .catch(() => { });
+        return () => {
+            cancelled = true;
+            if (scrollTimeoutId !== undefined) window.clearTimeout(scrollTimeoutId);
+        };
     }, [weekFromUrl]);
 
     const toggleWeek = (n: number) => {
