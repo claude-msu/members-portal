@@ -536,7 +536,7 @@ const Classes = () => {
     }
 
     // Only show class page button if class has started and not on mobile
-    if (status.state === 'in_progress' && !isMobile) {
+    if ((status.state === 'in_progress' || status.state === 'completed') && !isMobile) {
       actions.push({
         label: 'View Class Page',
         onClick: () => {
