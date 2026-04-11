@@ -1,264 +1,303 @@
-import { useNavigate } from 'react-router-dom';
-import { Cpu } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
+import { TestTube } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTerm,
+    LectureTip,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
+import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week8Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
                 week={8}
                 session="Lecture 1"
-                title="Classes, Encapsulation & Inheritance"
-                description="C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible."
-                icon={<Cpu className="h-4 w-4" />}
+                title="Vitest & Testing Your Project"
+                description="Unit and integration testing with Vitest: testing your API, components, and critical paths so refactors don't break your fundamentals project."
+                icon={<TestTube className="h-4 w-4" />}
             />
 
-            {/* ── 01 WHY C++ FOR OOP ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="Why C++ for OOP?" />
+            <LectureSectionHeading number="01" title="Why Test?" />
 
             <LectureP>
-                You've been writing Python and TypeScript. C++ gives you direct control over memory and a type system that makes object boundaries explicit. For systems code and technical interviews, C++ OOP — classes, access modifiers, constructors, inheritance — is the reference model. What you learn here maps to every language: Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">super()</code>, TypeScript's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">extends</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">implements</code>, and Java/C# classes all follow the same ideas. C++ makes the machinery visible so you see exactly when constructors run, when virtual dispatch happens, and what &quot;pass by reference&quot; means.
+                Without tests, every change is a gamble: did you break the login flow? The list endpoint? You find out when a user (or you, later) hits the bug. <LectureTerm>Automated tests</LectureTerm> run in seconds and tell you exactly what still works and what broke. They're the safety net that makes refactoring and adding features less scary.
             </LectureP>
             <LectureP>
-                This lecture focuses on <strong className="text-foreground">classes, encapsulation, and inheritance</strong>. Next lecture we'll cover polymorphism, abstract base classes, and the STL. Compile with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">g++ -std=c++17 -Wall file.cpp -o file</code>; <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-Wall</code> turns on warnings — treat them as bugs.
+                You don't need to test every line. Focus on: (1) critical paths — login, creating/editing the main resource, any payment or auth logic; (2) edge cases — empty list, invalid input, unauthorized access; (3) the contract of your API and key components. One good test per important behavior is worth more than dozens of trivial tests.
             </LectureP>
 
             <LectureCallout type="info">
-                <strong className="text-foreground">Encapsulation</strong> means hiding internal state and exposing only a clear interface. It prevents callers from putting your object into an invalid state and lets you change implementation details without breaking the rest of the codebase.
+                <LectureTip tip="A test runner and assertion library for JavaScript/TypeScript. Fast, Vite-native, and familiar if you've used Jest. Works for unit and integration tests.">Vitest</LectureTip> is the default choice for Vite-based React projects. It uses the same describe/it/expect style as Jest and runs in the same process as your app, so it's fast. We'll use it for both frontend and (with a small setup) for calling your API in tests.
             </LectureCallout>
 
-            {/* ── 02 THE FOUR OOP PRINCIPLES ──────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="The Four OOP Principles" />
+            <LectureSectionHeading number="02" title="Unit vs Integration Tests" />
 
             <LectureP>
-                Object-Oriented Programming organizes software around objects — data bundled with the functions that operate on it. Four principles underpin OOP: <strong className="text-foreground">encapsulation</strong> (hide internal state), <strong className="text-foreground">inheritance</strong> (reuse and extend), <strong className="text-foreground">polymorphism</strong> (same interface, different behavior), and <strong className="text-foreground">abstraction</strong> (expose what, hide how). We focus on encapsulation and inheritance in this lecture.
+                <LectureTerm>Unit tests</LectureTerm> isolate one function or component: you call the function with inputs and assert on the output, or render a component and assert on the DOM or behavior. Dependencies are often <LectureTip tip="A fake implementation used in tests so you control inputs and don't hit the real API or database.">mocked</LectureTip> (e.g. replace <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fetch</code> with a stub that returns fixed data).
             </LectureP>
-
-            <div className="my-6 space-y-4">
-                {[
-                    { principle: 'Encapsulation', color: 'text-blue-600 dark:text-blue-400', border: 'border-blue-200 dark:border-blue-800', bg: 'bg-blue-50 dark:bg-blue-950/20', def: 'Bundle data and methods together. Hide internal state — expose only what users of the class need.', why: 'Prevents external code from putting an object into an invalid state.' },
-                    { principle: 'Inheritance', color: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', bg: 'bg-emerald-50 dark:bg-emerald-950/20', def: 'A derived class gets the data and methods of its base class and can extend or override them.', why: 'Eliminates duplication for related types (e.g. Dog and Cat extending Animal).' },
-                    { principle: 'Polymorphism', color: 'text-orange-600 dark:text-orange-400', border: 'border-orange-200 dark:border-orange-800', bg: 'bg-orange-100 dark:bg-orange-950/20', def: 'The same interface works for different types. Call speak() on any Animal — each responds differently.', why: 'Next lecture: virtual methods and abstract base classes.' },
-                    { principle: 'Abstraction', color: 'text-purple-600 dark:text-purple-400', border: 'border-purple-200 dark:border-purple-800', bg: 'bg-purple-50 dark:bg-purple-950/20', def: 'Expose what a class does, hide how. Users of std::vector don\'t need to know about resizing.', why: 'Reduces cognitive load; good APIs are abstract.' },
-                ].map((item) => (
-                    <div key={item.principle} className={`rounded-xl border ${item.border} overflow-hidden`}>
-                        <div className={`px-4 py-2.5 ${item.bg}`}>
-                            <p className={`text-xs font-black uppercase tracking-widest ${item.color}`}>{item.principle}</p>
-                            <p className="text-xs text-foreground mt-1">{item.def}</p>
-                        </div>
-                        <div className="px-4 py-2.5">
-                            <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Why:</span> {item.why}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* ── 03 ACCESS MODIFIERS — PUBLIC, PRIVATE, PROTECTED ────────────── */}
-            <LectureSectionHeading number="03" title="Access Modifiers — Public, Private, Protected" />
-
             <LectureP>
-                C++ gives you explicit control over who can see what. By default, a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> has private members until you say otherwise; a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> has public members by default. The only difference is that default — use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> for plain data (POD, no invariants) and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> when you're building an abstraction with an interface.
+                <LectureTerm>Integration tests</LectureTerm> test several pieces together — e.g. your FastAPI endpoint plus the database, or your React app calling the real (or test) API. They're slower but catch more real-world bugs because they exercise the same paths your users actually hit.
             </LectureP>
-
-            <div className="my-6 rounded-xl border border-border overflow-hidden">
-                <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
-                    <p className="text-xs font-semibold text-foreground">Who can access what</p>
-                </div>
-                <div className="divide-y divide-border">
-                    <div className="px-4 py-3">
-                        <p className="text-xs font-medium text-foreground">public:</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Anyone can call or read. Your API — constructors, getters, methods that change state in valid ways.</p>
-                    </div>
-                    <div className="px-4 py-3">
-                        <p className="text-xs font-medium text-foreground">private:</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">Only this class. Derived classes cannot see private members. Use for implementation details and invariants.</p>
-                    </div>
-                    <div className="px-4 py-3">
-                        <p className="text-xs font-medium text-foreground">protected:</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">This class and derived classes. Lets subclasses access or extend internal state without exposing it to the world. Use sparingly — it tightens coupling between base and derived.</p>
-                    </div>
-                </div>
-            </div>
 
             <LectureCallout type="tip">
-                Prefer <strong className="text-foreground">private</strong> unless you have a clear reason for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">protected</code>. Protected members become part of your inheritance contract; changing them can break every derived class.
+                Think of it like testing a car. A unit test checks that one gear spins correctly in isolation. An integration test starts the engine and drives around the block. You need both — the gear test catches manufacturing defects, and the drive test catches problems that only appear when everything is connected.
             </LectureCallout>
 
-            {/* ── 04 OOP IN C++ — CLASSES, CONSTRUCTORS, INHERITANCE ───────────── */}
-            <LectureSectionHeading number="04" title="OOP in C++ — Classes, Constructors & Inheritance" />
-
             <LectureP>
-                A <LectureTerm>class</LectureTerm> bundles data (member variables) and behavior (member functions). Constructors initialize the object; use the <strong className="text-foreground">initializer list</strong> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to set members before the body runs — it's required for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> members and references, and often more efficient.
+                For your fundamentals project: write a few unit tests for pure logic (e.g. a formatter or validator) and for React components that have clear behavior (e.g. "when user is null, show Login button"). Write integration tests for at least one API route (e.g. GET /items returns 200 and a list) and one full flow (e.g. login then fetch protected data) so you know the stack works together.
             </LectureP>
 
-            <CppBlock
-                title="encapsulation — Book class with private state"
+            <LectureSectionHeading number="03" title="Testing the Backend (FastAPI)" />
+
+            <LectureP>
+                FastAPI provides a <LectureTerm>TestClient</LectureTerm> that calls your app without running a server. You get request/response objects and can assert status codes, JSON body, and headers. Under the hood, TestClient uses <LectureTip code tip="An async HTTP client for Python. FastAPI's TestClient wraps it so you can call your endpoints without starting a real server process.">httpx</LectureTip> to make requests.
+            </LectureP>
+            <TerminalBlock
+                title="bash — backend project root"
                 lines={[
-                    'class Book {',
-                    'private:',
-                    '    string title;',
-                    '    string author;',
-                    '    bool checkedOut = false;',
-                    '',
-                    'public:',
-                    '    // Constructor — initializer list : title(t), author(a)',
-                    '    Book(string t, string a) : title(t), author(a) {}',
-                    '',
-                    '    string getTitle()  const { return title; }',
-                    '    string getAuthor() const { return author; }',
-                    '    bool isAvailable() const { return !checkedOut; }',
-                    '',
-                    '    bool checkout() {',
-                    '        if (checkedOut) return false;',
-                    '        checkedOut = true;',
-                    '        return true;',
-                    '    }',
-                    '    void returnBook() { checkedOut = false; }',
-                    '};',
-                ]}
-            />
-
-            <LectureCallout type="tip">
-                Use the <strong className="text-foreground">constructor initializer list</strong> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to initialize members. It runs before the constructor body and is required for const members and references.
-            </LectureCallout>
-
-            <LectureSubHeading title="Initializer list order" />
-            <LectureP>
-                Members are always initialized in the <strong className="text-foreground">order they are declared in the class</strong>, not the order you list them in the initializer list. If your list order doesn't match declaration order, you can get subtle bugs (e.g. member A is initialized using member B, but B isn't initialized yet). Keep declaration order and list order the same, and put base class and members in a logical order (base first, then members top to bottom).
-            </LectureP>
-
-            <LectureSubHeading title="Const correctness" />
-            <LectureP>
-                Mark member functions that don't modify the object with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> at the end: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string getTitle() const;</code>. That's a promise: "this function won't change any member." Getters and inspectors should be const. Const objects can only call const member functions. When you take a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const LibraryItem&amp;</code>, you're promising not to modify it — so only const methods are callable. Getting const right from the start makes APIs easier to use and prevents accidental mutations.
-            </LectureP>
-
-            <LectureP>
-                <LectureTerm>Inheritance</LectureTerm> lets a derived class reuse and extend a base class. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> so that calls through a base pointer invoke the derived class's override. A <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> destructor in the base is required when you delete through a base pointer — otherwise the derived destructor won't run.
-            </LectureP>
-
-            <CppBlock
-                title="inheritance + virtual methods"
-                lines={[
-                    'class LibraryItem {',
-                    'public:',
-                    '    string id, title;',
-                    '    LibraryItem(string i, string t) : id(i), title(t) {}',
-                    '    virtual string getType() const { return "Item"; }',
-                    '    virtual int getLoanDays() const = 0;  // pure virtual — must override',
-                    '    virtual ~LibraryItem() {}  // required for correct cleanup',
-                    '};',
-                    '',
-                    'class Book : public LibraryItem {',
-                    'public:',
-                    '    Book(string i, string t) : LibraryItem(i, t) {}',
-                    '    string getType() const override { return "Book"; }',
-                    '    int getLoanDays() const override { return 21; }',
-                    '};',
-                    '',
-                    '// Polymorphism: same code works for any LibraryItem',
-                    'void printInfo(const LibraryItem& item) {',
-                    '    cout << item.getType() << " — " << item.getLoanDays() << " days" << endl;',
-                    '}',
+                    { comment: 'install pytest and httpx (FastAPI uses httpx under the hood)', cmd: 'pip install pytest httpx' },
+                    { comment: 'run tests', cmd: 'pytest' },
+                    { comment: 'run with verbose output', cmd: 'pytest -v' },
                 ]}
             />
 
             <LectureCallout type="warning">
-                <strong className="text-foreground">Slicing:</strong> assigning a derived object to a base by value copies only the base part; the derived data is "sliced off." Always pass base classes by reference or pointer (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const LibraryItem&</code>) to preserve polymorphic behavior.
+                Never test against your real database. Use a separate test database (or SQLite in-memory) so tests can create, modify, and delete data freely without affecting production. The fixture below handles this automatically.
             </LectureCallout>
 
-            <LectureSubHeading title="Constructor and destructor order" />
+            <LectureSubHeading title="Shared fixtures with conftest.py" />
             <LectureP>
-                When you create a derived object, the base constructor runs first, then the derived constructor. When it's destroyed (e.g. goes out of scope or you <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete</code> a base pointer), the derived destructor runs first, then the base. So: base builds the foundation, derived builds on top; on teardown, derived cleans up first, then base. That's why a non-virtual destructor in the base is dangerous — only the base destructor runs when you delete through a base pointer, and the derived part is never cleaned up.
+                <LectureTip code tip="A special pytest file that holds shared fixtures and configuration. pytest loads it automatically — any fixture defined here is available to every test file in the same directory (and subdirectories) without importing it.">conftest.py</LectureTip> is where you put <LectureTip tip="Reusable setup/teardown logic for tests. A fixture runs before (and optionally after) each test. Common fixtures: test database sessions, authenticated clients, sample data.">test fixtures</LectureTip> — reusable setup and teardown logic. <LectureTip code tip="Python's standard test runner. Auto-discovers files named test_*.py, runs functions starting with test_, and reports pass/fail. Extensible with plugins like pytest-cov.">pytest</LectureTip> loads this file automatically, so every test file gets access to the fixtures without importing them.
             </LectureP>
-
-            <LectureCallout type="tip">
-                Always declare destructors <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> in base classes that have virtual methods. Without it, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> only runs the base destructor — the derived destructor won't run, leaking resources.
-            </LectureCallout>
-
-            {/* ── 05 COMPOSITION VS INHERITANCE ─────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Composition vs Inheritance" />
-
-            <LectureP>
-                Inheritance models an <strong className="text-foreground">is-a</strong> relationship: a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Book</code> is a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">LibraryItem</code>. Composition models <strong className="text-foreground">has-a</strong>: a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Library</code> has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector&lt;LibraryItem*&gt;</code> and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code> for loans. Prefer composition when you're reusing behavior or data without needing to substitute one type for another through a common interface. Prefer inheritance when you have a true subtype: multiple classes that share an interface and can be used interchangeably (e.g. passed to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">printInfo(const LibraryItem&)</code>).
-            </LectureP>
-
-            <LectureP>
-                Deep inheritance hierarchies (A → B → C → D) are hard to maintain and test. If you find yourself going beyond one level of derivation, ask whether composition or a flatter design would work. "Favor composition over inheritance" is a design guideline, not a law — use inheritance where polymorphism is the goal, composition everywhere else.
-            </LectureP>
-
-            {/* ── 06 RULE OF THREE & RESOURCE MANAGEMENT ───────────────────────── */}
-            <LectureSectionHeading number="06" title="Rule of Three & Resource Management" />
-
-            <LectureP>
-                If your class manages a resource (raw pointer, file handle, etc.), the compiler-generated copy constructor and copy-assignment operator do a <strong className="text-foreground">shallow copy</strong> — they copy the pointer, not what it points to. Then two objects think they own the same resource; when one is destroyed, it frees the memory and the other is left with a dangling pointer. The <strong className="text-foreground">rule of three</strong>: if you define one of destructor, copy constructor, or copy-assignment operator, you usually need to define all three (or explicitly delete the copies and use move semantics). For now, prefer STL containers and smart pointers so the compiler-generated behavior is correct; when you write a class that holds <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">vector</code> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string</code>, the default copy is deep and correct.
-            </LectureP>
-
-            <LectureCallout type="info">
-                In C++11 and later, the &quot;rule of five&quot; adds move constructor and move assignment. For interview-level code and most application logic, stick to values and STL types and you rarely need to implement these yourself.
-            </LectureCallout>
-
-            {/* ── 07 ANOTHER EXAMPLE — INVARIANTS IN PRACTICE ─────────────────── */}
-            <LectureSectionHeading number="07" title="Another Example — Invariants in Practice" />
-
-            <LectureP>
-                Encapsulation is about enforcing <strong className="text-foreground">invariants</strong> — conditions that are always true for your object. A bank account balance should never be negative; a connection handle should never be used after close. Expose only operations that preserve the invariant.
-            </LectureP>
-
-            <CppBlock
-                title="BankAccount — balance never goes negative"
+            <CodeBlock
+                language="python"
+                title="tests/conftest.py"
                 lines={[
-                    'class BankAccount {',
-                    'private:',
-                    '    double balance = 0.0;   // invariant: balance >= 0',
+                    'import pytest',
+                    'from fastapi.testclient import TestClient',
+                    'from sqlalchemy import create_engine',
+                    'from sqlalchemy.orm import sessionmaker',
+                    'from main import app',
+                    'from database import Base, get_db',
                     '',
-                    'public:',
-                    '    bool deposit(double amount) {',
-                    '        if (amount <= 0) return false;',
-                    '        balance += amount;',
-                    '        return true;',
-                    '    }',
+                    'TEST_DB = "sqlite:///./test.db"',
+                    'engine = create_engine(TEST_DB, connect_args={"check_same_thread": False})',
+                    'TestSession = sessionmaker(bind=engine)',
                     '',
-                    '    bool withdraw(double amount) {',
-                    '        if (amount <= 0 || amount > balance) return false;',
-                    '        balance -= amount;',
-                    '        return true;',
-                    '    }',
                     '',
-                    '    double getBalance() const { return balance; }  // const: does not modify',
-                    '};',
+                    '@pytest.fixture(autouse=True)',
+                    'def test_db():',
+                    '    """Create tables before each test, drop them after."""',
+                    '    Base.metadata.create_all(bind=engine)',
+                    '    db = TestSession()',
                     '',
-                    '// Callers cannot set balance directly — only deposit/withdraw.',
-                    '// So the invariant "balance >= 0" is always maintained.',
+                    '    def override():',
+                    '        try:',
+                    '            yield db',
+                    '        finally:',
+                    '            db.close()',
+                    '',
+                    '    app.dependency_overrides[get_db] = override',
+                    '    yield',
+                    '    Base.metadata.drop_all(bind=engine)',
+                    '    app.dependency_overrides.clear()',
+                    '',
+                    '',
+                    '@pytest.fixture()',
+                    'def client():',
+                    '    """A TestClient instance for making requests."""',
+                    '    return TestClient(app)',
+                ]}
+            />
+            <LectureP>
+                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">autouse=True</code> on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test_db</code> means every test automatically gets a fresh database — tables are created before the test and dropped after. The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">client</code> fixture gives each test a ready-to-use TestClient without repeating the setup.
+            </LectureP>
+
+            <LectureSubHeading title="Writing your first test file" />
+            <LectureP>
+                Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">tests/test_main.py</code> next to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">conftest.py</code>. The example below tests a public endpoint and a protected one. Replace the routes and login logic with your own.
+            </LectureP>
+            <CodeBlock
+                language="python"
+                title="tests/test_main.py"
+                lines={[
+                    'def test_read_notes_empty(client):',
+                    '    response = client.get("/notes")',
+                    '    assert response.status_code == 200',
+                    '    assert response.json() == []',
+                    '',
+                    '',
+                    'def test_create_note(client):',
+                    '    response = client.post(',
+                    '        "/notes",',
+                    '        json={"title": "Test", "content": "Hello", "published": False},',
+                    '    )',
+                    '    assert response.status_code == 201',
+                    '    data = response.json()',
+                    '    assert data["title"] == "Test"',
+                    '    assert "id" in data',
+                    '',
+                    '',
+                    'def test_protected_route_without_token(client):',
+                    '    response = client.get("/me")',
+                    '    assert response.status_code == 401',
+                    '',
+                    '',
+                    'def test_protected_route_with_token(client):',
+                    '    login = client.post("/login", json={"email": "test@test.com", "password": "test"})',
+                    '    assert login.status_code == 200',
+                    "    token = login.json().get('access_token')",
+                    '    response = client.get("/me", headers={"Authorization": f"Bearer {token}"})',
+                    '    assert response.status_code == 200',
                 ]}
             />
 
-            <LectureSubHeading title="Common pitfalls to avoid" />
+            <LectureSubHeading title="Testing auth" />
             <LectureP>
-                <strong className="text-foreground">Virtual destructor:</strong> Base class with virtual methods must have a virtual destructor; otherwise <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> leaks the derived part. <strong className="text-foreground">Slicing:</strong> Passing or assigning by value copies only the base; use reference or pointer. <strong className="text-foreground">Const:</strong> Mark getters and read-only methods <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> so they work on const objects. <strong className="text-foreground">Initializer list:</strong> Use it for all members when possible; required for const and reference members. <strong className="text-foreground">Protected vs private:</strong> Prefer private; use protected only when derived classes genuinely need access.
+                For protected endpoints, get a token first (e.g. call your login endpoint with test credentials) and pass it in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Authorization</code> header. Assert that without the token you get 401, and with it you get the expected 200 and data.
+            </LectureP>
+            <LectureCallout type="info">
+                A common pattern is to create an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">auth_client</code> fixture in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">conftest.py</code> that logs in a test user and returns a TestClient with the token already set. This avoids repeating login logic in every auth test.
+            </LectureCallout>
+
+            <LectureSectionHeading number="04" title="Testing React with Vitest" />
+
+            <LectureP>
+                Install Vitest and a DOM environment. <LectureTip tip="A JavaScript implementation of the browser DOM that runs in Node.js. Lets you render React components in tests without a real browser.">jsdom</LectureTip> simulates a browser in Node.js so your components can render. <LectureTip tip="A testing utility that renders React components and provides queries (getByText, getByRole, etc.) that mirror how users find elements on screen. Encourages testing behavior, not internals.">@testing-library/react</LectureTip> gives you utilities to render components and query the DOM the way a user would.
+            </LectureP>
+            <TerminalBlock
+                title="bash — frontend project root"
+                lines={[
+                    { comment: 'install Vitest and testing library', cmd: 'npm install -D vitest @testing-library/react @testing-library/jest-dom jsdom' },
+                    { comment: 'run tests once', cmd: 'npm run test' },
+                    { comment: 'run tests in watch mode (re-run on file change)', cmd: 'npm run test -- --watch' },
+                ]}
+            />
+
+            <LectureSubHeading title="Vitest configuration" />
+            <LectureP>
+                Vitest reads its config from your Vite config. Add a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test</code> block that tells Vitest to use jsdom and enables global test functions so you don't need to import <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">describe</code>/<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">it</code>/<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">expect</code> in every file.
+            </LectureP>
+            <CodeBlock
+                language="typescript"
+                title="vite.config.ts"
+                lines={[
+                    '/// <reference types="vitest" />',
+                    'import { defineConfig } from "vite";',
+                    'import react from "@vitejs/plugin-react";',
+                    '',
+                    'export default defineConfig({',
+                    '  plugins: [react()],',
+                    '  test: {',
+                    '    globals: true,',
+                    '    environment: "jsdom",',
+                    '    setupFiles: "./src/test/setup.ts",',
+                    '  },',
+                    '});',
+                ]}
+            />
+            <LectureP>
+                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">setupFiles</code> entry points to a file that runs before every test suite. Use it to load custom matchers like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">toBeInTheDocument()</code>.
+            </LectureP>
+            <CodeBlock
+                language="typescript"
+                title="src/test/setup.ts"
+                lines={[
+                    'import "@testing-library/jest-dom";',
+                ]}
+            />
+
+            <LectureSubHeading title="A component test you can copy" />
+            <CodeBlock
+                language="tsx"
+                title="src/App.test.tsx"
+                lines={[
+                    'import { describe, it, expect, vi } from "vitest";',
+                    'import { render, screen, fireEvent } from "@testing-library/react";',
+                    'import App from "./App";',
+                    '',
+                    'describe("App", () => {',
+                    '  it("renders the app title", () => {',
+                    '    render(<App />);',
+                    '    expect(screen.getByText(/my app/i)).toBeInTheDocument();',
+                    '  });',
+                    '',
+                    '  it("shows login when user is null", () => {',
+                    '    render(<App />);',
+                    '    expect(screen.getByRole("button", { name: /log in/i })).toBeInTheDocument();',
+                    '  });',
+                    '',
+                    '  it("calls API when submit is clicked", () => {',
+                    '    const mockFetch = vi.fn().mockResolvedValue({',
+                    '      ok: true,',
+                    '      json: () => ({ token: "fake" }),',
+                    '    });',
+                    '    vi.stubGlobal("fetch", mockFetch);',
+                    '',
+                    '    render(<App />);',
+                    '    fireEvent.click(screen.getByRole("button", { name: /log in/i }));',
+                    '    expect(mockFetch).toHaveBeenCalledWith(',
+                    '      expect.any(String),',
+                    '      expect.objectContaining({ method: "POST" }),',
+                    '    );',
+                    '  });',
+                    '});',
+                ]}
+            />
+
+            <LectureSubHeading title="Cleaning up mocks" />
+            <LectureP>
+                When you mock globals like <LectureTip code tip="vi.stubGlobal() — replaces a global variable (like fetch or localStorage) with a mock for the duration of the test. Pairs with vi.restoreAllMocks() to clean up.">vi.stubGlobal</LectureTip>, the mock persists across tests unless you explicitly restore it. Add an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">afterEach</code> block to prevent stale mocks from leaking between tests.
+            </LectureP>
+            <CodeBlock
+                language="typescript"
+                title="src/App.test.tsx — add at the top level"
+                lines={[
+                    'import { afterEach, vi } from "vitest";',
+                    '',
+                    'afterEach(() => {',
+                    '  vi.restoreAllMocks();',
+                    '});',
+                ]}
+            />
+
+            <LectureCallout type="tip">
+                Test behavior, not implementation. Prefer "user sees a success message after submitting" over "setState was called with X." That way refactoring internals doesn't break tests as long as behavior stays the same.
+            </LectureCallout>
+
+            <LectureSectionHeading number="05" title="What to Test First" />
+
+            <LectureP>
+                You can't test everything at once, and you shouldn't try. Start with the tests that protect the most important behavior, then expand coverage as the project grows.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Data Structures in Practice',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/activity'),
-                }}
-                next={{
-                    label: 'Polymorphism, STL & System Design',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-2'),
-                }}
+            <LectureCallout type="info">
+                <strong>Priority order:</strong> (1) one happy-path test for your main API endpoint (e.g. GET list, POST create); (2) one auth test (login returns token; protected route without token returns 401); (3) one frontend test (e.g. login form submits, or list page renders items). Add edge-case tests (empty list, 404, invalid input) as you go.
+            </LectureCallout>
+
+            <LectureP>
+                Document how to run tests in your README so teammates (and your future self) can verify the project works with a single command.
+            </LectureP>
+
+            <TerminalBlock
+                title="bash — run before every push"
+                lines={[
+                    { comment: 'backend', cmd: 'cd backend && pytest -v' },
+                    { comment: 'frontend', cmd: 'cd frontend && npm test' },
+                ]}
             />
+
+            <LectureCallout type="tip">
+                Make it a habit: run your test suite before every <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push</code>. Next lecture we'll automate this with GitHub Actions so even if you forget, CI has your back.
+            </LectureCallout>
+
+
         </LectureLayout>
     );
 }

@@ -1,196 +1,150 @@
-import { useNavigate } from 'react-router-dom';
-import { GitBranch } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { ActivityHint } from '@/components/ui/activity-hint';
-import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
+import { Binary } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
 } from '@/components/ui/lecture-typography';
+import { ActivityHint } from '@/components/ui/activity-hint';
+import { ActivityChallenge } from '@/components/ui/activity-challenge';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
 export default function Week2Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
                     week={2}
                     session="Activity"
-                    title="Project Kickoff"
-                    description="This is where your project starts. Choose your domain, scaffold the repo, set up your GitHub Project board with issues for the next three weeks, and open your first PR."
-                    icon={<GitBranch className="h-4 w-4" />}
+                    title="Data Structures in Practice"
+                    description="Implement core data structures and patterns in Python — no new language, just the concepts from this week's lectures. BST, stack, and hash map; you'll use these in C++ next week (Week 3)."
+                    icon={<Binary className="h-4 w-4" />}
                 />
 
-                {/* ── 01 CHOOSE YOUR DOMAIN ───────────────────────────────────────── */}
-                <LectureSectionHeading number="01" title="Choose Your Domain" />
-
-                <LectureP>
-                    This project runs Weeks 2–5. By the end you will have a live full-stack web app. Choose one domain now and commit — you are building this all the way through.
-                </LectureP>
-
                 <LectureCallout type="info">
-                    The ten ideas below are <strong className="text-foreground">examples to inspire you</strong>, not a fixed menu. Take one and make it your own: change the scope, rename features, or combine concepts so the result is <strong className="text-foreground">unique and resume-worthy</strong>. If you have a different idea entirely, ask your teacher to confirm it's feasible for the course timeline before you commit.
+                    Use Python (or JavaScript if you prefer). Create a folder <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">week2-dsa</code> and one file per challenge. Run with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python bst.py</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python min_stack.py</code>, etc.
                 </LectureCallout>
 
-                {/* Domain selection grid — examples to customize */}
-                <div className="my-6 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    {[
-                        { num: 1, name: 'Recipe Book', desc: 'Save, browse, and search your personal recipe collection.' },
-                        { num: 2, name: 'Study Planner', desc: 'Track courses, assignments, and upcoming deadlines.' },
-                        { num: 3, name: 'Expense Tracker', desc: 'Log expenses by category and view spending history.' },
-                        { num: 4, name: 'Event Board', desc: 'Create events, browse upcoming ones, and RSVP.' },
-                        { num: 5, name: 'Habit Tracker', desc: 'Define habits, log daily completions, and track streaks.' },
-                        { num: 6, name: 'Trivia Game', desc: 'Build question banks, play rounds, and track a live leaderboard.' },
-                        { num: 7, name: 'Movie Recommender', desc: 'Rate watched movies and get recommendations based on your taste.' },
-                        { num: 8, name: 'Book Log', desc: 'Track books you read, rate them, and maintain a reading list.' },
-                        { num: 9, name: 'Workout Logger', desc: 'Log exercises, sets, and reps; view progress over time.' },
-                        { num: 10, name: 'Link Saver', desc: 'Save and tag links with notes; search and filter your collection.' },
-                    ].map((domain) => (
-                        <div
-                            key={domain.num}
-                            className="rounded-xl border border-border bg-card p-4"
-                        >
-                            <p className="font-semibold text-sm text-foreground">{domain.num}. {domain.name}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{domain.desc}</p>
-                        </div>
-                    ))}
-                </div>
-
-                <LectureCallout type="warning">
-                    Pick something you would actually want to use. You are going to be inside this codebase for four weeks. Apathy is the main reason projects don't get finished.
-                </LectureCallout>
-
-                {/* ── 02 SCAFFOLD YOUR REPOSITORY ─────────────────────────────────── */}
-                <LectureSectionHeading number="02" title="Scaffold Your Repository" />
-
-                <ActivityChallenge
-                    number="2.1"
-                    title="Create the Repo"
-                    description="Start with the foundation — a GitHub repo with a README."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Create a new public GitHub repo named after your project domain (<span title="A naming convention where words are lowercase and separated by hyphens. Example: my-project-name. Common for repo names and URLs.">kebab-case</span>)</ActivityTask>
-                        <ActivityTask>Clone it locally</ActivityTask>
-                        <ActivityTask>Create a README.md with: project name, your chosen domain, and a 2–3 sentence description of what it will do when finished</ActivityTask>
-                        <ActivityTask>Commit and push</ActivityTask>
-                    </div>
-                </ActivityChallenge>
-
-                <ActivityChallenge
-                    number="2.2"
-                    title="Set Up Your Folder Structure"
-                    description="Create the directories that will hold your backend and frontend code."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Create two folders at the root: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code></ActivityTask>
-                        <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/backend</code> create a placeholder main.py with a single comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border"># Week 4 — FastAPI backend goes here</code></ActivityTask>
-                        <ActivityTask>Inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/frontend</code> create a placeholder index.html with a comment: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;!-- Week 5 — React frontend goes here --&gt;</code></ActivityTask>
-                        <ActivityTask>Commit with message: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chore: scaffold project structure</code></ActivityTask>
-                    </div>
-
-                    <TerminalBlock
-                        title="bash — your-project"
-                        lines={[
-                            { cmd: 'mkdir backend frontend' },
-                            { cmd: 'echo "# Week 4 — FastAPI backend goes here" > backend/main.py' },
-                            { cmd: 'echo "<!-- Week 5 — React frontend goes here -->" > frontend/index.html' },
-                            { cmd: 'git add . && git commit -m "chore: scaffold project structure"' },
-                        ]}
-                    />
-                </ActivityChallenge>
-
-                {/* ── 03 SET UP YOUR GITHUB PROJECT BOARD ──────────────────────────── */}
-                <LectureSectionHeading number="03" title="Set Up Your GitHub Project Board" />
+                {/* ── 01 BINARY SEARCH TREE ───────────────────────────────────── */}
+                <LectureSectionHeading number="01" title="Binary Search Tree" />
 
                 <LectureP>
-                    Every deliverable for this project ships as a pull request that closes a GitHub issue. Set your board up now and you will not have to think about process again — just work.
+                    Implement a BST that stores integers. You need insert and in-order traversal. No standard-library tree — build the nodes and links yourself so the structure is explicit.
                 </LectureP>
 
                 <ActivityChallenge
-                    number="3.1"
-                    title="Create the Board"
-                    description="Get your Kanban board ready to track work."
+                    number="1.1"
+                    title="Node and Tree"
+                    description="Define the structure."
                 >
                     <div className="space-y-1">
-                        <ActivityTask>Go to your GitHub repo → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Projects</code> → <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">New Project</code></ActivityTask>
-                        <ActivityTask>Choose the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Board</code> template (Kanban)</ActivityTask>
-                        <ActivityTask>Name it after your project</ActivityTask>
-                        <ActivityTask>Add three columns: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Backlog</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">In Progress</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bst.py</code> with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Node</code> class: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">val</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">right</code> (all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code> by default)</ActivityTask>
+                        <ActivityTask>Create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BST</code> class with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root</code> attribute (initially <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>)</ActivityTask>
                     </div>
-
-                    <LectureCallout type="info">
-                        <span title="A workflow management method where work items move across columns representing their current status. Originated at Toyota in the 1950s as a manufacturing scheduling system.">Kanban</span> keeps you focused. You never ask "what should I work on?" — you just move the next thing from Backlog to In Progress.
-                    </LectureCallout>
                 </ActivityChallenge>
 
                 <ActivityChallenge
-                    number="3.2"
-                    title="Write Your Issues"
-                    description="Create the three issues that will track your Weeks 3–5 work."
+                    number="1.2"
+                    title="Insert"
+                    description="Recursive insert: smaller values go left, larger go right."
                 >
                     <div className="space-y-1">
-                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 1</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: containerize backend stub</code> — body: "Write a Dockerfile for the backend stub provided in Week 3. Mount a volume for data persistence. Verify the container runs."</ActivityTask>
-                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 2</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build FastAPI backend</code> — body: "Implement the FastAPI backend with 3+ endpoints, SQLite storage, and a Redis caching layer running via Docker Compose."</ActivityTask>
-                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Issue 3</code> title: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feat: build React frontend</code> — body: "Build the React + Tailwind frontend with 3+ views connected to the live API."</ActivityTask>
-                        <ActivityTask>Add all three issues to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Backlog</code> column</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(self, val)</code> on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BST</code></ActivityTask>
+                        <ActivityTask>If <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root is None</code>, set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root = Node(val)</code></ActivityTask>
+                        <ActivityTask>Otherwise call a helper <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">_insert(node, val)</code>: if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">val &lt; node.val</code> go left (create node if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node.left is None</code>), else go right</ActivityTask>
+                        <ActivityTask>Test: insert 5, 2, 8, 1, 3 and verify the tree shape in the debugger or with a small print helper</ActivityTask>
                     </div>
 
-                    <LectureCallout type="tip">
-                        Write issues like you are writing them for a teammate who has no context. Clear title, clear acceptance criteria. You will thank yourself in three weeks.
-                    </LectureCallout>
-                </ActivityChallenge>
-
-                {/* ── 04 OPEN YOUR FIRST PULL REQUEST ─────────────────────────────── */}
-                <LectureSectionHeading number="04" title="Open Your First Pull Request" />
-
-                <ActivityChallenge
-                    number="4.1"
-                    title="Branch, Push, and PR"
-                    description="Practice the Git workflow you'll use for every feature."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Create a new branch: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git checkout -b feat/project-scaffold</code></ActivityTask>
-                        <ActivityTask>Make one small change (add your name to the README)</ActivityTask>
-                        <ActivityTask>Commit: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git add . && git commit -m "chore: add my name to README"</code></ActivityTask>
-                        <ActivityTask>Push the branch: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push origin feat/project-scaffold</code></ActivityTask>
-                        <ActivityTask>Open a pull request from that branch into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
-                        <ActivityTask>In the PR description write: what your project does, which domain you chose, and link all three issues using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Closes #1, Closes #2, Closes #3</code></ActivityTask>
-                    </div>
-
-                    <ActivityHint label="why not push to main directly">
-                        In industry, nobody pushes to main directly. All changes go through pull requests so they can be reviewed, discussed, and reverted if needed. You are building this habit now.
+                    <ActivityHint label="recursive insert">
+                        <code className="bg-muted px-1 rounded text-xs">def _insert(node, val): if val &lt; node.val: node.left = Node(val) if node.left is None else _insert(node.left, val). Else same for right.</code>
                     </ActivityHint>
                 </ActivityChallenge>
 
                 <ActivityChallenge
-                    number="4.2"
-                    title="Verify Your Setup"
-                    description="Confirm everything is in place."
+                    number="1.3"
+                    title="In-Order Traversal"
+                    description="Left → root → right gives sorted order."
                 >
                     <div className="space-y-1">
-                        <ActivityTask>Confirm your GitHub Project board shows 3 issues in Backlog</ActivityTask>
-                        <ActivityTask>Confirm your PR is open against <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code></ActivityTask>
-                        <ActivityTask>Confirm your repo has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">frontend/</code> folder</ActivityTask>
-                        <ActivityTask>Share your PR link in the club Slack — this is how your progress gets tracked each week</ActivityTask>
+                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inorder(self)</code> that returns a list of values in ascending order</ActivityTask>
+                        <ActivityTask>Use a helper <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">_inorder(node, result)</code>: if node is None return; recurse left; append node.val; recurse right</ActivityTask>
+                        <ActivityTask>Run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">print(bst.inorder())</code> after inserts — you should see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[1, 2, 3, 5, 8]</code></ActivityTask>
                     </div>
                 </ActivityChallenge>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'GitHub, Agile & Project Management',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Package Managers & Environments',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-1'),
-                    }}
-                />
+                {/* ── 02 MIN STACK ────────────────────────────────────────────── */}
+                <LectureSectionHeading number="02" title="Min Stack" />
+
+                <LectureP>
+                    A stack that supports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">push</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pop</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">top</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_min</code> — all in O(1) time. The trick: a second stack (or list) that tracks the minimum at each level.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="2.1"
+                    title="Implement MinStack"
+                    description="Use two lists: one for values, one for minimums."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_stack.py</code> with a class <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">MinStack</code></ActivityTask>
+                        <ActivityTask>Internal: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self.stack = []</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self.mins = []</code></ActivityTask>
+                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">push(val)</code>: append to stack. If mins is empty or val &lt;= mins[-1], append val to mins</ActivityTask>
+                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pop()</code>: pop from stack; if that value equals mins[-1], pop from mins</ActivityTask>
+                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">top()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_min()</code>: return stack[-1] and mins[-1] (handle empty if you want)</ActivityTask>
+                        <ActivityTask>Test: push 3, 1, 2; get_min → 1; pop; get_min → 1; pop; get_min → 3</ActivityTask>
+                    </div>
+
+                    <ActivityHint label="why track mins">
+                        When you pop, you need to know what the minimum was before the value you added. The mins stack mirrors the minimum at each stack level.
+                    </ActivityHint>
+                </ActivityChallenge>
+
+                {/* ── 03 HASH MAP PATTERNS ────────────────────────────────────── */}
+                <LectureSectionHeading number="03" title="Hash Map Practice" />
+
+                <LectureP>
+                    Two classic problems that rely on hash maps for O(n) time. Implement both in a file <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">hashing.py</code>.
+                </LectureP>
+
+                <ActivityChallenge
+                    number="3.1"
+                    title="Two Sum"
+                    description="Return indices of two numbers that add up to target."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Function <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">two_sum(nums: list[int], target: int) -&gt; list[int]</code></ActivityTask>
+                        <ActivityTask>Use a dict mapping <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">value → index</code></ActivityTask>
+                        <ActivityTask>One pass: for each <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">num</code>, check if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">target - num</code> is in the dict; if yes return [that index, current index]; else store num and its index</ActivityTask>
+                        <ActivityTask>Assume exactly one solution exists</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <ActivityChallenge
+                    number="3.2"
+                    title="First Repeating Character"
+                    description="Return the first character that appears more than once."
+                >
+                    <div className="space-y-1">
+                        <ActivityTask>Function <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">first_repeat(s: str) -&gt; str | None</code></ActivityTask>
+                        <ActivityTask>Use a set (or dict) to record characters seen so far</ActivityTask>
+                        <ActivityTask>First pass: count occurrences (or use a set and check "if char in seen" then return char; else add char)</ActivityTask>
+                        <ActivityTask>Return the first character that has count &gt; 1 (or that you see again)</ActivityTask>
+                    </div>
+                </ActivityChallenge>
+
+                <LectureCallout type="info">
+                    You have completed the Activity when all six challenges produce correct output: (1) BST insert builds the correct tree shape, (2) in-order traversal prints <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[1, 2, 3, 5, 8]</code>, (3) MinStack returns the correct minimum after each push/pop, (4) Two Sum returns valid index pairs, (5) First Repeating Character returns the correct character (or None), and (6) all edge cases pass (empty inputs, single elements, no solution).
+                </LectureCallout>
+
+                <LectureP>
+                    To demonstrate completion, run each file and paste the output. Your instructor or TA will verify the results match the expected values listed in each challenge. If you finish early, try adding BST deletion or implementing the challenges in a second language.
+                </LectureP>
+
+                <LectureCallout type="tip">
+                    These patterns — BST, stack-with-extra-invariant, and hash map for O(1) lookup — show up in Week 3 when you build the C++ Phonebook. Here you get the logic without the syntax; next week you apply the same ideas in C++.
+                </LectureCallout>
+
+                
             </LectureLayout>
         </ActivityTaskListProvider>
     );

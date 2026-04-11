@@ -51,6 +51,18 @@ import Week7Activity from "./pages/classes/introduction-to-fundamentals/week-7/a
 import Week8Lecture1 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-1";
 import Week8Lecture2 from "./pages/classes/introduction-to-fundamentals/week-8/lecture-2";
 import Week8Activity from "./pages/classes/introduction-to-fundamentals/week-8/activity";
+import Week9Lecture1 from "./pages/classes/introduction-to-fundamentals/week-9/lecture-1";
+import Week9Lecture2 from "./pages/classes/introduction-to-fundamentals/week-9/lecture-2";
+import Week9Activity from "./pages/classes/introduction-to-fundamentals/week-9/activity";
+import Week10Lecture1 from "./pages/classes/introduction-to-fundamentals/week-10/lecture-1";
+import Week10Lecture2 from "./pages/classes/introduction-to-fundamentals/week-10/lecture-2";
+import Week10Activity from "./pages/classes/introduction-to-fundamentals/week-10/activity";
+import Week11Lecture1 from "./pages/classes/introduction-to-fundamentals/week-11/lecture-1";
+import Week11Lecture2 from "./pages/classes/introduction-to-fundamentals/week-11/lecture-2";
+import Week11Activity from "./pages/classes/introduction-to-fundamentals/week-11/activity";
+import Week12Lecture1 from "./pages/classes/introduction-to-fundamentals/week-12/lecture-1";
+import Week12Lecture2 from "./pages/classes/introduction-to-fundamentals/week-12/lecture-2";
+import Week12Activity from "./pages/classes/introduction-to-fundamentals/week-12/activity";
 import TheFoundersTrack from "./pages/classes/the-founders-track";
 
 const queryClient = new QueryClient();
@@ -340,6 +352,38 @@ const App = () => (
                     { path: "lecture-2", component: Week8Lecture2 },
                   ],
                   activity: { component: Week8Activity },
+                },
+                {
+                  week: 9,
+                  lectures: [
+                    { path: "lecture-1", component: Week9Lecture1 },
+                    { path: "lecture-2", component: Week9Lecture2 },
+                  ],
+                  activity: { component: Week9Activity },
+                },
+                {
+                  week: 10,
+                  lectures: [
+                    { path: "lecture-1", component: Week10Lecture1 },
+                    { path: "lecture-2", component: Week10Lecture2 },
+                  ],
+                  activity: { component: Week10Activity },
+                },
+                {
+                  week: 11,
+                  lectures: [
+                    { path: "lecture-1", component: Week11Lecture1 },
+                    { path: "lecture-2", component: Week11Lecture2 },
+                  ],
+                  activity: { component: Week11Activity },
+                },
+                {
+                  week: 12,
+                  lectures: [
+                    { path: "lecture-1", component: Week12Lecture1 },
+                    { path: "lecture-2", component: Week12Lecture2 },
+                  ],
+                  activity: { component: Week12Activity },
                 },
               ].map(({ week, lectures, activity }) => (
                 <React.Fragment key={week}>

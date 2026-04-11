@@ -7,7 +7,8 @@ import {
     BookOpen,
     Trophy,
     FileText,
-    Timer
+    Timer,
+    Crown,
 } from 'lucide-react';
 import {
     Dialog,
@@ -23,11 +24,9 @@ import {
 } from '@/components/ui/tooltip';
 import { Badge } from '@/components/ui/badge';
 
-import { CURRENT, QUEUED, type Question } from './weeks';
+import { WEEKS, getCurrent, type Question } from './weeks';
 
-// ─── Countdown / display logic ──────────────────────────────────────────────
-
-const HALF_CYCLE_MS = 3.5 * 24 * 60 * 60 * 1000;
+// ─── Countdown (time until next Sunday 9:00am) ──────────────────────────────
 
 const getNextSunday = () => {
     const now = new Date();
@@ -40,20 +39,6 @@ const getNextSunday = () => {
 };
 
 const NEXT_DROP = getNextSunday();
-
-function useCountdownUpperHalf(target: Date): boolean {
-    const calc = useCallback(() => {
-        const diff = target.getTime() - Date.now();
-        if (diff <= 0) return true;
-        return diff > HALF_CYCLE_MS;
-    }, [target]);
-    const [useQueue, setUseQueue] = useState(() => calc());
-    useEffect(() => {
-        const id = setInterval(() => setUseQueue(calc()), 1000);
-        return () => clearInterval(id);
-    }, [calc]);
-    return useQueue;
-}
 
 const DIFFICULTY_CONFIG = {
     easy: {
@@ -262,6 +247,9 @@ function QuestionCard({ question, index, onClick }: { question: Question; index:
                                         Optional
                                     </Badge>
                                 )}
+                                {question.premium && (
+                                    <Crown className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400 shrink-0" />
+                                )}
                             </div>
                             <p className="text-xs text-muted-foreground font-mono">{question.complexity}</p>
                         </div>
@@ -276,9 +264,9 @@ function QuestionCard({ question, index, onClick }: { question: Question; index:
 // ─── Problem Modal ───────────────────────────────────────────────────────────
 
 function ProblemModal({
-    question, questionIndex, totalCount, weekNumber, weekTheme, onClose, onPrev, onNext, hasPrev, hasNext,
+    question, questionIndex, totalCount, weekTitle, onClose, onPrev, onNext, hasPrev, hasNext,
 }: {
-    question: Question; questionIndex: number; totalCount: number; weekNumber: number; weekTheme: string;
+    question: Question; questionIndex: number; totalCount: number; weekTitle: string;
     onClose: () => void; onPrev: () => void; onNext: () => void; hasPrev: boolean; hasNext: boolean;
 }) {
     const diff = DIFFICULTY_CONFIG[question.difficulty];
@@ -293,7 +281,7 @@ function ProblemModal({
                     <div className="flex items-center gap-2 mb-3">
                         <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full bg-muted text-muted-foreground">
                             <BookOpen className="h-3 w-3" />
-                            Week {weekNumber} · {weekTheme}
+                            {weekTitle}
                         </span>
                         <span className="text-xs text-muted-foreground">
                             Problem {questionIndex + 1} of {totalCount}
@@ -317,6 +305,9 @@ function ProblemModal({
                             <Badge variant="default" className="text-xs font-semibold px-2.5 py-0.5 rounded-full border border-border">
                                 Optional
                             </Badge>
+                        )}
+                        {question.premium && (
+                            <Crown className="h-4 w-4 text-amber-500 dark:text-amber-400 shrink-0" />
                         )}
                         <span className="text-xs text-muted-foreground font-mono">{question.complexity}</span>
                     </div>
@@ -361,9 +352,13 @@ function ProblemModal({
 export default function GuideToLeetCode() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
-    const useQueue = useCountdownUpperHalf(NEXT_DROP);
-    // One set at a time: upper half = queue (next drop preview), lower half = current (active)
-    const displayWeek = (useQueue && QUEUED) ? QUEUED : CURRENT;
+    const [currentWeek, setCurrentWeek] = useState(1);
+
+    useEffect(() => {
+        getCurrent().then(setCurrentWeek);
+    }, []);
+
+    const displayWeek = WEEKS[Math.min(Math.max(currentWeek - 1, 0), WEEKS.length - 1)];
     const displayQuestions = displayWeek.questions;
 
     const activeId = searchParams.get('q') ? Number(searchParams.get('q')) : null;
@@ -475,27 +470,6 @@ export default function GuideToLeetCode() {
                             <li key={i}>{rule}</li>
                         ))}
                     </ul>
-
-                    <div className="pt-2">
-                        <h3 className="text-sm font-bold uppercase tracking-wider text-primary">Concept Sheet</h3>
-                        <div className="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                            {displayWeek.conceptSheets.map((section) => (
-                                <div key={section.title} className="rounded-xl bg-muted/50 border border-border/80 p-4">
-                                    <p className="text-xs font-semibold text-foreground mb-3">{section.title}</p>
-                                    {section.items && (
-                                        <ul className="space-y-2">
-                                            {section.items.map((item, i) => (
-                                                <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground leading-snug">
-                                                    <span className="shrink-0 w-1.5 h-1.5 rounded-full bg-primary" aria-hidden />
-                                                    <span>{item}</span>
-                                                </li>
-                                            ))}
-                                        </ul>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
                 </div>
             </motion.section>
 
@@ -506,7 +480,7 @@ export default function GuideToLeetCode() {
                     <div className="flex items-center gap-3 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-muted/60 border border-border/80">
                             <Trophy className="h-3.5 w-3.5 text-primary/80" />
-                            Week {displayWeek.number} · {displayWeek.theme}
+                            {displayWeek.title}
                         </span>
                         <span className="flex items-center gap-1.5">
                             <FileText className="h-3.5 w-3.5" />
@@ -530,8 +504,7 @@ export default function GuideToLeetCode() {
                         question={activeQuestion}
                         questionIndex={activeIndex}
                         totalCount={displayQuestions.length}
-                        weekNumber={displayWeek.number}
-                        weekTheme={displayWeek.theme}
+                        weekTitle={displayWeek.title}
                         onClose={closeQuestion}
                         onPrev={goToPrev}
                         onNext={goToNext}

@@ -1,22 +1,18 @@
-import { useNavigate } from 'react-router-dom';
 import { Zap } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
 import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
 import { ActivityHint } from '@/components/ui/activity-hint';
 import { ActivityChallenge } from '@/components/ui/activity-challenge';
 import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
 
 export default function Week1Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
@@ -24,7 +20,7 @@ export default function Week1Activity() {
                 week={1}
                 session="Activity"
                 title="Linux & Shell Scripting Gauntlet"
-                description="Apply what you learned in Lecture 1 (Linux & Command Line) and Lecture 2 (Shell Scripting & Permissions): terminal navigation, file operations, permissions, and scripting. Challenges 01 focus on Linux; sections 02–03 preview Git and are optional — you'll cover Version Control in depth in Week 2."
+                description="Apply what you learned in Lecture 1 (Linux & Command Line) and Lecture 2 (Shell Scripting & Permissions): terminal navigation, file operations, permissions, and scripting. Challenges 01 focus on Linux; sections 02–03 preview Git and are optional — you'll cover Version Control in depth in Week 4."
                 icon={<Zap className="h-4 w-4" />}
             />
 
@@ -137,7 +133,7 @@ export default function Week1Activity() {
                         { comment: 'create some fake source files with content', cmd: 'echo "function login() { // TODO: add validation }" > components/auth.js' },
                         { cmd: 'echo "function logout() { console.log(\'user logged out\') }" >> components/auth.js' },
                         { cmd: 'echo "const API_URL = \'https://api.example.com\'" > utils/config.js' },
-                        { cmd: 'echo "// TODO: handle errors\\nconst fetchUser = () => {}" >> utils/config.js' },
+                        { cmd: 'echo -e "// TODO: handle errors\\nconst fetchUser = () => {}" >> utils/config.js' },
                     ]}
                 />
 
@@ -155,11 +151,19 @@ export default function Week1Activity() {
                 </ActivityHint>
             </ActivityChallenge>
 
-            {/* ── 02 GIT IN PRACTICE (PREVIEW — FULL COVERAGE IN WEEK 2) ──────── */}
+            <LectureCallout type="info">
+                <strong className="text-foreground">You've completed the required portion</strong> of this activity when you can: (1) build a directory tree from a spec using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">mkdir -p</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">touch</code>, (2) set file permissions with numeric <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chmod</code>, (3) find and kill a process by PID and by name, and (4) search a codebase with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">grep</code>. Section 01 is the minimum — sections 02–03 are an optional Git preview.
+            </LectureCallout>
+
+            <LectureP>
+                To verify your work, run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">ls -laR ~/gauntlet</code> and check that the full directory structure, file permissions, and file contents match what the challenges asked for. Show the output to your instructor/TA, or screenshot it for your own records.
+            </LectureP>
+
+            {/* ── 02 GIT IN PRACTICE (PREVIEW — FULL COVERAGE IN WEEK 4) ──────── */}
             <LectureSectionHeading number="02" title="Git in Practice (optional preview)" />
 
             <LectureCallout type="info">
-                Version Control with Git is the focus of <strong className="text-foreground">Week 2 Lecture 1</strong>. The challenges below are an optional preview — try them if you have time, or skip to the next activity and return after Week 2.
+                Version Control with Git is the focus of <strong className="text-foreground">Week 4 Lecture 1</strong>. The challenges below are an optional preview — try them if you have time, or skip to the next activity and return after Week 4.
             </LectureCallout>
 
             <LectureP>
@@ -321,16 +325,7 @@ export default function Week1Activity() {
                 </LectureP>
             </ActivityChallenge>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Shell Scripting & Permissions',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/lecture-2'),
-                }}
-                next={{
-                    label: 'Version Control with Git',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
-                }}
-            />
+            
             </LectureLayout>
         </ActivityTaskListProvider>
     );

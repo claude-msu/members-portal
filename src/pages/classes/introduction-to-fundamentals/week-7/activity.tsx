@@ -1,155 +1,189 @@
-import { useNavigate } from 'react-router-dom';
-import { Binary } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { ActivityHint } from '@/components/ui/activity-hint';
-import { ActivityChallenge } from '@/components/ui/activity-challenge';
-import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
+import { Server } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
     LectureP,
 } from '@/components/ui/lecture-typography';
+import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
+import { ActivityHint } from '@/components/ui/activity-hint';
+import { ActivityChallenge } from '@/components/ui/activity-challenge';
+import { ActivityTask, ActivityTaskListProvider } from '@/components/ui/activity-task';
 
 export default function Week7Activity() {
-    const navigate = useNavigate();
-
     return (
         <ActivityTaskListProvider>
             <LectureLayout>
                 <LectureHeader
                     week={7}
                     session="Activity"
-                    title="Data Structures in Practice"
-                    description="Implement core data structures and patterns in Python — no new language, just the concepts from this week's lectures. BST, stack, and hash map; you'll use these in C++ next week."
-                    icon={<Binary className="h-4 w-4" />}
+                    title="Build Your Backend"
+                    description="The Dockerfile exists. Now fill it in — a real FastAPI backend with SQLite storage and Redis caching, all running via Docker Compose. By the end you have a documented API you can hand off to your frontend next week."
+                    icon={<Server className="h-4 w-4" />}
+                />
+
+            <LectureCallout type="info">
+                You are building the backend for the domain you chose in the Week 4 project kickoff. Use FastAPI's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page to verify everything as you go.
+            </LectureCallout>
+
+            {/* ── 01 PROJECT REQUIREMENTS ──────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="Project Requirements" />
+
+            <LectureP>
+                Before writing code, understand what you are shipping. Every backend this week must meet these requirements regardless of domain.
+            </LectureP>
+
+            <div className="my-4 space-y-2">
+                {[
+                    '3 or more REST endpoints (at minimum: create one resource, list all resources, get one resource by ID)',
+                    'SQLite database using SQLAlchemy for all persistent data',
+                    'At least one Redis-cached endpoint — a read that is expensive enough to be worth caching (e.g., aggregate, filtered list, recommendation computation)',
+                    'Docker Compose file that starts FastAPI + Redis with one command: docker compose up',
+                    'FastAPI /docs page fully documents all endpoints with correct schemas',
+                ].map((req, i) => (
+                    <div key={i} className="flex gap-3 rounded-lg border border-border bg-card p-3">
+                        <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 shrink-0">✓</span>
+                        <p className="text-sm text-foreground">{req}</p>
+                    </div>
+                ))}
+            </div>
+
+            <LectureCallout type="warning">
+                Redis is a cache, not your primary database. Every piece of data must live in SQLite first. Redis holds computed results that are expensive to recompute on every request. If Redis goes down, your app should still work.
+            </LectureCallout>
+
+            {/* ── 02 SET UP DOCKER COMPOSE ────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Set Up Docker Compose" />
+
+            <ActivityChallenge
+                number="2.1"
+                title="Update Requirements and Write docker-compose.yml"
+                description="Install all needed packages and define FastAPI + Redis services."
+            >
+                <div className="space-y-1">
+                    <ActivityTask>Update <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/requirements.txt</code> to include: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fastapi</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">uvicorn[standard]</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">sqlalchemy</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
+                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Dockerfile</code> CMD to start FastAPI: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]</code></ActivityTask>
+                    <ActivityTask>In your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder, create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker-compose.yml</code></ActivityTask>
+                    <ActivityTask>Define an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">api</code> service: build from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.</code>, ports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">8000:8000</code>, depends_on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code></ActivityTask>
+                    <ActivityTask>Define a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis</code> service: image <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">redis:7-alpine</code>, no extra config needed</ActivityTask>
+                    <ActivityTask>Verify with: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code></ActivityTask>
+                </div>
+
+                <TerminalBlock
+                    title="bash — backend"
+                    lines={[
+                        { cmd: 'docker compose up --build' },
+                    ]}
                 />
 
                 <LectureCallout type="info">
-                    Use Python (or JavaScript if you prefer). Create a folder <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">week7-dsa</code> and one file per challenge. Run with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python bst.py</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python min_stack.py</code>, etc.
+                    <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">depends_on</code> ensures Redis starts first, but doesn't wait for it to be ready — just for the container to start. Your code should handle the case where Redis is temporarily unavailable.
                 </LectureCallout>
+            </ActivityChallenge>
 
-                {/* ── 01 BINARY SEARCH TREE ───────────────────────────────────── */}
-                <LectureSectionHeading number="01" title="Binary Search Tree" />
+            {/* ── 03 BUILD YOUR ENDPOINTS ─────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Build Your Endpoints" />
 
-                <LectureP>
-                    Implement a BST that stores integers. You need insert and in-order traversal. No standard-library tree — build the nodes and links yourself so the structure is explicit.
-                </LectureP>
+            <ActivityChallenge
+                number="3.1"
+                title="Database Models and Schemas"
+                description="Set up SQLAlchemy, define your data schema, and create Pydantic models."
+            >
+                <div className="space-y-1">
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">database.py</code> with engine setup and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_db</code> dependency (copy the pattern from Lecture 2)</ActivityTask>
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">models.py</code> with your SQLAlchemy model(s) representing your chosen domain</ActivityTask>
+                    <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">schemas.py</code> with Pydantic models for each endpoint: a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Create</code> model (what the client sends) and a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Response</code> model (what the server returns)</ActivityTask>
+                    <ActivityTask>Update your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> to create tables on startup with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Base.metadata.create_all(bind=engine)</code></ActivityTask>
+                </div>
 
-                <ActivityChallenge
-                    number="1.1"
-                    title="Node and Tree"
-                    description="Define the structure."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bst.py</code> with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Node</code> class: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">val</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">right</code> (all <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code> by default)</ActivityTask>
-                        <ActivityTask>Create a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BST</code> class with a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root</code> attribute (initially <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>)</ActivityTask>
-                    </div>
-                </ActivityChallenge>
+                <ActivityHint label="SQLAlchemy quickstart">
+                    <code className="bg-muted px-1 rounded text-xs">from sqlalchemy import create_engine; from sqlalchemy.orm import sessionmaker, DeclarativeBase</code> — then define your Base class and models that inherit from it. For Pydantic schemas, use <code className="bg-muted px-1 rounded text-xs">model_config = ConfigDict(from_attributes=True)</code> so Pydantic can read SQLAlchemy objects directly.
+                </ActivityHint>
+            </ActivityChallenge>
 
-                <ActivityChallenge
-                    number="1.2"
-                    title="Insert"
-                    description="Recursive insert: smaller values go left, larger go right."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">insert(self, val)</code> on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BST</code></ActivityTask>
-                        <ActivityTask>If <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root is None</code>, set <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">root = Node(val)</code></ActivityTask>
-                        <ActivityTask>Otherwise call a helper <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">_insert(node, val)</code>: if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">val &lt; node.val</code> go left (create node if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node.left is None</code>), else go right</ActivityTask>
-                        <ActivityTask>Test: insert 5, 2, 8, 1, 3 and verify the tree shape in the debugger or with a small print helper</ActivityTask>
-                    </div>
-
-                    <ActivityHint label="recursive insert">
-                        <code className="bg-muted px-1 rounded text-xs">def _insert(node, val): if val &lt; node.val: node.left = Node(val) if node.left is None else _insert(node.left, val). Else same for right.</code>
-                    </ActivityHint>
-                </ActivityChallenge>
-
-                <ActivityChallenge
-                    number="1.3"
-                    title="In-Order Traversal"
-                    description="Left → root → right gives sorted order."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Implement <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">inorder(self)</code> that returns a list of values in ascending order</ActivityTask>
-                        <ActivityTask>Use a helper <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">_inorder(node, result)</code>: if node is None return; recurse left; append node.val; recurse right</ActivityTask>
-                        <ActivityTask>Run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">print(bst.inorder())</code> after inserts — you should see <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">[1, 2, 3, 5, 8]</code></ActivityTask>
-                    </div>
-                </ActivityChallenge>
-
-                {/* ── 02 MIN STACK ────────────────────────────────────────────── */}
-                <LectureSectionHeading number="02" title="Min Stack" />
-
-                <LectureP>
-                    A stack that supports <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">push</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pop</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">top</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_min</code> — all in O(1) time. The trick: a second stack (or list) that tracks the minimum at each level.
-                </LectureP>
-
-                <ActivityChallenge
-                    number="2.1"
-                    title="Implement MinStack"
-                    description="Use two lists: one for values, one for minimums."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Create <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">min_stack.py</code> with a class <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">MinStack</code></ActivityTask>
-                        <ActivityTask>Internal: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self.stack = []</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self.mins = []</code></ActivityTask>
-                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">push(val)</code>: append to stack. If mins is empty or val &lt;= mins[-1], append val to mins</ActivityTask>
-                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pop()</code>: pop from stack; if that value equals mins[-1], pop from mins</ActivityTask>
-                        <ActivityTask><code className="text-xs bg-muted px-1.5 py-0.5 rounded border">top()</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">get_min()</code>: return stack[-1] and mins[-1] (handle empty if you want)</ActivityTask>
-                        <ActivityTask>Test: push 3, 1, 2; get_min → 1; pop; get_min → 1; pop; get_min → 3</ActivityTask>
-                    </div>
-
-                    <ActivityHint label="why track mins">
-                        When you pop, you need to know what the minimum was before the value you added. The mins stack mirrors the minimum at each stack level.
-                    </ActivityHint>
-                </ActivityChallenge>
-
-                {/* ── 03 HASH MAP PATTERNS ────────────────────────────────────── */}
-                <LectureSectionHeading number="03" title="Hash Map Practice" />
-
-                <LectureP>
-                    Two classic problems that rely on hash maps for O(n) time. Implement both in a file <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">hashing.py</code>.
-                </LectureP>
-
-                <ActivityChallenge
-                    number="3.1"
-                    title="Two Sum"
-                    description="Return indices of two numbers that add up to target."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Function <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">two_sum(nums: list[int], target: int) -&gt; list[int]</code></ActivityTask>
-                        <ActivityTask>Use a dict mapping <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">value → index</code></ActivityTask>
-                        <ActivityTask>One pass: for each <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">num</code>, check if <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">target - num</code> is in the dict; if yes return [that index, current index]; else store num and its index</ActivityTask>
-                        <ActivityTask>Assume exactly one solution exists</ActivityTask>
-                    </div>
-                </ActivityChallenge>
-
-                <ActivityChallenge
-                    number="3.2"
-                    title="First Repeating Character"
-                    description="Return the first character that appears more than once."
-                >
-                    <div className="space-y-1">
-                        <ActivityTask>Function <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">first_repeat(s: str) -&gt; str | None</code></ActivityTask>
-                        <ActivityTask>Use a set (or dict) to record characters seen so far</ActivityTask>
-                        <ActivityTask>First pass: count occurrences (or use a set and check "if char in seen" then return char; else add char)</ActivityTask>
-                        <ActivityTask>Return the first character that has count &gt; 1 (or that you see again)</ActivityTask>
-                    </div>
-                </ActivityChallenge>
+            <ActivityChallenge
+                number="3.2"
+                title="Core Endpoints"
+                description="Implement your 3 required REST endpoints."
+            >
+                <div className="space-y-1">
+                    <ActivityTask>Implement your 3 required endpoints. Each must use a Pydantic schema for request/response validation</ActivityTask>
+                    <ActivityTask>Test each one through <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> before moving on</ActivityTask>
+                </div>
 
                 <LectureCallout type="tip">
-                    These patterns — BST, stack-with-extra-invariant, and hash map for O(1) lookup — show up in Week 8 when you build the C++ Phonebook. Here you get the logic without the syntax; next week you apply the same ideas in C++.
+                    Write one endpoint, test it in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code>, then write the next. Do not write all three and then test — you will not know which one is broken.
+                </LectureCallout>
+            </ActivityChallenge>
+
+            <ActivityChallenge
+                number="3.3"
+                title="Redis Caching Layer"
+                description="Add caching to your most expensive read operation."
+            >
+                <div className="space-y-1">
+                    <ActivityTask>Connect to Redis: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r = redis.Redis(host="redis", port=6379, decode_responses=True)</code></ActivityTask>
+                    <ActivityTask>Pick the most read-heavy endpoint — the one that does the most computation or hits the most rows</ActivityTask>
+                    <ActivityTask>Cache its result in Redis with a 60-second TTL using <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">r.setex()</code></ActivityTask>
+                    <ActivityTask>On each request: check Redis first (cache hit), fall back to SQLite if not found (cache miss), then store the result in Redis</ActivityTask>
+                </div>
+
+                <CodeBlock
+                    language="python"
+                    title="cache hit/miss pattern"
+                    lines={[
+                        '# Cache hit/miss pattern:',
+                        'result = r.get("cache_key")',
+                        'if result:',
+                        '    return json.loads(result)  # cache hit',
+                        'else:',
+                        '    result = compute_expensive_query()',
+                        '    r.setex("cache_key", 60, json.dumps(result))',
+                        '    return result  # cache miss, but now cached',
+                    ]}
+                />
+
+                <LectureCallout type="info">
+                    The host <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"redis"</code> works because Docker Compose creates a network where each service name resolves to that container's IP. Your API connects to the Redis container by its service name — not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost</code>.
                 </LectureCallout>
 
-                <LectureFooterNav
-                    prev={{
-                        label: 'Hash Maps, Complexity & Interview Patterns',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
-                    }}
-                    next={{
-                        label: 'Classes, Encapsulation & Inheritance',
-                        onClick: () => navigate('/classes/introduction-to-fundamentals/week-8/lecture-1'),
-                    }}
-                />
+                <LectureCallout type="tip">
+                    TTL (Time To Live) is the expiration time in seconds. After 60 seconds the next request will recompute the value and re-cache it. Start with 60 seconds and adjust based on how stale your data can tolerate being.
+                </LectureCallout>
+            </ActivityChallenge>
+
+            {/* ── 04 SHIP IT ──────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Ship It" />
+
+            <ActivityChallenge
+                number="4.1"
+                title="Verify and Document"
+                description="Finalize your API documentation."
+            >
+                <div className="space-y-1">
+                    <ActivityTask>Open <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> and confirm all endpoints appear with correct schemas</ActivityTask>
+                    <ActivityTask>Test the cached endpoint twice in quick succession and confirm the second response is faster</ActivityTask>
+                    <ActivityTask>Write a short <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">API.md</code> in your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">backend/</code> folder documenting each endpoint: method, path, what it does, example request/response</ActivityTask>
+                </div>
+            </ActivityChallenge>
+
+            <ActivityChallenge
+                number="4.2"
+                title="PR and Board Update"
+                description="Finalize and ship Issue #2."
+            >
+                <div className="space-y-1">
+                    <ActivityTask>Commit everything</ActivityTask>
+                    <ActivityTask>Push</ActivityTask>
+                    <ActivityTask>Open a PR that closes Issue #2 from your GitHub Project board</ActivityTask>
+                    <ActivityTask>Move Issue #2 to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">Done</code></ActivityTask>
+                    <ActivityTask>Your PR description should include: a screenshot of your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page, confirmation that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">docker compose up</code> works, and which endpoint is Redis-cached and why you chose it</ActivityTask>
+                </div>
+            </ActivityChallenge>
+
+            
             </LectureLayout>
         </ActivityTaskListProvider>
     );

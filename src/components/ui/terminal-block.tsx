@@ -37,11 +37,11 @@ export const TerminalBlock = ({ lines, title = 'bash — ~' }: TerminalBlockProp
             <span className="ml-3 text-xs text-zinc-400 tracking-wide select-none">{title}</span>
         </div>
         {/* Body */}
-        <div className="bg-zinc-950 px-5 py-4 space-y-3">
+        <div className="bg-zinc-950 px-5 py-4 space-y-1">
             {lines.map((line, i) => (
                 <div key={i}>
                     {line.comment && (
-                        <p className="text-zinc-500 text-xs mb-1 select-none"># {line.comment}</p>
+                        <p className="text-zinc-500 text-xs mb-1 mt-3 select-none"># {line.comment}</p>
                     )}
                     <p
                         className="text-emerald-400 select-none"

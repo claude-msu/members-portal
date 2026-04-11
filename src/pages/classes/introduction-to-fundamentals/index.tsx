@@ -1,444 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-    ChevronDown,
-    Terminal,
-    GitBranch,
-    Package,
-    Globe,
-    Server,
-    Cpu,
-    Binary,
-    Workflow,
-    BookOpen,
-    Zap,
-    Users,
-    Clock,
-    ChevronRight,
-} from 'lucide-react';
+import { ChevronDown, BookOpen, Zap, Users, Clock, ChevronRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { getCurrent } from '@/lib/semester';
+import {
+    INTRODUCTION_TO_FUNDAMENTALS_BASE,
+    WEEKS,
+    type FundamentalsSessionData,
+    type FundamentalsWeekAccent,
+} from './weeks';
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
-type SessionType = 'lecture' | 'activity';
-
-interface Session {
-    type: SessionType;
-    label: string;
-    title: string;
-    description: string;
-    duration: string;
-    slug: string;
-    tags: string[];
-}
-
-interface Week {
-    number: number;
-    theme: string;
-    subtitle: string;
-    icon: React.ReactNode;
-    color: string;
-    sessions: Session[];
-}
-
-// ─── Curriculum Data ─────────────────────────────────────────────────────────
-
-const WEEKS: Week[] = [
-    {
-        number: 1,
-        theme: 'Linux & The Command Line',
-        subtitle: 'Your new home base',
-        icon: <Terminal className="h-5 w-5" />,
-        color: 'brown',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Linux & The Command Line',
-                description:
-                    'Every server, container, and cloud environment runs Linux underneath. Learn to navigate, manipulate files, manage processes, and install software without touching a mouse.',
-                duration: '90 min',
-                slug: 'week-1/lecture-1',
-                tags: ['ls', 'grep', 'chmod', 'apt', 'brew'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Shell Scripting & Permissions',
-                description:
-                    'Automate repetitive tasks with bash scripts and understand the Unix permission model that controls who can read, write, and execute everything on the system.',
-                duration: '90 min',
-                slug: 'week-1/lecture-2',
-                tags: ['bash', 'chmod', 'chown', 'shebang', 'cron'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'The Linux Gauntlet',
-                description:
-                    'Navigate, manipulate, script, and automate — 90 minutes of terminal challenges that cover everything from Week 1. No walkthroughs, just commands and results.',
-                duration: '90 min',
-                slug: 'week-1/activity',
-                tags: ['filesystem', 'grep', 'bash scripts', 'permissions'],
-            },
-        ],
-    },
-    {
-        number: 2,
-        theme: 'Git & Agile Engineering',
-        subtitle: 'How real teams work',
-        icon: <GitBranch className="h-5 w-5" />,
-        color: 'gray',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Version Control with Git',
-                description:
-                    'Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes.',
-                duration: '90 min',
-                slug: 'week-2/lecture-1',
-                tags: ['git init', 'git commit', 'branching', 'merge conflicts'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'GitHub, Agile & Project Management',
-                description:
-                    'Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature.',
-                duration: '90 min',
-                slug: 'week-2/lecture-2',
-                tags: ['pull requests', 'GitHub Projects', 'issues', 'Scrum', 'Kanban'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Project Kickoff',
-                description:
-                    'Choose your project domain, scaffold your repo, create your GitHub Project board, write issues for Weeks 3–5, and open your first PR. Every deliverable from here ships through this board.',
-                duration: '90 min',
-                slug: 'week-2/activity',
-                tags: ['GitHub Projects', 'issues', 'pull requests', 'README'],
-            },
-        ],
-    },
-    {
-        number: 3,
-        theme: 'Containerization with Docker',
-        subtitle: 'Build once, run anywhere',
-        icon: <Package className="h-5 w-5" />,
-        color: 'green',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Package Managers & Environments',
-                description:
-                    'Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again.',
-                duration: '90 min',
-                slug: 'week-3/lecture-1',
-                tags: ['apt', 'npm', 'pip', 'venv', 'dependency resolution'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Docker & Containerization',
-                description:
-                    '"It works on my machine" ends here. Docker packages your app and everything it needs into a single portable unit that runs identically everywhere.',
-                duration: '90 min',
-                slug: 'week-3/lecture-2',
-                tags: ['Dockerfile', 'docker run', 'image layers', 'volumes'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Containerize Your Backend Stub',
-                description:
-                    'Write a Dockerfile for a provided Python stub, mount a volume to persist data between runs, and compare image sizes between base images. Your container is ready for Week 4.',
-                duration: '90 min',
-                slug: 'week-3/activity',
-                tags: ['Dockerfile', 'volumes', 'docker images', 'base images'],
-            },
-        ],
-    },
-    {
-        number: 4,
-        theme: 'Backend Development',
-        subtitle: 'The engine under the hood',
-        icon: <Server className="h-5 w-5" />,
-        color: 'blue',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'FastAPI & Python Backends',
-                description:
-                    'Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API.',
-                duration: '90 min',
-                slug: 'week-4/lecture-1',
-                tags: ['FastAPI', 'Pydantic', 'REST', 'endpoints', 'docs'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Databases: SQL, SQLite & Redis',
-                description:
-                    'SQLite for relational persistent storage, Redis for fast caching. Learn when to use each, how they work together, and how Docker Compose wires both services into one command.',
-                duration: '90 min',
-                slug: 'week-4/lecture-2',
-                tags: ['SQLite', 'SQL', 'Redis', 'caching', 'docker-compose'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Build Your Backend',
-                description:
-                    'Build the FastAPI backend for your chosen project domain — 3+ endpoints, SQLite storage, Redis caching layer, all running via Docker Compose. Deliverable ships as a PR.',
-                duration: '90 min',
-                slug: 'week-4/activity',
-                tags: ['FastAPI', 'SQLite', 'Redis', 'docker-compose', 'REST'],
-            },
-        ],
-    },
-    {
-        number: 5,
-        theme: 'Frontend Development',
-        subtitle: 'Build interfaces people actually use',
-        icon: <Globe className="h-5 w-5" />,
-        color: 'purple',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'React Components & Hooks',
-                description:
-                    'React is the most widely used frontend library in the world. Learn the mental model, components, props, state, and the hooks you will use every single day.',
-                duration: '90 min',
-                slug: 'week-5/lecture-1',
-                tags: ['useState', 'useEffect', 'props', 'JSX'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Tailwind CSS & Connecting to Your API',
-                description:
-                    'Style your UI with utility classes that do exactly one thing, then wire your React frontend to the FastAPI backend you built last week using fetch.',
-                duration: '90 min',
-                slug: 'week-5/lecture-2',
-                tags: ['Tailwind', 'flex', 'grid', 'fetch', 'useEffect'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Build Your Frontend',
-                description:
-                    'Build the React + Tailwind frontend for your project — 3+ views, real data flowing from your API, fully styled. By the end you have a live full-stack end to end.',
-                duration: '90 min',
-                slug: 'week-5/activity',
-                tags: ['React', 'Tailwind', 'fetch', 'components', 'state'],
-            },
-        ],
-    },
-    {
-        number: 6,
-        theme: 'Sprint Review & Showcase',
-        subtitle: 'Ship it and reflect',
-        icon: <Workflow className="h-5 w-5" />,
-        color: 'indigo',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Scrum, Kanban & Sprint Cycles',
-                description:
-                    'The ceremonies, artifacts, and mindset behind agile teams — user stories, sprint planning, standups, and retrospectives.',
-                duration: '90 min',
-                slug: 'week-6/lecture-1',
-                tags: ['Scrum', 'Kanban', 'user stories', 'sprints', 'retro'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'CI/CD, TDD & Engineering Culture',
-                description:
-                    'Automated pipelines, test-driven development, code review culture, and the practices that keep large codebases from collapsing under their own weight.',
-                duration: '90 min',
-                slug: 'week-6/lecture-2',
-                tags: ['GitHub Actions', 'TDD', 'CI/CD', 'code review'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Sprint Simulation & Project Showcase',
-                description:
-                    'Close out your GitHub Project board, present your full-stack app as a sprint review demo, retrospective, and walk through what you would build next.',
-                duration: '90 min',
-                slug: 'week-6/activity',
-                tags: ['sprint review', 'demo', 'retrospective', 'GitHub Projects'],
-            },
-        ],
-    },
-    {
-        number: 7,
-        theme: 'Data Structures & Algorithms',
-        subtitle: 'Go deeper',
-        icon: <Binary className="h-5 w-5" />,
-        color: 'red',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Trees, Stacks & Queues',
-                description:
-                    'Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take.',
-                duration: '90 min',
-                slug: 'week-7/lecture-1',
-                tags: ['BST', 'in-order traversal', 'BFS', 'DFS', 'stacks', 'queues'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Hash Maps, Complexity & Interview Patterns',
-                description:
-                    'Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers.',
-                duration: '90 min',
-                slug: 'week-7/lecture-2',
-                tags: ['hash maps', 'Big-O', 'two pointers', 'sliding window'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'Data Structures in Practice',
-                description:
-                    'Implement a BST, a MinStack, and hash-map patterns in Python — no new language, just the concepts from this week. Prep for applying the same ideas in C++ next week.',
-                duration: '90 min',
-                slug: 'week-7/activity',
-                tags: ['BST', 'in-order traversal', 'MinStack', 'two sum', 'hash map'],
-            },
-        ],
-    },
-    {
-        number: 8,
-        theme: 'C++ & Object-Oriented Programming',
-        subtitle: 'Design software, not just functions',
-        icon: <Cpu className="h-5 w-5" />,
-        color: 'red',
-        sessions: [
-            {
-                type: 'lecture',
-                label: 'Lecture 1',
-                title: 'Classes, Encapsulation & Inheritance',
-                description:
-                    'C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible.',
-                duration: '90 min',
-                slug: 'week-8/lecture-1',
-                tags: ['classes', 'encapsulation', 'inheritance', 'virtual'],
-            },
-            {
-                type: 'lecture',
-                label: 'Lecture 2',
-                title: 'Polymorphism, STL & System Design',
-                description:
-                    'Abstract base classes, pure virtual methods, and STL containers — the tools you need to design a real system where types can be extended without rewriting the core.',
-                duration: '90 min',
-                slug: 'week-8/lecture-2',
-                tags: ['polymorphism', 'abstract classes', 'vector', 'unordered_map'],
-            },
-            {
-                type: 'activity',
-                label: 'Activity',
-                title: 'CLI Phonebook',
-                description:
-                    'Full C++ capstone: Part 1 — Contact and PhoneBook (add/delete/list). Part 2 — BST for sorted order, stack-based undo, and hash map for O(1) search by phone.',
-                duration: '90 min',
-                slug: 'week-8/activity',
-                tags: ['C++ classes', 'BST', 'stack', 'unordered_map', 'CLI'],
-            },
-        ],
-    },
-];
-
-// ─── Color Map ────────────────────────────────────────────────────────────────
-
-const COLOR_MAP: Record<string, { bg: string; text: string; border: string; badge: string; dot: string }> = {
-    orange: {
-        bg: 'bg-orange-50 dark:bg-orange-950/20',
-        text: 'text-orange-600 dark:text-orange-400',
-        border: 'border-orange-200 dark:border-orange-800',
-        badge: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300',
-        dot: 'bg-orange-400',
-    },
-    blue: {
-        bg: 'bg-blue-50 dark:bg-blue-950/20',
-        text: 'text-blue-600 dark:text-blue-400',
-        border: 'border-blue-200 dark:border-blue-800',
-        badge: 'bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300',
-        dot: 'bg-blue-400',
-    },
-    green: {
-        bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-        text: 'text-emerald-600 dark:text-emerald-400',
-        border: 'border-emerald-200 dark:border-emerald-800',
-        badge: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300',
-        dot: 'bg-emerald-400',
-    },
-    purple: {
-        bg: 'bg-violet-50 dark:bg-violet-950/20',
-        text: 'text-violet-600 dark:text-violet-400',
-        border: 'border-violet-200 dark:border-violet-800',
-        badge: 'bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300',
-        dot: 'bg-violet-400',
-    },
-    yellow: {
-        bg: 'bg-amber-50 dark:bg-amber-950/20',
-        text: 'text-amber-600 dark:text-amber-400',
-        border: 'border-amber-200 dark:border-amber-800',
-        badge: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300',
-        dot: 'bg-amber-400',
-    },
-    red: {
-        bg: 'bg-rose-50 dark:bg-rose-950/20',
-        text: 'text-rose-600 dark:text-rose-400',
-        border: 'border-rose-200 dark:border-rose-800',
-        badge: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300',
-        dot: 'bg-rose-400',
-    },
-
-    brown: {
-        bg: 'bg-yellow-50 dark:bg-yellow-900/30',
-        text: 'text-yellow-800 dark:text-yellow-300',
-        border: 'border-yellow-300 dark:border-yellow-700',
-        badge: 'bg-yellow-200 text-yellow-900 dark:bg-yellow-900/60 dark:text-yellow-200',
-        dot: 'bg-yellow-700',
-    },
-    gray: {
-        bg: 'bg-gray-100 dark:bg-gray-900/30',
-        text: 'text-gray-700 dark:text-gray-300',
-        border: 'border-gray-400 dark:border-gray-700',
-        badge: 'bg-gray-100 text-gray-600 dark:bg-gray-800/60 dark:text-gray-200',
-        dot: 'bg-gray-400',
-    },
-    indigo: {
-        bg: 'bg-indigo-50 dark:bg-indigo-900/20',
-        text: 'text-indigo-700 dark:text-indigo-300',
-        border: 'border-indigo-200 dark:border-indigo-700',
-        badge: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-200',
-        dot: 'bg-indigo-500',
-    },
-};
+type Session = FundamentalsSessionData;
 
 // ─── Session Card ─────────────────────────────────────────────────────────────
 
 interface SessionCardProps {
     session: Session;
-    color: string;
+    accent: FundamentalsWeekAccent;
 }
 
-const SessionCard = ({ session, color }: SessionCardProps) => {
+const SessionCard = ({ session, accent: c }: SessionCardProps) => {
     const navigate = useNavigate();
-    const c = COLOR_MAP[color];
-    const basePath = `/classes/introduction-to-fundamentals/${session.slug}`;
+    const basePath = `${INTRODUCTION_TO_FUNDAMENTALS_BASE}/${session.slug}`;
 
     const typeConfig = {
         lecture: {
@@ -463,8 +47,9 @@ const SessionCard = ({ session, color }: SessionCardProps) => {
             className={`
         w-full text-left rounded-xl border p-4 transition-all duration-200 group
         ${config.cardBg}
-        ${session.type === 'activity' ? c.border : 'border-border'}
-        hover:shadow-md hover:border-primary/30
+        ${session.type === 'activity'
+                    ? c.border
+                    : 'hover:border-primary/50 dark:hover:border-white/50'}
       `}
         >
             <div className="flex items-start justify-between gap-3">
@@ -517,21 +102,22 @@ const SessionCard = ({ session, color }: SessionCardProps) => {
 // ─── Week Folder ──────────────────────────────────────────────────────────────
 
 interface WeekFolderProps {
-    week: Week;
+    week: (typeof WEEKS)[number];
     isOpen: boolean;
     onToggle: () => void;
     index: number;
 }
 
 const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
-    const c = COLOR_MAP[week.color];
+    const c = week.accent;
 
     return (
         <motion.div
+            id={`fundamentals-week-${week.number}`}
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.06, duration: 0.3 }}
-            className="rounded-xl border border-border bg-card overflow-hidden"
+            className="rounded-xl border border-border bg-card overflow-hidden scroll-my-6"
         >
             {/* Header / Toggle */}
             <button
@@ -548,14 +134,12 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
                 {/* Title block */}
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-0.5">
-                        <span className={`text-xs font-bold uppercase tracking-widest ${c.text}`}>
-                            Week {week.number}
-                        </span>
-                        <span className={`w-1.5 h-1.5 rounded-full ${c.dot}`} />
-                        <span className="text-xs text-muted-foreground">{week.subtitle}</span>
-                    </div>
-                    <h3 className="font-semibold text-sm text-foreground truncate">{week.theme}</h3>
+                    <p className="flex items-center gap-2 text-[11px] font-mono text-muted-foreground mb-0.5">
+                        <span>Week {week.number}</span>
+                        <span className={`${c.dot} w-1 h-1 rounded-full inline-block`} />
+                        {week.subtitle}
+                    </p>
+                    <h3 className="font-semibold text-sm text-foreground truncate">{week.title}</h3>
                 </div>
 
                 {/* Session count */}
@@ -588,7 +172,7 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
                                 <SessionCard
                                     key={session.slug}
                                     session={session}
-                                    color={week.color}
+                                    accent={week.accent}
                                 />
                             ))}
                         </div>
@@ -601,7 +185,16 @@ const WeekFolder = ({ week, isOpen, onToggle, index }: WeekFolderProps) => {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
-const VALID_WEEK_NUMBERS = [1, 2, 3, 4, 5, 6, 7, 8];
+const VALID_WEEK_NUMBERS = WEEKS.map((w) => w.number);
+
+/** After opening a folder, match WeekFolder session panel motion (0.25s) before scrolling. */
+const SCROLL_AFTER_FOLDER_EXPAND_MS = 280;
+
+function scrollFundamentalsWeekIntoView(weekNumber: number) {
+    document
+        .getElementById(`fundamentals-week-${weekNumber}`)
+        ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
 
 function getWeekFromSearchParams(searchParams: URLSearchParams): number | null {
     const s = searchParams.get('s');
@@ -617,11 +210,36 @@ export default function IntroductionToFundamentals() {
     );
     const navigate = useNavigate();
 
-    // When URL ?s= changes (e.g. breadcrumb link), expand that week
+    // When URL ?s= changes (e.g. breadcrumb link), expand that week and scroll after panel opens
     useEffect(() => {
-        if (weekFromUrl !== null) {
-            setOpenWeeks((prev) => new Set(prev).add(weekFromUrl));
-        }
+        if (weekFromUrl === null) return;
+        setOpenWeeks((prev) => new Set(prev).add(weekFromUrl));
+        const scrollTimeoutId = window.setTimeout(() => {
+            scrollFundamentalsWeekIntoView(weekFromUrl);
+        }, SCROLL_AFTER_FOLDER_EXPAND_MS);
+        return () => window.clearTimeout(scrollTimeoutId);
+    }, [weekFromUrl]);
+
+    // Auto-expand current week on load when no URL week is specified
+    useEffect(() => {
+        if (weekFromUrl !== null) return;
+        let cancelled = false;
+        let scrollTimeoutId: number | undefined;
+        getCurrent()
+            .then((week) => {
+                if (cancelled) return;
+                const clamped = Math.min(Math.max(week, 1), 12);
+                setOpenWeeks((prev) => new Set(prev).add(clamped));
+                scrollTimeoutId = window.setTimeout(() => {
+                    if (cancelled) return;
+                    scrollFundamentalsWeekIntoView(clamped);
+                }, SCROLL_AFTER_FOLDER_EXPAND_MS);
+            })
+            .catch(() => { });
+        return () => {
+            cancelled = true;
+            if (scrollTimeoutId !== undefined) window.clearTimeout(scrollTimeoutId);
+        };
     }, [weekFromUrl]);
 
     const toggleWeek = (n: number) => {
@@ -668,8 +286,8 @@ export default function IntroductionToFundamentals() {
                             Introduction to Fundamentals
                         </h1>
                         <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
-                            An 18-session journey from zero to full-stack. Terminal fluency, version control,
-                            containers, React, backend APIs, algorithms, and agile — everything
+                            A 36-session journey from zero to full-stack. Terminal fluency, version control,
+                            containers, React, backend APIs, algorithms, auth, testing, deployment — everything
                             you need to contribute to real projects.
                         </p>
                     </div>
@@ -695,8 +313,8 @@ export default function IntroductionToFundamentals() {
                         'C++ & DSA',
                         'Sprint Review',
                         'Project Management',
-                    ].map((topic) => (
-                        <Badge key={topic} variant="secondary">
+                    ].map((topic, topicIndex) => (
+                        <Badge key={`${topic}-${topicIndex}`} variant="secondary">
                             {topic}
                         </Badge>
                     ))}

@@ -1,361 +1,354 @@
-import { useNavigate } from 'react-router-dom';
-import { Package } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
+import { Cpu } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTermWithTip,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
+import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week3Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
                 week={3}
                 session="Lecture 1"
-                title="Package Managers & Environments"
-                description="Every language has a package manager. Learn how they resolve dependencies, why virtual environments exist, and how to never pollute your system Python again."
-                icon={<Package className="h-4 w-4" />}
+                title="Classes, Encapsulation & Inheritance"
+                description="C++ OOP from the ground up — classes, access modifiers, constructors, inheritance chains, and the virtual keyword that makes polymorphism possible."
+                icon={<Cpu className="h-4 w-4" />}
             />
 
-            {/* ── 01 WHAT IS A PACKAGE ────────────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="What is a Package?" />
+            {/* ── 01 C++ ESSENTIALS ────────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="C++ Essentials" />
 
             <LectureP>
-                A <LectureTermWithTip tip="A distributable unit of code (library or tool) with a name and version. Published to a registry so others can install it with one command.">package</LectureTermWithTip> is a bundle of code that someone else wrote, tested, and published so that you don't have to write it yourself. It has a name, a version, and a set of files. It might also depend on other packages — those are called its <LectureTermWithTip tip="Other packages this one needs to run. Installing a package automatically installs its dependencies (and their dependencies, recursively).">dependencies</LectureTermWithTip>.
+                C++ is a <LectureTip tip="Types are declared at compile time — the compiler checks them before the program runs. Catches type errors early instead of at runtime like Python.">statically typed</LectureTip>, compiled language. Unlike Python, where you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">python script.py</code> and the interpreter figures out types at runtime, C++ requires you to declare types up front and compile your code into a binary before running it. This gives you direct control over memory and performance — which is why operating systems, game engines, databases, and embedded systems are written in C++.
+            </LectureP>
+
+            <LectureSubHeading title="Types" />
+
+            <LectureP>
+                Every variable must have a type declared at creation. The core types: <LectureTip code tip="Whole numbers: -2, 0, 42. 32-bit signed integer on most systems. Range: roughly ±2 billion.">int</LectureTip>, <LectureTip code tip="Floating-point decimals: 3.14, -0.5. 64-bit, ~15 digits of precision. Use for money? No — use integers of cents.">double</LectureTip>, <LectureTip code tip="true or false. 1 byte. Used in conditions, flags, and return values. In C++, 0 is false, anything else is true.">bool</LectureTip>, <LectureTip code tip="A single character: 'A', '7', '\\n'. 1 byte. Use single quotes. A string is a sequence of chars.">char</LectureTip>, and <LectureTip code tip="Text type from the standard library. Dynamically sized, heap-allocated. Use double quotes. Unlike C strings (char*), std::string manages its own memory.">string</LectureTip> (from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;string&gt;</code>). Once declared, a variable's type cannot change — <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int x = 5;</code> cannot later become a string. Use <LectureTip code tip="Let the compiler infer the type from the right-hand side. auto x = 5; is int. auto s = string('hi'); is string. Useful with complex types like iterators.">auto</LectureTip> to let the compiler infer the type when it is obvious from context.
+            </LectureP>
+
+            <LectureSubHeading title="Includes, main, and namespaces" />
+
+            <LectureP>
+                C++ uses <LectureTip code tip="Preprocessor directive that copies the contents of a header file into your source. Like Python's import, but it literally pastes the header's text into your file before compilation.">#include</LectureTip> to import library headers. <LectureTip code tip="Input/Output stream library. Provides cout (output), cin (input), cerr (error output), and endl (newline + flush).">&lt;iostream&gt;</LectureTip> gives you <LectureTip code tip="Character output stream. Use << to insert values: cout << 'Hello' << endl; Chains left to right.">cout</LectureTip> and <LectureTip code tip="Character input stream. Use >> to extract values: cin >> x; Reads one whitespace-delimited token. Stops at spaces.">cin</LectureTip>. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;string&gt;</code> gives you the string type. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&lt;vector&gt;</code> gives you dynamic arrays. Every C++ program starts at <LectureTip code tip="The entry point. The OS calls this function when your program launches. Returns int — 0 means success, non-zero means error.">int main()</LectureTip> and conventionally ends with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">return 0;</code> to indicate success.
             </LectureP>
             <LectureP>
-                When you install a package, you're not just downloading one file. You're downloading that package, plus all of its dependencies, plus all of their dependencies, potentially dozens of levels deep. A simple React project can have tens of thousands of packages in its <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The package manager resolves, downloads, and wires all of them together so you don't have to think about it.
+                Standard library names live in the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std</code> namespace. Without <LectureTip code tip="Imports all names from the std namespace into global scope so you can write cout instead of std::cout. Convenient for learning; avoid in headers or large projects to prevent name collisions.">using namespace std;</LectureTip>, you would have to write <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::cout</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::string</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::vector</code> everywhere. In production code, explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::</code> is preferred to avoid name collisions, but for learning and in single-file programs, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">using namespace std;</code> is fine. All examples in this course use it.
             </LectureP>
+
+            <CodeBlock language="cpp"
+                title="hello.cpp — your first complete C++ program"
+                lines={[
+                    '#include <iostream>',
+                    '#include <string>',
+                    'using namespace std;',
+                    '',
+                    'int main() {',
+                    '    string name = "world";',
+                    '    int year = 2026;',
+                    '    double pi = 3.14159;',
+                    '    bool enrolled = true;',
+                    '',
+                    '    cout << "Hello, " << name << "!" << endl;',
+                    '    cout << "Year: " << year << endl;',
+                    '    cout << "Pi: " << pi << endl;',
+                    '    cout << "Enrolled: " << (enrolled ? "yes" : "no") << endl;',
+                    '',
+                    '    return 0;',
+                    '}',
+                ]}
+            />
+
+            <LectureSubHeading title="Input with cin" />
+
             <LectureP>
-                This is both a superpower and a responsibility. You can build sophisticated applications by composing packages written by experts. But you're also trusting that code with your system and your users — which is why understanding what you're installing matters.
+                <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cout &lt;&lt;</code> writes to the terminal. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin &gt;&gt;</code> reads from the terminal — it reads one whitespace-delimited token at a time. For full lines (including spaces), use <LectureTip code tip="Reads an entire line of input including spaces. Takes the stream and a string variable: getline(cin, name). Use instead of cin >> when input has spaces.">getline(cin, variable)</LectureTip>. A common pitfall: after <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">cin &gt;&gt;</code>, a newline remains in the buffer — call <LectureTip code tip="Discards the next character in the input buffer. Call after cin >> and before getline() to prevent the leftover newline from being consumed as an empty line.">cin.ignore()</LectureTip> before <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">getline()</code> to discard it.
+            </LectureP>
+
+            <CodeBlock language="cpp"
+                title="input.cpp — reading user input"
+                lines={[
+                    '#include <iostream>',
+                    '#include <string>',
+                    'using namespace std;',
+                    '',
+                    'int main() {',
+                    '    cout << "Enter your age: ";',
+                    '    int age;',
+                    '    cin >> age;',
+                    '    cin.ignore();  // discard leftover newline',
+                    '',
+                    '    cout << "Enter your full name: ";',
+                    '    string name;',
+                    '    getline(cin, name);  // reads the whole line, spaces included',
+                    '',
+                    '    cout << name << " is " << age << " years old." << endl;',
+                    '    return 0;',
+                    '}',
+                ]}
+            />
+
+            <LectureSubHeading title="Compilation" />
+
+            <LectureP>
+                Unlike Python, C++ code must be compiled before it can run. The compiler (<LectureTip code tip="GNU C++ compiler. Translates .cpp source files into executable binaries. Part of the GCC (GNU Compiler Collection). On macOS, g++ is actually clang++ by default.">g++</LectureTip>) translates your source code into machine code. Compile and run with:
+            </LectureP>
+
+            <CodeBlock language="bash"
+                title="compile and run"
+                lines={[
+                    'g++ -std=c++17 -Wall hello.cpp -o hello',
+                    './hello',
+                ]}
+            />
+
+            <LectureP>
+                <LectureTip code tip="Sets the C++ standard version. c++17 gives you structured bindings, if-init, optional, filesystem, and more. Always specify a standard.">-std=c++17</LectureTip> enables modern C++ features. <LectureTip code tip="Warns All — enables all common compiler warnings. Treat every warning as a bug. Also consider -Wextra and -Werror (treats warnings as errors).">-Wall</LectureTip> turns on all warnings — treat every warning as a bug. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">-o hello</code> names the output binary. If compilation fails, the compiler will tell you the exact line and the problem — read the first error message and fix it before worrying about the rest.
+            </LectureP>
+
+            <LectureSubHeading title="Key syntax differences from Python" />
+
+            <LectureP>
+                <strong className="text-foreground">Braces</strong> <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'{}'}</code> delimit blocks instead of indentation (though you should still indent for readability). <strong className="text-foreground">Semicolons</strong> end every statement. <strong className="text-foreground">Types are explicit</strong>: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int x = 5;</code> not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">x = 5</code>. <strong className="text-foreground">Logical operators</strong> are <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">&&</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">||</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">!</code> instead of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">and</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">or</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">not</code>. <strong className="text-foreground">Comments</strong> use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">//</code> for single-line and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/* */</code> for multi-line.
             </LectureP>
 
             <LectureCallout type="info">
-                The infamous <LectureTermWithTip tip="A developer unpublished the tiny npm package 'left-pad', breaking thousands of projects that depended on it. Led to more careful dependency practices and lockfiles.">left-pad incident</LectureTermWithTip> in 2016 is a good illustration of package dependency risk. A developer unpublished a 17-line npm package called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">left-pad</code> from the registry. Because thousands of other packages depended on it, builds broke across the entire JavaScript ecosystem within minutes — including React and Babel. The entire internet's JS infrastructure depended on a function that pads strings with spaces.
+                From this point forward, most code examples omit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">#include</code> directives and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int main()</code> for brevity. To compile any example, wrap it in the template from this section: add your includes at the top, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">using namespace std;</code>, and place the code inside <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">int main() {'{ ... return 0; }'}</code>.
             </LectureCallout>
 
-            {/* ── 02 THE REGISTRY MODEL ───────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="The Registry Model" />
+            {/* ── 02 WHY C++ FOR OOP ──────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Why C++ for OOP?" />
 
             <LectureP>
-                Every package manager works against a <LectureTermWithTip tip="A central server that stores package metadata and files. npm uses registry.npmjs.org; pip uses pypi.org. Install commands query the registry.">registry</LectureTermWithTip> — a centralized database of published packages. When you run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">npm install react</code>, npm reaches out to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">registry.npmjs.org</code>, downloads the package metadata, resolves the full dependency tree, and installs everything. The registry is the source of truth.
+                You have been writing Python and TypeScript. C++ gives you direct control over memory and a type system that makes object boundaries explicit. For systems code and technical interviews, C++ OOP — classes, access modifiers, constructors, inheritance — is the reference model. What you learn here maps to every language: Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">self</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">super()</code>, TypeScript's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">extends</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">implements</code>, and Java/C# classes all follow the same ideas. C++ makes the machinery visible so you see exactly when constructors run, when <LectureTerm>virtual dispatch</LectureTerm> happens, and what "pass by reference" means.
+            </LectureP>
+            <LectureP>
+                This lecture focuses on <strong className="text-foreground">classes, encapsulation, and inheritance</strong>. Next lecture covers polymorphism, abstract base classes, the STL, and system design principles.
             </LectureP>
 
-            <div className="my-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <LectureCallout type="info">
+                <LectureTerm>Encapsulation</LectureTerm> means hiding internal state and exposing only a clear interface. It prevents callers from putting your object into an invalid state and lets you change implementation details without breaking the rest of the codebase.
+            </LectureCallout>
+
+            {/* ── 03 THE FOUR OOP PRINCIPLES ──────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="The Four OOP Principles" />
+
+            <LectureP>
+                Object-Oriented Programming organizes software around objects — data bundled with the functions that operate on it. Four principles underpin OOP: <LectureTip tip="Bundle data and methods together. Hide internal state — expose only what users of the class need. Prevents invalid states.">encapsulation</LectureTip>, <LectureTip tip="A derived class gets the data and methods of its base class and can extend or override them. Models 'is-a' relationships.">inheritance</LectureTip>, <LectureTip tip="Same interface, different behavior. Call getType() on any LibraryItem — each derived class responds differently via virtual dispatch.">polymorphism</LectureTip>, and <LectureTip tip="Expose what a class does, hide how it does it. Users of std::vector don't need to know about memory reallocation.">abstraction</LectureTip>. We focus on encapsulation and inheritance in this lecture.
+            </LectureP>
+
+            <div className="my-6 space-y-4">
                 {[
-                    {
-                        manager: 'npm / yarn / pnpm',
-                        registry: 'registry.npmjs.org',
-                        ecosystem: 'JavaScript / Node.js',
-                        packages: '2.5M+ packages',
-                    },
-                    {
-                        manager: 'pip',
-                        registry: 'pypi.org',
-                        ecosystem: 'Python',
-                        packages: '500K+ packages',
-                    },
-                    {
-                        manager: 'apt',
-                        registry: 'Debian/Ubuntu mirrors',
-                        ecosystem: 'Linux system software',
-                        packages: '60K+ packages',
-                    },
-                    {
-                        manager: 'brew',
-                        registry: 'github.com/Homebrew',
-                        ecosystem: 'macOS / Linux userland',
-                        packages: '7K+ formulae',
-                    },
+                    { principle: 'Encapsulation', color: 'text-blue-600 dark:text-blue-400', border: 'border-blue-200 dark:border-blue-800', bg: 'bg-blue-50 dark:bg-blue-950/20', def: 'Bundle data and methods together. Hide internal state — expose only what users of the class need.', why: 'Prevents external code from putting an object into an invalid state.' },
+                    { principle: 'Inheritance', color: 'text-emerald-600 dark:text-emerald-400', border: 'border-emerald-200 dark:border-emerald-800', bg: 'bg-emerald-50 dark:bg-emerald-950/20', def: 'A derived class gets the data and methods of its base class and can extend or override them.', why: 'Eliminates duplication for related types (e.g. Dog and Cat extending Animal).' },
+                    { principle: 'Polymorphism', color: 'text-orange-600 dark:text-orange-400', border: 'border-orange-200 dark:border-orange-800', bg: 'bg-orange-100 dark:bg-orange-950/20', def: 'The same interface works for different types. Call speak() on any Animal — each responds differently.', why: 'Next lecture: virtual methods and abstract base classes.' },
+                    { principle: 'Abstraction', color: 'text-purple-600 dark:text-purple-400', border: 'border-purple-200 dark:border-purple-800', bg: 'bg-purple-50 dark:bg-purple-950/20', def: 'Expose what a class does, hide how. Users of std::vector don\'t need to know about resizing.', why: 'Reduces cognitive load; good APIs are abstract.' },
                 ].map((item) => (
-                    <div key={item.manager} className="rounded-lg border border-border bg-card p-4">
-                        <code className="text-sm font-bold text-foreground">{item.manager}</code>
-                        <p className="text-xs text-muted-foreground mt-1">{item.ecosystem}</p>
-                        <p className="text-xs text-muted-foreground mt-2 font-mono">{item.registry}</p>
-                        <p className="text-xs text-primary/70 mt-1">{item.packages}</p>
+                    <div key={item.principle} className={`rounded-xl border ${item.border} overflow-hidden`}>
+                        <div className={`px-4 py-2.5 ${item.bg}`}>
+                            <p className={`text-xs font-black uppercase tracking-widest ${item.color}`}>{item.principle}</p>
+                            <p className="text-xs text-foreground mt-1">{item.def}</p>
+                        </div>
+                        <div className="px-4 py-2.5">
+                            <p className="text-xs text-muted-foreground"><span className="font-semibold text-foreground">Why:</span> {item.why}</p>
+                        </div>
                     </div>
                 ))}
             </div>
 
-            <LectureP>
-                Understanding that there's a registry behind every package manager explains a lot of behavior: why installs fail with network errors, why you sometimes get stale versions, why companies run private registries for internal packages, and why supply chain attacks (malicious code injected into popular packages) are a real security concern.
-            </LectureP>
-
-            {/* ── 03 NPM ──────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="npm — The JavaScript Package Manager" />
+            {/* ── 04 ACCESS MODIFIERS — PUBLIC, PRIVATE, PROTECTED ────────────── */}
+            <LectureSectionHeading number="04" title="Access Modifiers — Public, Private, Protected" />
 
             <LectureP>
-                <LectureTermWithTip tip="Node Package Manager. Installs JavaScript packages, manages package.json and node_modules, and runs scripts. The default package manager for Node.js.">npm</LectureTermWithTip> (Node Package Manager) ships with Node.js and is the package manager you'll use most as a web developer. It manages two things: packages installed globally on your machine (CLI tools), and packages installed locally in a specific project.
+                C++ gives you explicit control over who can see what. By default, a <LectureTip code tip="Defines a type with private members by default. Use when you're building an abstraction with invariants to protect. Has constructors, methods, access control.">class</LectureTip> has private members until you say otherwise; a <LectureTip code tip="Same as class but members are public by default. Use for plain data (POD) with no invariants to protect — just data, no encapsulation needed.">struct</LectureTip> has public members by default. The only difference is that default — use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">struct</code> for plain data and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">class</code> when you are building an abstraction with an interface.
             </LectureP>
 
-            <LectureSubHeading title="The package.json file" />
-            <LectureP>
-                Every Node.js project has a <LectureTermWithTip tip="The project manifest: name, version, scripts, and dependency lists (dependencies and devDependencies). npm install reads this file.">package.json</LectureTermWithTip> file at its root. This is the manifest — it records the project name, version, scripts, and most importantly, the list of packages the project depends on. It's the single source of truth for your project's dependencies.
-            </LectureP>
-
-            <TerminalBlock
-                lines={[
-                    { comment: 'create a new project and initialize a package.json', cmd: 'mkdir my-project && cd my-project && npm init -y' },
-                    { comment: 'install a package as a runtime dependency', cmd: 'npm install express' },
-                    { comment: 'install a package only needed during development', cmd: 'npm install --save-dev typescript' },
-                    { comment: 'install a specific version of a package', cmd: 'npm install react@18.2.0' },
-                    { comment: 'install all dependencies listed in package.json', cmd: 'npm install' },
-                    { comment: 'remove a package', cmd: 'npm uninstall express' },
-                ]}
-            />
-
-            <LectureP>
-                The <LectureCmd tip="npm install (no arguments): reads package.json and installs every dependency listed under 'dependencies' and 'devDependencies'. This is what you run after cloning a project — it reconstructs the full node_modules folder from the manifest.">npm install</LectureCmd> command with no arguments is what you run when you clone a new project. It reads <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> and recreates the entire <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder. The <LectureCmd tip="--save-dev flag: installs the package as a devDependency — only needed during development (linting, testing, TypeScript compilation). Not included in production builds.">--save-dev</LectureCmd> flag marks packages as development-only. These are things like TypeScript, ESLint, and test runners that don't need to be included in production.
-            </LectureP>
-
-            <LectureSubHeading title="The package-lock.json file" />
-            <LectureP>
-                When npm installs packages, it creates a <LectureTermWithTip tip="Locks exact versions of every package (including transitive deps). Commit this file so everyone gets the same dependency tree; makes builds reproducible.">package-lock.json</LectureTermWithTip> file. While <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> specifies version ranges (e.g., <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">^18.0.0</code>), the lockfile pins every package to its exact installed version — including all transitive dependencies. This ensures that anyone who clones your project gets the exact same dependency tree, not "approximately the same."
-            </LectureP>
-
-            <LectureCallout type="warning">
-                Never delete <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> and never add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules/</code> to Git. The lockfile should be committed — it's what makes builds reproducible across your team. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules/</code> can be 200MB+ and is entirely reconstructable from the lockfile.
-            </LectureCallout>
-
-            <LectureSubHeading title="npm scripts" />
-            <LectureP>
-                The <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">scripts</code> field in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> lets you define shortcut commands for your project. These are how you start dev servers, run tests, build for production, and lint your code — all through a consistent interface regardless of what tools are underneath.
-            </LectureP>
-
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    package.json — scripts section
+            <div className="my-6 rounded-xl border border-border overflow-hidden">
+                <div className="px-4 py-2.5 bg-muted/30 border-b border-border">
+                    <p className="text-xs font-semibold text-foreground">Who can access what</p>
                 </div>
-                <div className="bg-zinc-950 px-5 py-4 select-none">
-                    <p className="text-zinc-400">{'{'}</p>
-                    <p className="text-zinc-400 pl-4">{'"scripts": {'}</p>
-                    <p className="text-zinc-500 pl-8">{'"dev": '}<span className="text-emerald-400">"vite"</span><span className="text-zinc-400">,</span></p>
-                    <p className="text-zinc-500 pl-8">{'"build": '}<span className="text-emerald-400">"tsc && vite build"</span><span className="text-zinc-400">,</span></p>
-                    <p className="text-zinc-500 pl-8">{'"lint": '}<span className="text-emerald-400">"eslint src --ext ts,tsx"</span><span className="text-zinc-400">,</span></p>
-                    <p className="text-zinc-500 pl-8">{'"test": '}<span className="text-emerald-400">"vitest"</span></p>
-                    <p className="text-zinc-400 pl-4">{'}'}</p>
-                    <p className="text-zinc-400">{'}'}</p>
+                <div className="divide-y divide-border">
+                    <div className="px-4 py-3">
+                        <p className="text-xs font-medium text-foreground"><LectureTip code tip="Accessible by anyone — the class itself, derived classes, and all external code. Your API surface: constructors, getters, methods that change state in valid ways.">public:</LectureTip></p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Anyone can call or read. Your API — constructors, getters, methods that change state in valid ways.</p>
+                    </div>
+                    <div className="px-4 py-3">
+                        <p className="text-xs font-medium text-foreground"><LectureTip code tip="Accessible only by this class's own methods. Not even derived classes can see private members. Use for implementation details and data that must be protected by invariants.">private:</LectureTip></p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Only this class. Derived classes cannot see private members. Use for implementation details and invariants.</p>
+                    </div>
+                    <div className="px-4 py-3">
+                        <p className="text-xs font-medium text-foreground"><LectureTip code tip="Accessible by this class and all derived classes, but not external code. Use sparingly — it creates a coupling contract between base and derived classes.">protected:</LectureTip></p>
+                        <p className="text-xs text-muted-foreground mt-0.5">This class and derived classes. Lets subclasses access or extend internal state without exposing it to the world. Use sparingly — it tightens coupling between base and derived.</p>
+                    </div>
                 </div>
             </div>
 
+            <LectureCallout type="tip">
+                Prefer <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">private</code> unless you have a clear reason for <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">protected</code>. Protected members become part of your inheritance contract; changing them can break every derived class.
+            </LectureCallout>
+
+            {/* ── 05 OOP IN C++ — CLASSES, CONSTRUCTORS, INHERITANCE ───────────── */}
+            <LectureSectionHeading number="05" title="OOP in C++ — Classes, Constructors & Inheritance" />
+
             <LectureP>
-                In a project that defines <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dev</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">build</code>, or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">test</code> in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> (e.g. from Vite or Create React App), you run:
+                A <LectureTerm>class</LectureTerm> bundles data (member variables) and behavior (member functions). Constructors initialize the object; use the <LectureTip tip="Syntax: ClassName(params) : member1(val1), member2(val2) {}. Runs BEFORE the constructor body. Required for const members and references. More efficient than assigning in the body.">initializer list</LectureTip> (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to set members before the body runs — it is required for <LectureTip code tip="A member marked const cannot be changed after construction. Must be initialized in the initializer list — you cannot assign to a const member in the constructor body.">const</LectureTip> members and references, and often more efficient.
             </LectureP>
-            <TerminalBlock
+
+            <CodeBlock language="cpp"
+                title="encapsulation — Book class with private state"
                 lines={[
-                    { comment: 'run the dev script (starts the development server)', cmd: 'npm run dev' },
-                    { comment: 'run the build script', cmd: 'npm run build' },
-                    { comment: 'run the test script', cmd: 'npm run test' },
-                    { comment: 'list all globally installed packages', cmd: 'npm list -g --depth=0' },
-                    { comment: 'install a CLI tool globally so it works from anywhere', cmd: 'npm install -g typescript' },
+                    'class Book {',
+                    'private:',
+                    '    string title;',
+                    '    string author;',
+                    '    bool checkedOut = false;',
+                    '',
+                    'public:',
+                    '    // Constructor — initializer list : title(t), author(a)',
+                    '    Book(string t, string a) : title(t), author(a) {}',
+                    '',
+                    '    string getTitle()  const { return title; }',
+                    '    string getAuthor() const { return author; }',
+                    '    bool isAvailable() const { return !checkedOut; }',
+                    '',
+                    '    bool checkout() {',
+                    '        if (checkedOut) return false;',
+                    '        checkedOut = true;',
+                    '        return true;',
+                    '    }',
+                    '    void returnBook() { checkedOut = false; }',
+                    '};',
                 ]}
             />
 
             <LectureCallout type="tip">
-                <LectureCmd tip="npm run dev: runs the 'dev' script defined in package.json. This is the universal way to start a development server regardless of whether the project uses Vite, Next.js, Create React App, or something else — the underlying tool is abstracted away.">npm run dev</LectureCmd> is one of the first commands you'll type on any new project. It's the universal "start the dev server" command. The actual tool it invokes (Vite, webpack, Next.js, etc.) doesn't matter — that complexity lives in the script.
+                Use the initializer list (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">: title(t), author(a)</code>) to initialize members. It runs before the constructor body and is required for const members and references.
             </LectureCallout>
 
-            {/* ── 04 PIP ──────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="pip — Python's Package Manager" />
-
+            <LectureSubHeading title="Initializer list order" />
             <LectureP>
-                <LectureTermWithTip tip="Pip Installs Packages. Python's default package manager; installs from PyPI. Use inside a virtual environment so projects don't share global packages.">pip</LectureTermWithTip> is Python's package manager. It installs packages from PyPI (the Python Package Index). The workflow is similar to npm, but Python projects use a <LectureTermWithTip tip="An isolated Python environment per project. Activate it with source .venv/bin/activate; pip install then only affects that project.">virtual environment</LectureTermWithTip> instead of a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> folder to isolate dependencies.
+                Members are always initialized in the <strong className="text-foreground">order they are declared in the class</strong>, not the order you list them in the initializer list. If your list order does not match declaration order, you can get subtle bugs (e.g. member A is initialized using member B, but B is not initialized yet). Keep declaration order and list order the same.
             </LectureP>
 
-            <LectureSubHeading title="Virtual environments" />
+            <LectureSubHeading title="Const correctness" />
             <LectureP>
-                Without a virtual environment, pip installs packages globally — meaning every Python project on your machine shares the same package versions. This causes version conflicts when Project A needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.25</code> and Project B needs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requests==2.31</code>. A <LectureTermWithTip tip="A folder (e.g. .venv) containing a copy of the Python interpreter and project-specific packages. Prevents version conflicts between projects.">virtual environment</LectureTermWithTip> creates an isolated Python installation per project so each project has its own packages.
+                Mark member functions that do not modify the object with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> at the end: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">string getTitle() const;</code>. That is a promise: "this function will not change any member." Getters and inspectors should always be const. Const objects can only call const member functions. When you take a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const LibraryItem&amp;</code>, you are promising not to modify it — so only const methods are callable.
             </LectureP>
 
-            <TerminalBlock
+            <LectureP>
+                <LectureTerm>Inheritance</LectureTerm> lets a derived class reuse and extend a base class. Use <LectureTip code tip="Declares a method as overridable. When called through a base pointer/reference, the derived class's version runs instead of the base class's. Enables polymorphism via the vtable.">virtual</LectureTip> so that calls through a base pointer invoke the derived class's override. A virtual destructor in the base is required when you delete through a base pointer — otherwise the derived destructor will not run.
+            </LectureP>
+
+            <CodeBlock language="cpp"
+                title="inheritance + virtual methods"
                 lines={[
-                    { comment: 'create a virtual environment in a folder called .venv', cmd: 'python3 -m venv .venv' },
-                    { comment: 'activate it (macOS/Linux)', cmd: 'source .venv/bin/activate' },
-                    { comment: 'activate it (Windows)', cmd: '.venv\\Scripts\\activate' },
-                    { comment: 'your prompt will now show (.venv) — you are inside the environment', cmd: '' },
-                    { comment: 'install packages — they go into .venv, not globally', cmd: 'pip install fastapi uvicorn' },
-                    { comment: 'save the current environment to a requirements file', cmd: 'pip freeze > requirements.txt' },
-                    { comment: 'install from a requirements file (on a new machine)', cmd: 'pip install -r requirements.txt' },
-                    { comment: 'deactivate the virtual environment', cmd: 'deactivate' },
-                ]}
-            />
-
-            <LectureP>
-                The <LectureCmd tip="pip freeze: outputs every installed package and its exact version in a format suitable for a requirements.txt file. Like package-lock.json for Python — captures the exact state of your environment.">pip freeze</LectureCmd> command captures your exact environment to a <LectureTermWithTip tip="A text file listing package names and versions (one per line). pip install -r requirements.txt recreates the environment. Commit this; don't commit .venv.">requirements.txt</LectureTermWithTip> file. This is Python's equivalent of <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> — it pins exact versions so anyone who runs <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">pip install -r requirements.txt</code> gets the same environment.
-            </LectureP>
-
-            <LectureCallout type="info">
-                Always add <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.venv/</code> to your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code>. Virtual environments are local — they contain compiled binaries specific to your OS and Python version. Commit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">requirements.txt</code>, not <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.venv/</code>.
-            </LectureCallout>
-
-            {/* ── 05 APT ──────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="apt — Linux System Package Manager" />
-
-            <LectureP>
-                <LectureTermWithTip tip="Advanced Package Tool. The default package manager for Debian and Ubuntu. Manages system software: run apt update before apt install.">apt</LectureTermWithTip> (Advanced Package Tool) is the system-level package manager for Debian and Ubuntu — the Linux distributions you'll encounter on most servers. Unlike npm and pip which manage language-level libraries, apt manages system-level software: web servers, databases, programming language runtimes, system utilities.
-            </LectureP>
-            <LectureP>
-                When you install Node.js on a fresh Ubuntu server, you use apt. When you install PostgreSQL or nginx or Python, you use apt. It's the foundation layer that everything else sits on top of.
-            </LectureP>
-
-            <TerminalBlock
-                lines={[
-                    { comment: 'update the package index (always run this first)', cmd: 'sudo apt update' },
-                    { comment: 'upgrade all installed packages to their latest versions', cmd: 'sudo apt upgrade' },
-                    { comment: 'install a package', cmd: 'sudo apt install nginx' },
-                    { comment: 'install multiple packages at once', cmd: 'sudo apt install git curl wget build-essential' },
-                    { comment: 'search for a package by name or description', cmd: 'apt search "web server"' },
-                    { comment: 'show detailed info about a package before installing', cmd: 'apt show nginx' },
-                    { comment: 'remove a package but keep its config files', cmd: 'sudo apt remove nginx' },
-                    { comment: 'remove a package AND its config files', cmd: 'sudo apt purge nginx' },
-                    { comment: 'remove packages that were installed as dependencies and are no longer needed', cmd: 'sudo apt autoremove' },
-                ]}
-            />
-
-            <LectureP>
-                The difference between <LectureCmd tip="apt remove: uninstalls the package binary but leaves configuration files in place. Useful if you plan to reinstall later and want to keep your settings.">apt remove</LectureCmd> and <LectureCmd tip="apt purge: uninstalls the package AND deletes all its configuration files. Use this for a clean uninstall — like it was never there.">apt purge</LectureCmd> matters when you're managing servers. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">remove</code> leaves config files behind (useful if you might reinstall). <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">purge</code> cleans everything out completely.
-            </LectureP>
-
-            <LectureSubHeading title="PPAs and external repositories" />
-            <LectureP>
-                Not every package is in Ubuntu's default repositories. For software like the latest version of Node.js, you often need to add a <LectureTermWithTip tip="Personal Package Archive. A third-party repository for Ubuntu/Debian that provides packages not in the official repos. Add with add-apt-repository.">PPA</LectureTermWithTip> (Personal Package Archive) or an external repository before you can install it.
-            </LectureP>
-
-            <TerminalBlock
-                lines={[
-                    { comment: 'add NodeSource repository so apt knows where to get the latest Node.js', cmd: 'curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -' },
-                    { comment: 'now apt can find and install the latest Node.js', cmd: 'sudo apt install nodejs' },
-                    { comment: 'verify the version', cmd: 'node --version' },
+                    'class LibraryItem {',
+                    'public:',
+                    '    string id, title;',
+                    '    LibraryItem(string i, string t) : id(i), title(t) {}',
+                    '    virtual string getType() const { return "Item"; }',
+                    '    virtual int getLoanDays() const = 0;  // pure virtual — must override',
+                    '    virtual ~LibraryItem() {}  // required for correct cleanup',
+                    '};',
+                    '',
+                    'class Book : public LibraryItem {',
+                    'public:',
+                    '    Book(string i, string t) : LibraryItem(i, t) {}',
+                    '    string getType() const override { return "Book"; }',
+                    '    int getLoanDays() const override { return 21; }',
+                    '};',
+                    '',
+                    '// Polymorphism: same code works for any LibraryItem',
+                    'void printInfo(const LibraryItem& item) {',
+                    '    cout << item.getType() << " — " << item.getLoanDays() << " days" << endl;',
+                    '}',
                 ]}
             />
 
             <LectureCallout type="warning">
-                Be careful when piping scripts directly into bash from the internet — <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">curl ... | sudo bash</code> runs whatever is at that URL with root privileges. Only do this with commands from official documentation of major, trusted projects.
+                <LectureTip tip="Assigning a derived object to a base variable by value copies only the base class's data — the derived part is 'sliced off' and lost. The object becomes just a base, losing its polymorphic identity. Always use references or pointers.">Slicing</LectureTip>: assigning a derived object to a base by value copies only the base part; the derived data is "sliced off." Always pass base classes by reference or pointer (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const LibraryItem&</code>) to preserve polymorphic behavior.
             </LectureCallout>
 
-            {/* ── 06 BREW ─────────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="brew — macOS Package Manager" />
-
+            <LectureSubHeading title="Constructor and destructor order" />
             <LectureP>
-                <LectureTermWithTip tip="The de facto macOS package manager. Installs CLI tools (formulae) and GUI apps (casks). Install from brew.sh; then use brew install for everything else.">Homebrew</LectureTermWithTip> is the unofficial-but-universal package manager for macOS. Apple ships a minimal set of tools — Homebrew fills the gap with thousands of packages that developers need.
-            </LectureP>
-
-            <TerminalBlock
-                lines={[
-                    { comment: 'install Homebrew (run this once on a new Mac)', cmd: '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"' },
-                    { comment: 'install a package (called a "formula")', cmd: 'brew install git' },
-                    { comment: 'install a GUI application (called a "cask")', cmd: 'brew install --cask visual-studio-code' },
-                    { comment: 'update brew and all formula definitions', cmd: 'brew update' },
-                    { comment: 'upgrade all installed formulae', cmd: 'brew upgrade' },
-                    { comment: 'see what you have installed', cmd: 'brew list' },
-                    { comment: 'check for problems with your brew installation', cmd: 'brew doctor' },
-                ]}
-            />
-
-            <LectureP>
-                Homebrew distinguishes between <LectureTermWithTip tip="Homebrew's term for a command-line tool or library (e.g. git, node). Install with brew install <name>.">formulae</LectureTermWithTip> (command-line tools and libraries, like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">postgresql</code>) and <LectureTermWithTip tip="Homebrew's term for a GUI application (.app). Install with brew install --cask <name>; goes to your Applications folder.">casks</LectureTermWithTip> (GUI applications, like VS Code, Chrome, or Docker Desktop). The <LectureCmd tip="--cask flag: tells brew to install a GUI application rather than a command-line tool. Casks are macOS .app bundles that install into your Applications folder.">--cask</LectureCmd> flag is how you install GUI apps.
+                When you create a derived object, the base constructor runs first, then the derived constructor. When it is destroyed, the derived destructor runs first, then the base. Base builds the foundation, derived builds on top; on teardown, derived cleans up first, then base. A non-virtual destructor in the base is dangerous — only the base destructor runs when you <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code>, and the derived part is never cleaned up.
             </LectureP>
 
             <LectureCallout type="tip">
-                A common first-day-on-a-new-Mac workflow: install Homebrew, then use it to install everything else — git, node, python, postgresql, the works. It's faster and cleaner than downloading installers manually.
+                Always declare destructors <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> in base classes that have virtual methods. Without it, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> only runs the base destructor — the derived destructor will not run, leaking resources.
             </LectureCallout>
 
-            {/* ── 07 SEMANTIC VERSIONING ──────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Semantic Versioning" />
+            {/* ── 06 COMPOSITION VS INHERITANCE ─────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Composition vs Inheritance" />
 
             <LectureP>
-                Every package has a version number. Understanding how versioning works helps you make informed decisions about what to install and when to upgrade. The standard format is <LectureTermWithTip tip="Semantic versioning: MAJOR = breaking changes, MINOR = new features (backward compatible), PATCH = bug fixes. e.g. 18.2.0.">MAJOR.MINOR.PATCH</LectureTermWithTip> — for example, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">18.2.0</code>.
+                <LectureTerm>Inheritance</LectureTerm> models an <strong className="text-foreground">is-a</strong> relationship: a Book is a LibraryItem. <LectureTerm>Composition</LectureTerm> models <strong className="text-foreground">has-a</strong>: a Library has a <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{"vector<LibraryItem*>"}</code> and an <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">unordered_map</code> for loans. Prefer composition when you are reusing behavior or data without needing to substitute one type for another through a common interface. Prefer inheritance when you have a true subtype: multiple classes that share an interface and can be used interchangeably.
             </LectureP>
 
-            <div className="my-6 rounded-xl border border-border bg-muted/30 overflow-hidden">
-                <div className="grid grid-cols-3 divide-x divide-border">
-                    {[
-                        {
-                            part: 'MAJOR',
-                            example: '18',
-                            meaning: 'Breaking changes. Code written for v17 may not work on v18 without modifications.',
-                            color: 'text-rose-600 dark:text-rose-400',
-                            bg: 'bg-rose-50 dark:bg-rose-950/20',
-                        },
-                        {
-                            part: 'MINOR',
-                            example: '2',
-                            meaning: 'New features added in a backwards-compatible way. Upgrading is safe.',
-                            color: 'text-amber-600 dark:text-amber-400',
-                            bg: 'bg-amber-50 dark:bg-amber-950/20',
-                        },
-                        {
-                            part: 'PATCH',
-                            example: '0',
-                            meaning: 'Bug fixes only. No new features, no breaking changes. Always upgrade.',
-                            color: 'text-emerald-600 dark:text-emerald-400',
-                            bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-                        },
-                    ].map((item) => (
-                        <div key={item.part} className={`p-4 ${item.bg}`}>
-                            <p className={`text-xs font-bold uppercase tracking-wider ${item.color}`}>{item.part}</p>
-                            <p className={`text-2xl font-black mt-1 ${item.color}`}>{item.example}</p>
-                            <p className="text-xs text-muted-foreground leading-relaxed mt-2">{item.meaning}</p>
-                        </div>
-                    ))}
-                </div>
-            </div>
+            <LectureP>
+                Deep inheritance hierarchies (A → B → C → D) are hard to maintain and test. If you find yourself going beyond one level of derivation, ask whether composition or a flatter design would work. "Favor composition over inheritance" is a design guideline, not a law — use inheritance where polymorphism is the goal, composition everywhere else.
+            </LectureP>
+
+            {/* ── 07 RULE OF THREE & RESOURCE MANAGEMENT ───────────────────────── */}
+            <LectureSectionHeading number="07" title="Rule of Three & Resource Management" />
 
             <LectureP>
-                In <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code>, version ranges use special symbols. A <LectureCmd tip="^ (caret) in package.json: accepts any version compatible with the specified version. ^18.2.0 means 'any version >= 18.2.0 and < 19.0.0'. Will automatically get new features and bug fixes but not breaking changes.">^</LectureCmd> (caret) means "compatible with" — it will accept newer minor and patch versions but not a new major. A <LectureCmd tip="~ (tilde) in package.json: more restrictive than caret. ~18.2.0 means 'any version >= 18.2.0 and < 18.3.0'. Only accepts patch-level updates.">~</LectureCmd> (tilde) is more restrictive — only patch updates. No prefix means exactly that version.
+                If your class manages a resource (raw pointer, file handle, etc.), the compiler-generated copy constructor and copy-assignment operator do a <LectureTip tip="Copies the pointer value (the memory address), not the data it points to. Both objects now point to the same memory. When one frees it, the other has a dangling pointer.">shallow copy</LectureTip> — they copy the pointer, not what it points to. Then two objects think they own the same resource; when one is destroyed, it frees the memory and the other is left with a <LectureTip tip="A pointer that still holds an address, but the memory at that address has been freed. Accessing it causes undefined behavior — crashes, corrupted data, or silent bugs.">dangling pointer</LectureTip>. The <LectureTip tip="If you define any one of: destructor, copy constructor, or copy-assignment operator, you almost certainly need all three. They work together to manage resource ownership correctly.">rule of three</LectureTip>: if you define one of destructor, copy constructor, or copy-assignment operator, you usually need to define all three (or explicitly delete the copies and use move semantics). For now, prefer STL containers and smart pointers so the compiler-generated behavior is correct.
             </LectureP>
 
             <LectureCallout type="info">
-                This is why <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package-lock.json</code> exists. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">package.json</code> might say <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">^18.2.0</code> which could resolve to different versions on different machines at different times. The lockfile pins the exact version so every install is identical.
+                In C++11 and later, the <LectureTerm>rule of five</LectureTerm> adds move constructor and move assignment. For interview-level code and most application logic, stick to values and STL types and you rarely need to implement these yourself. Lecture 2 introduces smart pointers, which automate resource management entirely.
             </LectureCallout>
 
-            {/* ── 08 PUTTING IT TOGETHER ──────────────────────────────────────── */}
-            <LectureSectionHeading number="08" title="Setting Up a Real Environment" />
+            {/* ── 08 ANOTHER EXAMPLE — INVARIANTS IN PRACTICE ─────────────────── */}
+            <LectureSectionHeading number="08" title="Another Example — Invariants in Practice" />
 
             <LectureP>
-                Let's walk through setting up a fresh Ubuntu server from scratch — the kind of environment you'd get from a cloud provider like AWS or DigitalOcean. This is the real-world workflow combining everything from this lecture.
+                Encapsulation is about enforcing <LectureTip tip="Conditions that are always true for a correctly-constructed object. A bank balance is never negative. A connection is never used after close. The class's methods must maintain these guarantees.">invariants</LectureTip> — conditions that are always true for your object. A bank account balance should never be negative; a connection handle should never be used after close. Expose only operations that preserve the invariant.
             </LectureP>
 
-            <TerminalBlock
-                title="bash — fresh Ubuntu server"
+            <CodeBlock language="cpp"
+                title="BankAccount — balance never goes negative"
                 lines={[
-                    { comment: 'first thing: update the system', cmd: 'sudo apt update && sudo apt upgrade -y' },
-                    { comment: 'install essential build tools', cmd: 'sudo apt install -y curl git build-essential' },
-                    { comment: 'add NodeSource repo and install Node.js 20', cmd: 'curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -' },
-                    { cmd: 'sudo apt install -y nodejs' },
-                    { comment: 'verify node and npm are installed', cmd: 'node --version && npm --version' },
-                    { comment: 'install Python and pip', cmd: 'sudo apt install -y python3 python3-pip python3-venv' },
-                    { comment: 'install nginx web server', cmd: 'sudo apt install -y nginx' },
-                    { comment: 'verify nginx is running', cmd: 'systemctl status nginx' },
-                    { comment: 'create a project and set up a Python venv', cmd: 'mkdir ~/app && cd ~/app && python3 -m venv .venv' },
-                    { cmd: 'source .venv/bin/activate' },
-                    { cmd: 'pip install fastapi uvicorn' },
+                    'class BankAccount {',
+                    'private:',
+                    '    double balance = 0.0;   // invariant: balance >= 0',
+                    '',
+                    'public:',
+                    '    bool deposit(double amount) {',
+                    '        if (amount <= 0) return false;',
+                    '        balance += amount;',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    bool withdraw(double amount) {',
+                    '        if (amount <= 0 || amount > balance) return false;',
+                    '        balance -= amount;',
+                    '        return true;',
+                    '    }',
+                    '',
+                    '    double getBalance() const { return balance; }  // const: does not modify',
+                    '};',
+                    '',
+                    '// Callers cannot set balance directly — only deposit/withdraw.',
+                    '// So the invariant "balance >= 0" is always maintained.',
                 ]}
             />
 
+            <LectureSubHeading title="Common pitfalls to avoid" />
             <LectureP>
-                This sequence — update, install essentials, install runtimes, verify — is the pattern for every server setup you'll ever do. The specific packages change, the pattern doesn't.
+                <strong className="text-foreground">Virtual destructor:</strong> Base class with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">virtual</code> methods must have a virtual destructor; otherwise <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">delete basePtr</code> leaks the derived part. <strong className="text-foreground">Slicing:</strong> Passing or assigning by value copies only the base; use reference or pointer. <strong className="text-foreground">Const:</strong> Mark getters and read-only methods <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">const</code> so they work on const objects. <strong className="text-foreground">Initializer list:</strong> Use it for all members when possible; required for const and reference members. <strong className="text-foreground">Protected vs private:</strong> Prefer private; use protected only when derived classes genuinely need access.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Project Kickoff',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/activity'),
-                }}
-                next={{
-                    label: 'Docker & Containerization',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-3/lecture-2'),
-                }}
-            />
+
         </LectureLayout>
     );
 }

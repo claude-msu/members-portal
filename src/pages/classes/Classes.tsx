@@ -458,11 +458,6 @@ const Classes = () => {
 
     if (!status) return null;
 
-    // Check if class has started (semester start date is in the past)
-    const classHasStarted = cls.semesters?.start_date
-      ? new Date(cls.semesters.start_date) <= new Date()
-      : false;
-
     const badges = [];
     if (isEnrolled && !isMobile) {
       badges.push(
@@ -541,7 +536,7 @@ const Classes = () => {
     }
 
     // Only show class page button if class has started and not on mobile
-    if (classHasStarted && !isMobile) {
+    if ((status.state === 'in_progress' || status.state === 'completed') && !isMobile) {
       actions.push({
         label: 'View Class Page',
         onClick: () => {

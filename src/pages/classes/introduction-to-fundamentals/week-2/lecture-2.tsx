@@ -1,200 +1,544 @@
-import { useNavigate } from 'react-router-dom';
-import { GitBranch } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
+import { Binary } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
-    LectureTermWithTip,
+    LectureTerm,
 } from '@/components/ui/lecture-typography';
-
-// ── PR workflow diagram ──────────────────────────────────────────────────────
-const PRWorkflow = () => (
-    <div className="my-8 rounded-xl border border-border bg-muted/30 p-5">
-        <div className="flex flex-wrap items-center gap-2 justify-center text-xs">
-            {[
-                { label: 'Branch', sub: 'git checkout -b feature/x', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Code', sub: 'edit, commit', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Push', sub: 'git push origin feature/x', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Open PR', sub: 'GitHub UI', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Review', sub: 'approve / request changes', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/20' },
-                { label: '→', sub: '', color: 'text-muted-foreground', bg: '' },
-                { label: 'Merge', sub: 'main gets the code', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20' },
-            ].map((step, i) => (
-                <div key={i} className={step.bg ? `rounded-lg border border-border px-3 py-2 ${step.bg}` : 'px-1'}>
-                    <span className={`font-semibold ${step.color}`}>{step.label}</span>
-                    {step.sub && <p className="text-muted-foreground mt-0.5 font-mono">{step.sub}</p>}
-                </div>
-            ))}
-        </div>
-    </div>
-);
-
-// ── Kanban board ──────────────────────────────────────────────────────────────
-const KanbanBoard = () => {
-    const columns = [
-        { title: 'Backlog', color: 'text-muted-foreground', bg: 'bg-muted/30', cards: ['Add dark mode', 'Export to CSV'] },
-        { title: 'In Progress', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20', cards: ['User auth', 'Dashboard'] },
-        { title: 'In Review', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/20', cards: ['Login bug fix'] },
-        { title: 'Done', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20', cards: ['Scaffolding', 'CI setup'] },
-    ];
-    return (
-        <div className="my-6 grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {columns.map((col) => (
-                <div key={col.title} className={`rounded-xl border border-border ${col.bg} p-3`}>
-                    <p className={`text-xs font-bold mb-2 ${col.color}`}>{col.title}</p>
-                    <div className="space-y-2">
-                        {col.cards.map((card) => (
-                            <div key={card} className="rounded-lg border border-border bg-card px-2.5 py-2">
-                                <p className="text-xs text-foreground">{card}</p>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            ))}
-        </div>
-    );
-};
+import { CodeBlock } from '@/components/ui/code-block';
 
 export default function Week2Lecture2() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
                 week={2}
                 session="Lecture 2"
-                title="GitHub, Agile & Project Management"
-                description="Pull requests, GitHub Projects, issues, and the Agile workflow that connects them. This is how every team in industry tracks work from idea to shipped feature."
-                icon={<GitBranch className="h-4 w-4" />}
+                title="Hash Maps, Complexity & Interview Patterns"
+                description="Hash maps, Big-O analysis, two-pointer and sliding window patterns — the toolkit for turning O(n²) brute-force solutions into O(n) answers."
+                icon={<Binary className="h-4 w-4" />}
             />
 
-            {/* ── 01 FROM GIT TO COLLABORATION ───────────────────────────────── */}
-            <LectureSectionHeading number="01" title="From Git to Collaboration" />
+            {/* ── 01 HASH MAPS ─────────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="Hash Maps — The O(1) Lookup" />
 
             <LectureP>
-                You now know how to branch, commit, and merge locally. In practice, teams don't merge by running <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git merge</code> on each other's branches. They use <LectureTermWithTip tip="A proposal to merge your branch into another (usually main). Includes a description, discussion thread, and optional required approvals before merge.">pull requests</LectureTermWithTip> (PRs): you push your branch to GitHub, open a PR to propose merging it into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, someone reviews your code, and then the merge happens. The PR is the unit of review and the audit trail for every change.
-            </LectureP>
-            <LectureP>
-                Pull requests connect Git (the mechanics) to how work actually gets done: an issue describes what to build, a branch holds the code, and the PR ties them together so that when the PR merges, the issue closes and the board updates. That loop — idea → issue → branch → PR → merge → done — is the Agile workflow in practice.
+                A <LectureTip tip="Key-value store with O(1) average lookup, insert, and delete. Also called hash table, dictionary, or associative array. The single most useful data structure in programming.">hash map</LectureTip> (also called a hash table, dictionary, or associative array) stores key-value pairs and lets you look up any value by its key in <strong className="text-foreground">average O(1) time</strong>. This is the single most useful data structure in programming — it powers caches, database indexes, routers, compilers, and roughly half of all interview solutions.
             </LectureP>
 
-            <LectureCallout type="info">
-                "Pull request" and "merge request" (GitLab) mean the same thing: a request to merge your branch into the target branch, with a discussion thread and optional required approvals. GitHub calls them PRs; GitLab calls them MRs.
-            </LectureCallout>
-
-            {/* ── 02 THE PULL REQUEST WORKFLOW ────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="The Pull Request Workflow" />
-
-            <PRWorkflow />
+            <LectureSubHeading title="How it works" />
 
             <LectureP>
-                After you push your branch, go to your repo on GitHub. You'll often see a yellow banner: "feature/add-login had recent pushes" with a button <strong className="text-foreground">Compare & pull request</strong>. Click it. Add a title and a description: what does this PR do? Why? How can a reviewer test it? Link the issue it addresses with "Closes #42" so GitHub auto-closes the issue when the PR merges.
+                A hash map uses a <LectureTip tip="Converts a key into an array index (bucket number). Deterministic: same key always produces the same index. A good hash function distributes keys uniformly across buckets.">hash function</LectureTip> to convert a key into an array index (called a <LectureTerm>bucket</LectureTerm>). The value is stored at that index. When you look up a key, the hash function computes the same index, and retrieval is instant — no searching required.
+            </LectureP>
+            <LectureP>
+                When two different keys hash to the same bucket, that is a <LectureTip tip="Two different keys hash to the same bucket. Resolved by chaining (linked list per bucket) or open addressing (probe for the next open slot). Why O(1) is average, not guaranteed.">collision</LectureTip>. Hash maps resolve collisions through <em>chaining</em> (each bucket holds a linked list of entries) or <em>open addressing</em> (probe for the next available slot). You do not need to implement collision resolution — Python handles it — but understanding the mechanism explains why O(1) is the <em>average</em> case, not a guarantee. In the worst case (all keys collide), every operation degrades to O(n).
             </LectureP>
 
-            <LectureSubHeading title="What to put in a PR description" />
+            <LectureSubHeading title="Python's dict and set" />
+
             <LectureP>
-                Good PR descriptions save reviewers time and leave a record for the future. Include: a short summary of the change, what problem it solves, how to test it (steps or a checklist), and any screenshots or notes for reviewers. In industry, PR templates (stored in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/PULL_REQUEST_TEMPLATE.md</code>) standardize this so every PR has the same structure.
+                Python's <LectureTip code tip="Python's built-in hash map. O(1) average lookup, insert, delete by key. The most-used data structure in Python — you've been using it since day one.">dict</LectureTip> is a hash map. <LectureTip code tip="Python's hash set — stores unique keys only (no values). O(1) average membership test. Use for deduplication and fast 'have I seen this?' checks.">set</LectureTip> is a hash set (keys only, no values). You have been using hash maps since day one. The <LectureTip code tip="Membership operator. O(1) on dict/set (hash lookup). O(n) on list (linear scan). Always prefer set/dict for membership checks over list.">in</LectureTip> operator on a dict or set is O(1) average — on a list, it is O(n) because every element must be checked.
             </LectureP>
+
+            <CodeBlock language="python"
+                title="hash_map_basics.py — practical dict and set usage"
+                lines={[
+                    '# Frequency counting — how many times does each word appear?',
+                    'words = ["apple", "banana", "apple", "cherry", "banana", "apple"]',
+                    'freq = {}',
+                    'for word in words:',
+                    '    freq[word] = freq.get(word, 0) + 1',
+                    'print(freq)  # {"apple": 3, "banana": 2, "cherry": 1}',
+                    '',
+                    '',
+                    '# Membership check — O(1) with set vs O(n) with list',
+                    'seen = set()',
+                    'for word in words:',
+                    '    if word in seen:',
+                    '        print(f"Duplicate: {word}")',
+                    '    seen.add(word)',
+                    '# Output: Duplicate: apple, Duplicate: banana, Duplicate: apple',
+                    '',
+                    '',
+                    '# Default values with .get(key, default)',
+                    'config = {"host": "localhost", "port": 8080}',
+                    'timeout = config.get("timeout", 30)   # 30 — key missing, returns default',
+                    'host = config.get("host", "0.0.0.0")  # "localhost" — key found, returns value',
+                ]}
+            />
 
             <LectureCallout type="tip">
-                Write "Closes #123" or "Fixes #123" in the PR description. When the PR is merged, GitHub automatically closes that issue and moves it to Done on your project board. No manual dragging required — the board stays in sync with the code.
+                When to reach for a hash map: <strong className="text-foreground">"Have I seen this before?"</strong> — use a set. <strong className="text-foreground">"How many times does X appear?"</strong> — use a dict for frequency counting. <strong className="text-foreground">"What is the complement of X?"</strong> — store values in a dict and look up complements in O(1). These three questions cover a massive portion of hash map interview problems.
             </LectureCallout>
 
-            <LectureSubHeading title="Review and merge" />
-            <LectureP>
-                Reviewers comment on specific lines or the whole PR. They can approve, request changes, or suggest edits. Once the branch is approved (and any required checks pass, e.g. CI), someone merges the PR. GitHub offers merge options: create a merge commit, squash all commits into one, or rebase. Teams usually choose one and stick to it so history is consistent.
-            </LectureP>
-
-            <LectureCallout type="warning">
-                Don't merge your own PR without review unless your team explicitly allows it. The whole point is a second set of eyes — catching bugs, suggesting cleaner approaches, and sharing context. Skipping review is a common source of regressions and technical debt.
-            </LectureCallout>
-
-            {/* ── 03 ISSUES AS THE SOURCE OF WORK ──────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Issues as the Source of Work" />
+            {/* ── 02 BIG-O NOTATION ────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Big-O Notation" />
 
             <LectureP>
-                Every piece of work should start as an <LectureTermWithTip tip="A single unit of work in GitHub: bug report, feature request, or task. Has a title, description, labels, and can be linked to PRs.">issue</LectureTermWithTip>: a bug report, a feature request, or a task. Issues live in the <LectureTermWithTip tip="The ordered list of work that might get done. Items sit here until the team pulls them into the current sprint or cycle.">backlog</LectureTermWithTip> until the team decides to do them. When you're ready to work on something, you assign yourself (or get it assigned), create a branch, and when you open a PR you link it to the issue. That way the issue tracks the work from "to do" to "in progress" to "done."
-            </LectureP>
-            <LectureP>
-                Issues don't have to be huge. "Add a README section for setup" is a valid issue. "Fix typo in login error message" is too. The goal is traceability: every change is tied to a reason, and every reason is visible in the backlog and on the board.
+                <LectureTip tip="Describes how an algorithm's runtime or space grows with input size. Drop constants and lower-order terms: 2n + 5 is O(n). Focused on the growth rate, not the exact time.">Big-O notation</LectureTip> describes how an algorithm's runtime (or space usage) grows as the input size grows. We care about the <strong className="text-foreground">growth rate</strong>, not the exact time — we drop constants and lower-order terms because they become irrelevant at scale. An O(n) algorithm might be slower than O(n²) for n = 5, but for n = 1,000,000 the difference is between one second and eleven days.
             </LectureP>
 
-            <LectureCallout type="tip">
-                Use issue templates (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.github/ISSUE_TEMPLATE/bug_report.md</code>) so reporters fill in the right fields: steps to reproduce, expected vs actual behavior, environment. It keeps issues actionable instead of vague.
-            </LectureCallout>
+            <LectureSubHeading title="The common complexities" />
 
-            {/* ── 04 AGILE IN ONE PAGE ───────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Agile in One Page" />
-
-            <LectureP>
-                <LectureTermWithTip tip="A mindset and set of practices: deliver working software in small increments, get feedback early, and adapt. Emphasizes people and flexibility over rigid plans.">Agile</LectureTermWithTip> means shipping small increments, getting feedback, and adapting. Instead of planning a whole product upfront and building it in one shot (waterfall), teams work in short cycles: pick a chunk of work from the backlog, build it, ship it, learn from it, then repeat. The backlog is the ordered list of everything that might get built; the current cycle (sprint or just "in progress") is what the team is doing now.
-            </LectureP>
-            <LectureP>
-                Two common ways to run this: <LectureTermWithTip tip="A framework with fixed-length iterations (sprints), planning at the start, and a retrospective at the end. Roles include Scrum Master and Product Owner.">Scrum</LectureTermWithTip> (fixed-length sprints, e.g. 2 weeks, with planning and retro at the boundaries) and <LectureTermWithTip tip="A flow-based method. Work moves across columns (e.g. To Do → In Progress → Done). No fixed sprint length; optional WIP limits per column.">Kanban</LectureTermWithTip> (continuous flow with a board and optional WIP limits). Many teams mix both: a board with columns like Backlog → In Progress → In Review → Done, and optional time-boxed sprints for planning and demos.
-            </LectureP>
-
-            <KanbanBoard />
-
-            <LectureCallout type="info">
-                The backlog is never "finished" — it's a living list. New ideas and bugs get added; priorities change. The sprint (or current work) is a commitment: we will finish these items by the end of the cycle. That tension — infinite backlog, finite sprint — is what keeps agile focused.
-            </LectureCallout>
-
-            {/* ── 05 GITHUB PROJECTS ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="GitHub Projects — Your Board in the Repo" />
-
-            <LectureP>
-                <LectureTermWithTip tip="GitHub's built-in project management: boards or tables linked to your repo. Issues become cards; PRs that close issues update the board automatically.">GitHub Projects</LectureTermWithTip> gives you a board (Kanban or table view) tied directly to your repo. Create a project from the repo's Projects tab, add columns like Backlog, In Progress, In Review, Done, and add your issues as cards. When you open a PR that "Closes #5," the issue card can move to Done automatically. No separate Jira or Trello — the board lives next to the code.
-            </LectureP>
-            <LectureP>
-                For this course, you'll create a GitHub Project for your capstone repo, add issues for the work you plan in Weeks 3–5, and ship every deliverable via a PR that closes an issue. By the end you'll have a real workflow: idea → issue → branch → PR → review → merge → done.
-            </LectureP>
-
-            <div className="my-6 space-y-2">
+            <div className="my-6 space-y-1.5">
                 {[
-                    { step: '1', title: 'Create a Project', desc: 'Repo → Projects → New project. Choose Board. Add columns: Backlog, Sprint, In Progress, In Review, Done.' },
-                    { step: '2', title: 'Add issues', desc: 'Create issues for each feature or task. Add them to the project so they show as cards in Backlog.' },
-                    { step: '3', title: 'Move work into the sprint', desc: 'Drag issues from Backlog into Sprint or In Progress when you start them.' },
-                    { step: '4', title: 'Open PRs that close issues', desc: 'In the PR description write "Closes #N". When the PR merges, the issue closes and the card moves to Done.' },
-                ].map((item) => (
-                    <div key={item.step} className="flex gap-4 rounded-xl border border-border bg-card p-4">
-                        <span className="text-xl font-black text-primary/70 shrink-0">{item.step}</span>
+                    { complexity: 'O(1)', name: 'Constant', example: 'Dict lookup, list access by index, stack push/pop' },
+                    { complexity: 'O(log n)', name: 'Logarithmic', example: 'Binary search, balanced BST insert/search' },
+                    { complexity: 'O(n)', name: 'Linear', example: 'Single for-loop, linear search, in-order traversal' },
+                    { complexity: 'O(n log n)', name: 'Linearithmic', example: "Sorting (Python's Timsort, merge sort)" },
+                    { complexity: 'O(n²)', name: 'Quadratic', example: 'Nested loops, brute-force pair checking, bubble sort' },
+                    { complexity: 'O(2ⁿ)', name: 'Exponential', example: 'Naive recursive Fibonacci, generating all subsets' },
+                ].map((row) => (
+                    <div key={row.complexity} className="flex items-start gap-3 rounded-lg border border-border px-4 py-2.5">
+                        <code className="text-xs font-bold text-primary shrink-0 w-20 mt-0.5">{row.complexity}</code>
                         <div>
-                            <p className="text-sm font-semibold text-foreground">{item.title}</p>
-                            <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                            <p className="text-xs font-semibold text-foreground">{row.name}</p>
+                            <p className="text-xs text-muted-foreground">{row.example}</p>
                         </div>
                     </div>
                 ))}
             </div>
 
-            <LectureCallout type="tip">
-                Use labels on issues (e.g. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">bug</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">good first issue</code>) so you can filter the board and reports. Milestones (e.g. "Sprint 1") group issues by time so you can see sprint scope and progress at a glance.
-            </LectureCallout>
+            <CodeBlock language="python"
+                title="complexity_examples.py — same problem, three different Big-Os"
+                lines={[
+                    '# Problem: does the list contain a duplicate?',
+                    '',
+                    '',
+                    '# O(n²) — brute force: compare every pair',
+                    'def has_duplicate_brute(nums):',
+                    '    for i in range(len(nums)):',
+                    '        for j in range(i + 1, len(nums)):',
+                    '            if nums[i] == nums[j]:',
+                    '                return True',
+                    '    return False',
+                    '',
+                    '',
+                    '# O(n log n) — sort first, then check adjacent elements',
+                    'def has_duplicate_sort(nums):',
+                    '    nums_sorted = sorted(nums)',
+                    '    for i in range(1, len(nums_sorted)):',
+                    '        if nums_sorted[i] == nums_sorted[i - 1]:',
+                    '            return True',
+                    '    return False',
+                    '',
+                    '',
+                    '# O(n) — use a hash set',
+                    'def has_duplicate_set(nums):',
+                    '    seen = set()',
+                    '    for num in nums:',
+                    '        if num in seen:',
+                    '            return True',
+                    '        seen.add(num)',
+                    '    return False',
+                    '',
+                    '',
+                    '# All three return the same answer.',
+                    '# For n = 100,000:',
+                    '#   brute  ≈ 5,000,000,000 comparisons',
+                    '#   sort   ≈ 1,700,000 comparisons',
+                    '#   set    ≈ 100,000 lookups',
+                ]}
+            />
 
-            {/* ── 06 WHAT YOU WILL DO IN THE ACTIVITY ─────────────────────────── */}
-            <LectureSectionHeading number="06" title="What You'll Do in the Activity" />
+            <LectureSubHeading title="The n = 10⁵ rule" />
 
             <LectureP>
-                The Week 2 activity is <strong className="text-foreground">Project Kickoff</strong>: choose your project domain, create the repo, set up a GitHub Project board, write issues for the work you'll do in Weeks 3–5, and open your first PR. From here on, every deliverable in the course ships through this board — same as in industry.
+                In interviews and competitive programming, input size constraints tell you which complexity you need before writing a single line of code. If n ≤ 10³, O(n²) will probably work. If n is around 10⁵, you need O(n log n) or better. If n exceeds 10⁶, you almost certainly need O(n). When you see the constraints, this rule immediately narrows down your approach.
             </LectureP>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'Version Control with Git',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-1'),
-                }}
-                next={{
-                    label: 'Project Kickoff',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/activity'),
-                }}
+            <LectureSubHeading title="Space complexity" />
+
+            <LectureP>
+                Space complexity measures memory the same way Big-O measures time. A hash map storing n items is O(n) space. A single variable is O(1). Creating a copy of an array is O(n). Recursive DFS on a balanced tree uses O(log n) stack frames; on a degenerate tree, O(n). When analyzing an algorithm, always state both time and space complexity.
+            </LectureP>
+
+            {/* ── 03 ANALYZING YOUR DATA STRUCTURES ─────────────────────────── */}
+            <LectureSectionHeading number="03" title="Analyzing Your Data Structures" />
+
+            <LectureP>
+                Now that you understand Big-O, apply it to every data structure from Lecture 1 — plus the hash map you just learned. This table is one of the most referenced tools in interview prep. Know these cold.
+            </LectureP>
+
+            <div className="my-6 rounded-xl border border-border overflow-hidden text-xs">
+                <div className="grid grid-cols-5 bg-muted/30 px-4 py-2.5 border-b border-border">
+                    <span className="font-bold text-foreground">Structure</span>
+                    <span className="font-bold text-foreground">Access</span>
+                    <span className="font-bold text-foreground">Search</span>
+                    <span className="font-bold text-foreground">Insert</span>
+                    <span className="font-bold text-foreground">Delete</span>
+                </div>
+                {[
+                    { name: 'Python list', access: 'O(1)', search: 'O(n)', insert: 'O(n)*', delete: 'O(n)' },
+                    { name: 'Stack', access: 'O(n)', search: 'O(n)', insert: 'O(1)', delete: 'O(1)' },
+                    { name: 'Queue', access: 'O(n)', search: 'O(n)', insert: 'O(1)', delete: 'O(1)' },
+                    { name: 'BST (balanced)', access: 'O(log n)', search: 'O(log n)', insert: 'O(log n)', delete: 'O(log n)' },
+                    { name: 'BST (worst)', access: 'O(n)', search: 'O(n)', insert: 'O(n)', delete: 'O(n)' },
+                    { name: 'Hash map (avg)', access: '—', search: 'O(1)', insert: 'O(1)', delete: 'O(1)' },
+                    { name: 'Hash map (worst)', access: '—', search: 'O(n)', insert: 'O(n)', delete: 'O(n)' },
+                ].map((row) => (
+                    <div key={row.name} className="grid grid-cols-5 px-4 py-2 border-b border-border last:border-b-0">
+                        <span className="font-semibold text-foreground">{row.name}</span>
+                        <span className="text-muted-foreground font-mono">{row.access}</span>
+                        <span className="text-muted-foreground font-mono">{row.search}</span>
+                        <span className="text-muted-foreground font-mono">{row.insert}</span>
+                        <span className="text-muted-foreground font-mono">{row.delete}</span>
+                    </div>
+                ))}
+            </div>
+
+            <LectureP>
+                <strong className="text-foreground">*</strong> Python list <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">append()</code> is O(1) amortized, but inserting at an arbitrary index is O(n) because elements must shift. Hash map "access" is marked "—" because hash maps do not support index-based access — you access by key, which is the search operation.
+            </LectureP>
+
+            <LectureCallout type="info">
+                This table explains why interviewers love hash maps: O(1) for the operations you care about most (lookup and insert). It also explains why BSTs matter: they give O(log n) <em>ordered</em> access — something hash maps cannot do (hash maps have no inherent order). Each structure has a sweet spot; the skill is matching the structure to the problem.
+            </LectureCallout>
+
+            {/* ── 04 TWO-POINTER PATTERN ────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Two-Pointer Pattern" />
+
+            <LectureP>
+                The <LectureTip tip="Two indices moving through a data structure in coordinated fashion. Turns O(n²) pair-checking into O(n). Two variants: opposite ends (sorted input) and same direction (in-place manipulation).">two-pointer pattern</LectureTip> uses two indices that move through a data structure in a coordinated way, reducing what would be O(n²) brute-force (checking every pair) to O(n). It appears in dozens of interview problems and has two main variants.
+            </LectureP>
+
+            <LectureSubHeading title="Opposite ends" />
+
+            <LectureP>
+                Start one pointer at the beginning and one at the end. Move them toward each other based on a condition. This works when the input is sorted or when the problem lets you sort it first without losing information.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="two_pointer_opposite.py — find pair that sums to target in sorted array"
+                lines={[
+                    'def pair_sum(sorted_arr, target):',
+                    '    """Return indices of two numbers that sum to target.',
+                    '    Input must be sorted. O(n) time, O(1) space."""',
+                    '    left, right = 0, len(sorted_arr) - 1',
+                    '',
+                    '    while left < right:',
+                    '        total = sorted_arr[left] + sorted_arr[right]',
+                    '        if total == target:',
+                    '            return [left, right]',
+                    '        elif total < target:',
+                    '            left += 1    # need a bigger sum — move left forward',
+                    '        else:',
+                    '            right -= 1   # need a smaller sum — move right backward',
+                    '',
+                    '    return []  # no pair found',
+                    '',
+                    '',
+                    '# Example',
+                    'nums = [1, 3, 5, 7, 11, 15]',
+                    'print(pair_sum(nums, 12))  # [0, 4] — nums[0] + nums[4] = 1 + 11 = 12',
+                    'print(pair_sum(nums, 8))   # [1, 2] — nums[1] + nums[2] = 3 + 5 = 8',
+                ]}
             />
+
+            <LectureSubHeading title="Same direction (slow/fast)" />
+
+            <LectureP>
+                Both pointers start at the beginning. One moves faster or conditionally, while the other trails behind. This variant is used for in-place array manipulation: removing duplicates, partitioning, or detecting cycles in linked lists.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="two_pointer_same.py — remove duplicates from sorted array in-place"
+                lines={[
+                    'def remove_duplicates(sorted_arr):',
+                    '    """Remove duplicates in-place, return new length.',
+                    '    O(n) time, O(1) space."""',
+                    '    if not sorted_arr:',
+                    '        return 0',
+                    '',
+                    '    write = 1  # slow pointer: next position to write a unique value',
+                    '',
+                    '    for read in range(1, len(sorted_arr)):  # fast pointer',
+                    '        if sorted_arr[read] != sorted_arr[read - 1]:',
+                    '            sorted_arr[write] = sorted_arr[read]',
+                    '            write += 1',
+                    '',
+                    '    return write  # number of unique elements',
+                    '',
+                    '',
+                    '# Example',
+                    'arr = [1, 1, 2, 3, 3, 3, 4]',
+                    'length = remove_duplicates(arr)',
+                    'print(arr[:length])  # [1, 2, 3, 4]',
+                ]}
+            />
+
+            <LectureP>
+                Recognize the pattern: <strong className="text-foreground">"given a sorted array, find a pair..."</strong> — opposite-end two pointers. <strong className="text-foreground">"reorganize an array in-place..."</strong> — same-direction two pointers.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                LeetCode practice for two-pointer: Two Sum II (opposite ends, sorted input), Container With Most Water (opposite ends, maximize area), Remove Duplicates from Sorted Array (same direction), and Move Zeroes (same direction).
+            </LectureCallout>
+
+            {/* ── 05 SLIDING WINDOW PATTERN ─────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Sliding Window Pattern" />
+
+            <LectureP>
+                The <LectureTip tip="A contiguous subarray or substring that slides across input. Each element enters and leaves the window exactly once, reducing O(n×k) recalculation to O(n). Fixed-size or variable-size.">sliding window pattern</LectureTip> maintains a "window" — a contiguous subarray or substring — and slides it across the input, updating a running state as elements enter and leave the window. This reduces O(n × k) brute-force recalculation to O(n) because each element is added and removed from the window exactly once.
+            </LectureP>
+
+            <LectureSubHeading title="Fixed-size window" />
+
+            <LectureP>
+                When the window size is fixed (e.g., "subarray of length k"), initialize the window with the first k elements, then slide: add the next element, remove the oldest, update the aggregate.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="sliding_window_fixed.py — maximum sum subarray of size k"
+                lines={[
+                    'def max_sum_subarray(arr, k):',
+                    '    """Find the maximum sum of any contiguous subarray of size k.',
+                    '    O(n) time, O(1) space."""',
+                    '    if len(arr) < k:',
+                    '        return 0',
+                    '',
+                    '    # Initialize: sum of first window',
+                    '    window_sum = sum(arr[:k])',
+                    '    best = window_sum',
+                    '',
+                    '    # Slide the window: add next element, remove oldest',
+                    '    for i in range(k, len(arr)):',
+                    '        window_sum += arr[i] - arr[i - k]',
+                    '        best = max(best, window_sum)',
+                    '',
+                    '    return best',
+                    '',
+                    '',
+                    '# Example',
+                    'arr = [2, 1, 5, 1, 3, 2]',
+                    'print(max_sum_subarray(arr, 3))  # 9 — subarray [5, 1, 3]',
+                ]}
+            />
+
+            <LectureSubHeading title="Variable-size window" />
+
+            <LectureP>
+                When the window size is not fixed, use two pointers: expand the right boundary to include new elements, and shrink the left boundary when a constraint is violated. The window grows and shrinks as needed.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="sliding_window_variable.py — longest substring without repeating characters"
+                lines={[
+                    'def longest_unique_substring(s):',
+                    '    """Find the length of the longest substring with no repeating characters.',
+                    '    O(n) time, O(min(n, alphabet)) space."""',
+                    '    char_set = set()',
+                    '    left = 0',
+                    '    best = 0',
+                    '',
+                    '    for right in range(len(s)):',
+                    '        # Shrink window until the duplicate is removed',
+                    '        while s[right] in char_set:',
+                    '            char_set.remove(s[left])',
+                    '            left += 1',
+                    '',
+                    '        char_set.add(s[right])',
+                    '        best = max(best, right - left + 1)',
+                    '',
+                    '    return best',
+                    '',
+                    '',
+                    '# Example',
+                    'print(longest_unique_substring("abcabcbb"))  # 3 — "abc"',
+                    'print(longest_unique_substring("bbbbb"))     # 1 — "b"',
+                    'print(longest_unique_substring("pwwkew"))     # 3 — "wke"',
+                ]}
+            />
+
+            <LectureP>
+                Recognize the pattern: <strong className="text-foreground">"contiguous subarray of size k"</strong> — fixed sliding window. <strong className="text-foreground">"longest/shortest substring satisfying a condition"</strong> — variable sliding window.
+            </LectureP>
+
+            <LectureCallout type="tip">
+                LeetCode practice for sliding window: Maximum Average Subarray I (fixed), Longest Substring Without Repeating Characters (variable), Minimum Size Subarray Sum (variable), and Minimum Window Substring (variable, hard).
+            </LectureCallout>
+
+            {/* ── 06 HASH MAP PATTERNS ──────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Hash Map Patterns in Interviews" />
+
+            <LectureP>
+                Hash maps appear in interviews more than any other data structure. Three patterns cover the vast majority of hash-map-based problems. Learn to recognize each one and the solution structure becomes automatic.
+            </LectureP>
+
+            <LectureSubHeading title="Pattern 1 — complement lookup (Two Sum)" />
+
+            <LectureP>
+                For each element, compute its complement (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">target - element</code>), check if the complement exists in the map, and if not, store the current element. One pass, O(n) time, O(n) space. This is the single most-asked interview question.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="two_sum.py — the canonical hash map problem"
+                lines={[
+                    'def two_sum(nums, target):',
+                    '    """Return indices of two numbers that add up to target.',
+                    '    O(n) time, O(n) space."""',
+                    '    seen = {}  # value -> index',
+                    '',
+                    '    for i, num in enumerate(nums):',
+                    '        complement = target - num',
+                    '        if complement in seen:',
+                    '            return [seen[complement], i]',
+                    '        seen[num] = i',
+                    '',
+                    '    return []  # no solution',
+                    '',
+                    '',
+                    '# Example',
+                    'print(two_sum([2, 7, 11, 15], 9))   # [0, 1] — 2 + 7 = 9',
+                    'print(two_sum([3, 2, 4], 6))         # [1, 2] — 2 + 4 = 6',
+                ]}
+            />
+
+            <LectureSubHeading title="Pattern 2 — frequency counting" />
+
+            <LectureP>
+                Count occurrences of each element with a dict, then use those counts to answer the question. This pattern solves: "is X an anagram of Y?", "what is the most frequent element?", "which elements appear exactly once?"
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="frequency.py — anagram check via frequency counting"
+                lines={[
+                    'def is_anagram(s, t):',
+                    '    """Check if t is an anagram of s.',
+                    '    O(n) time, O(1) space (bounded by alphabet size)."""',
+                    '    if len(s) != len(t):',
+                    '        return False',
+                    '',
+                    '    freq = {}',
+                    '    for char in s:',
+                    '        freq[char] = freq.get(char, 0) + 1',
+                    '',
+                    '    for char in t:',
+                    '        if char not in freq or freq[char] == 0:',
+                    '            return False',
+                    '        freq[char] -= 1',
+                    '',
+                    '    return True',
+                    '',
+                    '',
+                    '# Examples',
+                    'print(is_anagram("listen", "silent"))  # True',
+                    'print(is_anagram("hello", "world"))    # False',
+                ]}
+            />
+
+            <LectureSubHeading title="Pattern 3 — group by key" />
+
+            <LectureP>
+                Use a dict to bucket items by some derived key. Given a list of words, group all anagrams together by using the sorted characters as the key. Given a list of transactions, group by user ID. The pattern is always: compute a key, append to the list at that key.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="group_anagrams.py — group by sorted characters"
+                lines={[
+                    'from collections import defaultdict',
+                    '',
+                    '',
+                    'def group_anagrams(words):',
+                    '    """Group words that are anagrams of each other.',
+                    '    O(n * k log k) time where k = max word length."""',
+                    '    groups = defaultdict(list)',
+                    '',
+                    '    for word in words:',
+                    '        key = "".join(sorted(word))  # "eat" -> "aet", "tea" -> "aet"',
+                    '        groups[key].append(word)',
+                    '',
+                    '    return list(groups.values())',
+                    '',
+                    '',
+                    '# Example',
+                    'words = ["eat", "tea", "tan", "ate", "nat", "bat"]',
+                    'print(group_anagrams(words))',
+                    '# [["eat", "tea", "ate"], ["tan", "nat"], ["bat"]]',
+                ]}
+            />
+
+            <LectureCallout type="info">
+                These three patterns — complement lookup, frequency counting, and group-by-key — cover an enormous fraction of hash-map interview questions. When you see a problem and think "I need fast lookup," start with one of these three.
+            </LectureCallout>
+
+            {/* ── 07 THE PROBLEM-SOLVING FRAMEWORK ──────────────────────────── */}
+            <LectureSectionHeading number="07" title="The Problem-Solving Framework" />
+
+            <LectureP>
+                Knowing data structures and patterns is necessary but not sufficient. You also need a <strong className="text-foreground">systematic process</strong> for approaching unfamiliar problems. The following six steps work for interview problems, homework assignments, and real engineering tasks. The steps are always the same — only the problem changes.
+            </LectureP>
+
+            <div className="my-6 space-y-2">
+                {[
+                    { step: '1', title: 'Understand', desc: 'Restate the problem in your own words. Clarify inputs, outputs, and constraints. Ask: what are the edge cases? What is guaranteed?' },
+                    { step: '2', title: 'Trace examples', desc: 'Walk through 2-3 concrete examples by hand before writing any code. This reveals patterns and catches misunderstandings early.' },
+                    { step: '3', title: 'Brute force', desc: 'Write the simplest correct solution, even if it is O(n²) or worse. A working solution is better than no solution. Interviewers want to see you can produce correctness first.' },
+                    { step: '4', title: 'Optimize', desc: 'Identify the bottleneck. Can a hash map eliminate a nested loop? Can two pointers replace brute-force pair checking? Can a sliding window avoid recomputation?' },
+                    { step: '5', title: 'Code', desc: 'Translate the optimized approach into clean, readable code. Name variables clearly. Handle edge cases. Do not optimize prematurely — clarity first.' },
+                    { step: '6', title: 'Test', desc: 'Run through edge cases: empty input, single element, all duplicates, negative numbers, maximum size. Trace your code on at least one non-trivial example.' },
+                ].map((row) => (
+                    <div key={row.step} className="flex items-start gap-3 rounded-lg border border-border px-4 py-3">
+                        <span className="text-lg font-black text-primary/20 select-none shrink-0 w-6 text-right">{row.step}</span>
+                        <div>
+                            <p className="text-xs font-bold text-foreground">{row.title}</p>
+                            <p className="text-xs text-muted-foreground leading-relaxed">{row.desc}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <LectureSubHeading title="Worked example: first repeating character" />
+
+            <LectureP>
+                <strong className="text-foreground">Problem:</strong> given a string, return the first character that appears more than once. Return <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code> if all characters are unique. This is one of the Activity challenges — let's walk through the framework.
+            </LectureP>
+
+            <LectureP>
+                <strong className="text-foreground">1. Understand:</strong> Input is a string. Output is a single character (or None). "First repeating" means the first character we encounter <em>for the second time</em>, not the character with the smallest index of its first occurrence.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">2. Trace:</strong> For <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"abcadb"</code> → walk through: a (new), b (new), c (new), a (seen!) → return "a". For <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">"abcdef"</code> → all unique → return None.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">3. Brute force:</strong> For each character, scan the rest of the string to check if it appears again. O(n²).
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">4. Optimize:</strong> The bottleneck is "have I seen this character before?" — that is a hash set lookup. One pass through the string, checking membership in a set at each step. O(n) time, O(1) space (alphabet is bounded).
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="first_repeat.py — applying the framework"
+                lines={[
+                    '# Step 5: Code',
+                    'def first_repeat(s):',
+                    '    """Return the first character that appears more than once.',
+                    '    O(n) time, O(1) space (bounded alphabet)."""',
+                    '    seen = set()',
+                    '    for char in s:',
+                    '        if char in seen:',
+                    '            return char',
+                    '        seen.add(char)',
+                    '    return None',
+                    '',
+                    '',
+                    '# Step 6: Test',
+                    'print(first_repeat("abcadb"))   # "a"',
+                    'print(first_repeat("abcdef"))   # None',
+                    'print(first_repeat(""))          # None  — edge case: empty string',
+                    'print(first_repeat("aabb"))      # "a"  — first duplicate encountered',
+                ]}
+            />
+
+            <LectureCallout type="info">
+                This framework is not just for interviews — it is how experienced engineers approach any unfamiliar problem. The difference between a junior and senior engineer is often not what they know, but that they follow a process instead of guessing. Build the habit now.
+            </LectureCallout>
+
+
         </LectureLayout>
     );
 }

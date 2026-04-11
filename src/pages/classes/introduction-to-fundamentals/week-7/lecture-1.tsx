@@ -1,64 +1,64 @@
-import { useNavigate } from 'react-router-dom';
-import { Binary } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { LectureCallout } from '@/components/ui/lecture-callout';
+import { Server } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
     LectureSectionHeading,
+    LectureSubHeading,
     LectureP,
+    LectureTip,
     LectureTerm,
 } from '@/components/ui/lecture-typography';
-import { CppBlock } from '@/components/ui/cpp-block';
+import { TerminalBlock } from '@/components/ui/terminal-block';
+import { CodeBlock } from '@/components/ui/code-block';
 
-// ── BFS vs DFS diagram ────────────────────────────────────────────────────────
-const BfsDfsDiagram = () => (
-    <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        {[
-            {
-                label: 'BFS — Breadth-First Search',
-                color: 'text-blue-600 dark:text-blue-400',
-                border: 'border-blue-200 dark:border-blue-800',
-                header: 'bg-blue-50 dark:bg-blue-950/30',
-                order: ['1 (root)', '2, 3', '4, 5, 6, 7'],
-                orderLabel: 'Visit order by level',
-                structure: 'Queue (FIFO)',
-                use: 'Shortest path, level-order problems',
-                note: 'Explores all nodes at depth d before any at depth d+1.',
-            },
-            {
-                label: 'DFS — Depth-First Search',
-                color: 'text-orange-600 dark:text-orange-400',
-                border: 'border-orange-200 dark:border-orange-800',
-                header: 'bg-orange-50 dark:bg-orange-950/30',
-                order: ['1 (root)', '2 → 4 → 5', 'back to 3 → 6 → 7'],
-                orderLabel: 'Visit order (pre-order)',
-                structure: 'Stack / call stack (recursion)',
-                use: 'Path existence, cycle detection, topological sort',
-                note: 'Goes as deep as possible down one branch before backtracking.',
-            },
-        ].map((item) => (
-            <div key={item.label} className={`rounded-xl border ${item.border} overflow-hidden`}>
-                <div className={`px-4 py-2.5 ${item.header}`}>
-                    <p className={`text-xs font-bold ${item.color}`}>{item.label}</p>
-                </div>
-                <div className="p-4 space-y-2.5">
-                    <div>
-                        <p className="text-xs text-muted-foreground mb-1">{item.orderLabel}</p>
-                        <div className="space-y-1">
-                            {item.order.map((step, i) => (
-                                <div key={i} className="flex items-center gap-2">
-                                    <span className={`text-xs font-mono font-bold w-4 shrink-0 ${item.color}`}>{i + 1}.</span>
-                                    <code className="text-xs text-foreground">{step}</code>
-                                </div>
-                            ))}
+// ── Request/Response cycle diagram ────────────────────────────────────────────
+const RequestCycleDiagram = () => {
+    const steps = [
+        { label: 'Browser', sub: 'sends HTTP request', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' },
+        { label: 'FastAPI', sub: 'routes & validates', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800' },
+        { label: 'Database', sub: 'reads / writes data', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-800' },
+        { label: 'FastAPI', sub: 'serializes response', color: 'text-orange-600 dark:text-orange-400', bg: 'bg-orange-50 dark:bg-orange-950/30 border-orange-200 dark:border-orange-800' },
+        { label: 'Browser', sub: 'receives JSON', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800' },
+    ];
+    return (
+        <div className="my-8 rounded-xl border border-border bg-muted/30 p-5">
+            <div className="flex items-center gap-2 overflow-x-auto pb-2">
+                {steps.map((step, i) => (
+                    <div key={i} className="flex items-center gap-2 shrink-0">
+                        <div className={`rounded-lg border px-3 py-2.5 text-center min-w-[90px] ${step.bg}`}>
+                            <p className={`text-xs font-bold ${step.color}`}>{step.label}</p>
+                            <p className="text-xs text-muted-foreground mt-0.5">{step.sub}</p>
                         </div>
+                        {i < steps.length - 1 && (
+                            <span className="text-muted-foreground select-none">
+                                {i < 2 ? '→' : '←'}
+                            </span>
+                        )}
                     </div>
-                    <div className="pt-1 border-t border-border space-y-1">
-                        <p className="text-xs"><span className="text-muted-foreground">Data structure: </span><span className="font-semibold text-foreground">{item.structure}</span></p>
-                        <p className="text-xs"><span className="text-muted-foreground">Best for: </span><span className="text-foreground">{item.use}</span></p>
-                        <p className="text-xs text-muted-foreground leading-relaxed">{item.note}</p>
-                    </div>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+// ── HTTP methods table ────────────────────────────────────────────────────────
+const HttpMethodsTable = () => (
+    <div className="my-6 rounded-xl border border-border overflow-hidden">
+        {[
+            { method: 'GET', color: 'text-emerald-600 dark:text-emerald-400', bg: 'bg-emerald-50 dark:bg-emerald-950/20', purpose: 'Read data. Never modifies anything. Safe to call multiple times.', example: 'GET /notes — list all notes' },
+            { method: 'POST', color: 'text-blue-600 dark:text-blue-400', bg: 'bg-blue-50 dark:bg-blue-950/20', purpose: 'Create a new resource. Body contains the data to create.', example: 'POST /notes — create a note' },
+            { method: 'PUT', color: 'text-amber-600 dark:text-amber-400', bg: 'bg-amber-50 dark:bg-amber-950/20', purpose: 'Replace a resource entirely. Body contains the full replacement.', example: 'PUT /notes/1 — replace note 1' },
+            { method: 'PATCH', color: 'text-purple-600 dark:text-purple-400', bg: 'bg-purple-50 dark:bg-purple-950/20', purpose: 'Partially update a resource. Body contains only the changed fields.', example: 'PATCH /notes/1 — update title only' },
+            { method: 'DELETE', color: 'text-rose-600 dark:text-rose-400', bg: 'bg-rose-50 dark:bg-rose-950/20', purpose: 'Remove a resource. Usually no body.', example: 'DELETE /notes/1 — delete note 1' },
+        ].map((row) => (
+            <div key={row.method} className="flex items-start gap-4 px-4 py-3 border-b border-border last:border-b-0">
+                <span className={`text-xs font-black w-14 shrink-0 select-none rounded px-1.5 py-0.5 ${row.color} ${row.bg}`}>
+                    {row.method}
+                </span>
+                <div className="flex-1 min-w-0">
+                    <p className="text-xs text-foreground leading-relaxed">{row.purpose}</p>
+                    <code className="text-xs text-muted-foreground mt-0.5 block">{row.example}</code>
                 </div>
             </div>
         ))}
@@ -66,306 +66,289 @@ const BfsDfsDiagram = () => (
 );
 
 export default function Week7Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
                 week={7}
                 session="Lecture 1"
-                title="Trees, Stacks & Queues"
-                description="Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take."
-                icon={<Binary className="h-4 w-4" />}
+                title="FastAPI & Python Backends"
+                description="Real apps need a server — for auth, shared state, and business logic that cannot run in the browser. FastAPI is the fastest path from zero to a documented, production-ready Python API."
+                icon={<Server className="h-4 w-4 text-gray-700 dark:text-gray-300" />}
             />
 
-            {/* ── 01 THE CALL STACK IS A STACK ────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="The Call Stack Is Literally a Stack" />
+            <LectureCallout type="info">
+                Last week you containerized a Flask stub with a single <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/health</code> endpoint. This week you replace that stub with a real FastAPI backend — full CRUD, Pydantic validation, and auto-generated docs. The Dockerfile structure stays the same; only the framework and the CMD change.
+            </LectureCallout>
+
+            {/* ── 01 HOW THE WEB WORKS ────────────────────────────────────────── */}
+            <LectureSectionHeading number="01" title="How the Web Actually Works" />
 
             <LectureP>
-                Before diving into tree algorithms, there's an insight worth making explicit: your program's own execution uses a stack. Every time you call a function, a <LectureTerm>stack frame</LectureTerm> is pushed — containing the function's local variables, parameters, and the return address. When the function returns, the frame is popped.
-            </LectureP>
-            <LectureP>
-                This is why recursion <em>is</em> DFS. A recursive tree traversal doesn't manage an explicit stack — it uses the call stack. The two are mechanically identical. Understanding this means you can always convert a recursive DFS to an iterative one using an explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">std::stack</code> — and vice versa.
+                Every time your React app fetches data, it's making an <LectureTip tip="A message from client to server: method (GET, POST, etc.), URL, headers, and optional body. Sent over TCP, usually on port 80 (HTTP) or 443 (HTTPS).">HTTP request</LectureTip> to a server. The server receives the request, does some work, and sends back an <LectureTip tip="The server's reply: status code (200, 404, etc.), headers, and body (often JSON). The browser or client uses this to update the UI.">HTTP response</LectureTip>. This request/response cycle is the foundation of everything on the web.
             </LectureP>
 
-            <CppBlock
-                title="recursive DFS vs iterative DFS — same result, different mechanism"
+            <RequestCycleDiagram />
+
+            <LectureP>
+                A <LectureTip tip="Representational State Transfer. An API design style: resources as URLs, CRUD via HTTP methods, stateless requests. Common and well-understood.">REST API</LectureTip> is a server that exposes data through a predictable set of URLs called <LectureTip tip="A URL path + HTTP method that the server handles. e.g. GET /notes returns the list; POST /notes creates one.">endpoints</LectureTip>. Each endpoint responds to specific HTTP methods. The convention maps methods to CRUD operations: Create → POST, Read → GET, Update → PUT/PATCH, Delete → DELETE.
+            </LectureP>
+
+            <HttpMethodsTable />
+
+            <LectureCallout type="info">
+                HTTP responses include a <LectureTip tip="A number that indicates result: 2xx success, 3xx redirect, 4xx client error (e.g. 404), 5xx server error. FastAPI sets these for you.">status code</LectureTip> that tells the client what happened. The ranges: 2xx = success (200 OK, 201 Created, 204 No Content), 3xx = redirect, 4xx = client error (400 Bad Request, 401 Unauthorized, 404 Not Found, 422 Validation Error), 5xx = server error (500 Internal Server Error). FastAPI handles most of these automatically.
+            </LectureCallout>
+
+            {/* ── 02 WHAT IS FASTAPI ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="What is FastAPI?" />
+
+            <LectureP>
+                <LectureTip tip="A Python web framework for APIs. Uses type hints for validation, auto-generates OpenAPI docs, and supports async. Built on Starlette and Pydantic.">FastAPI</LectureTip> is a modern Python web framework for building APIs. It's built on two things: <LectureTip tip="A lightweight ASGI framework. FastAPI wraps it to add validation, docs, and dependency injection.">Starlette</LectureTip> (an async web framework) and <LectureTip tip="A library for data validation using Python type hints. FastAPI uses it for request/response bodies and settings.">Pydantic</LectureTip> (a data validation library). Together they give you automatic request validation, automatic response serialization, automatic API documentation, and excellent performance — all with minimal boilerplate.
+            </LectureP>
+            <LectureP>
+                FastAPI uses Python type hints to do all of this. You annotate your function parameters with types, and FastAPI figures out the rest — where each value comes from (URL, query string, request body), how to validate it, and how to document it.
+            </LectureP>
+
+            <TerminalBlock
+                title="bash — from a new project folder"
                 lines={[
-                    '// Recursive — uses the call stack implicitly',
-                    'void dfsRecursive(TreeNode* node) {',
-                    '    if (!node) return;',
-                    '    cout << node->val << " ";   // pre-order: process before children',
-                    '    dfsRecursive(node->left);',
-                    '    dfsRecursive(node->right);',
-                    '}',
+                    { comment: 'create a project folder and go into it', cmd: 'mkdir myapi && cd myapi' },
+                    { comment: 'create and activate a virtual environment', cmd: 'python3 -m venv .venv && source .venv/bin/activate' },
+                    { comment: 'install FastAPI and uvicorn (the server that runs it)', cmd: 'pip install fastapi uvicorn[standard]' },
+                    { comment: 'save dependencies', cmd: 'pip freeze > requirements.txt' },
+                ]}
+            />
+
+            <LectureSubHeading title="Your first FastAPI app" />
+
+            <CodeBlock
+                language="python"
+                title="main.py — a complete FastAPI application"
+                lines={[
+                    'from fastapi import FastAPI',
+                    'from pydantic import BaseModel',
                     '',
-                    '// Iterative — uses an explicit stack',
-                    'void dfsIterative(TreeNode* root) {',
-                    '    if (!root) return;',
-                    '    stack<TreeNode*> st;',
-                    '    st.push(root);',
-                    '    while (!st.empty()) {',
-                    '        TreeNode* node = st.top(); st.pop();',
-                    '        cout << node->val << " ";',
-                    '        // push right first so left is processed first',
-                    '        if (node->right) st.push(node->right);',
-                    '        if (node->left)  st.push(node->left);',
-                    '    }',
-                    '}',
-                    '// Both produce the same pre-order output: root → left → right',
+                    'app = FastAPI()',
+                    '',
+                    '# A Pydantic model defines the shape of request/response bodies',
+                    'class Note(BaseModel):',
+                    '    title: str',
+                    '    content: str',
+                    '    published: bool = False',
+                    '',
+                    '# In-memory store (replaced by a real DB later)',
+                    'notes = []',
+                    '',
+                    '# Route decorator tells FastAPI which method + path triggers this function',
+                    '@app.get("/notes")',
+                    'def get_notes():',
+                    '    return notes',
+                    '',
+                    '@app.post("/notes", status_code=201)',
+                    'def create_note(note: Note):  # FastAPI sees Note and reads the body',
+                    '    notes.append(note)',
+                    '    return note',
+                ]}
+            />
+
+            <LectureP>
+                Save the code above as <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main.py</code> in your project root (the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">myapi</code> folder). Then, from that folder with your venv activated, run:
+            </LectureP>
+            <TerminalBlock
+                title="bash — project root, venv activated"
+                lines={[
+                    { comment: 'start the development server with auto-reload', cmd: 'uvicorn main:app --reload' },
+                    { comment: 'open the auto-generated interactive docs (macOS); on Windows use start or just visit in browser', cmd: 'open http://localhost:8000/docs' },
                 ]}
             />
 
             <LectureCallout type="tip">
-                When a recursive solution causes a stack overflow (very deep trees or graphs), convert it to iterative with an explicit stack. The logic is the same — you just manage memory yourself instead of letting the runtime do it.
+                Go to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">http://localhost:8000/docs</code> the moment you start your server. FastAPI generates a fully interactive Swagger UI from your code — you can send real requests to your API right from the browser, with no curl or Postman needed. The schema is also available at <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/openapi.json</code> for generating clients or API gateways.
             </LectureCallout>
 
-            {/* ── 02 BFS VS DFS ───────────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="BFS vs. DFS — Choosing the Right One" />
+            {/* ── 03 PYDANTIC MODELS ──────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Pydantic Models" />
 
             <LectureP>
-                BFS and DFS are the two fundamental graph traversal strategies. The choice between them isn't arbitrary — each is optimal for different classes of problems. The key difference is the data structure: BFS uses a <LectureTerm>queue</LectureTerm> (processes nodes level by level), DFS uses a <LectureTerm>stack</LectureTerm> (goes deep before wide).
+                <LectureTerm>Pydantic</LectureTerm> is FastAPI's validation engine. When you define a class that inherits from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">BaseModel</code>, Pydantic automatically validates any data passed to it — coercing types where possible, and raising clear validation errors when data doesn't match.
             </LectureP>
 
-            <BfsDfsDiagram />
-
-            <CppBlock
-                title="BFS — level-order traversal with a queue"
+            <CodeBlock
+                language="python"
+                title="Pydantic models — validation and serialization"
                 lines={[
-                    '#include <queue>',
+                    'from pydantic import BaseModel, Field',
+                    'from datetime import datetime',
                     '',
-                    'void bfs(TreeNode* root) {',
-                    '    if (!root) return;',
-                    '    queue<TreeNode*> q;',
-                    '    q.push(root);',
-                    '    while (!q.empty()) {',
-                    '        int levelSize = q.size();  // snapshot: nodes at this level',
-                    '        for (int i = 0; i < levelSize; i++) {',
-                    '            TreeNode* node = q.front(); q.pop();',
-                    '            cout << node->val << " ";',
-                    '            if (node->left)  q.push(node->left);',
-                    '            if (node->right) q.push(node->right);',
-                    '        }',
-                    '        cout << endl;  // new line between levels',
-                    '    }',
-                    '}',
-                    '// Guarantees shortest path in unweighted graphs',
+                    '# Request model — what the client sends',
+                    'class NoteCreate(BaseModel):',
+                    '    title: str = Field(min_length=1, max_length=100)',
+                    '    content: str = Field(min_length=1)',
+                    '    tags: list[str] = []  # optional, defaults to empty list',
+                    '',
+                    '# Response model — what the server sends back',
+                    'class NoteResponse(BaseModel):',
+                    '    id: int',
+                    '    title: str',
+                    '    content: str',
+                    '    created_at: datetime',
+                    '',
+                    '# Using response_model ensures the response is filtered and validated',
+                    '@app.post("/notes", response_model=NoteResponse, status_code=201)',
+                    'def create_note(note: NoteCreate):',
+                    '    ...',
                 ]}
             />
 
-            {/* ── 03 GRAPHS ───────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Graphs — The General Case" />
-
             <LectureP>
-                A <LectureTerm>tree</LectureTerm> is a special case of a <LectureTerm>graph</LectureTerm>: a connected, acyclic graph with n nodes and n-1 edges. Real-world problems often involve general graphs: social networks, road maps, dependency systems. The same BFS and DFS algorithms apply — with one critical addition: a <LectureTerm>visited</LectureTerm> set to prevent infinite loops on cycles.
+                Separating <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">NoteCreate</code> (what comes in) from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">NoteResponse</code> (what goes out) is a critical pattern. The create model has no <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">id</code> or <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">created_at</code> — those are assigned by the server. The response model ensures you never accidentally leak sensitive fields (like a password hash) back to the client.
             </LectureP>
 
+            {/* ── 04 PATH AND QUERY PARAMS ────────────────────────────────────── */}
+            <LectureSectionHeading number="04" title="Path Parameters & Query Strings" />
+
             <LectureP>
-                Graphs are typically represented as an <LectureTerm>adjacency list</LectureTerm> — a map from each node to its neighbors. For a graph with n nodes and e edges, this uses O(n + e) space, far better than the O(n²) adjacency matrix for sparse graphs.
+                FastAPI reads parameters from three places: the URL path, the query string, and the request body. Declaring them in your function signature is all you need — FastAPI handles the rest.
             </LectureP>
 
-            <CppBlock
-                title="graph BFS — shortest path in an unweighted graph"
+            <CodeBlock
+                language="python"
+                title="path params, query params, body — all at once"
                 lines={[
-                    '#include <queue>',
-                    '#include <unordered_map>',
-                    '#include <unordered_set>',
+                    '# Path param — curly brace in the route, matching param name in function',
+                    '@app.get("/notes/{note_id}")',
+                    'def get_note(note_id: int):  # FastAPI extracts from URL and converts to int',
+                    '    return notes[note_id]',
                     '',
-                    '// Adjacency list: node → list of neighbors',
-                    'using Graph = unordered_map<int, vector<int>>;',
+                    '# Query param — any param not in the path and not a Pydantic model',
+                    '@app.get("/notes")',
+                    'def get_notes(skip: int = 0, limit: int = 10, search: str | None = None):',
+                    '    # GET /notes?skip=20&limit=5&search=python',
+                    '    return notes[skip : skip + limit]',
                     '',
-                    '// Returns shortest distance from start to target (-1 if unreachable)',
-                    'int bfsShortestPath(Graph& g, int start, int target) {',
-                    '    unordered_set<int> visited;',
-                    '    queue<pair<int, int>> q;  // {node, distance}',
-                    '    q.push({start, 0});',
-                    '    visited.insert(start);',
-                    '    while (!q.empty()) {',
-                    '        auto [node, dist] = q.front(); q.pop();',
-                    '        if (node == target) return dist;',
-                    '        for (int neighbor : g[node]) {',
-                    '            if (!visited.count(neighbor)) {',
-                    '                visited.insert(neighbor);',
-                    '                q.push({neighbor, dist + 1});',
-                    '            }',
-                    '        }',
-                    '    }',
-                    '    return -1;  // target unreachable',
-                    '}',
+                    '# Path param + body — update a specific resource',
+                    '@app.patch("/notes/{note_id}")',
+                    'def update_note(note_id: int, updates: NoteCreate):',
+                    '    # note_id from path, updates from request body',
+                    '    return {...}',
                 ]}
             />
 
-            <CppBlock
-                title="graph DFS — find if path exists between two nodes"
+            {/* ── 05 ERROR HANDLING ───────────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Error Handling" />
+
+            <LectureP>
+                When something goes wrong — a note isn't found, a user isn't authorized — you raise an <LectureTip tip="FastAPI's way to return an error response. You set status_code and detail; FastAPI serializes it to JSON and sends the right status.">HTTPException</LectureTip>. FastAPI catches it and returns a properly formatted JSON error response with the correct status code.
+            </LectureP>
+
+            <CodeBlock
+                language="python"
+                title="HTTPException — the standard way to return errors"
                 lines={[
-                    'bool dfsHasPath(Graph& g, int curr, int target, unordered_set<int>& visited) {',
-                    '    if (curr == target) return true;',
-                    '    visited.insert(curr);',
-                    '    for (int neighbor : g[curr]) {',
-                    '        if (!visited.count(neighbor)) {',
-                    '            if (dfsHasPath(g, neighbor, target, visited)) return true;',
-                    '        }',
-                    '    }',
-                    '    return false;',
-                    '}',
+                    'from fastapi import FastAPI, HTTPException',
                     '',
-                    '// Entry point',
-                    'bool hasPath(Graph& g, int start, int target) {',
-                    '    unordered_set<int> visited;',
-                    '    return dfsHasPath(g, start, target, visited);',
-                    '}',
+                    '@app.get("/notes/{note_id}")',
+                    'def get_note(note_id: int):',
+                    '    if note_id >= len(notes):',
+                    '        raise HTTPException(',
+                    '            status_code=404,',
+                    '            detail="Note not found"',
+                    '        )',
+                    '    return notes[note_id]',
+                    '',
+                    '# FastAPI returns: {"detail": "Note not found"} with status 404',
                 ]}
             />
 
-            {/* ── 04 CONNECTED COMPONENTS ─────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Connected Components" />
+            {/* ── 06 CORS ─────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="CORS — Letting Your Frontend Talk to Your Backend" />
 
             <LectureP>
-                A <LectureTerm>connected component</LectureTerm> is a subgraph where every node is reachable from every other node, but no node is connected to any node outside the component. Counting components is a classic interview problem — the pattern is: iterate over all nodes, and for any unvisited node, run DFS/BFS to mark everything reachable from it as one component.
+                When your React app (running on <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:5173</code>) tries to fetch from your FastAPI server (<code className="text-xs bg-muted px-1.5 py-0.5 rounded border">localhost:8000</code>), the browser blocks it. This is the <LectureTip tip="Browser rule: a page can only freely request to the same origin (scheme + host + port). Different port or domain is 'cross-origin' and restricted.">Same-Origin Policy</LectureTip> — a security feature that prevents one website from making requests to a different domain without permission.
+            </LectureP>
+            <LectureP>
+                You grant permission with <LectureTip tip="Cross-Origin Resource Sharing. HTTP headers that tell the browser which origins may call your API. The server sends Allow-Origin and related headers.">CORS</LectureTip> (Cross-Origin Resource Sharing) headers. FastAPI includes middleware to handle this:
             </LectureP>
 
-            <CppBlock
-                title="count connected components — O(n + e)"
+            <CodeBlock
+                language="python"
+                title="main.py — adding CORS middleware"
                 lines={[
-                    'int countComponents(int n, Graph& g) {',
-                    '    unordered_set<int> visited;',
-                    '    int components = 0;',
-                    '    for (int node = 0; node < n; node++) {',
-                    '        if (!visited.count(node)) {',
-                    '            // Found an unvisited node — new component',
-                    '            dfsHasPath(g, node, -1, visited);  // -1 = no target, just flood fill',
-                    '            components++;',
-                    '        }',
-                    '    }',
-                    '    return components;',
-                    '}',
-                    '// Same pattern works for: islands in a grid, union-find problems',
+                    'from fastapi.middleware.cors import CORSMiddleware',
+                    '',
+                    'app.add_middleware(',
+                    '    CORSMiddleware,',
+                    '    allow_origins=["http://localhost:5173"],  # your React dev server',
+                    '    allow_credentials=True,',
+                    '    allow_methods=["*"],',
+                    '    allow_headers=["*"],',
+                    ')',
+                    '',
+                    '# In production: replace localhost with your deployed frontend URL',
+                    '# allow_origins=["https://myapp.vercel.app"]',
                 ]}
             />
 
-            {/* ── 05 CYCLE DETECTION ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Cycle Detection" />
+            <LectureCallout type="warning">
+                Never use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">allow_origins=["*"]</code> in production — this allows any website on the internet to make requests to your API. Always list the specific origins you trust.
+            </LectureCallout>
+
+            {/* ── 07 ASYNC ────────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="Async Endpoints" />
 
             <LectureP>
-                Detecting cycles in a graph is essential for dependency resolution (does this package import itself?), deadlock detection, and validating DAGs. The approach differs for directed vs. undirected graphs.
+                FastAPI supports Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">async/await</code> natively. When your endpoint does I/O — hitting a database, calling another API — making it async lets FastAPI handle other requests while it waits instead of blocking the entire server.
             </LectureP>
 
-            <CppBlock
-                title="cycle detection in a directed graph — DFS with state tracking"
+            <CodeBlock
+                language="python"
+                title="sync vs async endpoints"
                 lines={[
-                    '// Three states per node:',
-                    '// 0 = unvisited, 1 = currently in stack (gray), 2 = fully processed (black)',
-                    'bool dfsCycleCheck(int node, Graph& g, vector<int>& state) {',
-                    '    state[node] = 1;  // mark as in-progress',
-                    '    for (int neighbor : g[node]) {',
-                    '        if (state[neighbor] == 1) return true;  // back edge = cycle',
-                    '        if (state[neighbor] == 0) {',
-                    '            if (dfsCycleCheck(neighbor, g, state)) return true;',
-                    '        }',
-                    '    }',
-                    '    state[node] = 2;  // mark as done',
-                    '    return false;',
-                    '}',
+                    '# Sync — fine for CPU-bound work or when using a sync DB driver',
+                    '@app.get("/notes")',
+                    'def get_notes():',
+                    '    return notes',
                     '',
-                    'bool hasCycle(int n, Graph& g) {',
-                    '    vector<int> state(n, 0);',
-                    '    for (int i = 0; i < n; i++)',
-                    '        if (state[i] == 0 && dfsCycleCheck(i, g, state)) return true;',
-                    '    return false;',
-                    '}',
-                ]}
-            />
-
-            {/* ── 06 TOPOLOGICAL SORT ─────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Topological Sort" />
-
-            <LectureP>
-                <LectureTerm>Topological sort</LectureTerm> orders the nodes of a <LectureTerm>DAG</LectureTerm> (Directed Acyclic Graph) so that every edge points from earlier to later in the ordering. It's the algorithm behind course prerequisites, build systems, and package dependency resolution: "you must install A before B, and B before C."
-            </LectureP>
-            <LectureP>
-                The most common implementation uses <LectureTerm>Kahn's algorithm</LectureTerm> (BFS-based): repeatedly remove nodes with no incoming edges, adding them to the result. If you can remove all nodes, the graph is acyclic and you have a valid ordering. If nodes remain, there's a cycle.
-            </LectureP>
-
-            <CppBlock
-                title="topological sort — Kahn's algorithm (BFS)"
-                lines={[
-                    '#include <queue>',
-                    '',
-                    'vector<int> topoSort(int n, Graph& g) {',
-                    '    // Count incoming edges for each node',
-                    '    vector<int> inDegree(n, 0);',
-                    '    for (auto& [node, neighbors] : g)',
-                    '        for (int nb : neighbors) inDegree[nb]++;',
-                    '',
-                    '    // Start with all nodes that have no prerequisites',
-                    '    queue<int> q;',
-                    '    for (int i = 0; i < n; i++)',
-                    '        if (inDegree[i] == 0) q.push(i);',
-                    '',
-                    '    vector<int> order;',
-                    '    while (!q.empty()) {',
-                    '        int node = q.front(); q.pop();',
-                    '        order.push_back(node);',
-                    '        for (int nb : g[node]) {',
-                    '            if (--inDegree[nb] == 0) q.push(nb);  // neighbor ready',
-                    '        }',
-                    '    }',
-                    '    // If order.size() != n, there was a cycle',
-                    '    return order.size() == n ? order : vector<int>{};',
-                    '}',
+                    '# Async — required when awaiting DB calls, HTTP requests, etc.',
+                    '@app.get("/notes")',
+                    'async def get_notes():',
+                    '    results = await db.fetch_all(query)',
+                    '    return results',
                 ]}
             />
 
             <LectureCallout type="info">
-                Topological sort only works on DAGs. The cycle detection and topological sort algorithms are closely related — if Kahn's algorithm can't process all nodes, the remaining nodes form a cycle. Course Schedule II on LeetCode is the canonical problem.
+                FastAPI runs sync endpoints in a thread pool so they don't block the event loop, but <strong className="text-foreground">async</strong> endpoints are more efficient under load: while one request is waiting on the database or another API, the server can handle other requests. Use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">async def</code> when your endpoint does I/O.
             </LectureCallout>
 
-            {/* ── 07 MONOTONIC STACK ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Monotonic Stack" />
+            <LectureCallout type="warning">
+                Avoid long-running sync work (e.g. a slow database call with a sync driver) in sync endpoints — it blocks the server from handling other requests. For database access, prefer an async driver and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">async def</code> so the event loop can stay responsive.
+            </LectureCallout>
+
+            {/* ── 08 TESTING WITH CURL ────────────────────────────────────────── */}
+            <LectureSectionHeading number="08" title="Testing Your API" />
 
             <LectureP>
-                A <LectureTerm>monotonic stack</LectureTerm> is a stack that maintains elements in sorted order (either always increasing or always decreasing). It's the key insight behind a family of problems that ask "what's the next greater/smaller element?" — problems that look O(n²) at first but become O(n) with this pattern.
+                You'll test your API in two ways: the interactive docs at <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code>, and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">curl</code> from the terminal. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">curl</code> is the universal HTTP client — available everywhere, no installation needed, scriptable.
             </LectureP>
 
-            <CppBlock
-                title="next greater element — O(n) with monotonic stack"
+            <TerminalBlock
                 lines={[
-                    '// For each element, find the next element to its right that is greater.',
-                    '// Result[i] = next greater element for nums[i], or -1 if none.',
-                    'vector<int> nextGreaterElement(vector<int>& nums) {',
-                    '    int n = nums.size();',
-                    '    vector<int> result(n, -1);',
-                    '    stack<int> st;  // stores indices, maintains decreasing order of values',
-                    '',
-                    '    for (int i = 0; i < n; i++) {',
-                    '        // Pop all elements smaller than nums[i]',
-                    '        // nums[i] is their "next greater element"',
-                    '        while (!st.empty() && nums[st.top()] < nums[i]) {',
-                    '            result[st.top()] = nums[i];',
-                    '            st.pop();',
-                    '        }',
-                    '        st.push(i);',
-                    '    }',
-                    '    return result;  // remaining indices in stack have no next greater',
-                    '}',
-                    '// [2,1,2,4,3] → [4,2,4,-1,-1]',
+                    { comment: 'GET request — list all notes', cmd: 'curl http://localhost:8000/notes' },
+                    { comment: 'POST request — create a note (send JSON body)', cmd: 'curl -X POST http://localhost:8000/notes \\' },
+                    { cmd: '  -H "Content-Type: application/json" \\' },
+                    { cmd: '  -d \'{"title": "My first note", "content": "Hello FastAPI"}\'' },
+                    { comment: 'GET request with query params', cmd: 'curl "http://localhost:8000/notes?skip=0&limit=5"' },
+                    { comment: 'DELETE request', cmd: 'curl -X DELETE http://localhost:8000/notes/1' },
+                    { comment: 'pretty-print JSON response', cmd: 'curl http://localhost:8000/notes | python3 -m json.tool' },
                 ]}
             />
 
             <LectureCallout type="tip">
-                The monotonic stack pattern solves: Next Greater Element, Daily Temperatures, Largest Rectangle in Histogram, and Trapping Rain Water. Recognize the pattern: "for each element, find the nearest element satisfying some comparison." That's a monotonic stack.
+                For more complex API testing, install <strong className="text-foreground">Bruno</strong> (free, open-source, stores requests as files in your repo) or use the built-in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">/docs</code> page. Both are better than Postman for most use cases and don't require an account.
             </LectureCallout>
 
-            <LectureFooterNav
-                prev={{
-                    label: 'CLI Phonebook — Part 1',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-6/activity'),
-                }}
-                next={{
-                    label: 'Hash Maps, Complexity & Interview Patterns',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-7/lecture-2'),
-                }}
-            />
+            
         </LectureLayout>
     );
 }

@@ -1,507 +1,492 @@
-import { useNavigate } from 'react-router-dom';
-import { GitBranch, ChevronRight } from 'lucide-react';
-import { LectureLayout } from '@/components/ui/lecture-layout';
-import { LectureHeader } from '@/components/ui/lecture-header';
-import { LectureFooterNav } from '@/components/ui/lecture-footer-nav';
-import { TerminalBlock } from '@/components/ui/terminal-block';
-import { LectureCallout } from '@/components/ui/lecture-callout';
-import { LectureCmd } from '@/components/ui/lecture-cmd';
+import { Binary } from 'lucide-react';
 import {
+    LectureLayout,
+    LectureHeader,
+    LectureCallout,
+    LectureTip,
     LectureSectionHeading,
     LectureSubHeading,
     LectureP,
     LectureTerm,
-    LectureTermWithTip,
 } from '@/components/ui/lecture-typography';
+import { CodeBlock } from '@/components/ui/code-block';
 
-// ── Three-areas diagram (unique to this lecture) ──────────────────────────────
-const ThreeAreasDiagram = () => (
-    <div className="my-8 rounded-xl border border-border bg-muted/30 overflow-hidden">
-        <div className="grid grid-cols-3 divide-x divide-border">
-            {[
-                {
-                    label: 'Working Directory',
-                    sublabel: 'Your files on disk',
-                    desc: 'Where you actually edit code. Changes here are untracked until you stage them.',
-                    color: 'text-orange-600 dark:text-orange-400',
-                    bg: 'bg-orange-50 dark:bg-orange-950/20',
-                },
-                {
-                    label: 'Staging Area',
-                    sublabel: 'The "draft"',
-                    desc: "Files you've marked with git add. This is what your next commit will contain.",
-                    color: 'text-blue-600 dark:text-blue-400',
-                    bg: 'bg-blue-50 dark:bg-blue-950/20',
-                },
-                {
-                    label: 'Repository',
-                    sublabel: 'Permanent history',
-                    desc: "Every commit you've ever made, stored permanently in the .git folder.",
-                    color: 'text-emerald-600 dark:text-emerald-400',
-                    bg: 'bg-emerald-50 dark:bg-emerald-950/20',
-                },
-            ].map((area) => (
-                <div key={area.label} className={`p-4 ${area.bg}`}>
-                    <p className={`text-xs font-bold uppercase tracking-wider ${area.color}`}>{area.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 mb-2">{area.sublabel}</p>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{area.desc}</p>
-                </div>
-            ))}
-        </div>
-        <div className="px-4 py-3 border-t border-border flex items-center justify-center gap-4 text-xs text-muted-foreground">
-            <span><code className="bg-muted px-1 rounded">git add</code> → moves to staging</span>
-            <ChevronRight className="h-3 w-3" />
-            <span><code className="bg-muted px-1 rounded">git commit</code> → moves to repository</span>
-        </div>
-    </div>
-);
-
-// ── Conflict markers block (unique to this lecture) ───────────────────────────
-const ConflictMarkersBlock = () => (
-    <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-        <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-            index.html — conflict markers
-        </div>
-        <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-            <p className="text-zinc-500">{'<<<<<<< HEAD'}</p>
-            <p className="text-blue-300">{'<h1>Welcome to my app</h1>'}</p>
-            <p className="text-zinc-500">{'======='}</p>
-            <p className="text-emerald-300">{'<h1>Hello from feature branch</h1>'}</p>
-            <p className="text-zinc-500">{'>>>>>>> feature/add-homepage'}</p>
-        </div>
-    </div>
-);
-
-// ── Quick reference table (unique to this lecture) ────────────────────────────
-const QuickReference = () => (
-    <div className="my-6 rounded-xl border border-border overflow-hidden">
+// ── BFS vs DFS comparison diagram ────────────────────────────────────────────
+const BfsDfsDiagram = () => (
+    <div className="my-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {[
             {
-                category: 'Setup',
-                items: [
-                    { cmd: 'git init', desc: 'Initialize a new repository' },
-                    { cmd: 'git config --global user.name "Name"', desc: 'Set your name for all commits' },
-                    { cmd: 'git clone <url>', desc: 'Download a repository from GitHub' },
-                ],
+                label: 'BFS — Breadth-First Search',
+                color: 'text-blue-600 dark:text-blue-400',
+                border: 'border-blue-200 dark:border-blue-800',
+                header: 'bg-blue-50 dark:bg-blue-950/30',
+                order: ['Visit root (level 0)', 'Visit all children (level 1)', 'Visit all grandchildren (level 2)'],
+                orderLabel: 'Visit order by level',
+                structure: 'Queue (FIFO)',
+                use: 'Shortest path, level-order traversal, "nearest" problems',
+                note: 'Explores all nodes at depth d before any node at depth d+1.',
             },
             {
-                category: 'Daily Work',
-                items: [
-                    { cmd: 'git status', desc: 'See what has changed' },
-                    { cmd: 'git add .', desc: 'Stage all changes' },
-                    { cmd: 'git commit -m "message"', desc: 'Save a snapshot with a message' },
-                    { cmd: 'git pull', desc: 'Download remote changes' },
-                    { cmd: 'git push', desc: 'Upload your commits' },
-                ],
+                label: 'DFS — Depth-First Search',
+                color: 'text-orange-600 dark:text-orange-400',
+                border: 'border-orange-200 dark:border-orange-800',
+                header: 'bg-orange-50 dark:bg-orange-950/30',
+                order: ['Visit root', 'Go all the way down the left branch', 'Backtrack and explore the right branch'],
+                orderLabel: 'Visit order (pre-order)',
+                structure: 'Stack / call stack (recursion)',
+                use: 'Path existence, backtracking, tree serialization',
+                note: 'Goes as deep as possible down one branch before backtracking.',
             },
-            {
-                category: 'Branching',
-                items: [
-                    { cmd: 'git branch', desc: 'List all branches' },
-                    { cmd: 'git checkout -b <name>', desc: 'Create and switch to a new branch' },
-                    { cmd: 'git merge <branch>', desc: 'Merge a branch into the current one' },
-                    { cmd: 'git branch -d <name>', desc: 'Delete a merged branch' },
-                ],
-            },
-            {
-                category: 'History & Recovery',
-                items: [
-                    { cmd: 'git log --oneline', desc: 'View compact commit history' },
-                    { cmd: 'git revert <hash>', desc: 'Safely undo a commit' },
-                    { cmd: 'git reflog', desc: 'View every action (emergency recovery)' },
-                    { cmd: 'git restore --staged <file>', desc: 'Unstage a file' },
-                ],
-            },
-        ].map((group) => (
-            <div key={group.category}>
-                <div className="px-4 py-2 bg-muted/50 border-b border-border">
-                    <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                        {group.category}
-                    </p>
+        ].map((item) => (
+            <div key={item.label} className={`rounded-xl border ${item.border} overflow-hidden`}>
+                <div className={`px-4 py-2.5 ${item.header}`}>
+                    <p className={`text-xs font-bold ${item.color}`}>{item.label}</p>
                 </div>
-                {group.items.map((item, i) => (
-                    <div
-                        key={i}
-                        className="flex items-center justify-between px-4 py-3 border-b border-border last:border-b-0 hover:bg-muted/30 transition-colors"
-                    >
-                        <code
-                            className="text-xs font-mono text-foreground select-none"
-                            style={{ userSelect: 'none', WebkitUserSelect: 'none' }}
-                        >
-                            {item.cmd}
-                        </code>
-                        <span className="text-xs text-muted-foreground ml-4 text-right">{item.desc}</span>
+                <div className="p-4 space-y-2.5">
+                    <div>
+                        <p className="text-xs text-muted-foreground mb-1">{item.orderLabel}</p>
+                        <div className="space-y-1">
+                            {item.order.map((step, i) => (
+                                <div key={i} className="flex items-center gap-2">
+                                    <span className={`text-xs font-mono font-bold w-4 shrink-0 ${item.color}`}>{i + 1}.</span>
+                                    <code className="text-xs text-foreground">{step}</code>
+                                </div>
+                            ))}
+                        </div>
                     </div>
-                ))}
+                    <div className="pt-1 border-t border-border space-y-1">
+                        <p className="text-xs"><span className="text-muted-foreground">Data structure: </span><span className="font-semibold text-foreground">{item.structure}</span></p>
+                        <p className="text-xs"><span className="text-muted-foreground">Best for: </span><span className="text-foreground">{item.use}</span></p>
+                        <p className="text-xs text-muted-foreground leading-relaxed">{item.note}</p>
+                    </div>
+                </div>
             </div>
         ))}
     </div>
 );
 
 export default function Week2Lecture1() {
-    const navigate = useNavigate();
-
     return (
         <LectureLayout>
             <LectureHeader
                 week={2}
                 session="Lecture 1"
-                title="Version Control with Git"
-                description="Git is the foundation of every professional software team. Learn not just the commands, but why it works the way it does — commits, branches, merges, and how to recover from mistakes."
-                icon={<GitBranch className="h-4 w-4" />}
+                title="Trees, Stacks & Queues"
+                description="Binary trees, BSTs, in-order traversal, stacks, and queues — the non-linear structures that show up in databases, compilers, and every technical interview you will ever take."
+                icon={<Binary className="h-4 w-4" />}
             />
 
-            {/* ── 01 THE PROBLEM GIT SOLVES ───────────────────────────────────── */}
-            <LectureSectionHeading number="01" title="The Problem Git Solves" />
+            {/* ── 01 WHAT IS A DATA STRUCTURE? ──────────────────────────────── */}
+            <LectureSectionHeading number="01" title="What Is a Data Structure?" />
 
             <LectureP>
-                Imagine you're writing code for a week and it's finally working. You decide to add a new feature — and three hours later, everything is broken and you can't remember what you changed. Or you're working with a teammate and you both edit the same file. Who wins? How do you combine your changes without losing either person's work?
+                You have already used data structures — Python's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">list</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">dict</code> are data structures. A <LectureTip tip="A way of organizing data so that specific operations — insert, search, delete — are efficient. The right choice depends on which operations your problem needs to be fast.">data structure</LectureTip> is a way of organizing data so that specific operations — insert, search, delete, sort — are efficient. Different structures optimize for different operations, and choosing the right one is often the difference between a solution that works and one that's fast.
             </LectureP>
             <LectureP>
-                These are not edge cases. They happen every single day on every software team in the world. Before version control existed, developers dealt with this by keeping folders named things like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">project-final</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">project-final-v2</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">project-FINAL-USE-THIS-ONE</code>. That's not a joke — it was a real practice.
-            </LectureP>
-            <LectureP>
-                <LectureTerm>Git</LectureTerm> solves this by tracking every single change you make to your code, who made it, when, and why. It lets you travel back in time to any point in your project's history, work on multiple versions simultaneously without interfering with each other, and merge work from multiple people intelligently. It was created by Linus Torvalds in 2005 — the same person who created Linux — to manage the Linux kernel, which thousands of developers contribute to simultaneously.
+                Data structures fall into two families. <LectureTerm>Linear</LectureTerm> structures arrange elements in a sequence: arrays, linked lists, stacks, and queues. <LectureTerm>Non-linear</LectureTerm> structures arrange elements in hierarchies or networks: trees and graphs. This lecture covers the core structures from both families that appear in virtually every technical interview and production codebase.
             </LectureP>
 
             <LectureCallout type="info">
-                <LectureTerm>Git</LectureTerm> is the tool. <LectureTerm>GitHub</LectureTerm> is a website that hosts Git repositories in the cloud so teams can collaborate. You can use Git entirely without GitHub — it works locally on your machine. GitHub is just a popular place to store and share repositories.
+                The theme of this week: the right data structure turns an O(n²) solution into an O(n) one. Every section below introduces a structure, explains <em>what</em> it's good at, and shows <em>when</em> to reach for it. Lecture 2 formalizes this with Big-O notation.
             </LectureCallout>
 
-            {/* ── 02 THE THREE AREAS ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="02" title="The Three Areas" />
+            {/* ── 02 STACKS ────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="02" title="Stacks — Last In, First Out" />
 
             <LectureP>
-                This is the mental model that makes Git click. Most people learn Git by memorizing commands without understanding why they exist — which leads to confusion and mistakes for months. Everything in Git flows through three distinct areas, and once you understand them, every command will make sense.
+                A <LectureTip tip="LIFO — Last In, First Out. Like a stack of plates. push, pop, peek, is_empty — all O(1). Used for undo systems, expression parsing, DFS, and call stacks.">stack</LectureTip> works like a stack of plates: you can only add to the top and remove from the top. The last item you put on is the first item you take off — <LectureTip tip="Last In, First Out. The most recently added item is the first one removed. Think: stack of plates, browser back button, Ctrl+Z undo.">LIFO</LectureTip> (Last In, First Out). There are four operations, and all of them are O(1):
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">push</strong> adds an element to the top. <strong className="text-foreground">pop</strong> removes and returns the top element. <strong className="text-foreground">peek</strong> returns the top element without removing it. <strong className="text-foreground">is_empty</strong> checks whether the stack has any elements.
             </LectureP>
 
-            <ThreeAreasDiagram />
+            <CodeBlock language="python"
+                title="stack.py — stack implementation using a Python list"
+                lines={[
+                    'class Stack:',
+                    '    def __init__(self):',
+                    '        self._items = []',
+                    '',
+                    '    def push(self, val):',
+                    '        self._items.append(val)',
+                    '',
+                    '    def pop(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("pop from empty stack")',
+                    '        return self._items.pop()',
+                    '',
+                    '    def peek(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("peek at empty stack")',
+                    '        return self._items[-1]',
+                    '',
+                    '    def is_empty(self):',
+                    '        return len(self._items) == 0',
+                    '',
+                    '    def __len__(self):',
+                    '        return len(self._items)',
+                    '',
+                    '',
+                    '# Usage',
+                    's = Stack()',
+                    's.push(10)',
+                    's.push(20)',
+                    's.push(30)',
+                    'print(s.peek())   # 30 — top of stack',
+                    'print(s.pop())    # 30 — removed from top',
+                    'print(s.peek())   # 20 — new top',
+                ]}
+            />
+
+            <LectureSubHeading title="The call stack" />
 
             <LectureP>
-                Your <LectureTerm>working directory</LectureTerm> is just your file system — the actual files on your computer that you open and edit. When you change a file, Git notices, but it doesn't do anything yet. That change is <LectureTerm>untracked</LectureTerm>.
-            </LectureP>
-            <LectureP>
-                The <LectureTermWithTip tip="Also called the index. A holding area for changes you've marked with git add — they become part of the next commit when you run git commit.">staging area</LectureTermWithTip> (also called the index) is where you deliberately place changes you want to include in your next commit. Think of it as composing a draft. You might have changed five files, but you only want to commit three of them because they're related. You add exactly those three and leave the others out. This gives you precise control over what goes into each commit.
-            </LectureP>
-            <LectureP>
-                The <LectureTerm>repository</LectureTerm> is the permanent record — the <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code> folder inside your project. Every time you commit, a snapshot of everything in the staging area is saved permanently with a unique ID, timestamp, your name, and a message. That history never changes.
+                Your program already uses a stack. Every time Python calls a function, it pushes a <LectureTerm>stack frame</LectureTerm> onto the <LectureTip tip="The runtime stack that tracks function calls. Each call pushes a frame (local variables + return address); each return pops one. Overflow causes RecursionError in Python.">call stack</LectureTip> — containing the function's local variables, parameters, and the return address. When the function returns, the frame is popped. This is why recursion works: each recursive call adds a frame, and each return removes one. It is also why infinite recursion crashes with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">RecursionError: maximum recursion depth exceeded</code> — the stack ran out of space.
             </LectureP>
 
             <LectureCallout type="tip">
-                The staging area trips up a lot of beginners. Why not just commit directly from the working directory? Because real changes are messy. You might fix a bug AND add a feature at the same time. The staging area lets you split that into two clean, separate commits — one for the bug fix, one for the feature — even though you made both changes at once.
+                Real-world stacks: your browser's back button is a stack of visited pages. An undo system (Ctrl+Z) is a stack of actions. Expression parsers use a stack to match opening and closing brackets. Any time you need "most recent first," think stack.
             </LectureCallout>
 
-            {/* ── 03 SETTING UP GIT ───────────────────────────────────────────── */}
-            <LectureSectionHeading number="03" title="Setting Up Git" />
+            {/* ── 03 QUEUES ────────────────────────────────────────────────── */}
+            <LectureSectionHeading number="03" title="Queues — First In, First Out" />
 
             <LectureP>
-                Before you do anything else, tell Git who you are. Every commit you make will be stamped with this information. Run these two commands once on any new machine:
+                A <LectureTip tip="FIFO — First In, First Out. Like a line at a store. enqueue, dequeue, peek, is_empty — all O(1) with deque. Used for BFS, task scheduling, message queues.">queue</LectureTip> works like a line at a coffee shop: the first person in line is the first person served — <LectureTip tip="First In, First Out. Items are processed in the order they arrive. Think: checkout line, print queue, BFS traversal.">FIFO</LectureTip> (First In, First Out). Like stacks, queues have four core operations, all O(1) when implemented correctly:
             </LectureP>
-            <TerminalBlock
+            <LectureP>
+                <strong className="text-foreground">enqueue</strong> adds an element to the back. <strong className="text-foreground">dequeue</strong> removes and returns the front element. <strong className="text-foreground">peek</strong> returns the front element without removing it. <strong className="text-foreground">is_empty</strong> checks whether the queue has any elements.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="queue.py — queue implementation using collections.deque"
                 lines={[
-                    { comment: 'set your name — this appears in every commit you make', cmd: 'git config --global user.name "Your Name"' },
-                    { comment: 'set your email — should match your GitHub account', cmd: 'git config --global user.email "you@example.com"' },
-                    { comment: 'verify your config looks right', cmd: 'git config --list' },
+                    'from collections import deque',
+                    '',
+                    '',
+                    'class Queue:',
+                    '    def __init__(self):',
+                    '        self._items = deque()',
+                    '',
+                    '    def enqueue(self, val):',
+                    '        self._items.append(val)',
+                    '',
+                    '    def dequeue(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("dequeue from empty queue")',
+                    '        return self._items.popleft()',
+                    '',
+                    '    def peek(self):',
+                    '        if self.is_empty():',
+                    '            raise IndexError("peek at empty queue")',
+                    '        return self._items[0]',
+                    '',
+                    '    def is_empty(self):',
+                    '        return len(self._items) == 0',
+                    '',
+                    '    def __len__(self):',
+                    '        return len(self._items)',
+                    '',
+                    '',
+                    '# Usage',
+                    'q = Queue()',
+                    'q.enqueue("Alice")',
+                    'q.enqueue("Bob")',
+                    'q.enqueue("Charlie")',
+                    'print(q.dequeue())  # "Alice" — first in, first out',
+                    'print(q.peek())     # "Bob" — next in line',
                 ]}
             />
-            <LectureP>
-                The <LectureCmd tip="--global flag: applies this setting to all Git repositories on your machine, not just the current one. Stored in ~/.gitconfig. Without --global, the setting only applies to the current repo.">--global</LectureCmd> flag stores these in <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">~/.gitconfig</code> so they apply to every project. You only need to do this once per machine.
-            </LectureP>
 
-            {/* ── 04 YOUR FIRST REPOSITORY ────────────────────────────────────── */}
-            <LectureSectionHeading number="04" title="Your First Repository" />
-
-            <LectureP>
-                Let's create a project from scratch and track it with Git. Open your terminal and follow along — every command builds on the last.
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'create a new project directory and navigate into it', cmd: 'mkdir git-practice && cd git-practice' },
-                    { comment: 'initialize a git repository — this creates the .git folder', cmd: 'git init' },
-                    { comment: 'confirm the .git folder was created', cmd: 'ls -la' },
-                ]}
-            />
-            <LectureP>
-                <LectureCmd tip="git init — initializes a new Git repository in the current directory. Creates a hidden .git folder that stores all version history, configuration, and internal data. Only run this once per project.">git init</LectureCmd> creates a hidden <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.git</code> folder. That folder is the entire repository — it contains every commit, every branch, every piece of history. If you delete it, you lose all version history. Don't touch it directly.
-            </LectureP>
-
-            <LectureSubHeading title="Checking status" />
-            <LectureP>
-                <LectureCmd tip="git status — shows the current state of your working directory and staging area. Tells you which files are untracked, staged, or modified. Run this constantly — it's your orientation tool.">git status</LectureCmd> is the command you'll run more than any other. It tells you exactly what's going on right now — what's changed, what's staged, what's not tracked. Get in the habit of running it before and after everything.
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'see the current state of the repository', cmd: 'git status' },
-                    { comment: 'create a file so we have something to track', cmd: 'touch README.md' },
-                    { comment: 'run status again — notice README.md shows as untracked', cmd: 'git status' },
-                ]}
-            />
-
-            <LectureSubHeading title="Staging and committing" />
-            <LectureP>
-                Now let's move that file through the three areas. First we stage it with <LectureCmd tip="git add — moves changes from the working directory to the staging area. Does not save anything permanently — that happens when you commit.">git add</LectureCmd>, then commit it permanently with <LectureCmd tip="git commit — takes everything in the staging area and saves it as a permanent snapshot. Each commit has a unique SHA hash, your name, email, timestamp, and message.">git commit</LectureCmd>.
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'stage README.md', cmd: 'git add README.md' },
-                    { comment: 'run status — notice README.md is now "staged for commit"', cmd: 'git status' },
-                    { comment: 'commit it with a descriptive message', cmd: 'git commit -m "Initial commit: add README"' },
-                    { comment: 'run status again — working tree is now clean', cmd: 'git status' },
-                ]}
-            />
-            <LectureCallout type="tip">
-                <LectureCmd tip="git add . — stages ALL changes in the current directory and all subdirectories. Convenient, but run git status first so you know exactly what you're staging.">git add .</LectureCmd> stages everything at once. The dot means "current directory and everything inside it." Always run <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git status</code> first so you know what you're about to stage.
+            <LectureCallout type="warning">
+                Do not use <LectureTip code tip="Removes the first element of a list. O(n) because every remaining element must shift left by one index. Never use as a queue — use deque.popleft() instead." warn>list.pop(0)</LectureTip> as a queue — it is O(n) because every remaining element must shift left by one index. Python's <LectureTip code tip="Double-ended queue from collections. O(1) append and popleft. Backed by a doubly-linked list. The correct way to implement queues in Python.">collections.deque</LectureTip> gives O(1) <LectureTip code tip="Remove and return the leftmost element in O(1). The correct dequeue operation. list.pop(0) does the same thing but in O(n).">popleft()</LectureTip> using a doubly-linked list internally. Always use <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">deque</code> for queues.
             </LectureCallout>
-            <LectureP>
-                The <LectureCmd tip="-m flag for git commit: message. Lets you write the commit message inline. Without -m, Git opens a text editor (usually vim) for you to write a longer message.">-m</LectureCmd> flag lets you write your commit message inline. A good commit message describes what changed and why — not how. "Fix login bug" is good. "Changed line 47" is useless. Your future self and teammates will read these when something breaks.
-            </LectureP>
-
-            {/* ── 05 VIEWING HISTORY ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="05" title="Viewing History" />
 
             <LectureP>
-                Every commit is stored permanently. <LectureCmd tip="git log — shows the commit history for the current branch in reverse chronological order. Each entry shows the commit hash, author, date, and message.">git log</LectureCmd> lets you scroll through that history.
+                Real-world queues: task schedulers process jobs in order. BFS uses a queue to explore level-by-level (you will see this later in this lecture). Print queues, message queues (Kafka, RabbitMQ), and HTTP request pipelines are all FIFO structures.
             </LectureP>
-            <TerminalBlock
+
+            {/* ── 04 TREES FROM FIRST PRINCIPLES ───────────────────────────── */}
+            <LectureSectionHeading number="04" title="Trees From First Principles" />
+
+            <LectureP>
+                A <LectureTip tip="Hierarchical data structure with a root node at the top. Each node has zero or more children. No cycles. File systems, the HTML DOM, and JSON are all trees.">tree</LectureTip> is a non-linear data structure where elements are arranged in a hierarchy. Every tree has a single <LectureTerm>root</LectureTerm> node at the top. Each node can have zero or more <LectureTerm>children</LectureTerm>. A node with no children is called a <LectureTerm>leaf</LectureTerm>. The connection between a parent and child is called an <LectureTerm>edge</LectureTerm>.
+            </LectureP>
+
+            <LectureSubHeading title="Key terminology" />
+
+            <LectureP>
+                The <LectureTerm>depth</LectureTerm> of a node is how many edges separate it from the root (the root has depth 0). The <LectureTerm>height</LectureTerm> of a tree is the depth of its deepest leaf. A <LectureTerm>subtree</LectureTerm> is a node plus all of its descendants — every node in a tree is the root of its own subtree. Nodes that share the same parent are <LectureTerm>siblings</LectureTerm>.
+            </LectureP>
+
+            <LectureSubHeading title="Binary trees" />
+
+            <LectureP>
+                A <LectureTerm>binary tree</LectureTerm> is a tree where every node has at most two children: a <strong className="text-foreground">left</strong> child and a <strong className="text-foreground">right</strong> child. Binary trees are the most commonly tested tree structure in interviews. Not all trees are binary — file systems are n-ary trees (folders contain any number of subfolders), the HTML DOM is a tree where each element can have many children, and JSON is a tree-structured format.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="tree_node.py — binary tree node"
                 lines={[
-                    { comment: 'view full commit history', cmd: 'git log' },
-                    { comment: 'compact one-line view — great for getting an overview', cmd: 'git log --oneline' },
-                    { comment: 'one-line view with a visual branch graph', cmd: 'git log --oneline --graph --all' },
+                    'class TreeNode:',
+                    '    def __init__(self, val):',
+                    '        self.val = val',
+                    '        self.left = None',
+                    '        self.right = None',
+                    '',
+                    '',
+                    '# Build a small tree by hand:',
+                    '#        5',
+                    '#       / \\',
+                    '#      3    8',
+                    '#     / \\',
+                    '#    1   4',
+                    'root = TreeNode(5)',
+                    'root.left = TreeNode(3)',
+                    'root.right = TreeNode(8)',
+                    'root.left.left = TreeNode(1)',
+                    'root.left.right = TreeNode(4)',
                 ]}
             />
-            <LectureP>
-                Each entry shows a <LectureTermWithTip tip="A unique SHA-1 checksum (40 hex characters) that identifies that exact commit. Git uses it to reference commits; --oneline shortens it to 7 characters.">commit hash</LectureTermWithTip> — a 40-character string like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">a3f92c1...</code>. This is a unique identifier for that exact snapshot. You'll use these hashes to reference specific commits when going back in time or comparing changes. The <LectureCmd tip="--oneline flag for git log: shows each commit as a single line with a shortened hash and message. Far more readable for most purposes.">--oneline</LectureCmd> flag shortens them to 7 characters, which is usually enough.
-            </LectureP>
+
             <LectureCallout type="info">
-                <LectureCmd tip="git log --oneline --graph --all: shows all branches as an ASCII graph. --all includes branches you haven't checked out. Best command for understanding what's happening across multiple branches.">--graph --all</LectureCmd> is extremely useful once you start branching. It draws the commit history as a tree in your terminal so you can see exactly where branches diverged and merged.
+                Trees are everywhere: your file system is a tree (directories contain subdirectories). The HTML DOM is a tree. Databases use B-trees for indexing. Compilers parse code into an Abstract Syntax Tree (AST). JSON and XML are tree-structured. When you see nested, hierarchical relationships — think tree.
             </LectureCallout>
 
-            {/* ── 06 BRANCHING ────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="06" title="Branching" />
+            {/* ── 05 BINARY SEARCH TREES ────────────────────────────────────── */}
+            <LectureSectionHeading number="05" title="Binary Search Trees" />
 
             <LectureP>
-                A <LectureTermWithTip tip="A movable pointer to a commit. Lets you work on a feature or fix in isolation; when ready, you merge the branch back into main.">branch</LectureTermWithTip> is an independent line of development. Think of it as a parallel universe for your code. The default branch is called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. When you want to work on a new feature or fix a bug, you create a new branch. Your changes live there, completely isolated from <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, until you decide to merge them in.
+                A <LectureTip tip="A binary tree where left < parent < right for every node. Enables O(log n) search, insert, and delete — each step eliminates half the remaining values.">Binary Search Tree</LectureTip> (BST) is a binary tree with one critical rule: for every node, all values in the left subtree are <strong className="text-foreground">smaller</strong> and all values in the right subtree are <strong className="text-foreground">larger</strong>. This invariant turns search from O(n) to O(log n) — at each node you eliminate half the remaining values, just like binary search on a sorted array.
             </LectureP>
+
+            <LectureSubHeading title="Insertion" />
+
             <LectureP>
-                This is how every professional team works. Nobody commits directly to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. You branch, work, and merge — so that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> always represents a working, stable version of the code.
+                To insert a value, start at the root and compare. If the value is less than the current node, go left. If greater, go right. When you reach <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>, that is where the new node goes. This is naturally recursive: each step reduces the problem to "insert into the left or right subtree."
             </LectureP>
-            <TerminalBlock
+
+            <LectureSubHeading title="Search" />
+
+            <LectureP>
+                Search follows the exact same pattern: compare, go left or right, repeat. If you reach <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">None</code>, the value is not in the tree. If you find a match, return it. The BST invariant guarantees you never need to search both subtrees.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="bst.py — binary search tree with insert and search"
                 lines={[
-                    { comment: 'see all branches (* marks the one you are on)', cmd: 'git branch' },
-                    { comment: 'create a new branch', cmd: 'git branch feature/add-homepage' },
-                    { comment: 'switch to that branch', cmd: 'git checkout feature/add-homepage' },
-                    { comment: 'shortcut: create AND switch in one command (use this)', cmd: 'git checkout -b feature/add-homepage' },
+                    'class TreeNode:',
+                    '    def __init__(self, val):',
+                    '        self.val = val',
+                    '        self.left = None',
+                    '        self.right = None',
+                    '',
+                    '',
+                    'class BST:',
+                    '    def __init__(self):',
+                    '        self.root = None',
+                    '',
+                    '    def insert(self, val):',
+                    '        if self.root is None:',
+                    '            self.root = TreeNode(val)',
+                    '        else:',
+                    '            self._insert(self.root, val)',
+                    '',
+                    '    def _insert(self, node, val):',
+                    '        if val < node.val:',
+                    '            if node.left is None:',
+                    '                node.left = TreeNode(val)',
+                    '            else:',
+                    '                self._insert(node.left, val)',
+                    '        else:',
+                    '            if node.right is None:',
+                    '                node.right = TreeNode(val)',
+                    '            else:',
+                    '                self._insert(node.right, val)',
+                    '',
+                    '    def search(self, val):',
+                    '        return self._search(self.root, val)',
+                    '',
+                    '    def _search(self, node, val):',
+                    '        if node is None:',
+                    '            return False',
+                    '        if val == node.val:',
+                    '            return True',
+                    '        if val < node.val:',
+                    '            return self._search(node.left, val)',
+                    '        return self._search(node.right, val)',
+                    '',
+                    '',
+                    '# Usage',
+                    'tree = BST()',
+                    'for v in [5, 2, 8, 1, 3]:',
+                    '    tree.insert(v)',
+                    '',
+                    'print(tree.search(3))   # True',
+                    'print(tree.search(7))   # False',
                 ]}
             />
+
+            <LectureCallout type="warning">
+                If you insert already-sorted data (1, 2, 3, 4, 5), the BST degrades into a linked list — every node has only a right child. Search becomes O(n) instead of O(log n). Self-balancing BSTs (AVL trees, Red-Black trees) automatically restructure after insertion to prevent this. They are beyond this course, but databases and language standard libraries use them internally.
+            </LectureCallout>
+
+            {/* ── 06 TREE TRAVERSALS ────────────────────────────────────────── */}
+            <LectureSectionHeading number="06" title="Tree Traversals" />
+
             <LectureP>
-                <LectureCmd tip="git branch: lists all local branches. With a name argument, creates a new branch. Does not switch to it.">git branch</LectureCmd> creates and lists branches. <LectureCmd tip="git checkout: switches to a different branch or commit. Moving between branches changes the files in your working directory to match that branch's state.">git checkout</LectureCmd> switches between them. The <LectureCmd tip="-b flag for git checkout: create and switch in one step. Equivalent to running git branch then git checkout, but faster. This is what you'll use in practice.">-b</LectureCmd> flag creates and switches in one step — which is what you'll use almost every time.
+                <LectureTip tip="Visiting every node in a tree exactly once. Four standard orders: in-order (sorted for BST), pre-order (copy/serialize), post-order (delete/cleanup), level-order (BFS).">Traversal</LectureTip> means visiting every node in the tree exactly once. There are four standard traversals, and each produces a different ordering. The first three are depth-first (they go deep before going wide); the fourth is breadth-first (level by level).
             </LectureP>
+
+            <LectureSubHeading title="In-order (left → node → right)" />
+            <LectureP>
+                Visit the left subtree, then the current node, then the right subtree. For a BST, in-order traversal always produces values in <strong className="text-foreground">sorted ascending order</strong>. This is the most important traversal for BSTs and the one the Activity will ask you to implement.
+            </LectureP>
+
+            <LectureSubHeading title="Pre-order (node → left → right)" />
+            <LectureP>
+                Visit the current node first, then the left subtree, then the right subtree. Pre-order is useful for <strong className="text-foreground">copying or serializing</strong> a tree — recording values in pre-order lets you reconstruct the exact tree shape later.
+            </LectureP>
+
+            <LectureSubHeading title="Post-order (left → right → node)" />
+            <LectureP>
+                Visit both subtrees first, then the current node. Post-order is useful for <strong className="text-foreground">deletion or cleanup</strong> — you process all children before the parent, ensuring nothing references deleted data.
+            </LectureP>
+
+            <LectureSubHeading title="Level-order / BFS (breadth-first)" />
+            <LectureP>
+                Visit all nodes at depth 0, then all at depth 1, then depth 2, and so on. This is a breadth-first traversal and it uses a <strong className="text-foreground">queue</strong>: enqueue the root, then repeatedly dequeue a node, process it, and enqueue its children.
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="traversals.py — all four tree traversals"
+                lines={[
+                    'from collections import deque',
+                    '',
+                    '',
+                    'def inorder(node):',
+                    '    """Left -> Node -> Right. Produces sorted order for BST."""',
+                    '    if node is None:',
+                    '        return []',
+                    '    return inorder(node.left) + [node.val] + inorder(node.right)',
+                    '',
+                    '',
+                    'def preorder(node):',
+                    '    """Node -> Left -> Right. Good for copying/serializing."""',
+                    '    if node is None:',
+                    '        return []',
+                    '    return [node.val] + preorder(node.left) + preorder(node.right)',
+                    '',
+                    '',
+                    'def postorder(node):',
+                    '    """Left -> Right -> Node. Good for deletion/cleanup."""',
+                    '    if node is None:',
+                    '        return []',
+                    '    return postorder(node.left) + postorder(node.right) + [node.val]',
+                    '',
+                    '',
+                    'def level_order(root):',
+                    '    """Level by level using a queue (BFS)."""',
+                    '    if root is None:',
+                    '        return []',
+                    '    result = []',
+                    '    queue = deque([root])',
+                    '    while queue:',
+                    '        node = queue.popleft()',
+                    '        result.append(node.val)',
+                    '        if node.left:',
+                    '            queue.append(node.left)',
+                    '        if node.right:',
+                    '            queue.append(node.right)',
+                    '    return result',
+                    '',
+                    '',
+                    '# Given BST with inserts [5, 2, 8, 1, 3]:',
+                    '#        5',
+                    '#       / \\',
+                    '#      2    8',
+                    '#     / \\',
+                    '#    1   3',
+                    'print(inorder(tree.root))      # [1, 2, 3, 5, 8]  — sorted!',
+                    'print(preorder(tree.root))     # [5, 2, 1, 3, 8]',
+                    'print(postorder(tree.root))    # [1, 3, 2, 8, 5]',
+                    'print(level_order(tree.root))  # [5, 2, 8, 1, 3]  — level by level',
+                ]}
+            />
+
             <LectureCallout type="tip">
-                Branch naming conventions matter on real teams. Common patterns: <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">feature/thing-you-are-building</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">fix/bug-you-are-fixing</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">chore/maintenance-task</code>. Consistent names make pull requests and history much easier to read.
+                The key insight: in-order traversal of a BST always produces sorted output. This is why BSTs power database indexes — an in-order scan gives you all records in sorted order without a separate sort step. When an interviewer asks you to "print a BST in sorted order," the answer is always in-order traversal.
             </LectureCallout>
 
-            <LectureSubHeading title="Making changes on a branch" />
+            {/* ── 07 BFS VS DFS ─────────────────────────────────────────────── */}
+            <LectureSectionHeading number="07" title="BFS vs. DFS — Choosing the Right One" />
+
             <LectureP>
-                Let's make a commit on this branch, switch back to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and see that <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code> is unchanged. This is the key thing to internalize — branches are fully isolated.
+                BFS and DFS are the two fundamental traversal strategies. They apply to trees, graphs, and any structure you can explore by "visiting neighbors." The choice between them is determined by the <strong className="text-foreground">shape of the answer</strong> you are looking for.
             </LectureP>
-            <TerminalBlock
+
+            <BfsDfsDiagram />
+
+            <LectureP>
+                <strong className="text-foreground">Use BFS</strong> when you need the <em>shortest</em> or <em>nearest</em> something — shortest path, minimum depth, nearest node satisfying a condition. BFS explores level by level, so the first match it finds is guaranteed to be the closest.
+            </LectureP>
+            <LectureP>
+                <strong className="text-foreground">Use DFS</strong> when you need to explore <em>all possibilities</em> or check if <em>any path</em> satisfies a condition — "does a path from root to leaf sum to target?", "enumerate all combinations." DFS is also the natural choice when the problem is recursive: "solve the left subtree, solve the right subtree, combine results."
+            </LectureP>
+
+            <CodeBlock language="python"
+                title="bfs_vs_dfs.py — same tree, different traversal order"
                 lines={[
-                    { comment: 'make sure you are on the feature branch', cmd: 'git checkout feature/add-homepage' },
-                    { comment: 'create a new file', cmd: 'touch index.html' },
-                    { comment: 'stage and commit it', cmd: 'git add index.html && git commit -m "Add homepage HTML file"' },
-                    { comment: 'switch back to main', cmd: 'git checkout main' },
-                    { comment: 'list files — index.html is gone! It only exists on the feature branch', cmd: 'ls' },
+                    'from collections import deque',
+                    '',
+                    '',
+                    'def dfs_iterative(root):',
+                    '    """DFS using an explicit stack (pre-order)."""',
+                    '    if root is None:',
+                    '        return []',
+                    '    result = []',
+                    '    stack = [root]',
+                    '    while stack:',
+                    '        node = stack.pop()',
+                    '        result.append(node.val)',
+                    '        if node.right:              # push right first so left',
+                    '            stack.append(node.right) # is processed first',
+                    '        if node.left:',
+                    '            stack.append(node.left)',
+                    '    return result',
+                    '',
+                    '',
+                    'def bfs(root):',
+                    '    """BFS using a queue (level-order)."""',
+                    '    if root is None:',
+                    '        return []',
+                    '    result = []',
+                    '    queue = deque([root])',
+                    '    while queue:',
+                    '        node = queue.popleft()',
+                    '        result.append(node.val)',
+                    '        if node.left:',
+                    '            queue.append(node.left)',
+                    '        if node.right:',
+                    '            queue.append(node.right)',
+                    '    return result',
+                    '',
+                    '',
+                    '# Same tree — different order',
+                    'print(dfs_iterative(tree.root))  # [5, 2, 1, 3, 8] — depth first',
+                    'print(bfs(tree.root))            # [5, 2, 8, 1, 3] — breadth first',
                 ]}
             />
-            <LectureP>
-                When you switch back to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">index.html</code> disappears from your file system. It hasn't been deleted — it exists on the feature branch. Git literally changes the files in your working directory to match whichever branch you're on. This feels magical the first time you see it.
-            </LectureP>
 
-            {/* ── 07 MERGING ──────────────────────────────────────────────────── */}
-            <LectureSectionHeading number="07" title="Merging" />
-
-            <LectureP>
-                When your feature is ready, you <LectureTermWithTip tip="Integrate another branch's commits into the current branch. Often a fast-forward (just move the pointer) or a merge commit if histories diverged.">merge</LectureTermWithTip> it back into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. The rule is: <strong className="text-foreground">you merge into the branch you're currently on.</strong>
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'make sure you are on main (you are merging INTO main)', cmd: 'git checkout main' },
-                    { comment: 'merge the feature branch into main', cmd: 'git merge feature/add-homepage' },
-                    { comment: 'list files — index.html is now here on main', cmd: 'ls' },
-                    { comment: 'delete the feature branch now that it is merged', cmd: 'git branch -d feature/add-homepage' },
-                ]}
-            />
-            <LectureP>
-                <LectureCmd tip="git merge: integrates the history of one branch into the current branch. If the branches haven't diverged, Git does a 'fast-forward' and simply moves the pointer. If they've diverged, Git creates a new merge commit.">git merge</LectureCmd> brings the feature branch's commits into main. <LectureCmd tip="git branch -d: deletes a branch safely — it refuses to delete a branch that hasn't been fully merged. Use -D (capital) to force-delete.">git branch -d</LectureCmd> cleans up the now-redundant branch.
-            </LectureP>
-
-            <LectureSubHeading title="Merge conflicts" />
-            <LectureP>
-                A <LectureTermWithTip tip="Git stops and asks you to choose when the same lines were changed differently in two branches. You edit the file to remove conflict markers and keep the desired code.">merge conflict</LectureTermWithTip> happens when two branches have changed the same part of the same file in different ways. Git doesn't know which version to keep, so it stops and asks you to decide. This sounds scary but it's completely normal — it happens on every active codebase.
-            </LectureP>
-            <LectureP>
-                When a conflict occurs, Git marks the conflicting sections directly inside the file:
-            </LectureP>
-
-            <ConflictMarkersBlock />
-
-            <LectureP>
-                Everything between <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'<<<<<<< HEAD'}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'======='}</code> is what's on your current branch. Everything between <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'======='}</code> and <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">{'>>>>>>>'}</code> is what's coming in from the branch you're merging. To resolve it, edit the file to contain exactly what you want — delete all the conflict markers — then stage and commit.
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'after manually editing the conflict in a text editor...', cmd: 'git add index.html' },
-                    { comment: 'commit to complete the merge', cmd: 'git commit -m "Resolve merge conflict in index.html"' },
-                ]}
-            />
             <LectureCallout type="tip">
-                VS Code has a built-in merge conflict resolver that highlights both versions visually and lets you click "Accept Current", "Accept Incoming", or "Accept Both." In practice most developers use their editor rather than resolving conflicts in raw text.
+                Every recursive solution is implicitly DFS — it uses the call stack. Converting recursive DFS to iterative DFS means replacing the call stack with an explicit <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">stack</code> data structure. The logic is identical; only the mechanism changes. This is a common interview follow-up: "can you do it without recursion?"
             </LectureCallout>
 
-            {/* ── 08 REMOTE REPOSITORIES ──────────────────────────────────────── */}
-            <LectureSectionHeading number="08" title="Remote Repositories & GitHub" />
-
-            <LectureP>
-                Everything so far has been local — on your machine only. A <LectureTermWithTip tip="A named URL for another copy of the repo (e.g. on GitHub). 'origin' is the default name for the primary remote you push to and pull from.">remote</LectureTermWithTip> is a version of your repository stored somewhere else, typically GitHub. This is how you back up your work and collaborate with others.
-            </LectureP>
-            <LectureP>
-                Go to <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">github.com</code>, create a new empty repository called <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git-practice</code>, then come back to your terminal. GitHub will give you a URL like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">https://github.com/yourusername/git-practice.git</code>.
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'connect your local repo to GitHub (paste your URL)', cmd: 'git remote add origin https://github.com/yourusername/git-practice.git' },
-                    { comment: 'verify the remote was added', cmd: 'git remote -v' },
-                    { comment: 'push your local commits to GitHub for the first time', cmd: 'git push -u origin main' },
-                ]}
-            />
-            <LectureP>
-                <LectureCmd tip="git remote add: registers a remote repository with a name. 'origin' is the conventional name for your primary remote — just a nickname for the URL. You can have multiple remotes with different names.">git remote add origin</LectureCmd> gives your remote a nickname. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">origin</code> is the conventional name — every project uses it. <LectureCmd tip="git push: uploads your local commits to the remote. -u sets the upstream tracking reference so future pushes only need 'git push' with no arguments.">git push</LectureCmd> uploads your commits. The <LectureCmd tip="-u flag for git push: sets the upstream tracking branch. After doing this once, you can just type 'git push' and Git knows where to send it.">-u</LectureCmd> flag sets a default so future pushes only need <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">git push</code>.
-            </LectureP>
-
-            <LectureCallout type="warning">
-                Never <LectureCmd tip="git push --force: overwrites the remote branch with your local version. Destroys other people's commits if they've pushed in the meantime. Only use on branches you own and never on shared main." warn>git push --force</LectureCmd> on a shared branch like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. It rewrites remote history and can erase teammates' work. Use force push only on personal feature branches, and only when you're sure no one else has pushed to them.
+            <LectureCallout type="info">
+                Trees are a special case of a more general structure called a <LectureTip tip="Nodes connected by edges. Unlike trees, cycles are allowed and any node can connect to any other. Social networks, road maps, and dependency systems are graphs.">graph</LectureTip>. In a graph, nodes can connect to any other nodes — not just parents and children — and cycles are allowed. Social networks, road maps, and dependency systems are all graphs. The same BFS and DFS strategies you learned above apply to graphs, with one addition: a "visited" set to prevent infinite loops on cycles. You will encounter graph algorithms in dedicated algorithms coursework and in later weeks of this course.
             </LectureCallout>
 
-            <LectureSubHeading title="The daily workflow" />
-            <LectureP>
-                Once your repo is on GitHub, the day-to-day loop looks like this:
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'pull down any changes your teammates pushed', cmd: 'git pull' },
-                    { comment: 'create a branch for your work', cmd: 'git checkout -b feature/my-feature' },
-                    { comment: '... do your work, edit files ...', cmd: '' },
-                    { comment: 'stage everything', cmd: 'git add .' },
-                    { comment: 'commit with a clear message', cmd: 'git commit -m "Add user authentication flow"' },
-                    { comment: 'push your branch to GitHub', cmd: 'git push origin feature/my-feature' },
-                ]}
-            />
-            <LectureP>
-                After pushing you'd go to GitHub and open a <LectureTerm>Pull Request</LectureTerm> — a proposal to merge your branch into <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>. Teammates review it, leave comments, and approve or request changes. When approved, it gets merged. This is the exact workflow used at every software company in the world.
-            </LectureP>
 
-            {/* ── 09 GOING BACK IN TIME ───────────────────────────────────────── */}
-            <LectureSectionHeading number="09" title="Going Back in Time" />
-
-            <LectureP>
-                One of the most powerful things about Git is the ability to recover from mistakes. There are several tools for this, each with different levels of permanence.
-            </LectureP>
-
-            <LectureSubHeading title="Undoing staged changes" />
-            <TerminalBlock
-                lines={[
-                    { comment: 'unstage a file (removes from staging, keeps changes on disk)', cmd: 'git restore --staged index.html' },
-                    { comment: 'discard ALL unstaged changes in a file (irreversible)', cmd: 'git restore index.html' },
-                ]}
-            />
-            <LectureCallout type="warning">
-                <LectureCmd tip="git restore (without --staged): discards uncommitted changes to a file and restores it to the last committed version. This cannot be undone — the changes are permanently gone." warn>git restore</LectureCmd> without <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">--staged</code> permanently discards your uncommitted changes. There is no undo. Use it carefully.
-            </LectureCallout>
-
-            <LectureSubHeading title="Viewing and reverting commits" />
-            <TerminalBlock
-                lines={[
-                    { comment: 'see what changed in the last commit', cmd: 'git show HEAD' },
-                    { comment: 'create a new commit that undoes a previous commit — replace a3f92c1 with your actual commit hash from git log', cmd: 'git revert a3f92c1' },
-                    { comment: 'view the reflog — a record of every action even after resets', cmd: 'git reflog' },
-                ]}
-            />
-            <LectureP>
-                <LectureCmd tip="git revert: creates a new commit that is the exact inverse of a previous commit. The original commit stays in history — nothing is rewritten. This is the safe way to undo changes on a shared branch because it doesn't alter history.">git revert</LectureCmd> is the safe way to undo a commit on a shared branch. It creates a new commit that undoes the changes — the original stays in history unchanged. <LectureCmd tip="git reflog: logs every single thing HEAD has pointed to, including checkouts, merges, resets, and commits. Even if you accidentally delete commits with a reset, the reflog lets you find the hashes and recover them.">git reflog</LectureCmd> is your emergency recovery tool — even if you accidentally lose commits with a reset, it almost always lets you get them back.
-            </LectureP>
-
-            <LectureSubHeading title="Cleaning up history with rebase" />
-            <LectureP>
-                <LectureCmd tip="git rebase: rewrites commit history by replaying commits on top of a different base. Creates a linear history with no merge commits. Two main uses: updating a branch with the latest main, and squashing multiple commits into one clean commit.">git rebase</LectureCmd> rewrites commit history. The two most common uses are keeping a feature branch up to date with <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">main</code>, and squashing several messy commits into one clean one before merging.
-            </LectureP>
-            <TerminalBlock
-                lines={[
-                    { comment: 'update your feature branch with the latest changes from main', cmd: 'git rebase main' },
-                    { comment: 'squash the last 3 commits into one (interactive rebase)', cmd: 'git rebase -i HEAD~3' },
-                ]}
-            />
-            <LectureCallout type="warning">
-                <LectureCmd tip="git rebase rewrites history — it creates new commits with different hashes. Never rebase a branch that other people are working on. Rewriting shared history forces everyone to reconcile their work against a new timeline." warn>git rebase</LectureCmd> rewrites history — it creates brand new commits with different hashes. Never rebase a branch that's been pushed and shared with other people. Only rebase local branches or branches you know nobody else is using.
-            </LectureCallout>
-
-            {/* ── 10 THE .GITIGNORE ───────────────────────────────────────────── */}
-            <LectureSectionHeading number="10" title="The .gitignore File" />
-
-            <LectureP>
-                Not everything in your project should be tracked by Git. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">node_modules</code> can contain hundreds of thousands of files. <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.env</code> files contain secret API keys that should never be committed. Build artifacts, log files, OS-specific files like <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.DS_Store</code> — none of this belongs in your repository.
-            </LectureP>
-            <LectureP>
-                A <LectureTermWithTip tip="A file in the repo root listing glob patterns. Git ignores any file matching those patterns — e.g. node_modules/, .env, *.log. Never commit secrets.">.gitignore</LectureTermWithTip> file tells Git which files and patterns to ignore entirely. Create it in the root of your project:
-            </LectureP>
-            <TerminalBlock lines={[{ comment: 'create the gitignore file', cmd: 'touch .gitignore' }]} />
-
-            <LectureP>
-                Open it in a text editor and add patterns — one per line. Here's what a typical Node.js project's <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> looks like:
-            </LectureP>
-
-            <div className="my-6 rounded-xl overflow-hidden border border-zinc-700 font-mono text-xs">
-                <div className="bg-zinc-800 px-4 py-2 text-zinc-400 text-xs border-b border-zinc-700 select-none">
-                    .gitignore
-                </div>
-                <div className="bg-zinc-950 px-5 py-4 space-y-1 select-none">
-                    <p className="text-zinc-500"># Dependencies</p>
-                    <p className="text-emerald-400">node_modules/</p>
-                    <p className="text-zinc-500 mt-2"># Environment variables — never commit secrets</p>
-                    <p className="text-emerald-400">.env</p>
-                    <p className="text-emerald-400">.env.local</p>
-                    <p className="text-zinc-500 mt-2"># Build output</p>
-                    <p className="text-emerald-400">dist/</p>
-                    <p className="text-emerald-400">build/</p>
-                    <p className="text-zinc-500 mt-2"># macOS system files</p>
-                    <p className="text-emerald-400">.DS_Store</p>
-                    <p className="text-zinc-500 mt-2"># Logs</p>
-                    <p className="text-emerald-400">*.log</p>
-                </div>
-            </div>
-
-            <LectureCallout type="warning">
-                If you accidentally commit a secret like an API key, changing your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> afterwards does not remove it from history. Git history is permanent — the key is still retrievable in old commits. You must <strong className="text-foreground">revoke and rotate the key immediately</strong>. Add your <code className="text-xs bg-muted px-1.5 py-0.5 rounded border">.gitignore</code> before your first commit.
-            </LectureCallout>
-
-            {/* ── 11 QUICK REFERENCE ──────────────────────────────────────────── */}
-            <LectureSectionHeading number="11" title="Quick Reference" />
-
-            <LectureP>
-                Everything you need in one place. Come back to this whenever you're unsure which command to reach for.
-            </LectureP>
-
-            <QuickReference />
-
-            <LectureFooterNav
-                prev={{
-                    label: 'The Linux Gauntlet',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-1/activity'),
-                }}
-                next={{
-                    label: 'GitHub, Agile & Project Management',
-                    onClick: () => navigate('/classes/introduction-to-fundamentals/week-2/lecture-2'),
-                }}
-            />
         </LectureLayout>
     );
 }
