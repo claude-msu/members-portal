@@ -11,6 +11,7 @@ import {
     type FundamentalsWeekAccent,
 } from './weeks';
 
+// Week index follows club semester (Sunday week 0, then Sun–Sat weeks 1–12); getCurrent() clamps to published weeks below.
 type Session = FundamentalsSessionData;
 
 // ─── Session Card ─────────────────────────────────────────────────────────────
