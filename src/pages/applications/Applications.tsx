@@ -10,6 +10,12 @@ import { Plus, Eye, Calendar, Briefcase, BookOpen, FileCode, ChevronDown, Chevro
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ApplicationCreateModal } from '@/components/modals/ApplicationCreateModal';
 import { Input } from '@/components/ui/input';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import { canOpenApplicationForm, getNextSemesterStartIso } from '@/lib/semester';
 import type { ApplicationWithProfile, ApplicationGroup } from '@/contexts/AuthContext';
 
 const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCreateModal?: boolean }) => {
@@ -19,12 +25,38 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
   const location = useLocation();
   const queryClient = useQueryClient();
   const openFromRoute = location.pathname === '/applications/new';
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(openCreateModalProp || openFromRoute);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(!!openCreateModalProp);
+  const [applyGateReady, setApplyGateReady] = useState(false);
+  const [canApply, setCanApply] = useState(false);
+  const [nextSemesterStartIso, setNextSemesterStartIso] = useState<string | null>(null);
 
-  // Sync modal open state when landing on /applications/new (e.g. from MemberResourceGate)
   useEffect(() => {
-    if (openFromRoute) setIsCreateModalOpen(true);
-  }, [openFromRoute]);
+    let cancelled = false;
+    void Promise.all([canOpenApplicationForm(), getNextSemesterStartIso()]).then(([open, next]) => {
+      if (cancelled) return;
+      setCanApply(open);
+      setNextSemesterStartIso(next);
+      setApplyGateReady(true);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Open create modal from /applications/new only during the application window; otherwise leave the route.
+  useEffect(() => {
+    if (!applyGateReady || !openFromRoute) return;
+    if (canApply) {
+      setIsCreateModalOpen(true);
+    } else {
+      navigate('/applications', { replace: true });
+    }
+  }, [applyGateReady, openFromRoute, canApply, navigate]);
+
+  useEffect(() => {
+    if (!applyGateReady || !openCreateModalProp) return;
+    if (canApply) setIsCreateModalOpen(true);
+  }, [applyGateReady, openCreateModalProp, canApply]);
 
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
@@ -40,7 +72,12 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
   const [reviewReviewedCollapsed, setReviewReviewedCollapsed] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
 
-  const appsDisabled: boolean = false;
+  const applyButtonDisabled = !applyGateReady || !canApply;
+  const applicationClosedTooltip =
+    nextSemesterStartIso != null
+      ? `Application Week starts on ${new Date(nextSemesterStartIso).toLocaleDateString(undefined, { dateStyle: 'medium' })}.`
+      : 'Application Week has not started yet.';
+
 
   /** Build searchable string for an application (name, email, type, role, class/project name). */
   const getSearchableText = (app: ApplicationWithProfile): string => {
@@ -405,10 +442,34 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
           </p>
         </div>
         <div className={`flex gap-3 ${isMobile ? 'flex-col' : 'items-center'}`}>
-          <Button onClick={() => setIsCreateModalOpen(true)} disabled={appsDisabled} className={hasAnyApplicationsUnfiltered && !isMobile ? 'shrink-0' : ''}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Application
-          </Button>
+          {applyButtonDisabled ? (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className={hasAnyApplicationsUnfiltered && !isMobile ? 'inline-flex shrink-0' : 'inline-flex'}>
+                  <Button
+                    type="button"
+                    disabled
+                    className={hasAnyApplicationsUnfiltered && !isMobile ? 'shrink-0' : ''}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Application
+                  </Button>
+                </span>
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                <p>{applyGateReady ? applicationClosedTooltip : 'Checking application window…'}</p>
+              </TooltipContent>
+            </Tooltip>
+          ) : (
+            <Button
+              type="button"
+              onClick={() => setIsCreateModalOpen(true)}
+              className={hasAnyApplicationsUnfiltered && !isMobile ? 'shrink-0' : ''}
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              New Application
+            </Button>
+          )}
           {hasAnyApplicationsUnfiltered && (
             <div className={`relative ${isMobile ? "w-40" : "w-64"}`}>
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -434,10 +495,9 @@ const Applications = ({ openCreateModal: openCreateModalProp = false }: { openCr
         <Card className="mt-6">
           <CardContent className="pt-6">
             <p className="text-center text-muted-foreground">
-              {appsDisabled
-                ? 'Applications are currently closed. Please wait for Rush Week to submit an application.'
-                : 'No applications yet. Click "New Application" to get started.'
-              }
+              {applyGateReady && !canApply
+                ? 'Applications are only open Sunday–Wednesday during week zero before each term. Use the New Application button tooltip for the next term start when available.'
+                : 'No applications yet. When applications are open, use New Application to get started.'}
             </p>
           </CardContent>
         </Card>

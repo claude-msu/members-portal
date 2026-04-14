@@ -25,20 +25,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 
 import { WEEKS, getCurrent, type Question } from './weeks';
-
-// ─── Countdown (time until next Sunday 9:00am) ──────────────────────────────
-
-const getNextSunday = () => {
-    const now = new Date();
-    const day = now.getDay();
-    const daysUntilSunday = (7 - day) % 7 === 0 ? 7 : (7 - day) % 7;
-    const next = new Date(now);
-    next.setDate(now.getDate() + daysUntilSunday);
-    next.setHours(9, 0, 0, 0);
-    return next;
-};
-
-const NEXT_DROP = getNextSunday();
+import { getActiveSemesterStartIso, getNextDropDeadline } from '@/lib/semester';
 
 const DIFFICULTY_CONFIG = {
     easy: {
@@ -57,8 +44,9 @@ const DIFFICULTY_CONFIG = {
 
 // ─── Countdown Hook ──────────────────────────────────────────────────────────
 
-function useCountdown(target: Date) {
+function useCountdown(getTarget: () => Date) {
     const calc = useCallback(() => {
+        const target = getTarget();
         const diff = target.getTime() - Date.now();
         if (diff <= 0) return { days: 0, hours: 0, minutes: 0, seconds: 0, done: true };
         return {
@@ -68,7 +56,7 @@ function useCountdown(target: Date) {
             seconds: Math.floor((diff % 60000) / 1000),
             done: false,
         };
-    }, [target]);
+    }, [getTarget]);
 
     const [time, setTime] = useState(calc);
 
@@ -83,7 +71,24 @@ function useCountdown(target: Date) {
 // ─── Countdown (inline, tooltips only) ───────────────────────────────
 
 function CountdownInline() {
-    const countdown = useCountdown(NEXT_DROP);
+    const [startIso, setStartIso] = useState<string | null | undefined>(undefined);
+
+    useEffect(() => {
+        let cancelled = false;
+        void getActiveSemesterStartIso().then((iso) => {
+            if (!cancelled) setStartIso(iso);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const getTarget = useCallback(
+        () => getNextDropDeadline(startIso === undefined ? null : startIso, new Date()),
+        [startIso]
+    );
+
+    const countdown = useCountdown(getTarget);
 
     if (countdown.done) {
         return (

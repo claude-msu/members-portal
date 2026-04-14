@@ -1,3 +1,5 @@
+import { getCurrent as getSemesterWeek } from '@/lib/semester';
+
 /**
  * Represents a LeetCode-style coding question for the guide.
  *
@@ -23,7 +25,7 @@ export interface Question {
  * Week config and questions.
  *
  * Current week is determined by getCurrent() from the active semester (index.tsx).
- * Countdown is "time until next Sunday 9:00am" (then it resets).
+ * Countdown uses the next Sunday 9:00am club-time boundary from semester start (see getNextDropDeadline).
  *
  * @property number - The week number in the program (internal indexing, not rendered in title).
  * @property title - The display title for the week (no "Week N —" prefix).
@@ -2748,6 +2750,6 @@ Explanation: Because the new interval [4,8] overlaps with [3,5],[6,7],[8,10].
 export const WEEKS: WeekConfig[] = [WEEK1, WEEK2, WEEK3, WEEK4, WEEK5, WEEK6, WEEK7, WEEK8, WEEK9, WEEK10, WEEK11, WEEK12];
 
 export async function getCurrent(): Promise<number> {
-    const week = await import('@/lib/semester').then((m) => m.getCurrent());
+    const week = await getSemesterWeek();
     return Math.min(Math.max(week, 1), WEEKS.length);
 }
