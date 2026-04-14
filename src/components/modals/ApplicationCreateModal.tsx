@@ -45,19 +45,24 @@ interface ApplicationCreateModalProps {
 
 const BOARD_POSITIONS = [
   // E-Board
-  'President',
-  'Vice President',
-  'Treasury Chair',
-  'Technical Chair',
+  'President', // Hadi
+  'SVP',       // Ankur
+  'VP of Marketing', // Diego
+  'VP of Community', // Sparsh
+  'VP of Technical Operations', // ?
   // Board
-  'Project Director',
-  'Education Director',
-  'Marketing Director',
-  'Events Coordinator',
-  'Outreach Director',
-  'Social Director',
-  'Career Director',
-  'Secretary'
+  'Creative Director', // Iraj
+  'Content Director', // ?
+  'Outreach Director', // ?
+  'Outreach Officer', // Jack
+  'Workshop Director', // Daniel
+  'Events Director', // Yash
+  'Social Director', // Daler
+  'Program Director', // ?
+  'Project Director', // Jonathan
+  'Xcelerate Director', // Jason
+  'Treasurer', // Caleb
+  'Secretary', // Eera
 ];
 
 export const ApplicationCreateModal = ({
